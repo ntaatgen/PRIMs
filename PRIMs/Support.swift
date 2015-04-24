@@ -1,0 +1,97 @@
+//
+//  Support.swift
+//  act-r
+//
+//  Created by Niels Taatgen on 3/29/15.
+//  Copyright (c) 2015 Niels Taatgen. All rights reserved.
+//
+
+import Foundation
+
+// Global stuff
+
+func actrNoise(noise: Double) -> Double {
+    let rand = Double(Int(arc4random_uniform(100000-2)+1))/100000.0
+    return noise * log((1 - rand) / rand )
+}
+
+func isVariable(s: String) -> Bool {
+    return s.hasPrefix("=")
+}
+
+func isVariable(v: Value) -> Bool {
+    if let s = v.text() {
+        return s.hasPrefix("=") }
+    else { return false }
+}
+
+
+// Chunk values can be a symbol, a number or nil
+
+enum Value: Printable {
+    case Symbol(Chunk)
+    case Number(Double)
+    case Text(String)
+
+
+    func number() -> Double? {
+        switch self {
+        case .Number(let value):
+            return value
+        default:
+            return nil
+        }
+    }
+    
+    func text() -> String? {
+        switch self {
+        case .Text(let s):
+            return s
+        default: return nil
+        }
+    }
+    
+    
+    
+    func chunk() -> Chunk? {
+        switch self {
+        case .Symbol(let chunk):
+            return chunk
+        default:
+            return nil
+        }
+    }
+    
+    func isEqual(v: Value) ->  Bool {
+        return v.description == self.description
+    }
+    
+    var description: String {
+        get {
+            switch self {
+            case Symbol(let value):
+                return "\(value.name)"
+            case Number(let value):
+                return "\(value)"
+            case Text(let value):
+                return "\(value)"
+
+            }
+        }
+    }
+}
+
+// Functions to manipulate lists of PRIMs
+// We need a function to chop off the first PRIM
+
+/**
+Take a string with a list of PRIMs, return the first n and the rest
+*/
+func chopPrims(s: String, n: Int) -> (String,String) {
+    let x = s.componentsSeparatedByString(";")
+    if x.count == n {
+        return (s, "")
+    } else {
+        return (reduce(x[1..<n], x[0], { $0 + ";" + $1}),reduce(x[(n+1)..<x.count], x[n], { $0 + ";" + $1} ))
+    }
+}

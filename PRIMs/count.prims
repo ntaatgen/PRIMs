@@ -1,0 +1,46 @@
+;; Count model
+
+(set-goal count)
+
+
+(add-dm
+(start-count
+isa operator
+slot1 count-fact
+slot2 say
+condition V1<>nil;WM1=nil
+action V1->WM1;C1->RT1;WM1->RT2;C2->AC1;WM1->AC2
+:activation 1.0
+:assoc count
+)
+(iterate
+isa operator
+slot1 count-fact
+slot2 say
+condition RT2=WM1;V2<>WM1
+action RT3->WM1;C1->RT1;WM1->RT2;C2->AC1;WM1->AC2
+:activation 1.0
+:assoc count
+)
+(final
+isa operator
+slot1 stop
+condition V2=WM1
+action C1->G1
+:activation 1.0
+:assoc count
+
+)
+(cf1 isa fact slot1 count-fact slot2 one slot3 two :activation 1.0)
+(cf2 isa fact slot1 count-fact slot2 two slot3 three :activation 1.0)
+(cf3 isa fact slot1 count-fact slot2 three slot3 four :activation 1.0)
+(cf4 isa fact slot1 count-fact slot2 four slot3 five :activation 1.0)
+(cf5 isa fact slot1 count-fact slot2 five slot3 six :activation 1.0)
+
+)
+
+(specify-inputs
+(c1 one three)
+(c2 two five)
+(c3 two four)
+)
