@@ -19,6 +19,8 @@ class Procedural {
     var productionsForReward: [Instantiation] = []
     var lastProduction: Production? = nil
     var lastOperator: Chunk? = nil
+    var compileOperators = false // if true, operators are compiled into productions, otherwise not
+    var retrieveOperatorsConditional = true // if true, operator retrieval is controlled by productions that check the match
     
     func addProduction(p: Production) {
         productions[p.name] = p
@@ -58,17 +60,21 @@ class Procedural {
         clearRewardTrace()
     }
     
-    func fireProduction(inst: Instantiation) -> Bool {
+    func fireProduction(inst: Instantiation, compile: Bool) -> Bool {
         if !inst.p.name.hasPrefix("t") {
             addToRewardTrace(inst)
         }
-        if lastProduction != nil {
-            compileProductions(lastProduction!, inst2: inst)
-        } else if lastOperator != nil {
-            compileProductions(lastOperator!, inst2: inst)
+        if compile {
+            if lastProduction != nil {
+                compileProductions(lastProduction!, inst2: inst)
+            } else if lastOperator != nil && compileOperators {
+                compileProductions(lastOperator!, inst2: inst)
+            }
+            lastProduction = inst.p
+            return inst.p.fire()
+        } else {
+            return inst.p.testFire()
         }
-        lastProduction = inst.p
-        return inst.p.fire()        
     }
     
     /**

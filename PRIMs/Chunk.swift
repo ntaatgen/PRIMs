@@ -50,6 +50,7 @@ class Chunk: Printable {
     func copy() -> Chunk {
         let newChunk = model.generateNewChunk(s1: self.name)
         newChunk.slotvals = self.slotvals
+        newChunk.printOrder = self.printOrder
         return newChunk
     }
     

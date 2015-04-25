@@ -103,6 +103,17 @@ class Production: Printable {
         return nil        
     }
     
+    func testFire() -> Bool {
+        if op != nil {
+            model.buffers["operator"] = op!.copy()
+        }
+        for bc in conditions {
+            if !bc.fire() { println("\(bc) does not match")
+                return false } // one of the conditions does not match
+        }
+        return true
+    }
+    
     /**
     Function that executes all the production's actions
     :param: inst The instantiation of the production
@@ -112,10 +123,12 @@ class Production: Printable {
             model.buffers["operator"] = op!.copy()
         }
         for bc in conditions {
-            if !bc.fire() { return false } // one of the conditions does not match
+            if !bc.fire() { println("\(bc) does not match")
+                return false } // one of the conditions does not match
         }
         for ac in actions {
-            if !ac.fire() { return false } // shouldn't happen but who knows
+            if !ac.fire() { println("\(ac) does not execute")
+                return false } // shouldn't happen but who knows
         }
         if newCondition != nil {
             model.buffers["operator"]!.setSlot("condition", value: newCondition!)
