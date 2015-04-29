@@ -104,7 +104,7 @@ class Chunk: Printable {
         if creationTime == nil { return }
         if model.dm.optimizedLearning {
             references += 1
-            println("Added reference to \(self) references = \(references)")
+//            println("Added reference to \(self) references = \(references)")
         }
         else {
             referenceList.append(model.time)

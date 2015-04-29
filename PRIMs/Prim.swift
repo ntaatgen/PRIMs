@@ -9,7 +9,7 @@
 import Foundation
 
 let bufferMappingC = ["V":"input","WM":"imaginal","G":"goal","C":"operator","AC":"action","RT":"retrievalH"]
-let bufferMappingA = ["V":"input","WM":"imaginal","G":"goal","C":"operator","AC":"action","RT":"retrievalR"]
+let bufferMappingA = ["V":"input","WM":"imaginalN","G":"goal","C":"operator","AC":"action","RT":"retrievalR"]
 
 /** 
 This function takes a string that represents a PRIM, and translaters it its components
@@ -68,12 +68,12 @@ class Prim:Printable {
         (lhsBuffer,lhsSlot,op,rhsBuffer,rhsSlot) = parseName(name)
     }
     
-
+    
     
     /**
-Carry out the PRIM, either by checking its condition or by performing its action. Returns a Bool to indicate success
+    Carry out the PRIM, either by checking its condition or by performing its action. Returns a Bool to indicate success
     In the case of an action to an empty buffer, an empty fact chunk is created in that buffer.
-*/
+    */
     func fire() -> Bool {
         let lhsVal = model.buffers[lhsBuffer]?.slotvals[lhsSlot]
         switch op {

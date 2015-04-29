@@ -9,7 +9,7 @@ isa operator
 slot1 count-fact
 slot2 say
 condition V1<>nil;WM1=nil
-action V1->WM1;C1->RT1;WM1->RT2;C2->AC1;WM1->AC2
+action V1->WM1;C1->RT1;V1->RT2;C2->AC1;V1->AC2
 :activation 1.0
 :assoc count
 )
@@ -18,7 +18,7 @@ isa operator
 slot1 count-fact
 slot2 say
 condition RT2=WM1;V2<>WM1
-action RT3->WM1;C1->RT1;WM1->RT2;C2->AC1;WM1->AC2
+action RT3->WM1;C1->RT1;RT3->RT2;C2->AC1;RT3->AC2
 :activation 1.0
 :assoc count
 )

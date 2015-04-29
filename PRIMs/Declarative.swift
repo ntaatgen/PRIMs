@@ -9,7 +9,7 @@
 import Foundation
 
 class Declarative  {
-    
+    weak var model: Model!
     var baseLevelDecay: Double = 0.5
     var optimizedLearning = false
     var maximumAssociativeStrength: Double = 3
@@ -27,6 +27,10 @@ class Declarative  {
     var retrieveBusy = false
     var retrieveError = false
     var retrievaltoDM = false
+    
+    init(model: Model) {
+        self.model = model
+    }
     
     func duplicateChunk(chunk: Chunk) -> Chunk? {
         /* Return duplicate chunk if there is one, else nil */
@@ -154,5 +158,22 @@ class Declarative  {
         return bestMatch
     }
 
+    func action() -> Double {
+        let retrievalQuery = model.buffers["retrievalR"]!
+        let (latency, retrieveResult) = retrieve(retrievalQuery)
+        
+        if retrieveResult != nil {
+            model.addToTrace("Retrieving \(retrieveResult!.name)")
+            model.buffers["retrievalH"] = retrieveResult!
+        } else {
+            model.addToTrace("Retrieval failure")
+            let failChunk = Chunk(s: "RetrievalFailure", m: model)
+            failChunk.setSlot("slot1", value: "error")
+            model.buffers["retrievalH"] = failChunk
+        }
+        
+        model.buffers["retrievalR"] = nil
+        return latency
+    }
     
 }

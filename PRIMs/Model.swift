@@ -8,14 +8,18 @@
 
 import Foundation
 
+
+
 class Model {
     var time: Double = 0
-    var dm = Declarative()
+    lazy var dm: Declarative = { () -> Declarative in return Declarative(model: self) }()
     lazy var procedural: Procedural = { () -> Procedural in return Procedural(model: self) }()
-    var goal: Chunk? = nil
+    lazy var imaginal: Imaginal = { () -> Imaginal in return Imaginal(model: self) }()
+    lazy var action: Action = { () -> Action in return Action(model: self) }()
     var buffers: [String:Chunk] = [:]
     var chunkIdCounter = 0
     var running = false
+    var startTime: Double = 0.0
     var trace: String {
         didSet {
             NSNotificationCenter.defaultCenter().postNotificationName("TraceChanged", object: nil)
@@ -24,7 +28,7 @@ class Model {
     var waitingForAction: Bool = false {
         didSet {
             if waitingForAction == true {
-                println("Posted Action notification")
+//                println("Posted Action notification")
                 NSNotificationCenter.defaultCenter().postNotificationName("Action", object: nil)
             }
         }
@@ -33,6 +37,56 @@ class Model {
     var inputs: [Chunk] = []
     var currentTask: String? = nil
     
+//    struct Results {
+        var modelResults: [[(Double,Double)]] = [[]]
+        var currentRow = -1
+        var maxX = 0.0
+        var maxY = 0.0
+        var currentTrial = 1.0
+        func resultAdd(y:Double) {
+            let x = currentTrial
+            currentTrial += 1.0
+            if currentRow < modelResults.count {
+                modelResults[currentRow].append((x,y))
+                maxX = max(maxX, x)
+            } else {
+                var newItem = [(1.0,y)]
+                modelResults.insert(newItem, atIndex: currentRow)
+                currentTrial = 2.0
+            }
+            maxY = max(maxY, y)
+        }
+        func newResult() {
+            if currentRow < modelResults.count {
+                currentRow = currentRow + 1
+            }
+        }
+    func clearResults() {
+        modelResults = [[]]
+        currentRow = 0
+        maxX = 0.0
+        maxY = 0.0
+        currentTrial = 1.0
+    }
+        
+//    }
+
+    func reset() {
+        dm = Declarative(model: self)
+        procedural = Procedural(model: self)
+        buffers = [:]
+        time = 0
+        chunkIdCounter = 0
+        running = false
+        startTime = 0
+        trace = ""
+        waitingForAction = false
+        inputs = []
+        let parser = Parser(model: self, text: modelText)
+        parser.parseModel()
+        newResult()
+    }
+
     init() {
         trace = ""
     }
@@ -47,108 +101,138 @@ class Model {
         trace = ""
     }
     
+    func parseCode(modelCode: String) {
+        let parser = Parser(model: self, text: modelCode)
+        parser.parseModel()
+        modelText = modelCode
+        newResult()
+    }
     
+
+    func initializeNewTrial() {
+        startTime = time
+        buffers = [:]
+        procedural.reset()
+        let ch = Chunk(s: "goal", m: self)
+        ch.setSlot("isa", value: "goal")
+        ch.setSlot("slot1", value: "start")
+        ch.setSlot("slot2", value: currentTask!)
+        buffers["goal"] = ch
+        let trial = inputs[Int(arc4random_uniform(UInt32(inputs.count)))]
+        buffers["input"] = trial
+        running = true
+        clearTrace()
+    }
+
+    /**
+    This function finds an operator. It can do this in several ways depending on the settings
+    of the parameters compileOperators and retrieveOperatorsConditional.
+    If compileOperators is true, this means that an operator can be compiled into a production. In that case
+    this function can fire a production that sets the operator, and carries out some or all of it.
+    If retrieveOperatorsConditional is true, an operator is retrieved that is checked by the currently
+    available productions.
+    */
+    func findOperatorOrOperatorProduction() {
+        let opInst = procedural.compileOperators ? procedural.findOperatorProduction() : nil
+        if opInst == nil {
+            let retrievalRQ = Chunk(s: "operator", m: self)
+            retrievalRQ.setSlot("isa", value: "operator")
+            var (latency,opRetrieved) = dm.retrieve(retrievalRQ)
+            if procedural.retrieveOperatorsConditional {
+                var cfs = dm.conflictSet.sorted({ (item1, item2) -> Bool in
+                    let (_,u1) = item1
+                    let (_,u2) = item2
+                    return u1 > u2
+                })
+                var match = false
+                var candidate: Chunk
+                var activation: Double
+                do {
+                    (candidate, activation) = cfs.removeAtIndex(0)
+                    //                        println("Trying operator \(candidate.name)")
+                    let savedBuffers = buffers
+                    buffers["operator"] = candidate.copy()
+                    let inst = procedural.findMatchingProduction()
+                    match = procedural.fireProduction(inst, compile: false)
+                    buffers = savedBuffers
+                } while !match && !cfs.isEmpty && cfs[0].1 > dm.retrievalThreshold
+                if match {
+                    opRetrieved = candidate
+                    latency = dm.latency(activation)
+                } else { opRetrieved = nil
+                    latency = dm.latency(dm.retrievalThreshold)
+                }
+            }
+            time += latency
+            if opRetrieved == nil { return }
+            addToTrace("Retrieved operator \(opRetrieved!.name)")
+            dm.addToFinsts(opRetrieved!)
+            buffers["operator"] = opRetrieved!.copy()
+            procedural.lastOperator = opRetrieved!
+        } else {
+            addToTrace("Firing operator production \(opInst!.p.name)")
+            procedural.fireProduction(opInst!, compile: true)
+            time += 0.05
+        }
+    }
+    
+    
+    /**
+    This function carries out productions for the current operator until it has a PRIM that fails, in
+    which case it returns false, or until all the conditions of the operator have been tested and
+    all actions have been carried out.
+    */
+    func carryOutProductionsUntilOperatorDone() -> Bool {
+        var match: Bool = true
+        while match && (buffers["operator"]!.slotvals["condition"] != nil || buffers["operator"]!.slotvals["action"] != nil) {
+            let inst = procedural.findMatchingProduction()
+            addToTrace("Firing \(inst.p.name)")
+            match = procedural.fireProduction(inst, compile: true)
+            time += procedural.productionActionLatency
+        }
+        return match
+    }
+    
+    func doAllModuleActions() {
+        var latency = 0.0
+        if buffers["retrievalR"] != nil {
+            let retrievalLatency = dm.action()
+            latency = max(latency, retrievalLatency)
+        }
+        if buffers["imaginalN"] != nil {
+            let actionLatency = imaginal.action()
+            latency = max(latency, actionLatency)
+        }
+        if buffers["action"] != nil {
+            let actionLatency = action.action()
+            latency = max(latency, actionLatency)
+        }
+        time += latency
+    }
+    
+    /**
+    Execute a single operator by first finding one that matches, and then firing the necessary
+    productions to execute it
+    */
     func step() {
         if currentTask == nil { return }
         if !running {
-            buffers = [:]
-            procedural.reset()
-            let ch = Chunk(s: "goal", m: self)
-            ch.setSlot("isa", value: "goal")
-            ch.setSlot("slot1", value: "start")
-            ch.setSlot("slot2", value: currentTask!)
-            buffers["goal"] = ch
-            let trial = inputs[Int(arc4random_uniform(UInt32(inputs.count)))]
-            buffers["input"] = trial
-            running = true
-            clearTrace()
+            initializeNewTrial()
         }
         dm.clearFinsts()
-        // first retrieve an operator
         var found: Bool = false
         do {
             procedural.lastProduction = nil
-            let opInst = procedural.compileOperators ? procedural.findOperatorProduction() : nil
-            if opInst == nil {
-                let retrievalRQ = Chunk(s: "operator", m: self)
-                retrievalRQ.setSlot("isa", value: "operator")
-                var (latency,opRetrieved) = dm.retrieve(retrievalRQ)
-                if procedural.retrieveOperatorsConditional {
-                    var cfs = dm.conflictSet.sorted({ (item1, item2) -> Bool in
-                        let (_,u1) = item1
-                        let (_,u2) = item2
-                        return u1 > u2
-                    })
-                    var match = false
-                    var candidate: Chunk
-                    var activation: Double
-                    do {
-                        (candidate, activation) = cfs.removeAtIndex(0)
-                        println("Trying operator \(candidate.name)")
-                        let savedBuffers = buffers
-                        buffers["operator"] = candidate.copy()
-                        let inst = procedural.findMatchingProduction()
-                        match = procedural.fireProduction(inst, compile: false)
-                        buffers = savedBuffers
-                    } while !match && !cfs.isEmpty && cfs[0].1 > dm.retrievalThreshold
-                    if match {
-                        opRetrieved = candidate
-                        latency = dm.latency(activation)
-                    } else { opRetrieved = nil
-                        latency = dm.latency(dm.retrievalThreshold)
-                    }
-                }
-                time += latency
-                if opRetrieved == nil { return }
-                addToTrace("Retrieved operator \(opRetrieved!.name)")
-                dm.addToFinsts(opRetrieved!)
-                buffers["operator"] = opRetrieved!.copy()
-                procedural.lastOperator = opRetrieved!
-            } else {
-                addToTrace("Firing operator production \(opInst!.p.name)")
-                procedural.fireProduction(opInst!, compile: true)
-                time += 0.05
-            }
-            let savedBuffers = buffers
-            var match: Bool = true
-            println("Entering completion loop")
-            while match && (buffers["operator"]!.slotvals["condition"] != nil || buffers["operator"]!.slotvals["action"] != nil) {
-                let inst = procedural.findMatchingProduction()
-                addToTrace("Firing \(inst.p.name)")
-                match = procedural.fireProduction(inst, compile: true)
-                time += 0.5
-            }
-            let x = buffers["operator"]
-            println("Leaving completion loop: \(x!)")
-            if match {
-                found = true
-            } else {
-                buffers = savedBuffers
-                buffers["operator"] = nil
-            }
+            findOperatorOrOperatorProduction()
+            found = carryOutProductionsUntilOperatorDone()
         } while !found
         buffers["operator"] = nil
-        if let retrievalQuery = buffers["retrievalR"] {
-            let (latency, retrieveResult) = dm.retrieve(retrievalQuery)
-            time += latency
-            if retrieveResult != nil {
-                addToTrace("Retrieving \(retrieveResult!.name)")
-                buffers["retrievalH"] = retrieveResult!
-            } else {
-                addToTrace("Retrieval failure")
-                let failChunk = Chunk(s: "RetrievalFailure", m: self)
-                failChunk.setSlot("slot1", value: "error")
-                buffers["retrievalH"] = failChunk
-            }
-        }
-        buffers["retrievalR"] = nil
-        if let actionQuery = buffers["action"] {
-            addToTrace("Doing action \(actionQuery)")
-            buffers["action"] = nil
-        }
+        doAllModuleActions()
         if buffers["goal"]!.slotvals["slot1"]!.text()! == "stop" {
             procedural.issueReward(20.0)
             running = false
+//            println("New item = \(newItem)")
+            resultAdd(time - startTime)
         }
     }
     

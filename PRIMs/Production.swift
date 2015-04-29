@@ -10,7 +10,7 @@ import Foundation
 
 class Production: Printable {
     let name: String
-    let model: Model
+    weak var model: Model!
     let condition: String?
     let action: String?
     let op: Chunk?
@@ -108,7 +108,7 @@ class Production: Printable {
             model.buffers["operator"] = op!.copy()
         }
         for bc in conditions {
-            if !bc.fire() { println("\(bc) does not match")
+            if !bc.fire() { // println("\(bc) does not match")
                 return false } // one of the conditions does not match
         }
         return true
@@ -123,11 +123,11 @@ class Production: Printable {
             model.buffers["operator"] = op!.copy()
         }
         for bc in conditions {
-            if !bc.fire() { println("\(bc) does not match")
+            if !bc.fire() { // println("\(bc) does not match")
                 return false } // one of the conditions does not match
         }
         for ac in actions {
-            if !ac.fire() { println("\(ac) does not execute")
+            if !ac.fire() { // println("\(ac) does not execute")
                 return false } // shouldn't happen but who knows
         }
         if newCondition != nil {

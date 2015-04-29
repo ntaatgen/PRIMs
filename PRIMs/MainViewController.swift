@@ -8,7 +8,10 @@
 
 import Cocoa
 
-class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDelegate {
+class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDelegate, GraphViewDataSource {
+    
+    
+    var model = Model()
     
     var modelCode: String? = nil
     
@@ -19,6 +22,55 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
     @IBOutlet var outputText: NSTextView!
     
     @IBOutlet weak var productionTable: NSTableView!
+  
+    @IBOutlet weak var taskTable: NSTableView!
+    
+    @IBOutlet weak var graph: GraphView! {
+        didSet { graph.dataSource = self }}
+    
+    @IBAction func clearGraph(sender: NSButton) {
+        model.clearResults()
+        updateAllViews()
+    }
+    
+    func graphXMin(sender: GraphView) -> Double? {
+        return 0.0
+    }
+    
+    func graphXMax(sender: GraphView) -> Double? {
+        let maxX =  max(1.0, model.maxX)
+        return trunc((maxX - 1)/5) * 5 + 5
+
+    }
+    
+    func graphYMin(sender: GraphView) -> Double? {
+        return 0.0
+    }
+    
+    func graphYMax(sender: GraphView) -> Double? {
+        return trunc(model.maxY/5) * 5 + 5
+    }
+    
+    func graphNumberOfGraphs(sender: GraphView) -> Int {
+        return model.modelResults.count
+    }
+    
+    func graphColorOfGraph(sender: GraphView, graph: Int) -> NSColor? {
+        switch graph {
+            case 0: return NSColor.redColor()
+            case 1: return NSColor.blueColor()
+            case 2: return NSColor.greenColor()
+            case 3: return NSColor.purpleColor()
+        default: return NSColor.blackColor()
+        }
+    }
+    
+    func graphPointsForGraph(sender: GraphView, graph: Int) -> [(Double, Double)] {
+        return model.modelResults[graph]
+    }
+    
+    var tasks: [Task] = []
+    var currentTask: Int? = nil
     
     @IBAction func loadModel(sender: NSButton) {
         var fileDialog: NSOpenPanel = NSOpenPanel()
@@ -26,16 +78,41 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
         fileDialog.worksWhenModal = true
         fileDialog.allowsMultipleSelection = false
         fileDialog.resolvesAliases = true
+        fileDialog.allowedFileTypes = ["prims"]
         fileDialog.runModal()
         if let filePath = fileDialog.URL {
             modelCode = String(contentsOfURL: filePath, encoding: NSUTF8StringEncoding, error: nil)
             model.inputs = []
-            parseCode()
+            if modelCode != nil {
+                model.parseCode(modelCode!)
+            }
+            let newTask = Task(name: model.currentTask!, path: filePath)
+            newTask.inputs = model.inputs
+            newTask.loaded = true
+            tasks.append(newTask)
+            currentTask = tasks.count - 1
         }
         modelText.string = modelCode
-//        for (_,ch) in model.dm.chunks {
-//            println("\(ch)")
-//        }
+        updateAllViews()
+    }
+    
+    func loadOrReloadTask(i: Int) {
+        if (i != currentTask) {
+            modelCode = String(contentsOfURL: tasks[i].filename, encoding: NSUTF8StringEncoding, error: nil)
+            if !tasks[i].loaded && modelCode != nil {
+                model.parseCode(modelCode!)
+                tasks[i].loaded = true
+            }
+            modelText.string = modelCode
+            if modelCode != nil {
+                model.modelText = modelCode!
+            }
+            model.inputs = tasks[i].inputs
+            model.currentTask = tasks[i].name
+            currentTask = i
+            model.newResult()
+            updateAllViews()
+        }
     }
     
     func updateAllViews() {
@@ -51,18 +128,43 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
         bufferText.string = s
         pTable = createProductionTable()
         productionTable.reloadData()
+        taskTable.reloadData()
+        graph.needsDisplay = true
+        
+//        graph.setNeedsDisplayInRect(graph.frame)
     }
     
     func numberOfRowsInTableView(tableView: NSTableView) -> Int {
-        return pTable.count
+        switch tableView {
+        case productionTable: return pTable.count
+        case taskTable: return tasks.count
+        default: return 0
+        }
     }
     
     func tableView(tableView: NSTableView, objectValueForTableColumn tableColumn: NSTableColumn?, row: Int) -> AnyObject? {
-        switch String(tableColumn!.identifier) {
-        case "Name": return pTable[row].name
-        case "Utility": return String(format:"%.2f", pTable[row].u)
-        default: println("***" + String(tableColumn!.identifier))
-            return ""
+        switch tableView {
+        case productionTable:
+            switch String(tableColumn!.identifier) {
+            case "Name": return pTable[row].name
+            case "Utility": return String(format:"%.2f", pTable[row].u)
+            default:
+                return nil
+            }
+        case taskTable:
+            switch String(tableColumn!.identifier) {
+            case "Name": return row == currentTask ? "** " + tasks[row].name : tasks[row].name
+            case "Loaded": return tasks[row].loaded ? "Yes" : "No"
+            default: return nil
+            }
+        default: return nil
+        }
+    }
+    
+    
+    @IBAction func clickInTaskTable(sender: NSTableView) {
+        if sender === taskTable && sender.selectedRow != -1 {
+            loadOrReloadTask(sender.selectedRow)
         }
     }
     
@@ -94,40 +196,19 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
     }
     
     @IBAction func reset(sender: NSButton) {
+        model.reset()
+        for task in tasks {
+            task.loaded = false
+        }
+        if currentTask != nil {
+            tasks[currentTask!].loaded = true
+        }
+        updateAllViews()
     }
     
-    func parseCode() {
-        let parser = Parser(model: model, text: modelCode!)
-        parser.parseModel()
-    }
-    
-    
-    var model = Model()
+ 
     override func viewDidLoad() {
         super.viewDidLoad()
-//        let bundle = NSBundle.mainBundle()
-//        let path = bundle.pathForResource("count", ofType: "prims")!
-//        let modelText = String(contentsOfFile: path, encoding: NSUTF8StringEncoding, error: nil)!
-//        
-//        let parser = Parser(model: model, text: modelText)
-//        parser.parseModel()
-//        
-//        var times: [Double] = []
-//        for i in 0..<100 {
-//            println("\n\n*** Model run \(i + 1) ***\n")
-//            let start = model.time
-//            model.run()
-//            let latency = model.time - start
-//            times.append(latency)
-//            println("\n\n*** Total time \(latency) ***")
-//
-//        }
-//        for t in times {
-//            println("\(t)")
-//        }
-//        for (_,p) in model.procedural.productions {
-//            println("\(p)")
-//        }
  
     }
 

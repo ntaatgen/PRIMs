@@ -9,11 +9,12 @@
 import Foundation
 
 class Procedural {
-    var utilityNoise = 0.2
+    var utilityNoise = 0.05
     var defaultU = 0.0
     var primU = 2.0
     var utilityRetrieveOperator = 2.0
-    var alpha = 0.2
+    var alpha = 0.1
+    var productionActionLatency = 0.2
     var productions: [String:Production] = [:]
     let model: Model
     var productionsForReward: [Instantiation] = []
