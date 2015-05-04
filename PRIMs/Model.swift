@@ -35,8 +35,9 @@ class Model {
     }
     var modelText: String = ""
     var inputs: [Chunk] = []
-    var currentTask: String? = nil
-    
+    var currentTask: String? = nil /// What is the name of the current task
+    var currentGoals: Chunk? = nil /// Chunk that has the goals to implement the task
+    var currentGoalConstants: Chunk? = nil
 //    struct Results {
         var modelResults: [[(Double,Double)]] = [[]]
         var currentRow = -1
@@ -113,13 +114,13 @@ class Model {
         startTime = time
         buffers = [:]
         procedural.reset()
-        let ch = Chunk(s: "goal", m: self)
-        ch.setSlot("isa", value: "goal")
-        ch.setSlot("slot1", value: "start")
-        ch.setSlot("slot2", value: currentTask!)
-        buffers["goal"] = ch
-        let trial = inputs[Int(arc4random_uniform(UInt32(inputs.count)))]
-        buffers["input"] = trial
+        buffers["goal"] = currentGoals?.copy()
+        buffers["constants"] = currentGoalConstants?.copy()
+        if !inputs.isEmpty {
+            let trial = inputs[Int(arc4random_uniform(UInt32(inputs.count)))]
+            buffers["input"] = trial
+        }
+        action.initTask()
         running = true
         clearTrace()
     }
@@ -144,6 +145,7 @@ class Model {
                     let (_,u2) = item2
                     return u1 > u2
                 })
+//                println("Conflict set \(cfs)")
                 var match = false
                 var candidate: Chunk
                 var activation: Double
@@ -184,7 +186,7 @@ class Model {
     */
     func carryOutProductionsUntilOperatorDone() -> Bool {
         var match: Bool = true
-        while match && (buffers["operator"]!.slotvals["condition"] != nil || buffers["operator"]!.slotvals["action"] != nil) {
+        while match && (buffers["operator"]?.slotvals["condition"] != nil || buffers["operator"]?.slotvals["action"] != nil) {
             let inst = procedural.findMatchingProduction()
             addToTrace("Firing \(inst.p.name)")
             match = procedural.fireProduction(inst, compile: true)
@@ -229,7 +231,7 @@ class Model {
         buffers["operator"] = nil
         doAllModuleActions()
         if buffers["goal"]!.slotvals["slot1"]!.text()! == "stop" {
-            procedural.issueReward(20.0)
+            procedural.issueReward(40.0)
             running = false
 //            println("New item = \(newItem)")
             resultAdd(time - startTime)

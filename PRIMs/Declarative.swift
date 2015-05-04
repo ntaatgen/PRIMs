@@ -13,7 +13,7 @@ class Declarative  {
     var baseLevelDecay: Double = 0.5
     var optimizedLearning = false
     var maximumAssociativeStrength: Double = 3
-    var goalActivation: Double = 1 // W parameter
+    var goalActivation: Double = 3 // W parameter
     var retrievalThreshold: Double = -2
     var activationNoise: Double? = 0.25
     var defaultOperatorAssoc: Double = 2.0

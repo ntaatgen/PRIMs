@@ -140,7 +140,11 @@ class Chunk: Printable {
     }
     
     func slotValue(slot: String) -> Value? {
-        return slotvals[slot]
+        if slot == "slot0" {
+            return .Symbol(self)
+        } else {
+            return slotvals[slot]
+        }
     }
     
 //    double getSji (Chunk cj, Chunk ci)

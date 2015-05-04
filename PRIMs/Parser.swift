@@ -46,15 +46,43 @@ class Parser  {
                 //                    t.nextToken()
                 //                    let prod = parseProduction()
                 //                    if prod != nil { m.procedural.addProduction(prod!) }
-            case "set-goal":
+            case "set-task":
                 t.nextToken()
                 m.currentTask = t.token!
-                println("The goaltype is \(t.token!)")
-                let chunk = Chunk(s: t.token!, m: m)
-                chunk.setSlot("isa", value: "goal")
-                chunk.setSlot("type", value: t.token! + "-goal")
-                m.dm.addToDM(chunk)
+                println("The task is \(t.token!)")
                 t.nextToken()
+                t.nextToken()
+            case "set-goal":
+                t.nextToken()
+                var slotcount = 1
+                let chunk = Chunk(s: "currentGoalChunk", m: m)
+                chunk.setSlot("isa", value: "goal")
+                chunk.setSlot("slot1", value: "start")
+                while t.token! != ")" {
+                    if m.dm.chunks[t.token!] == nil {
+                        let newchunk = Chunk(s: t.token!, m: m)
+                        newchunk.setSlot("isa", value: "goaltype")
+                        newchunk.setSlot("slot1", value: t.token!)
+                        newchunk.fixedActivation = 1.0 // should change this later
+                        m.dm.addToDM(newchunk)
+                    }
+                    chunk.setSlot("goalslot\(slotcount++)", value: t.token!)
+                    t.nextToken()
+                }
+                m.currentGoals = chunk
+                println("The goalchunk is \(chunk)")
+                t.nextToken()
+            case "set-goal-constants":
+                t.nextToken()
+                var slotcount = 1
+                let chunk = Chunk(s: "constants", m: m)
+                chunk.setSlot("isa", value: "fact")
+                while t.token! != ")" {
+                    chunk.setSlot("slot\(slotcount++)", value: t.token!)
+                    t.nextToken()
+                }
+                m.currentGoalConstants = chunk
+                println("The goal constants are is \(chunk)")
                 t.nextToken()
             case "specify-inputs":
                 t.nextToken()

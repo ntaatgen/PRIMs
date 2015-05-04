@@ -1,7 +1,7 @@
 ;; Count model
 
+(set-task count)
 (set-goal count)
-
 
 (add-dm
 (start-count
@@ -41,6 +41,6 @@ action C1->G1
 
 (specify-inputs
 (c1 one three)
-(c2 two five)
+(c2 three five)
 (c3 two four)
 )

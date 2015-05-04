@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		B806EFBC1AEFE77900633505 /* Task.swift in Sources */ = {isa = PBXBuildFile; fileRef = B806EFBB1AEFE77900633505 /* Task.swift */; };
 		B806EFBE1AF003CF00633505 /* Action.swift in Sources */ = {isa = PBXBuildFile; fileRef = B806EFBD1AF003CF00633505 /* Action.swift */; };
+		B843879B1AF20D8B00D214E0 /* list-recall.prims in Resources */ = {isa = PBXBuildFile; fileRef = B843879A1AF20D8B00D214E0 /* list-recall.prims */; };
 		B85FAA5C1AE10CAF00C6F57A /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B85FAA5B1AE10CAF00C6F57A /* AppDelegate.swift */; };
 		B85FAA5E1AE10CAF00C6F57A /* MainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B85FAA5D1AE10CAF00C6F57A /* MainViewController.swift */; };
 		B85FAA601AE10CAF00C6F57A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B85FAA5F1AE10CAF00C6F57A /* Images.xcassets */; };
@@ -43,6 +44,7 @@
 /* Begin PBXFileReference section */
 		B806EFBB1AEFE77900633505 /* Task.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Task.swift; sourceTree = "<group>"; };
 		B806EFBD1AF003CF00633505 /* Action.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Action.swift; sourceTree = "<group>"; };
+		B843879A1AF20D8B00D214E0 /* list-recall.prims */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "list-recall.prims"; sourceTree = "<group>"; };
 		B85FAA561AE10CAF00C6F57A /* PRIMs.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PRIMs.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B85FAA5A1AE10CAF00C6F57A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		B85FAA5B1AE10CAF00C6F57A /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -116,6 +118,7 @@
 				B85FAA591AE10CAF00C6F57A /* Supporting Files */,
 				B85FAAB11AE1188C00C6F57A /* count.prims */,
 				B8BEEE691AE79C9F00FF1FBC /* semantic.prims */,
+				B843879A1AF20D8B00D214E0 /* list-recall.prims */,
 			);
 			path = PRIMs;
 			sourceTree = "<group>";
@@ -249,6 +252,7 @@
 				B85FAAB21AE1188C00C6F57A /* count.prims in Resources */,
 				B85FAA631AE10CAF00C6F57A /* Main.storyboard in Resources */,
 				B8BEEE6A1AE79C9F00FF1FBC /* semantic.prims in Resources */,
+				B843879B1AF20D8B00D214E0 /* list-recall.prims in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

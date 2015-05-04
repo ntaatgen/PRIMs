@@ -25,6 +25,10 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
   
     @IBOutlet weak var taskTable: NSTableView!
     
+    @IBOutlet weak var chunkTable: NSTableView!
+    
+    @IBOutlet weak var chunkTextField: NSTextField!
+    
     @IBOutlet weak var graph: GraphView! {
         didSet { graph.dataSource = self }}
     
@@ -89,6 +93,8 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
             let newTask = Task(name: model.currentTask!, path: filePath)
             newTask.inputs = model.inputs
             newTask.loaded = true
+            newTask.goalChunk = model.currentGoals
+            newTask.goalConstants = model.currentGoalConstants
             tasks.append(newTask)
             currentTask = tasks.count - 1
         }
@@ -109,6 +115,8 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
             }
             model.inputs = tasks[i].inputs
             model.currentTask = tasks[i].name
+            model.currentGoals = tasks[i].goalChunk
+            model.currentGoalConstants = tasks[i].goalConstants
             currentTask = i
             model.newResult()
             updateAllViews()
@@ -128,6 +136,8 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
         bufferText.string = s
         pTable = createProductionTable()
         productionTable.reloadData()
+        dmTable = createDMTable()
+        chunkTable.reloadData()
         taskTable.reloadData()
         graph.needsDisplay = true
         
@@ -138,6 +148,7 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
         switch tableView {
         case productionTable: return pTable.count
         case taskTable: return tasks.count
+        case chunkTable: return dmTable.count
         default: return 0
         }
     }
@@ -157,6 +168,10 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
             case "Loaded": return tasks[row].loaded ? "Yes" : "No"
             default: return nil
             }
+        case chunkTable:
+            let (chunkName, chunkType, chunkActivation) = dmTable[row]
+            let actString = String(format: "%.2f", chunkActivation)
+            return "\(chunkName) isa \(chunkType) a = \(actString)"
         default: return nil
         }
     }
@@ -165,6 +180,9 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
     @IBAction func clickInTaskTable(sender: NSTableView) {
         if sender === taskTable && sender.selectedRow != -1 {
             loadOrReloadTask(sender.selectedRow)
+        } else if sender == chunkTable && sender.selectedRow != -1 {
+            let chunk = model.dm.chunks[dmTable[sender.selectedRow].0]!
+            chunkTextField.stringValue = "\(chunk)"
         }
     }
     
@@ -176,6 +194,27 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
             result.append(p)
         }
         result.sort({$0.u > $1.u})
+        return result
+    }
+    
+    var dmTable: [(String,String,Double)] = []
+    
+    func compareChunks (x: (String, String, Double), y: (String, String, Double)) -> Bool {
+        let (_,s1,a1) = x
+        let (_,s2,a2) = y
+        if s2 != s1 { return s2 > s1 }
+        else { return a1 > a2 }
+    }
+    
+    func createDMTable() -> [(String,String,Double)] {
+        println("Creating DM table")
+        var result: [(String,String,Double)] = []
+        for (_,chunk) in model.dm.chunks {
+            let chunkTp = chunk.slotvals["isa"]
+            let chunkType = chunkTp == nil ? "No Type" : chunkTp!.description
+            result.append((chunk.name,chunkType,chunk.activation()))
+        }
+        result = sorted(result, compareChunks)
         return result
     }
     

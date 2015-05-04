@@ -14,7 +14,8 @@ class Task {
     var inputs: [Chunk] = []
 //    var inputOutput: { (action: [Val]) -> Chunk?) }
     let filename: NSURL
-    
+    var goalChunk: Chunk? = nil
+    var goalConstants: Chunk? = nil
     init(name: String, path: NSURL) {
         self.name = name
         self.filename = path

@@ -1,5 +1,6 @@
 ;; Semantic model
 
+(set-task semantic)
 (set-goal semantic)
 
 (add-dm

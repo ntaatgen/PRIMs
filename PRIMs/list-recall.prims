@@ -1,0 +1,63 @@
+;;; Model to read a list and then recall it
+;;;
+
+
+(set-task list-recall)
+(set-goal read-in-memory rehearse report-vocal)
+(set-goal-constants letter list)
+
+(add-dm
+(read-first-letter
+  isa operator
+  slot1 read
+  condition WM1=nil;V1=GC1;V2<>nil
+  action GC2->WM1;G0->WM2;V2->WM3;C1->AC1
+:activation 1.0
+:assoc read-in-memory)
+
+(read-next-letter
+  isa operator
+  slot1 read
+condition WM1<>nil;V1=GC1;V2<>nil
+action GC2->WM1;WM0->WM2;V2->WM3;C1->AC1
+:activation 1.0
+:assoc read-in-memory)
+
+(start-report
+  isa operator
+  slot1 report
+condition V1=C1;RT1=nil
+action G0->RT2;C1->WM1
+:activation 1.0
+:assoc report-vocal)
+
+(report-item
+  isa operator
+  slot1 report
+  slot2 say
+condition V1=C1;RT2<>nil
+action C2->AC1;RT3->AC2;RT0->RT2
+:activation 1.0
+:assoc report-vocal)
+
+(done-report
+  isa operator
+  slot1 report
+  slot2 error
+  slot3 stop
+  condition V1=C1;RT1=C2
+  action C3->G1
+:activation 1.0
+:assoc report-vocal)
+
+
+(rehearse-no-rehearse
+  isa operator
+  slot1 nothing
+  slot2 wait
+  condition V1=C1
+  action C2->AC1
+:activation 1.0
+:assoc rehearse)
+
+)

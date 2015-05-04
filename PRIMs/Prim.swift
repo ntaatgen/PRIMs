@@ -8,8 +8,8 @@
 
 import Foundation
 
-let bufferMappingC = ["V":"input","WM":"imaginal","G":"goal","C":"operator","AC":"action","RT":"retrievalH"]
-let bufferMappingA = ["V":"input","WM":"imaginalN","G":"goal","C":"operator","AC":"action","RT":"retrievalR"]
+let bufferMappingC = ["V":"input","WM":"imaginal","G":"goal","C":"operator","AC":"action","RT":"retrievalH","GC":"constants"]
+let bufferMappingA = ["V":"input","WM":"imaginalN","G":"goal","C":"operator","AC":"action","RT":"retrievalR","GC":"constants"]
 
 /** 
 This function takes a string that represents a PRIM, and translaters it its components
@@ -75,7 +75,7 @@ class Prim:Printable {
     In the case of an action to an empty buffer, an empty fact chunk is created in that buffer.
     */
     func fire() -> Bool {
-        let lhsVal = model.buffers[lhsBuffer]?.slotvals[lhsSlot]
+        let lhsVal = model.buffers[lhsBuffer]?.slotValue(lhsSlot)
         switch op {
         case "=":
             if rhsBuffer == nil {
@@ -83,7 +83,7 @@ class Prim:Printable {
             } else if lhsVal == nil {
                 return false
             }
-            let rhsVal = model.buffers[rhsBuffer!]?.slotvals[rhsSlot!]
+            let rhsVal = model.buffers[rhsBuffer!]?.slotValue(rhsSlot!)
             return rhsVal == nil ? false : lhsVal!.isEqual(rhsVal!)
         case "<>":
             if rhsBuffer == nil {
@@ -91,7 +91,7 @@ class Prim:Printable {
             } else if lhsVal == nil {
                 return false
             }
-            let rhsVal = model.buffers[rhsBuffer!]?.slotvals[rhsSlot!]
+            let rhsVal = model.buffers[rhsBuffer!]?.slotValue(rhsSlot!)
             return rhsVal == nil ? false : !lhsVal!.isEqual(rhsVal!)
         case "->":
             if rhsBuffer == nil {return false}  // Should't happen
