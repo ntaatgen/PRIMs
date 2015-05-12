@@ -37,6 +37,7 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
         updateAllViews()
     }
     
+    
     func graphXMin(sender: GraphView) -> Double? {
         return 0.0
     }
@@ -76,6 +77,8 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
     var tasks: [Task] = []
     var currentTask: Int? = nil
     
+    
+    
     @IBAction func loadModel(sender: NSButton) {
         var fileDialog: NSOpenPanel = NSOpenPanel()
         fileDialog.prompt = "Select model file"
@@ -95,6 +98,8 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
             newTask.loaded = true
             newTask.goalChunk = model.currentGoals
             newTask.goalConstants = model.currentGoalConstants
+            newTask.parameters = model.parameters
+            newTask.scenario = model.scenario
             tasks.append(newTask)
             currentTask = tasks.count - 1
         }
@@ -117,6 +122,9 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
             model.currentTask = tasks[i].name
             model.currentGoals = tasks[i].goalChunk
             model.currentGoalConstants = tasks[i].goalConstants
+            model.parameters = tasks[i].parameters
+            model.scenario = tasks[i].scenario
+            model.loadParameters()
             currentTask = i
             model.newResult()
             updateAllViews()
@@ -129,7 +137,9 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
         for (bufferName, bufferChunk) in model.buffers {
             s += "=" + bufferName + ">" + "\n"
             for slot in bufferChunk.printOrder {
+                if bufferChunk.slotvals[slot]?.description != nil {
                 s += "  " + slot + " " + bufferChunk.slotvals[slot]!.description + "\n"
+                }
             }
             s += "\n"
         }
@@ -207,7 +217,6 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
     }
     
     func createDMTable() -> [(String,String,Double)] {
-        println("Creating DM table")
         var result: [(String,String,Double)] = []
         for (_,chunk) in model.dm.chunks {
             let chunkTp = chunk.slotvals["isa"]
@@ -225,7 +234,9 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
     }
     
     @IBAction func run10(sender: NSButton) {
+        model.tracing = false
         for i in 0..<10 { run(sender) }
+        model.tracing = true
     }
     
     @IBAction func step(sender: NSButton) {

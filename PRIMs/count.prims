@@ -39,6 +39,14 @@ action C1->G1
 
 )
 
+(screen start
+(card card
+(num1 one four)
+)  )
+
+(start-screen start)
+
+
 (specify-inputs
 (c1 one three)
 (c2 three five)

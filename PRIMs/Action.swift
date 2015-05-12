@@ -13,7 +13,11 @@ class Action {
     var sayLatency = 0.3
     var subvocalizeLatency = 0.3
     var readLatency = 0.2
+    var defaultPerceptualActionLatency = 0.2
     static let nothing = "nothing"
+    
+//    var experiment: PRScreen!
+    
     init(model: Model) {
         self.model = model
     }
@@ -27,10 +31,13 @@ class Action {
             inputChunk.setSlot("isa", value: "fact")
             inputChunk.setSlot("slot1", value: "nothing")
             model.buffers["input"] = inputChunk
-        default: break
+        default:
+            model.scenario.goStart()
+            model.buffers["input"] = model.scenario.current(model)
         }
     }
     
+        
     func action() -> Double {
         let actionChunk = model.buffers["action"]!
         var latency = 0.05
@@ -40,7 +47,12 @@ class Action {
         switch model.currentTask! {
         case "list-recall":
             model.buffers["input"] = listRecall(actionChunk)
-        default: break
+        default:
+            let result = model.scenario.doAction(model,action: ac,par1: par1)
+            if result != nil {
+                model.buffers["input"] = result!
+                latency = defaultPerceptualActionLatency
+            }
         }
         if ac != nil {
             switch ac! {
@@ -63,11 +75,7 @@ class Action {
     }
     
     var stimulusList: [String] = ["k","e","d","x"]
-    var nextTime: Double = 2.0 {
-        didSet { println("Next Stimulus time \(nextTime)")
-        }
-    }
-    
+    var nextTime: Double = 2.0     
     func listRecall(action: Chunk?) -> Chunk {
         let inputChunk = Chunk(s: "input", m: model)
         inputChunk.setSlot("isa", value: "fact")

@@ -94,7 +94,7 @@ class Prim:Printable {
             let rhsVal = model.buffers[rhsBuffer!]?.slotValue(rhsSlot!)
             return rhsVal == nil ? false : !lhsVal!.isEqual(rhsVal!)
         case "->":
-            if rhsBuffer == nil {return false}  // Should't happen
+            if rhsBuffer == nil || lhsVal == nil {return false} 
             if model.buffers[rhsBuffer!] == nil {
                 let chunk = model.generateNewChunk(s1: rhsBuffer!)
                 chunk.setSlot("isa",value: "fact")
@@ -106,7 +106,15 @@ class Prim:Printable {
         }
         
     }
-
+    
+    /**
+    Test whether an action PRIM is applicable, if not return false
+    This is the case if the lhs part doesn't resolve to nil
+    */
+    func testFire() -> Bool {
+        let lhsVal = model.buffers[lhsBuffer]?.slotValue(lhsSlot)
+        return lhsVal != nil
+    }
 
 
 

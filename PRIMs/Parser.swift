@@ -124,6 +124,33 @@ class Parser  {
                     return
                 }
                 t.nextToken()
+            case "sgp":
+                t.nextToken()
+                while t.token! != ")" {
+                    let parameter = t.token!
+                    t.nextToken()
+                    let value = t.token!
+                    t.nextToken()
+                    if !m.setParameter(parameter,value: value) {
+                        println("Problem parseing parameter/value pair \(parameter) and \(value)")
+                        return
+                    }
+                    else {
+                        m.parameters.append((parameter,value))
+                    }
+                }
+                t.nextToken()
+            case "screen":
+                t.nextToken()
+                let screen = parseScreen()
+                m.scenario.screens[screen.name] = screen
+                t.nextToken()
+            case "start-screen":
+                t.nextToken()
+                m.scenario.startScreen = m.scenario.screens[t.token!]!
+                println("Setting startScreen to \(m.scenario.startScreen.name)")
+                t.nextToken()
+                t.nextToken()
             default: println("Cannot yet handle \(t.token!)")
                 return
             }
@@ -210,93 +237,36 @@ class Parser  {
         t.nextToken()
         return chunk
     }
-    /*
-    private func parseProduction() -> Production? {
-    let name = t.token!
-    t.nextToken()
-    let p = Production(name: name, model: m)
-    while (t.token != nil && t.token! != "==>") {
-    let bc = parseBufferCondition()
-    if bc != nil { p.addCondition(bc!) }
-    }
-    if t.token != "==>" { println("Parsing error in \(name)") }
-    t.nextToken()
-    while (t.token != nil && t.token != ")") {
-    let ac = parseBufferAction()
-    if ac !=  nil { p.addAction(ac!) }
-    }
-    t.nextToken()
-    return p
+    
+    private func parseScreen() -> PRScreen {
+        let name = t.token!
+        println("Parsing Screen \(name)")
+        let screen = PRScreen(name: name)
+        t.nextToken() // Should be "("
+        t.nextToken() // Should be the identifier of single object in the Screen
+        let card = parseObject(nil)
+        screen.object = card
+        return screen
     }
     
-    private func parseBufferCondition() -> BufferCondition? {
-    let prefix = String(t.token![t.token!.startIndex])
-    let token = t.token!
-    let start = advance(token.startIndex,1)
-    let end = advance(token.endIndex,-1)
-    let bufferName = token[Range(start: start, end: end)]
-    let buffer = (prefix == "?" ? "?" : "") + bufferName
-    t.nextToken()
-    let bc = BufferCondition(prefix: prefix, buffer: buffer, model: m)
-    while (t.token != nil  && !t.token!.hasPrefix("?") && !(t.token!.hasPrefix("=") && t.token!.hasSuffix(">"))) {
-    let sc = parseSlotCondition()
-    if sc != nil { bc.addCondition(sc!) }
-    }
-    return bc
-    }
-    
-    
-    private func parseSlotCondition() -> SlotCondition? {
-    var op: String? = nil
-    if (t.token == "-" || t.token == "<" || t.token == ">" || t.token == "<=" || t.token == ">=") {
-    op = t.token
-    t.nextToken()
-    }
-    let slot = t.token
-    t.nextToken()
-    let value = t.token
-    t.nextToken()
-    if slot != nil && value != nil {
-    return SlotCondition(op: op, slot: slot!, value: m.stringToValue(value!), model: m)
-    }
-    else { return nil }
+    private func parseObject(superObject: PRObject?) -> PRObject {
+        let name = t.token!
+        var attributes: [String] = []
+        t.nextToken()
+        while (t.token != "(" && t.token != ")") {
+            attributes.append(t.token!)
+            t.nextToken()
+        }
+        println("Parsing object \(name) with attributes \(attributes) and parent \(superObject?.name)")
+        let obj = PRObject(name: name, attributes: attributes, superObject: superObject)
+        while (t.token == "(") {
+            t.nextToken()
+            let subObject = parseObject(obj)
+        }
+        t.nextToken() // closing ")"
+        return obj
     }
     
-    
-    private func parseBufferAction() -> BufferAction? {
-    let prefix = String(t.token![t.token!.startIndex])
-    let token = t.token!
-    let start = advance(token.startIndex,1)
-    let end = advance(token.endIndex,-1)
-    let buffer = token[Range(start: start, end: end)]
-    t.nextToken()
-    let ba = BufferAction(prefix: prefix, buffer: buffer, model: m)
-    if prefix == "-" { return ba }
-    /// Possible direct action
-    while (t.token != nil && !t.token!.hasPrefix("+") && t.token! != ")" && !(t.token!.hasPrefix("-") && t.token!.hasSuffix(">")) && !(t.token!.hasPrefix("=") && t.token!.hasSuffix(">"))) {
-    let ac = parseSlotAction()
-    if ac != nil { ba.addAction(ac!) }
-    }
-    return ba
-    }
-    
-    
-    
-    private func parseSlotAction() -> SlotAction? {
-    var op: String? = nil
-    if (t.token == "-" || t.token == "<" || t.token == ">" || t.token == "<=" || t.token == ">=") {
-    op = t.token
-    t.nextToken()
-    }
-    let slot = t.token
-    t.nextToken()
-    let value = t.token
-    t.nextToken()
-    if slot != nil && value != nil {
-    return SlotAction(slot: slot!, value: m.stringToValue(value!))
-    }
-    else { return nil }
-    
-    }
-    */
+       
+
 }

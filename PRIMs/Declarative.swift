@@ -11,7 +11,7 @@ import Foundation
 class Declarative  {
     weak var model: Model!
     var baseLevelDecay: Double = 0.5
-    var optimizedLearning = false
+    var optimizedLearning = true
     var maximumAssociativeStrength: Double = 3
     var goalActivation: Double = 3 // W parameter
     var retrievalThreshold: Double = -2

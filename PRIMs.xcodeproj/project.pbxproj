@@ -28,6 +28,10 @@
 		B8B23CDC1AED499C00307F90 /* GraphView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8B23CDB1AED499C00307F90 /* GraphView.swift */; };
 		B8BEEE6A1AE79C9F00FF1FBC /* semantic.prims in Resources */ = {isa = PBXBuildFile; fileRef = B8BEEE691AE79C9F00FF1FBC /* semantic.prims */; };
 		B8D18E0E1AEEC305007CF2B6 /* Imaginal.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8D18E0D1AEEC305007CF2B6 /* Imaginal.swift */; };
+		B8EEE60D1B01DDC6002EFAD6 /* PRScenario.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8EEE60C1B01DDC6002EFAD6 /* PRScenario.swift */; };
+		B8F00C061B009E810036FFE3 /* PRObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8F00C051B009E810036FFE3 /* PRObject.swift */; };
+		B8F00C081B00A1D10036FFE3 /* PRScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8F00C071B00A1D10036FFE3 /* PRScreen.swift */; };
+		B8F00C0C1B00CF720036FFE3 /* more-fish.prims in Resources */ = {isa = PBXBuildFile; fileRef = B8F00C0B1B00CF720036FFE3 /* more-fish.prims */; };
 		B8FA0B451AE2C837007C9F39 /* Parser.swift in Sources */ = {isa = PBXBuildFile; fileRef = B85FAA981AE10D7500C6F57A /* Parser.swift */; };
 /* End PBXBuildFile section */
 
@@ -68,6 +72,11 @@
 		B8B23CDB1AED499C00307F90 /* GraphView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GraphView.swift; sourceTree = "<group>"; };
 		B8BEEE691AE79C9F00FF1FBC /* semantic.prims */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = semantic.prims; sourceTree = "<group>"; };
 		B8D18E0D1AEEC305007CF2B6 /* Imaginal.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Imaginal.swift; sourceTree = "<group>"; };
+		B8EEE60C1B01DDC6002EFAD6 /* PRScenario.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PRScenario.swift; sourceTree = "<group>"; };
+		B8F00C051B009E810036FFE3 /* PRObject.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PRObject.swift; sourceTree = "<group>"; };
+		B8F00C071B00A1D10036FFE3 /* PRScreen.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PRScreen.swift; sourceTree = "<group>"; };
+		B8F00C091B00B8740036FFE3 /* TestInterface.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestInterface.swift; sourceTree = "<group>"; };
+		B8F00C0B1B00CF720036FFE3 /* more-fish.prims */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "more-fish.prims"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -109,6 +118,7 @@
 		B85FAA581AE10CAF00C6F57A /* PRIMs */ = {
 			isa = PBXGroup;
 			children = (
+				B8F00C041B009E690036FFE3 /* Interface */,
 				B85FAA941AE10D0600C6F57A /* Core */,
 				B85FAA5D1AE10CAF00C6F57A /* MainViewController.swift */,
 				B806EFBB1AEFE77900633505 /* Task.swift */,
@@ -119,6 +129,7 @@
 				B85FAAB11AE1188C00C6F57A /* count.prims */,
 				B8BEEE691AE79C9F00FF1FBC /* semantic.prims */,
 				B843879A1AF20D8B00D214E0 /* list-recall.prims */,
+				B8F00C0B1B00CF720036FFE3 /* more-fish.prims */,
 			);
 			path = PRIMs;
 			sourceTree = "<group>";
@@ -166,6 +177,17 @@
 				B85FAA9E1AE10D7500C6F57A /* Instantiation.swift */,
 			);
 			name = Core;
+			sourceTree = "<group>";
+		};
+		B8F00C041B009E690036FFE3 /* Interface */ = {
+			isa = PBXGroup;
+			children = (
+				B8F00C051B009E810036FFE3 /* PRObject.swift */,
+				B8F00C071B00A1D10036FFE3 /* PRScreen.swift */,
+				B8EEE60C1B01DDC6002EFAD6 /* PRScenario.swift */,
+				B8F00C091B00B8740036FFE3 /* TestInterface.swift */,
+			);
+			name = Interface;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -248,6 +270,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B8F00C0C1B00CF720036FFE3 /* more-fish.prims in Resources */,
 				B85FAA601AE10CAF00C6F57A /* Images.xcassets in Resources */,
 				B85FAAB21AE1188C00C6F57A /* count.prims in Resources */,
 				B85FAA631AE10CAF00C6F57A /* Main.storyboard in Resources */,
@@ -275,17 +298,20 @@
 				B85FAAB61AE1569F00C6F57A /* Production.swift in Sources */,
 				B85FAAB71AE1580200C6F57A /* Instantiation.swift in Sources */,
 				B85FAAB51AE13FF100C6F57A /* Model.swift in Sources */,
+				B8EEE60D1B01DDC6002EFAD6 /* PRScenario.swift in Sources */,
 				B806EFBE1AF003CF00633505 /* Action.swift in Sources */,
 				B8FA0B451AE2C837007C9F39 /* Parser.swift in Sources */,
 				B85FAAA71AE10D7500C6F57A /* Declarative.swift in Sources */,
 				B806EFBC1AEFE77900633505 /* Task.swift in Sources */,
 				B8B23CDC1AED499C00307F90 /* GraphView.swift in Sources */,
 				B85FAA5E1AE10CAF00C6F57A /* MainViewController.swift in Sources */,
+				B8F00C081B00A1D10036FFE3 /* PRScreen.swift in Sources */,
 				B85FAA5C1AE10CAF00C6F57A /* AppDelegate.swift in Sources */,
 				B85FAAB41AE1326000C6F57A /* Prim.swift in Sources */,
 				B85FAAAB1AE10D7500C6F57A /* Tokenizer.swift in Sources */,
 				B85FAAA31AE10D7500C6F57A /* Chunk.swift in Sources */,
 				B85FAAA91AE10D7500C6F57A /* Support.swift in Sources */,
+				B8F00C061B009E810036FFE3 /* PRObject.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

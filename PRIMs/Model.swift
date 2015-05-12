@@ -38,6 +38,10 @@ class Model {
     var currentTask: String? = nil /// What is the name of the current task
     var currentGoals: Chunk? = nil /// Chunk that has the goals to implement the task
     var currentGoalConstants: Chunk? = nil
+    var tracing: Bool = true
+    var parameters: [(String,String)] = []
+    var scenario = PRScenario()
+    
 //    struct Results {
         var modelResults: [[(Double,Double)]] = [[]]
         var currentRow = -1
@@ -93,9 +97,11 @@ class Model {
     }
     
     func addToTrace(s: String) {
+        if tracing {
         let timeString = String(format:"%.2f", time)
         println("\(timeString)  " + s)
         trace += "\(timeString)  " + s + "\n"
+        }
     }
     
     func clearTrace() {
@@ -124,6 +130,54 @@ class Model {
         running = true
         clearTrace()
     }
+    
+    func setParameter(parameter: String, value: String) -> Bool {
+        let numVal = NSNumberFormatter().numberFromString(value)?.doubleValue
+        let boolVal = (value != "nil")
+        switch parameter {
+        case ":imaginal-delay":
+            imaginal.imaginalLatency = numVal!
+        case ":imaginal-autoclear":
+            imaginal.autoClear = boolVal
+        case ":egs":
+            procedural.utilityNoise = numVal!
+        case ":alpha":
+            procedural.alpha = numVal!
+        case ":nu":
+            procedural.defaultU = numVal!
+        case ":primU":
+            procedural.primU = numVal!
+        case ":utility-retrieve-operator":
+            procedural.utilityRetrieveOperator = numVal!
+        case ":dat":
+            procedural.productionActionLatency = numVal!
+        case ":bll":
+            dm.baseLevelDecay = numVal!
+        case ":ol":
+            dm.optimizedLearning = boolVal
+        case ":mas":
+            dm.maximumAssociativeStrength = numVal!
+        case ":rt":
+            dm.retrievalThreshold = numVal!
+        case ":lf":
+            dm.latencyFactor = numVal!
+        case ":mp":
+            dm.misMatchPenalty = numVal!
+        case ":ans":
+            dm.activationNoise = numVal!
+        case ":default-operator-assoc":
+            dm.defaultOperatorAssoc = numVal!
+        default: return false
+        }
+        println("Parameter \(parameter) has value \(value)")
+        return true
+    }
+
+    func loadParameters() {
+        for (parameter,value) in parameters {
+            setParameter(parameter, value: value)
+        }
+    }
 
     /**
     This function finds an operator. It can do this in several ways depending on the settings
@@ -133,7 +187,7 @@ class Model {
     If retrieveOperatorsConditional is true, an operator is retrieved that is checked by the currently
     available productions.
     */
-    func findOperatorOrOperatorProduction() {
+    func findOperatorOrOperatorProduction() -> Bool {
         let opInst = procedural.compileOperators ? procedural.findOperatorProduction() : nil
         if opInst == nil {
             let retrievalRQ = Chunk(s: "operator", m: self)
@@ -166,8 +220,8 @@ class Model {
                 }
             }
             time += latency
-            if opRetrieved == nil { return }
-            addToTrace("Retrieved operator \(opRetrieved!.name)")
+            if opRetrieved == nil { return false }
+            addToTrace("*** Retrieved operator \(opRetrieved!.name)")
             dm.addToFinsts(opRetrieved!)
             buffers["operator"] = opRetrieved!.copy()
             procedural.lastOperator = opRetrieved!
@@ -176,6 +230,7 @@ class Model {
             procedural.fireProduction(opInst!, compile: true)
             time += 0.05
         }
+        return true
     }
     
     
@@ -197,6 +252,7 @@ class Model {
     
     func doAllModuleActions() {
         var latency = 0.0
+        buffers["retrievalH"] = nil
         if buffers["retrievalR"] != nil {
             let retrievalLatency = dm.action()
             latency = max(latency, retrievalLatency)
@@ -225,8 +281,12 @@ class Model {
         var found: Bool = false
         do {
             procedural.lastProduction = nil
-            findOperatorOrOperatorProduction()
+            if !findOperatorOrOperatorProduction() { running = false ; return }
             found = carryOutProductionsUntilOperatorDone()
+            if !found {
+                let op = buffers["operator"]!
+                addToTrace("Operator \(op.name) failed")
+            }
         } while !found
         buffers["operator"] = nil
         doAllModuleActions()

@@ -54,6 +54,17 @@ action C1->G1;C2->AC1;C3->AC2
 (sem4 isa fact slot1 property slot2 plant slot3 livingthing :activation 1.0)
 )
 
+(sgp :imaginal-autoclear nil :ol t :rt 0.0 :lf 1.0)
+
+(screen start
+(card card
+(num1 lion livingthing)
+)  )
+
+(start-screen start)
+
+
+
 (specify-inputs
 (i1 lion livingthing)
 (i2 lion plant)

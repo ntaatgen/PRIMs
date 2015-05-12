@@ -10,7 +10,8 @@ import Foundation
 
 class Imaginal {
     var imaginalLatency = 0.2
-    var model: Model
+    let model: Model
+    var autoClear = true
     
     init(model: Model) {
         self.model = model
@@ -26,7 +27,7 @@ class Imaginal {
                     overlap = true
                 }
             }
-            if overlap {
+            if overlap && autoClear {
                 newImaginal.setSlot("isa", value: oldImaginal.slotvals["isa"]!)
                 model.buffers["imaginal"] = newImaginal
                 model.addToTrace("New imaginal chunk \(newImaginal.name)")

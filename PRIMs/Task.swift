@@ -16,6 +16,8 @@ class Task {
     let filename: NSURL
     var goalChunk: Chunk? = nil
     var goalConstants: Chunk? = nil
+    var scenario: PRScenario! = nil
+    var parameters: [(String,String)] = []
     init(name: String, path: NSURL) {
         self.name = name
         self.filename = path

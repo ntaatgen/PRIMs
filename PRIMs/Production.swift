@@ -111,6 +111,11 @@ class Production: Printable {
             if !bc.fire() { // println("\(bc) does not match")
                 return false } // one of the conditions does not match
         }
+        for ac in actions {
+            if !ac.testFire() {
+                return false
+            }
+        }
         return true
     }
     
@@ -128,7 +133,7 @@ class Production: Printable {
         }
         for ac in actions {
             if !ac.fire() { // println("\(ac) does not execute")
-                return false } // shouldn't happen but who knows
+                return false } // an action cannot be executed because its lhs is nil
         }
         if newCondition != nil {
             model.buffers["operator"]!.setSlot("condition", value: newCondition!)

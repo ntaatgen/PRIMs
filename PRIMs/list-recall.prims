@@ -6,20 +6,23 @@
 (set-goal read-in-memory rehearse report-vocal)
 (set-goal-constants letter list)
 
+(sgp :imaginal-autoclear t :ol t :rt 0.0 :lf 0.3)
+
+
 (add-dm
 (read-first-letter
   isa operator
   slot1 read
-  condition WM1=nil;V1=GC1;V2<>nil
-  action GC2->WM1;G0->WM2;V2->WM3;C1->AC1
+  condition WM1=nil;V1=GC1
+  action V2->WM3;GC2->WM1;G0->WM2;C1->AC1
 :activation 1.0
 :assoc read-in-memory)
 
 (read-next-letter
   isa operator
   slot1 read
-condition WM1<>nil;V1=GC1;V2<>nil
-action GC2->WM1;WM0->WM2;V2->WM3;C1->AC1
+condition WM1<>nil;V1=GC1l
+action V2->WM3;GC2->WM1;WM0->WM2;C1->AC1
 :activation 1.0
 :assoc read-in-memory)
 
@@ -35,8 +38,8 @@ action G0->RT2;C1->WM1
   isa operator
   slot1 report
   slot2 say
-condition V1=C1;RT2<>nil
-action C2->AC1;RT3->AC2;RT0->RT2
+condition V1=C1
+action RT3->AC2;C2->AC1;RT0->RT2
 :activation 1.0
 :assoc report-vocal)
 

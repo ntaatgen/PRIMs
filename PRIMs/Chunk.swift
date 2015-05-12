@@ -23,6 +23,7 @@ class Chunk: Printable {
     var isRequest: Bool = false
     var printOrder: [String] = [] // Order in which slots have to be printed
     var assocs: [String:Double] = [:] // Sji table
+    
     init (s: String, m: Model) {
         name = s
         model = m
