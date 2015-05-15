@@ -23,7 +23,7 @@ class Chunk: Printable {
     var isRequest: Bool = false
     var printOrder: [String] = [] // Order in which slots have to be printed
     var assocs: [String:Double] = [:] // Sji table
-    
+    var definedIn: Int? // Task number that refers to the file that the chunk was defined in
     init (s: String, m: Model) {
         name = s
         model = m

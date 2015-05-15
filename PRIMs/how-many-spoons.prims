@@ -1,0 +1,101 @@
+;;; How manu spoons example
+
+(set-task count-spoons)
+(set-goal count-spoons)
+(set-goal-constants item spoon placemat)
+
+(sgp :imaginal-autoclear nil :rt -2.0 :lf 0.3)
+
+(add-dm
+(cf0 isa fact slot1 count-fact slot2 zero slot3 one :activation 1.0)
+(cf1 isa fact slot1 count-fact slot2 one slot3 two :activation 1.0)
+(cf2 isa fact slot1 count-fact slot2 two slot3 three :activation 1.0)
+(cf3 isa fact slot1 count-fact slot2 three slot3 four :activation 1.0)
+(cf4 isa fact slot1 count-fact slot2 four slot3 five :activation 1.0)
+(cf5 isa fact slot1 count-fact slot2 five slot3 six :activation 1.0)
+
+(init-count-task
+isa operator
+slot1 zero
+slot2 focus-down
+condition WM1=nil;V1=GC3
+action C1->WM1;C2->AC1
+:activation 1.0
+:assoc count-spoons
+)
+
+(count-spoons-retrieve
+isa operator
+slot1 count-fact
+condition V1=GC1;V2=GC2;RT1=nil
+action C1->RT1;WM1->RT2
+:activation 1.0
+:assoc count-spoons)
+
+(count-spoons-add-count
+isa operator
+slot1 focus-next
+condition V1=GC1;V2=GC2
+action RT3->WM1;C1->AC1
+:activation 1.0
+:assoc count-spoons
+)
+
+(count-ignore-non-spoons
+isa operator
+slot1 focus-next
+condition V1=GC1;V2<>GC2
+action C1->AC1
+:activation 1.0
+:assoc count-spoons
+)
+
+(count-spoons-next-placemat
+isa operator
+slot1 error
+slot3 focus-up
+condition V1=GC3;V2=C1
+action C3->AC1
+:activation 1.0
+:assoc count-spoons
+)
+
+(count-spoons-focus-down-next-placemat
+isa operator
+slot1 focus-down
+slot2 error
+condition WM1<>nil;V1=GC3;V2<>C2
+action C1->AC1
+:activation 1.0
+:assoc count-spoons
+)
+
+(report-spoons
+isa operator
+slot1 card
+slot2 error
+slot3 say
+slot4 stop
+condition V1=C1;V2=C2
+action C3->AC1;WM1->AC2;C4->G1
+:activation 1.0
+:assoc count-spoons
+)
+)
+
+(screen start
+ (card card
+  (pm1 placemat one
+   (i1 item fork)
+   (i2 item fork)
+   (i3 item plate)
+   (i4 item knife)
+   (i5 item spoon))
+  (pm2 placemat two
+   (i6 item fork)
+   (i7 item plate)
+   (i8 item knife)
+   (i9 item spoon)
+   (i10 item spoon))))
+
+(start-screen start)

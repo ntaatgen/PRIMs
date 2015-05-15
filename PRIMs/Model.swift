@@ -43,7 +43,8 @@ class Model {
     var scenario = PRScenario()
     
 //    struct Results {
-        var modelResults: [[(Double,Double)]] = [[]]
+        var modelResults: [[(Double,Double)]] = []
+        var resultTaskNumber: [Int] = []
         var currentRow = -1
         var maxX = 0.0
         var maxY = 0.0
@@ -64,6 +65,9 @@ class Model {
         func newResult() {
             if currentRow < modelResults.count {
                 currentRow = currentRow + 1
+                resultTaskNumber.append(currentTaskIndex!)
+            } else {
+                resultTaskNumber[currentRow] = currentTaskIndex!
             }
         }
     func clearResults() {
@@ -76,7 +80,7 @@ class Model {
         
 //    }
 
-    func reset() {
+    func reset(taskNumber: Int) {
         dm = Declarative(model: self)
         procedural = Procedural(model: self)
         buffers = [:]
@@ -87,7 +91,7 @@ class Model {
         trace = ""
         waitingForAction = false
         inputs = []
-        let parser = Parser(model: self, text: modelText)
+        let parser = Parser(model: self, text: modelText, taskNumber: taskNumber)
         parser.parseModel()
         newResult()
     }
@@ -108,8 +112,16 @@ class Model {
         trace = ""
     }
     
-    func parseCode(modelCode: String) {
-        let parser = Parser(model: self, text: modelCode)
+    /** 
+    Code to represent all the tasks
+    */
+    
+    var tasks: [Task] = []
+    var currentTaskIndex: Int? = nil
+
+    
+    func parseCode(modelCode: String, taskNumber: Int) {
+        let parser = Parser(model: self, text: modelCode, taskNumber: taskNumber)
         parser.parseModel()
         modelText = modelCode
         newResult()

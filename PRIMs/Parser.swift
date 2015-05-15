@@ -11,12 +11,13 @@ import Foundation
 class Parser  {
     private let t: Tokenizer
     private let m: Model
+    let taskNumber: Int
     
-    
-    init(model: Model, text: String) {
+    init(model: Model, text: String, taskNumber: Int) {
         m = model
         t = Tokenizer(s: text)
         model.modelText = text
+        self.taskNumber = taskNumber
     }
     
     func parseModel() {
@@ -34,7 +35,9 @@ class Parser  {
                 do {
                     chunk = parseChunk(m.dm)
                     println("Parsed \(chunk)")
-                    if chunk != nil {  m.dm.addToDM(chunk!)
+                    if chunk != nil {
+                        chunk!.definedIn = taskNumber
+                        m.dm.addToDM(chunk!)
                     }
                 } while (chunk != nil && t.token != ")")
                 if t.token != ")" {

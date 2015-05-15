@@ -8,7 +8,7 @@
 
 import Cocoa
 
-class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDelegate, GraphViewDataSource {
+class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDelegate, GraphViewDataSource, PrimViewDataSource {
     
     
     var model = Model()
@@ -28,6 +28,25 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
     @IBOutlet weak var chunkTable: NSTableView!
     
     @IBOutlet weak var chunkTextField: NSTextField!
+    
+    func numberToColor(i: Int) -> NSColor {
+        switch i {
+        case -2: return NSColor.grayColor()
+        case -1: return NSColor.whiteColor()
+        case 0: return NSColor.redColor()
+        case 1: return NSColor.blueColor()
+        case 2: return NSColor.greenColor()
+        case 3: return NSColor.purpleColor()
+        case 4: return NSColor.cyanColor()
+        case 5: return NSColor.magentaColor()
+        default: return NSColor.blackColor()
+        }
+    }
+    
+    /** This section implements the functions needed for the GraphView, which can display various performance measures
+    Currently, it shows run latencies.
+    The actual results are stored in the Model class
+    */
     
     @IBOutlet weak var graph: GraphView! {
         didSet { graph.dataSource = self }}
@@ -61,12 +80,8 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
     }
     
     func graphColorOfGraph(sender: GraphView, graph: Int) -> NSColor? {
-        switch graph {
-            case 0: return NSColor.redColor()
-            case 1: return NSColor.blueColor()
-            case 2: return NSColor.greenColor()
-            case 3: return NSColor.purpleColor()
-        default: return NSColor.blackColor()
+        if graph >= model.modelResults.count { return nil } else {
+        return numberToColor(model.resultTaskNumber[graph])
         }
     }
     
@@ -74,10 +89,84 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
         return model.modelResults[graph]
     }
     
-    var tasks: [Task] = []
-    var currentTask: Int? = nil
+    /**
+    This section implements the PrimGraph protocol.
+    */
     
+    var primGraphData: FruchtermanReingold?
     
+    @IBOutlet weak var primGraph: PrimView! {
+        didSet { primGraph.dataSource = self }
+    }
+    
+    @IBAction func redisplayPrimGraph(sender: NSButton) {
+        primViewCalculateGraph(primGraph)
+        primGraph.needsDisplay = true
+    }
+    
+    let border = 10.0
+
+    func primViewCalculateGraph(sender: PrimView) {
+        primGraphData = FruchtermanReingold(W: Double(sender.bounds.width) - 2 * border, H: Double(sender.bounds.height) - 2 * border)
+        primGraphData!.setUpGraph(model)
+        primGraphData!.calculate()
+    }
+    
+    func primViewNumberOfVertices(sender: PrimView) -> Int {
+        if primGraphData == nil {
+            return 0
+        } else {
+            return primGraphData!.nodes.count
+        }
+    }
+
+    func primViewNumbeOfEdges(sender: PrimView) -> Int {
+        if primGraphData == nil {
+            return 0
+        } else {
+            return primGraphData!.edges.count
+        }
+    }
+
+    func primViewVertexCoordinates(sender: PrimView, index: Int) -> (Double, Double) {
+        if primGraphData == nil {
+            return (0,0)
+        } else {
+            let key = primGraphData!.keys[index]
+            return (primGraphData!.nodes[key]!.x + border, primGraphData!.nodes[key]!.y + border)
+        }
+    }
+    
+    func primViewEdgeVertices(sender: PrimView, index: Int) -> (Int, Int) {
+        if primGraphData == nil {
+            return (0,0)
+        } else {
+            let vertex1 = primGraphData!.edges[index].from
+            let vertex2 = primGraphData!.edges[index].to
+            return (primGraphData!.nodeToIndex[vertex1.name]! , primGraphData!.nodeToIndex[vertex2.name]!)
+        }
+    }
+    
+    func primViewVertexColor(sender: PrimView, index: Int) -> NSColor {
+        if primGraphData == nil {
+            return NSColor.whiteColor()
+        } else {
+            let key = primGraphData!.keys[index]
+            let taskNumber = primGraphData!.nodes[key]!.taskNumber
+            return numberToColor(taskNumber)
+        }
+    }
+    
+    func primViewVertexLabel(sender: PrimView, index: Int) -> String {
+        if primGraphData == nil {
+            return ""
+        } else {
+            let key = primGraphData!.keys[index]
+            return primGraphData!.nodes[key]!.name
+        }
+    }
+    
+
     
     @IBAction func loadModel(sender: NSButton) {
         var fileDialog: NSOpenPanel = NSOpenPanel()
@@ -91,7 +180,8 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
             modelCode = String(contentsOfURL: filePath, encoding: NSUTF8StringEncoding, error: nil)
             model.inputs = []
             if modelCode != nil {
-                model.parseCode(modelCode!)
+                model.currentTaskIndex = model.tasks.count
+                model.parseCode(modelCode!,taskNumber: model.tasks.count)
             }
             let newTask = Task(name: model.currentTask!, path: filePath)
             newTask.inputs = model.inputs
@@ -100,32 +190,34 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
             newTask.goalConstants = model.currentGoalConstants
             newTask.parameters = model.parameters
             newTask.scenario = model.scenario
-            tasks.append(newTask)
-            currentTask = tasks.count - 1
+            model.tasks.append(newTask)
+//            model.currentTaskIndex = model.tasks.count - 1
         }
         modelText.string = modelCode
+        primViewCalculateGraph(primGraph)
+        primGraph.needsDisplay = true
         updateAllViews()
     }
     
     func loadOrReloadTask(i: Int) {
-        if (i != currentTask) {
-            modelCode = String(contentsOfURL: tasks[i].filename, encoding: NSUTF8StringEncoding, error: nil)
-            if !tasks[i].loaded && modelCode != nil {
-                model.parseCode(modelCode!)
-                tasks[i].loaded = true
+        if (i != model.currentTaskIndex) {
+            modelCode = String(contentsOfURL: model.tasks[i].filename, encoding: NSUTF8StringEncoding, error: nil)
+            if !model.tasks[i].loaded && modelCode != nil {
+                model.parseCode(modelCode!,taskNumber: i)
+                model.tasks[i].loaded = true
             }
             modelText.string = modelCode
             if modelCode != nil {
                 model.modelText = modelCode!
             }
-            model.inputs = tasks[i].inputs
-            model.currentTask = tasks[i].name
-            model.currentGoals = tasks[i].goalChunk
-            model.currentGoalConstants = tasks[i].goalConstants
-            model.parameters = tasks[i].parameters
-            model.scenario = tasks[i].scenario
+            model.inputs = model.tasks[i].inputs
+            model.currentTask = model.tasks[i].name
+            model.currentGoals = model.tasks[i].goalChunk
+            model.currentGoalConstants = model.tasks[i].goalConstants
+            model.parameters = model.tasks[i].parameters
+            model.scenario = model.tasks[i].scenario
             model.loadParameters()
-            currentTask = i
+            model.currentTaskIndex = i
             model.newResult()
             updateAllViews()
         }
@@ -157,7 +249,7 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
     func numberOfRowsInTableView(tableView: NSTableView) -> Int {
         switch tableView {
         case productionTable: return pTable.count
-        case taskTable: return tasks.count
+        case taskTable: return model.tasks.count
         case chunkTable: return dmTable.count
         default: return 0
         }
@@ -174,8 +266,11 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
             }
         case taskTable:
             switch String(tableColumn!.identifier) {
-            case "Name": return row == currentTask ? "** " + tasks[row].name : tasks[row].name
-            case "Loaded": return tasks[row].loaded ? "Yes" : "No"
+            case "Name": return row == model.currentTaskIndex ? "** " + model.tasks[row].name : model.tasks[row].name
+            case "Loaded": let text = NSMutableAttributedString(string: model.tasks[row].loaded ? "▶︎" : "")
+            text.addAttribute(NSForegroundColorAttributeName, value: numberToColor(row), range: NSMakeRange(0, text.length))
+
+                return text
             default: return nil
             }
         case chunkTable:
@@ -246,13 +341,15 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
     }
     
     @IBAction func reset(sender: NSButton) {
-        model.reset()
-        for task in tasks {
+        model.reset(model.currentTaskIndex!)
+        for task in model.tasks {
             task.loaded = false
         }
-        if currentTask != nil {
-            tasks[currentTask!].loaded = true
+        if model.currentTaskIndex != nil {
+            model.tasks[model.currentTaskIndex!].loaded = true
         }
+        primViewCalculateGraph(primGraph)
+        primGraph.needsDisplay = true
         updateAllViews()
     }
     
