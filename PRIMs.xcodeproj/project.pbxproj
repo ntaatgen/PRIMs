@@ -9,8 +9,9 @@
 /* Begin PBXBuildFile section */
 		B806EFBC1AEFE77900633505 /* Task.swift in Sources */ = {isa = PBXBuildFile; fileRef = B806EFBB1AEFE77900633505 /* Task.swift */; };
 		B806EFBE1AF003CF00633505 /* Action.swift in Sources */ = {isa = PBXBuildFile; fileRef = B806EFBD1AF003CF00633505 /* Action.swift */; };
-		B826B9AF1B063DBB000950A3 /* how-many-spoons.prims in Resources */ = {isa = PBXBuildFile; fileRef = B826B9AE1B063DBB000950A3 /* how-many-spoons.prims */; };
-		B843879B1AF20D8B00D214E0 /* list-recall.prims in Resources */ = {isa = PBXBuildFile; fileRef = B843879A1AF20D8B00D214E0 /* list-recall.prims */; };
+		B825B6E51B0C884E009B98BC /* more-fish-goals.prims in Resources */ = {isa = PBXBuildFile; fileRef = B825B6E41B0C884E009B98BC /* more-fish-goals.prims */; };
+		B825B6E71B0CAC38009B98BC /* list-recall-scenario.prims in Resources */ = {isa = PBXBuildFile; fileRef = B825B6E61B0CAC38009B98BC /* list-recall-scenario.prims */; };
+		B826B9AF1B063DBB000950A3 /* how-many-spoons-goals.prims in Resources */ = {isa = PBXBuildFile; fileRef = B826B9AE1B063DBB000950A3 /* how-many-spoons-goals.prims */; };
 		B84BE0781B034C190015DF1F /* PrimView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B84BE0771B034C190015DF1F /* PrimView.swift */; };
 		B85FAA5C1AE10CAF00C6F57A /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B85FAA5B1AE10CAF00C6F57A /* AppDelegate.swift */; };
 		B85FAA5E1AE10CAF00C6F57A /* MainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B85FAA5D1AE10CAF00C6F57A /* MainViewController.swift */; };
@@ -34,7 +35,6 @@
 		B8EEE60D1B01DDC6002EFAD6 /* PRScenario.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8EEE60C1B01DDC6002EFAD6 /* PRScenario.swift */; };
 		B8F00C061B009E810036FFE3 /* PRObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8F00C051B009E810036FFE3 /* PRObject.swift */; };
 		B8F00C081B00A1D10036FFE3 /* PRScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8F00C071B00A1D10036FFE3 /* PRScreen.swift */; };
-		B8F00C0C1B00CF720036FFE3 /* more-fish.prims in Resources */ = {isa = PBXBuildFile; fileRef = B8F00C0B1B00CF720036FFE3 /* more-fish.prims */; };
 		B8FA0B451AE2C837007C9F39 /* Parser.swift in Sources */ = {isa = PBXBuildFile; fileRef = B85FAA981AE10D7500C6F57A /* Parser.swift */; };
 /* End PBXBuildFile section */
 
@@ -51,8 +51,9 @@
 /* Begin PBXFileReference section */
 		B806EFBB1AEFE77900633505 /* Task.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Task.swift; sourceTree = "<group>"; };
 		B806EFBD1AF003CF00633505 /* Action.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Action.swift; sourceTree = "<group>"; };
-		B826B9AE1B063DBB000950A3 /* how-many-spoons.prims */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "how-many-spoons.prims"; sourceTree = "<group>"; };
-		B843879A1AF20D8B00D214E0 /* list-recall.prims */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "list-recall.prims"; sourceTree = "<group>"; };
+		B825B6E41B0C884E009B98BC /* more-fish-goals.prims */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "more-fish-goals.prims"; sourceTree = "<group>"; };
+		B825B6E61B0CAC38009B98BC /* list-recall-scenario.prims */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "list-recall-scenario.prims"; sourceTree = "<group>"; };
+		B826B9AE1B063DBB000950A3 /* how-many-spoons-goals.prims */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "how-many-spoons-goals.prims"; sourceTree = "<group>"; };
 		B84BE0771B034C190015DF1F /* PrimView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PrimView.swift; sourceTree = "<group>"; };
 		B85FAA561AE10CAF00C6F57A /* PRIMs.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PRIMs.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B85FAA5A1AE10CAF00C6F57A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -81,8 +82,6 @@
 		B8EEE60C1B01DDC6002EFAD6 /* PRScenario.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PRScenario.swift; sourceTree = "<group>"; };
 		B8F00C051B009E810036FFE3 /* PRObject.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PRObject.swift; sourceTree = "<group>"; };
 		B8F00C071B00A1D10036FFE3 /* PRScreen.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PRScreen.swift; sourceTree = "<group>"; };
-		B8F00C091B00B8740036FFE3 /* TestInterface.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestInterface.swift; sourceTree = "<group>"; };
-		B8F00C0B1B00CF720036FFE3 /* more-fish.prims */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "more-fish.prims"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -134,9 +133,9 @@
 				B85FAA591AE10CAF00C6F57A /* Supporting Files */,
 				B85FAAB11AE1188C00C6F57A /* count.prims */,
 				B8BEEE691AE79C9F00FF1FBC /* semantic.prims */,
-				B843879A1AF20D8B00D214E0 /* list-recall.prims */,
-				B8F00C0B1B00CF720036FFE3 /* more-fish.prims */,
-				B826B9AE1B063DBB000950A3 /* how-many-spoons.prims */,
+				B825B6E61B0CAC38009B98BC /* list-recall-scenario.prims */,
+				B825B6E41B0C884E009B98BC /* more-fish-goals.prims */,
+				B826B9AE1B063DBB000950A3 /* how-many-spoons-goals.prims */,
 				B8CE155D1B022A5300554F5F /* FruchtermanReingold.swift */,
 			);
 			path = PRIMs;
@@ -194,7 +193,6 @@
 				B8F00C051B009E810036FFE3 /* PRObject.swift */,
 				B8F00C071B00A1D10036FFE3 /* PRScreen.swift */,
 				B8EEE60C1B01DDC6002EFAD6 /* PRScenario.swift */,
-				B8F00C091B00B8740036FFE3 /* TestInterface.swift */,
 			);
 			name = Interface;
 			sourceTree = "<group>";
@@ -279,13 +277,13 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B8F00C0C1B00CF720036FFE3 /* more-fish.prims in Resources */,
 				B85FAA601AE10CAF00C6F57A /* Images.xcassets in Resources */,
-				B826B9AF1B063DBB000950A3 /* how-many-spoons.prims in Resources */,
+				B825B6E71B0CAC38009B98BC /* list-recall-scenario.prims in Resources */,
+				B826B9AF1B063DBB000950A3 /* how-many-spoons-goals.prims in Resources */,
 				B85FAAB21AE1188C00C6F57A /* count.prims in Resources */,
 				B85FAA631AE10CAF00C6F57A /* Main.storyboard in Resources */,
 				B8BEEE6A1AE79C9F00FF1FBC /* semantic.prims in Resources */,
-				B843879B1AF20D8B00D214E0 /* list-recall.prims in Resources */,
+				B825B6E51B0C884E009B98BC /* more-fish-goals.prims in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

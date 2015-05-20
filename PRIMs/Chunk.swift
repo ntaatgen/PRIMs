@@ -165,7 +165,13 @@ class Chunk: Printable {
         return false
     }
 
+    /**
+    Calculate the association between self and another chunk
     
+    :param: chunk the chunk that the association is with
+    
+    :returns: the Sji value
+    */
     func sji(chunk: Chunk) -> Double {
         if let value = chunk.assocs[self.name] {
             return value
@@ -210,6 +216,16 @@ class Chunk: Printable {
 //        }
         return  self.baseLevelActivation()
             + self.spreadingActivation() + calculateNoise()
+    }
+    
+    func mergeAssocs(newchunk: Chunk) {
+        for (name,value) in newchunk.assocs {
+            if assocs[name] == nil {
+                assocs[name] = value
+            } else {
+                assocs[name] = max(assocs[name]!,value)
+            }
+        }
     }
     
 }

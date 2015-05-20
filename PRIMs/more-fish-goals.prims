@@ -1,0 +1,158 @@
+;;; More fish example
+
+(set-task more-fish)
+(set-goal find-most say-answer)
+(set-goal-constants fish red acquarium)
+
+
+(sgp :imaginal-autoclear nil :rt -2.0 :lf 0.3 :ans 0.1)
+
+(add-dm
+(cf0 isa fact slot1 count-fact slot2 zero slot3 one :activation 1.0)
+(cf1 isa fact slot1 count-fact slot2 one slot3 two :activation 1.0)
+(cf2 isa fact slot1 count-fact slot2 two slot3 three :activation 1.0)
+(cf3 isa fact slot1 count-fact slot2 three slot3 four :activation 1.0)
+(cf4 isa fact slot1 count-fact slot2 four slot3 five :activation 1.0)
+(cf5 isa fact slot1 count-fact slot2 five slot3 six :activation 1.0)
+(gt1 isa fact slot1 greater-than slot2 three slot3 zero slot4 yes :activation 1.0)
+
+(count-goal isa goal-type slot1 count-goal :activation 1.0)
+
+(init-find-most
+isa operator
+slot1 focus-down
+slot2 count-goal
+slot3 zero
+condition WM1=nil;V1=GC3
+action V2->WM2;C3->WM3;C1->AC1;C2->G3
+:activation 1.0
+:assoc find-most
+)
+
+(init-count-goal
+isa operator
+slot1 zero
+condition WM1=nil
+action C1->WM1
+:activation 1.0
+:assoc count-goal
+)
+
+(count-goal-retrieve
+isa operator
+slot1 count-fact
+condition V1=GC1;V2=GC2;RT1=nil
+action WM1->RT2;C1->RT1
+:activation 1.0
+:assoc count-goal)
+
+(count-goal-add-count
+isa operator
+slot1 focus-next
+condition V1=GC1;V2=GC2
+action RT3->WM1;C1->AC1
+:activation 1.0
+:assoc count-goal
+)
+
+(count-goal-ignore-non-targets
+isa operator
+slot1 focus-next
+condition V1=GC1;V2<>GC2
+action C1->AC1
+:activation 1.0
+:assoc count-goal
+)
+
+(count-goal-done
+isa operator
+slot1 error
+condition V2=C1
+action nil->G3
+:activation 1.0
+:assoc count-goal
+)
+
+(count-done-check-for-more
+isa operator
+slot1 error
+slot2 greater-than
+condition RT1=nil;V1=GC3;V2=C1
+action C2->RT1;WM1->RT2;WM3->RT3
+:activation 1.0
+:assoc find-most
+)
+
+(find-most-new-is-more
+isa operator
+slot1 error
+slot2 yes
+slot3 focus-up
+condition V1=GC3;V2=C1;RT4=C2
+action WM1->WM3;WM2->WM4;C3->AC1
+:activation 1.0
+:assoc find-most
+)
+
+(find-most-new-is-not-more
+isa operator
+slot1 error
+slot3 focus-up
+condition V1=GC3;V2=C1;RT1=C1
+action C3->AC1
+:activation 1.0
+:assoc find-most
+)
+
+(find-most-next-container
+isa operator
+slot1 focus-down
+slot2 error
+slot3 zero
+slot4 count-goal
+condition WM3<>nil;V1=GC3;V2<>C2
+action V2->WM2;C4->G3;C3->WM1;C1->AC1
+:activation 1.0
+:assoc find-most
+)
+
+(find-most-all-done
+isa operator
+slot1 card
+slot2 error
+slot3 done
+condition V1=C1;V2=C2
+action C3->WM2;nil->G1;WM4->WM1
+:activation 1.0
+:assoc find-most
+)
+
+(report-answer
+isa operator
+slot1 done
+slot2 say
+slot3 stop
+condition WM2=C1
+action C2->AC1;WM1->AC2;C3->G1
+:activation 1.0
+:assoc say-answer
+)
+)
+
+(screen start
+ (card card
+   (ac1 acquarium left
+     (fish1 fish red)
+     (fish2 fish blue)
+     (fish3 fish red)
+     (fish4 fish red)
+)
+(ac2 acquarium right
+(fish5 fish red)
+(fish6 fish blue)
+(fish7 fish green)
+(fish8 fish red)
+)
+))
+
+(start-screen start)

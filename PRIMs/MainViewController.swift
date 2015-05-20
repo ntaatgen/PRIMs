@@ -175,11 +175,15 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
         fileDialog.allowsMultipleSelection = false
         fileDialog.resolvesAliases = true
         fileDialog.allowedFileTypes = ["prims"]
-        fileDialog.runModal()
+        let result = fileDialog.runModal()
+        if result != NSFileHandlingPanelOKButton { return }
         if let filePath = fileDialog.URL {
             modelCode = String(contentsOfURL: filePath, encoding: NSUTF8StringEncoding, error: nil)
             model.inputs = []
             if modelCode != nil {
+                model.scenario = PRScenario()
+                model.parameters = []
+                model.inputs = []
                 model.currentTaskIndex = model.tasks.count
                 model.parseCode(modelCode!,taskNumber: model.tasks.count)
             }
@@ -203,6 +207,9 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
         if (i != model.currentTaskIndex) {
             modelCode = String(contentsOfURL: model.tasks[i].filename, encoding: NSUTF8StringEncoding, error: nil)
             if !model.tasks[i].loaded && modelCode != nil {
+                model.scenario = PRScenario()
+                model.parameters = []
+                model.inputs = []
                 model.parseCode(modelCode!,taskNumber: i)
                 model.tasks[i].loaded = true
             }
@@ -212,11 +219,15 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
             }
             model.inputs = model.tasks[i].inputs
             model.currentTask = model.tasks[i].name
+            println("Setting current task to \(model.currentTask!)")
             model.currentGoals = model.tasks[i].goalChunk
             model.currentGoalConstants = model.tasks[i].goalConstants
             model.parameters = model.tasks[i].parameters
             model.scenario = model.tasks[i].scenario
+            println("Setting scenario with startscreen \(model.scenario.startScreen.name)")
+            println("Setting parameters")
             model.loadParameters()
+            println("Setting task index to \(i)")
             model.currentTaskIndex = i
             model.newResult()
             updateAllViews()

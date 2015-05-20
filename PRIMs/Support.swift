@@ -27,7 +27,16 @@ func isVariable(v: Value) -> Bool {
 
 
 // Chunk values can be a symbol, a number or nil
+/**
+Chunks can have different types in their slots:
 
+- Symbol: Another chunk
+
+- Number: a number (Double)
+
+- Text : a string
+
+*/
 enum Value: Printable {
     case Symbol(Chunk)
     case Number(Double)
@@ -85,7 +94,13 @@ enum Value: Printable {
 // We need a function to chop off the first PRIM
 
 /**
-Take a string with a list of PRIMs, return the first n and the rest
+Chop a PRIM string into separate PRIM
+
+:param: s The String with the list of PRIMs
+
+:param: n How many PRIMs should be chopped off
+
+:returns: A tuple of two strings with the first n PRIMs and the rest
 */
 func chopPrims(s: String, n: Int) -> (String,String) {
     let x = s.componentsSeparatedByString(";")

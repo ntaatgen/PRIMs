@@ -1,5 +1,5 @@
 //
-//  ConditionPrim.swift
+//  Prim.swift
 //  
 //
 //  Created by Niels Taatgen on 4/17/15.
@@ -8,14 +8,17 @@
 
 import Foundation
 
+/// Buffer mappings for buffers that can be used as source (in condition or lhs of action)
 let bufferMappingC = ["V":"input","WM":"imaginal","G":"goal","C":"operator","AC":"action","RT":"retrievalH","GC":"constants"]
+/// Buffer mappings for buffer that are used in the lhs of an action
 let bufferMappingA = ["V":"input","WM":"imaginalN","G":"goal","C":"operator","AC":"action","RT":"retrievalR","GC":"constants"]
 
 /** 
 This function takes a string that represents a PRIM, and translaters it its components
-Result is a five-tuple with left-buffer-name left-buffer-slot, operator, right-buffer-name and right-buffer-slot
+
+:returns: is a five-tuple with left-buffer-name left-buffer-slot, operator, right-buffer-name and right-buffer-slot
 */
-func parseName(name: String) -> (String,String,String,String?,String?) {
+func parseName(name: String) -> (String?,String?,String,String?,String?) {
     var components: [String] = []
     var component = ""
     var prevComponentCat = 1
@@ -23,6 +26,7 @@ func parseName(name: String) -> (String,String,String,String?,String?) {
         var componentCat: Int
         switch ch {
         case "A"..."Z":  componentCat = 1
+        case "a"..."z": componentCat = 1
         case "0"..."9":  componentCat = 2
         case "<",">","=","-":  componentCat = 3
         default:  componentCat = -1
@@ -36,9 +40,14 @@ func parseName(name: String) -> (String,String,String,String?,String?) {
         prevComponentCat = componentCat
     }
     components.append(component)
-    if components.count < 4 || (components[3] != "nil" && (components.count == 4 || bufferMappingC[components[3]] == nil)) || bufferMappingC[components[0]] == nil {
+    let compareError = components.count < 4
+    let something = (components[0] != "nil" && components[3] != "nil" && (components.count == 4 || bufferMappingC[components[3]] == "nil"))
+    let parseError = compareError || something
+    if  parseError || components[0] == "nil" && components[1] != "->" {
         println("Error in parsing \(name)")
         return ("","","",nil,nil)
+    } else if components[0] == "nil" {
+        return (nil,nil,"->",bufferMappingA[components[2]]!,"slot" + components[3])
     } else if components[3] == "nil" {
         return (bufferMappingC[components[0]]!,"slot" + components[1],components[2],nil,nil)
     } else {
@@ -48,8 +57,8 @@ func parseName(name: String) -> (String,String,String,String?,String?) {
 }
 
 class Prim:Printable {
-    let lhsBuffer: String
-    let lhsSlot: String
+    let lhsBuffer: String?
+    let lhsSlot: String?
     let rhsBuffer: String? // Can be nil
     let rhsSlot: String?
     let op: String
@@ -71,11 +80,14 @@ class Prim:Printable {
     
     
     /**
-    Carry out the PRIM, either by checking its condition or by performing its action. Returns a Bool to indicate success
+    Carry out the PRIM, either by checking its condition or by performing its action. 
     In the case of an action to an empty buffer, an empty fact chunk is created in that buffer.
+
+    :returns: a Bool to indicate success
     */
     func fire() -> Bool {
-        let lhsVal = model.buffers[lhsBuffer]?.slotValue(lhsSlot)
+        let lhsVal = lhsBuffer == nil ? nil : model.buffers[lhsBuffer!]?.slotValue(lhsSlot!)
+
         switch op {
         case "=":
             if rhsBuffer == nil {
@@ -94,6 +106,12 @@ class Prim:Printable {
             let rhsVal = model.buffers[rhsBuffer!]?.slotValue(rhsSlot!)
             return rhsVal == nil ? false : !lhsVal!.isEqual(rhsVal!)
         case "->":
+            if lhsBuffer != nil && lhsVal == nil {
+                return false }
+            if lhsSlot == nil && model.buffers[rhsBuffer!] != nil {
+                model.buffers[rhsBuffer!]!.slotvals[rhsSlot!] = nil
+                return true
+            }
             if rhsBuffer == nil || lhsVal == nil {return false} 
             if model.buffers[rhsBuffer!] == nil {
                 let chunk = model.generateNewChunk(s1: rhsBuffer!)
@@ -112,10 +130,12 @@ class Prim:Printable {
     This is the case if the lhs part doesn't resolve to nil
     */
     func testFire() -> Bool {
-        let lhsVal = model.buffers[lhsBuffer]?.slotValue(lhsSlot)
-        return lhsVal != nil
+        if lhsSlot == nil { return model.buffers[rhsBuffer!] != nil } else {
+            let lhsVal = model.buffers[lhsBuffer!]?.slotValue(lhsSlot!)
+            return lhsVal != nil
+        }
     }
-
-
-
+    
+    
+    
 }

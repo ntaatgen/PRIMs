@@ -59,6 +59,7 @@ class Declarative  {
     func addToDMOrStrengthen(chunk: Chunk) -> Chunk {
         if let dupChunk = duplicateChunk(chunk) {
             dupChunk.addReference()
+            dupChunk.mergeAssocs(chunk)
                         return dupChunk
         } else {
             chunk.startTime()
@@ -77,6 +78,7 @@ class Declarative  {
     func addToDM(chunk: Chunk) {
         if let dupChunk = duplicateChunk(chunk) {
             dupChunk.addReference()
+            dupChunk.mergeAssocs(chunk)
 //            return dupChunk
         } else {
             chunk.startTime()

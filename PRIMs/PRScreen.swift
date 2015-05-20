@@ -14,6 +14,7 @@ class PRScreen {
     var transitions: [String:PRScreen] = [:]
     var timeTransition: Double? = nil
     var timeTarget: PRScreen? = nil
+    var timeAbsolute: Bool = true
     
     var currentParentObject: PRObject? = nil
     var currentAttendedObject: PRObject? {

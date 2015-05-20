@@ -69,7 +69,7 @@ class Parser  {
                         newchunk.fixedActivation = 1.0 // should change this later
                         m.dm.addToDM(newchunk)
                     }
-                    chunk.setSlot("goalslot\(slotcount++)", value: t.token!)
+                    chunk.setSlot("slot\(slotcount++)", value: t.token!)
                     t.nextToken()
                 }
                 m.currentGoals = chunk
@@ -152,6 +152,49 @@ class Parser  {
                 t.nextToken()
                 m.scenario.startScreen = m.scenario.screens[t.token!]!
                 println("Setting startScreen to \(m.scenario.startScreen.name)")
+                t.nextToken()
+                t.nextToken()
+            case "transition":
+                t.nextToken()
+                let sourceScreen = m.scenario.screens[t.token!]
+                t.nextToken()
+                let destinationScreen = m.scenario.screens[t.token!]
+                if sourceScreen == nil || destinationScreen == nil {
+                    println("Illegal transition")
+                    return
+                }
+                println("Setting transition between \(sourceScreen!.name) and \(destinationScreen!.name)")
+                t.nextToken()
+                switch t.token! {
+                case "relative-time":
+                    t.nextToken()
+                    let relTime = NSNumberFormatter().numberFromString(t.token!)?.doubleValue
+                    if relTime != nil {
+                        sourceScreen!.timeTransition = relTime!
+                        sourceScreen!.timeTarget = destinationScreen!
+                        sourceScreen!.timeAbsolute = false
+                    } else {
+                        println("Illegal time in transition")
+                        return
+                    }
+                case "absolute-time":
+                    t.nextToken()
+                    let absTime = NSNumberFormatter().numberFromString(t.token!)?.doubleValue
+                    if absTime != nil {
+                        sourceScreen!.timeTransition = absTime!
+                        sourceScreen!.timeTarget = destinationScreen!
+                        sourceScreen!.timeAbsolute = true
+                    } else {
+                        println("Illegal time in transition")
+                        return
+                    }
+                case "action":
+                    t.nextToken()
+                    sourceScreen!.transitions[t.token!] = destinationScreen
+                default:
+                    println("Unknown transition type \(t.token!)")
+                    return
+                }
                 t.nextToken()
                 t.nextToken()
             default: println("Cannot yet handle \(t.token!)")

@@ -41,6 +41,8 @@ class Model {
     var tracing: Bool = true
     var parameters: [(String,String)] = []
     var scenario = PRScenario()
+    /// Maximum time to run the model
+    var timeThreshold = 200.0
     
 //    struct Results {
         var modelResults: [[(Double,Double)]] = []
@@ -233,7 +235,7 @@ class Model {
             }
             time += latency
             if opRetrieved == nil { return false }
-            addToTrace("*** Retrieved operator \(opRetrieved!.name)")
+            addToTrace("*** Retrieved operator \(opRetrieved!.name) with spread \(opRetrieved!.spreadingActivation())")
             dm.addToFinsts(opRetrieved!)
             buffers["operator"] = opRetrieved!.copy()
             procedural.lastOperator = opRetrieved!
@@ -300,9 +302,13 @@ class Model {
                 addToTrace("Operator \(op.name) failed")
             }
         } while !found
+        let op = buffers["operator"]!.name
         buffers["operator"] = nil
         doAllModuleActions()
-        if buffers["goal"]!.slotvals["slot1"]!.text()! == "stop" {
+        if scenario.nextEventTime != nil && scenario.nextEventTime! - 0.001 <= time {
+            scenario.makeTimeTransition(self)
+        }
+        if buffers["goal"]?.slotvals["slot1"] != nil && buffers["goal"]!.slotvals["slot1"]!.description == "stop" {
             procedural.issueReward(40.0)
             running = false
 //            println("New item = \(newItem)")
@@ -313,7 +319,7 @@ class Model {
     func run() {
         if currentTask == nil { return }
         if !running { step() }
-        while running {
+        while running && (time - startTime < timeThreshold) {
             step()
         }
         

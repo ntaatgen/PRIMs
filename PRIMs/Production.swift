@@ -71,6 +71,7 @@ class Production: Printable {
     /**
     This function checks whether a production can fire, which is the case if it matches both the
     condition and action in the operator buffer
+    
     :returns: If the production can be instantiated with the current buffers, otherwise nil
     */
     func instantiate() -> Instantiation? {
