@@ -8,7 +8,13 @@
 
 import Foundation
 
-
+struct DataLine {
+    var eventType: String
+    var eventParameter1: String
+    var eventParameter2: String = "void"
+    var eventParameter3: String = "void"
+    var time: Double
+}
 
 class Model {
     var time: Double = 0
@@ -43,6 +49,7 @@ class Model {
     var scenario = PRScenario()
     /// Maximum time to run the model
     var timeThreshold = 200.0
+    var outputData: [DataLine] = []
     
 //    struct Results {
         var modelResults: [[(Double,Double)]] = []
@@ -80,24 +87,6 @@ class Model {
         currentTrial = 1.0
     }
         
-//    }
-
-    func reset(taskNumber: Int) {
-        dm = Declarative(model: self)
-        procedural = Procedural(model: self)
-        buffers = [:]
-        time = 0
-        chunkIdCounter = 0
-        running = false
-        startTime = 0
-        trace = ""
-        waitingForAction = false
-        inputs = []
-        let parser = Parser(model: self, text: modelText, taskNumber: taskNumber)
-        parser.parseModel()
-        newResult()
-    }
-
     init() {
         trace = ""
     }
@@ -114,13 +103,22 @@ class Model {
         trace = ""
     }
     
-    /** 
+    /*
     Code to represent all the tasks
     */
     
     var tasks: [Task] = []
     var currentTaskIndex: Int? = nil
 
+    func findTask(taskName: String) -> Int? {
+        for i in 0..<tasks.count {
+            if tasks[i].name == taskName {
+                return i
+            }
+        }
+        return nil
+    }
+    
     
     func parseCode(modelCode: String, taskNumber: Int) {
         let parser = Parser(model: self, text: modelCode, taskNumber: taskNumber)
@@ -143,6 +141,7 @@ class Model {
         action.initTask()
         running = true
         clearTrace()
+        outputData = []
     }
     
     func setParameter(parameter: String, value: String) -> Bool {
@@ -237,6 +236,7 @@ class Model {
             if opRetrieved == nil { return false }
             addToTrace("*** Retrieved operator \(opRetrieved!.name) with spread \(opRetrieved!.spreadingActivation())")
             dm.addToFinsts(opRetrieved!)
+            buffers["goal"]!.setSlot("last-operator", value: opRetrieved!)
             buffers["operator"] = opRetrieved!.copy()
             procedural.lastOperator = opRetrieved!
         } else {
@@ -322,9 +322,64 @@ class Model {
         while running && (time - startTime < timeThreshold) {
             step()
         }
-        
+        let dl = DataLine(eventType: "trial-end", eventParameter1: "void", eventParameter2: "void", eventParameter3: "void", time: time - startTime)
+        outputData.append(dl)
         
     }
+    
+    func reset(taskNumber: Int?) {
+        dm = Declarative(model: self)
+        procedural = Procedural(model: self)
+        buffers = [:]
+        time = 0
+        chunkIdCounter = 0
+        running = false
+        startTime = 0
+        trace = ""
+        waitingForAction = false
+        inputs = []
+        currentTaskIndex = nil
+        if taskNumber != nil {
+            currentTaskIndex = taskNumber!
+            let parser = Parser(model: self, text: modelText, taskNumber: taskNumber!)
+            parser.parseModel()
+            newResult()
+        }
+        for task in tasks {
+            task.loaded = false
+        }
+        if currentTaskIndex != nil {
+            tasks[currentTaskIndex!].loaded = true
+        }
+    }
+    
+    
+    func loadOrReloadTask(i: Int) {
+        if (i != currentTaskIndex) {
+            modelText = String(contentsOfURL: tasks[i].filename, encoding: NSUTF8StringEncoding, error: nil)!
+            currentTaskIndex = i
+            if !tasks[i].loaded {
+                scenario = PRScenario()
+                parameters = []
+                inputs = []
+                parseCode(modelText,taskNumber: i)
+                tasks[i].loaded = true
+            }
+            inputs = tasks[i].inputs
+            currentTask = tasks[i].name
+            println("Setting current task to \(currentTask!)")
+            currentGoals = tasks[i].goalChunk
+            currentGoalConstants = tasks[i].goalConstants
+            parameters = tasks[i].parameters
+            scenario = tasks[i].scenario
+            println("Setting scenario with startscreen \(scenario.startScreen.name)")
+            println("Setting parameters")
+            loadParameters()
+            println("Setting task index to \(i)")
+            newResult()
+        }
+    }
+    
     
     func generateNewChunk(s1: String = "chunk") -> Chunk {
         let name = s1 + "\(chunkIdCounter++)"

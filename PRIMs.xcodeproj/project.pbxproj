@@ -28,7 +28,11 @@
 		B85FAAB61AE1569F00C6F57A /* Production.swift in Sources */ = {isa = PBXBuildFile; fileRef = B85FAA961AE10D7500C6F57A /* Production.swift */; };
 		B85FAAB71AE1580200C6F57A /* Instantiation.swift in Sources */ = {isa = PBXBuildFile; fileRef = B85FAA9E1AE10D7500C6F57A /* Instantiation.swift */; };
 		B85FAAB81AE1582400C6F57A /* Procedural.swift in Sources */ = {isa = PBXBuildFile; fileRef = B85FAA971AE10D7500C6F57A /* Procedural.swift */; };
+		B898EA861B0F3C3100B5777E /* testbatch.bprims in Resources */ = {isa = PBXBuildFile; fileRef = B898EA851B0F3C3100B5777E /* testbatch.bprims */; };
+		B898EA881B0F504A00B5777E /* BatchRun.swift in Sources */ = {isa = PBXBuildFile; fileRef = B898EA871B0F504A00B5777E /* BatchRun.swift */; };
+		B898EA8A1B0F5A3500B5777E /* NSScanner+Swift.swift in Sources */ = {isa = PBXBuildFile; fileRef = B898EA891B0F5A3500B5777E /* NSScanner+Swift.swift */; };
 		B8B23CDC1AED499C00307F90 /* GraphView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8B23CDB1AED499C00307F90 /* GraphView.swift */; };
+		B8B3E4981B0F9310005E3601 /* spoons-fish.bprims in Resources */ = {isa = PBXBuildFile; fileRef = B8B3E4971B0F9310005E3601 /* spoons-fish.bprims */; };
 		B8BEEE6A1AE79C9F00FF1FBC /* semantic.prims in Resources */ = {isa = PBXBuildFile; fileRef = B8BEEE691AE79C9F00FF1FBC /* semantic.prims */; };
 		B8CE155E1B022A5300554F5F /* FruchtermanReingold.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8CE155D1B022A5300554F5F /* FruchtermanReingold.swift */; };
 		B8D18E0E1AEEC305007CF2B6 /* Imaginal.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8D18E0D1AEEC305007CF2B6 /* Imaginal.swift */; };
@@ -75,7 +79,11 @@
 		B85FAA9E1AE10D7500C6F57A /* Instantiation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Instantiation.swift; sourceTree = "<group>"; };
 		B85FAAB11AE1188C00C6F57A /* count.prims */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = count.prims; sourceTree = "<group>"; };
 		B85FAAB31AE1326000C6F57A /* Prim.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Prim.swift; sourceTree = "<group>"; };
+		B898EA851B0F3C3100B5777E /* testbatch.bprims */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = testbatch.bprims; sourceTree = "<group>"; };
+		B898EA871B0F504A00B5777E /* BatchRun.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BatchRun.swift; sourceTree = "<group>"; };
+		B898EA891B0F5A3500B5777E /* NSScanner+Swift.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSScanner+Swift.swift"; sourceTree = "<group>"; };
 		B8B23CDB1AED499C00307F90 /* GraphView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GraphView.swift; sourceTree = "<group>"; };
+		B8B3E4971B0F9310005E3601 /* spoons-fish.bprims */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "spoons-fish.bprims"; sourceTree = "<group>"; };
 		B8BEEE691AE79C9F00FF1FBC /* semantic.prims */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = semantic.prims; sourceTree = "<group>"; };
 		B8CE155D1B022A5300554F5F /* FruchtermanReingold.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FruchtermanReingold.swift; sourceTree = "<group>"; };
 		B8D18E0D1AEEC305007CF2B6 /* Imaginal.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Imaginal.swift; sourceTree = "<group>"; };
@@ -123,19 +131,16 @@
 		B85FAA581AE10CAF00C6F57A /* PRIMs */ = {
 			isa = PBXGroup;
 			children = (
+				B898EA8B1B0F6A1400B5777E /* Models */,
+				B898EA8E1B0F6EE500B5777E /* Views */,
 				B8F00C041B009E690036FFE3 /* Interface */,
 				B85FAA941AE10D0600C6F57A /* Core */,
 				B85FAA5D1AE10CAF00C6F57A /* MainViewController.swift */,
 				B85FAA5F1AE10CAF00C6F57A /* Images.xcassets */,
 				B85FAA611AE10CAF00C6F57A /* Main.storyboard */,
-				B8B23CDB1AED499C00307F90 /* GraphView.swift */,
-				B84BE0771B034C190015DF1F /* PrimView.swift */,
 				B85FAA591AE10CAF00C6F57A /* Supporting Files */,
-				B85FAAB11AE1188C00C6F57A /* count.prims */,
-				B8BEEE691AE79C9F00FF1FBC /* semantic.prims */,
-				B825B6E61B0CAC38009B98BC /* list-recall-scenario.prims */,
-				B825B6E41B0C884E009B98BC /* more-fish-goals.prims */,
-				B826B9AE1B063DBB000950A3 /* how-many-spoons-goals.prims */,
+				B898EA871B0F504A00B5777E /* BatchRun.swift */,
+				B898EA891B0F5A3500B5777E /* NSScanner+Swift.swift */,
 				B8CE155D1B022A5300554F5F /* FruchtermanReingold.swift */,
 			);
 			path = PRIMs;
@@ -185,6 +190,29 @@
 				B85FAA9E1AE10D7500C6F57A /* Instantiation.swift */,
 			);
 			name = Core;
+			sourceTree = "<group>";
+		};
+		B898EA8B1B0F6A1400B5777E /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				B85FAAB11AE1188C00C6F57A /* count.prims */,
+				B825B6E41B0C884E009B98BC /* more-fish-goals.prims */,
+				B8BEEE691AE79C9F00FF1FBC /* semantic.prims */,
+				B826B9AE1B063DBB000950A3 /* how-many-spoons-goals.prims */,
+				B825B6E61B0CAC38009B98BC /* list-recall-scenario.prims */,
+				B898EA851B0F3C3100B5777E /* testbatch.bprims */,
+				B8B3E4971B0F9310005E3601 /* spoons-fish.bprims */,
+			);
+			name = Models;
+			sourceTree = "<group>";
+		};
+		B898EA8E1B0F6EE500B5777E /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				B8B23CDB1AED499C00307F90 /* GraphView.swift */,
+				B84BE0771B034C190015DF1F /* PrimView.swift */,
+			);
+			name = Views;
 			sourceTree = "<group>";
 		};
 		B8F00C041B009E690036FFE3 /* Interface */ = {
@@ -277,11 +305,13 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B8B3E4981B0F9310005E3601 /* spoons-fish.bprims in Resources */,
 				B85FAA601AE10CAF00C6F57A /* Images.xcassets in Resources */,
 				B825B6E71B0CAC38009B98BC /* list-recall-scenario.prims in Resources */,
 				B826B9AF1B063DBB000950A3 /* how-many-spoons-goals.prims in Resources */,
 				B85FAAB21AE1188C00C6F57A /* count.prims in Resources */,
 				B85FAA631AE10CAF00C6F57A /* Main.storyboard in Resources */,
+				B898EA861B0F3C3100B5777E /* testbatch.bprims in Resources */,
 				B8BEEE6A1AE79C9F00FF1FBC /* semantic.prims in Resources */,
 				B825B6E51B0C884E009B98BC /* more-fish-goals.prims in Resources */,
 			);
@@ -302,6 +332,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B85FAAB81AE1582400C6F57A /* Procedural.swift in Sources */,
+				B898EA8A1B0F5A3500B5777E /* NSScanner+Swift.swift in Sources */,
 				B8D18E0E1AEEC305007CF2B6 /* Imaginal.swift in Sources */,
 				B85FAAB61AE1569F00C6F57A /* Production.swift in Sources */,
 				B85FAAB71AE1580200C6F57A /* Instantiation.swift in Sources */,
@@ -317,6 +348,7 @@
 				B85FAA5C1AE10CAF00C6F57A /* AppDelegate.swift in Sources */,
 				B85FAAB41AE1326000C6F57A /* Prim.swift in Sources */,
 				B84BE0781B034C190015DF1F /* PrimView.swift in Sources */,
+				B898EA881B0F504A00B5777E /* BatchRun.swift in Sources */,
 				B85FAAAB1AE10D7500C6F57A /* Tokenizer.swift in Sources */,
 				B85FAAA31AE10D7500C6F57A /* Chunk.swift in Sources */,
 				B85FAAA91AE10D7500C6F57A /* Support.swift in Sources */,

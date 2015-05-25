@@ -15,6 +15,7 @@ class Node {
     var dx: Double = 0.0
     var dy: Double = 0.0
     var taskNumber: Int = -2 // White node
+    var rank = 0.0
     init(name: String) {
         self.name = name
     }
@@ -39,7 +40,7 @@ class FruchtermanReingold {
     let W: Double
     let H: Double
     let iterations = 100
-    let constantC = 0.3
+    var constantC = 0.3
     var area: Double {
         get {
             return W * H
@@ -73,11 +74,14 @@ class FruchtermanReingold {
     }
     
     func calculate() {
+        var maxRank = 0.0
         for (_,node) in nodes {
             node.x = Double(Int(arc4random_uniform(UInt32(W))))
             node.y = Double(Int(arc4random_uniform(UInt32(H))))
+            maxRank = max(maxRank,node.rank)
             
         }
+        let rankStep = H / (maxRank - 1)
         for i in 0..<iterations {
             let temperature = 0.1 * max(W,H) * Double(iterations - i)/Double(iterations)
             // Calculate repulsive forces
@@ -97,6 +101,7 @@ class FruchtermanReingold {
                 node.dx += repulsionForce(node.x)
                 node.dx -= repulsionForce(W - node.x)
                 node.dy += repulsionForce(node.y)
+
                 node.dy -= repulsionForce(H - node.y)
                 
             }
@@ -123,7 +128,11 @@ class FruchtermanReingold {
                 node.x = min(W, max(0, node.x))
                 node.y = min(H, max(0, node.y))
 //                println("\(node.name) at (\(node.x),\(node.y))")
-
+                if node.rank > 0.1 {
+                    node.y = rankStep * (node.rank - 1)
+//                    let midY = rankStep * (node.rank - 1)
+//                    node.y = min(midY + 0.3 * rankStep, max( midY - 0.3 * rankStep, node.y))
+                }
             }
             
             
@@ -134,6 +143,7 @@ class FruchtermanReingold {
     func setUpGraph(model: Model) {
         nodes = [:]
         edges = []
+        constantC = 0.3
         for (_,chunk) in model.dm.chunks {
             if let type = chunk.slotvals["isa"] {
                 if type.description == "operator" {
@@ -203,6 +213,39 @@ class FruchtermanReingold {
         }
     }
     
+    func setUpLearnGraph(model: Model) {
+        nodes = [:]
+        edges = []
+        constantC = 1.0
+        for (_,prod) in model.procedural.productions {
+            if prod.u > model.procedural.primU {
+                let node = Node(name: prod.fullName)
+                node.rank = Double(prod.conditions.count + prod.actions.count - 1)
+                node.taskNumber = prod.taskID
+                nodes[node.name] = node
+            }
+        }
+        for (_,prod) in model.procedural.productions {
+            if nodes[prod.fullName] != nil {
+                let startNode = nodes[prod.fullName]!
+                let destNode1 = prod.parent1 == nil ? nil : nodes[prod.parent1!.fullName]
+                let destNode2 = prod.parent2 == nil ? nil : nodes[prod.parent2!.fullName]
+                if destNode1 != nil {
+                    let edge = Edge(from: startNode, to: destNode1!)
+                    edges.append(edge)
+                }
+                if destNode2 != nil {
+                    let edge = Edge(from: startNode, to: destNode2!)
+                    edges.append(edge)
+                }
+            }
+        }
+        keys = Array(nodes.keys)
+        nodeToIndex = [:]
+        for i in 0..<keys.count {
+            nodeToIndex[keys[i]] = i
+        }
+    }
     
     
 }

@@ -13,8 +13,10 @@ class Chunk: Printable {
     let name: String
     let model: Model
     var creationTime: Double? = nil
-    var references: Int = 1 // Number of references. Assume a single reference on creation
-    var slotvals = [String:Value]() // Dictionary with slot-value pairs, initially empty
+    /// Number of references. Assume a single reference on creation
+    var references: Int = 1
+    /// Dictionary with slot-value pairs, initially empty
+    var slotvals = [String:Value]()
     var referenceList = [Double]()
     var fan: Int = 0 // in how many other chunks does dit chunk appear?
     var noiseValue: Double = 0 // What was the last noise value
@@ -23,7 +25,20 @@ class Chunk: Printable {
     var isRequest: Bool = false
     var printOrder: [String] = [] // Order in which slots have to be printed
     var assocs: [String:Double] = [:] // Sji table
-    var definedIn: Int? // Task number that refers to the file that the chunk was defined in
+    /// Task number that refers to the file that the chunk was defined in
+    var definedIn: Int?
+    
+    /**
+    :returns: the type of the chunk, or empty string if there isn't one defined
+    */
+    var type: String {
+        if let tp = slotvals["isa"] {
+            return tp.description
+        } else {
+            return ""
+        }
+    }
+    
     init (s: String, m: Model) {
         name = s
         model = m
@@ -167,6 +182,7 @@ class Chunk: Printable {
 
     /**
     Calculate the association between self and another chunk
+    The chunk that receives the activation has the Sji in its list
     
     :param: chunk the chunk that the association is with
     
@@ -181,22 +197,41 @@ class Chunk: Printable {
         return 0.0
     }
     
+
+    /**
+    Calculate spreading activation for the chunk from the goal
+    
+    Can be calculated in two ways, either standard ACT-R's equation, or by making spreading dependent on the activation of the chunks in the goal slots
+    
+    :returns: The amount of spreading activation
+    */
     func spreadingActivation() -> Double {
         if creationTime == nil {return 0}
+        var totalSji: Double = 0
         if let goal=model.buffers["goal"] {
-            var totalSlots: Int = 0
-            var totalSji: Double = 0
-            for (_,value) in goal.slotvals {
-                switch value {
-                case .Symbol(let valchunk):
-                    totalSji += valchunk.sji(self)
-                    totalSlots++
-                default:
-                    break
+            if model.dm.goalSpreadingByActivation {
+                for (_,value) in goal.slotvals {
+                    switch value {
+                    case .Symbol(let valchunk):
+                        totalSji += valchunk.sji(self) * max(0,valchunk.baseLevelActivation())
+                    default:
+                        break
+                    }
                 }
+                return totalSji
+            } else {
+                var totalSlots: Int = 0
+                for (_,value) in goal.slotvals {
+                    switch value {
+                    case .Symbol(let valchunk):
+                        totalSji += valchunk.sji(self)
+                        totalSlots++
+                    default:
+                        break
+                    }
+                }
+                return (totalSlots==0 ? 0 : totalSji * (model.dm.goalActivation / Double(totalSlots)))
             }
-            return (totalSlots==0 ? 0 : totalSji * (model.dm.goalActivation / Double(totalSlots)))
-            
         }
         return 0
     }
@@ -211,9 +246,6 @@ class Chunk: Printable {
     
     func activation() -> Double {
         if creationTime == nil {return 0}
-//        if self.slotvals["isa"]!.description == "operator" {
-//            println("Spreading activation of \(self.name) is \(self.spreadingActivation())")
-//        }
         return  self.baseLevelActivation()
             + self.spreadingActivation() + calculateNoise()
     }

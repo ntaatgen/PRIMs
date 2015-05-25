@@ -229,6 +229,15 @@ class Parser  {
                     if value != nil {
                         chunk.assocs[valuestring!] = dm.defaultOperatorAssoc
 //                        println("Setting assoc between \(valuestring) and \(chunkName)")
+                        if chunk.type == "operator" {
+                            chunk.assocs[chunk.name] = dm.defaultOperatorSelfAssoc
+                            for (_,ch) in dm.chunks {
+                                if ch.type == "operator" && ch.assocs[valuestring!] != nil {
+                                    chunk.assocs[ch.name] = dm.defaultInterOperatorAssoc
+                                    ch.assocs[chunk.name] = dm.defaultInterOperatorAssoc
+                                }
+                            }
+                        }
                     }
                     else {
                         println("Invalid :assoc definition in \(chunkName)")

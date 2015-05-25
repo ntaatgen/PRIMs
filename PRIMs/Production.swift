@@ -10,6 +10,7 @@ import Foundation
 
 class Production: Printable {
     let name: String
+    var fullName: String!
     weak var model: Model!
     let condition: String?
     let action: String?
@@ -20,7 +21,9 @@ class Production: Printable {
     var actions: [Prim] = []
     var u: Double
     var goalChecks: [Chunk] = []
-    
+    let parent1: Production?
+    let parent2: Production?
+    let taskID: Int
     var description: String {
         get {
             var s = "(p \(name)\n"
@@ -45,7 +48,7 @@ class Production: Printable {
     }
     
     
-    init(name: String, model: Model, condition: String?, action: String?, op: Chunk?) {
+    init(name: String, model: Model, condition: String?, action: String?, op: Chunk?, parent1: Production?, parent2: Production?, taskID: Int) {
         self.name = name
         self.model = model
         self.condition = condition
@@ -54,6 +57,21 @@ class Production: Printable {
         self.newAction = action
         self.op = op
         self.u = model.procedural.defaultU
+        if parent1 == nil || parent1!.name.hasPrefix("t") {
+            self.parent1 = nil
+        } else {
+            self.parent1 = parent1!
+        }
+        if parent2 == nil || parent2!.name.hasPrefix("t") {
+            self.parent2 = nil
+        } else {
+            self.parent2 = parent2
+        }
+        self.taskID = taskID
+    }
+    
+    func setFullName() {
+        fullName = name + "|" + newCondition! + ";" + newAction!
     }
     
     func addCondition(cd: Prim) {

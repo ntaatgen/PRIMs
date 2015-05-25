@@ -10,15 +10,29 @@ import Foundation
 
 class Declarative  {
     weak var model: Model!
+    /// Baseleveldecay parameter (F in ACT-R)
     var baseLevelDecay: Double = 0.5
+    /// Optimized learning on or off
     var optimizedLearning = true
+    /// mas parameter in ACT-R
     var maximumAssociativeStrength: Double = 3
-    var goalActivation: Double = 3 // W parameter
+    /// W parameter in ACT-R
+    var goalActivation: Double = 3
+    /// RT or tau parameter in ACT-R
     var retrievalThreshold: Double = -2
+    /// ans parameter in ACT-R
     var activationNoise: Double? = 0.25
+    /// Operators are associated with goals, and use this value as standard Sji
     var defaultOperatorAssoc: Double = 2.0
-    var chunks = [String:Chunk]()
+    /// Operators that are associated with the same goal are associated with each other with the following Sji
+    var defaultInterOperatorAssoc: Double = 2.0
+    /// Operators are negatively associated with themselves to prevent the same operator from being used twice with the following Sji
+    var defaultOperatorSelfAssoc: Double = -2.0
+    /// MP parameter in ACT-R
     var misMatchPenalty: Double = 5
+    /// Parameter that controls whether to use standard spreading from the goal (false), or spreading by activation of goal chunks (true)
+    var goalSpreadingByActivation = true
+    var chunks = [String:Chunk]()
     var conflictSet: [(Chunk,Double)] = []
     var finsts: [String] = []
     

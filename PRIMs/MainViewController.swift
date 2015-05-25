@@ -104,11 +104,24 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
         primGraph.needsDisplay = true
     }
     
+    @IBOutlet weak var popUpMenu: NSPopUpButton!
+    
+    @IBAction func popUpMenuSelected(sender: NSPopUpButton) {
+        primViewCalculateGraph(primGraph)
+        primGraph.needsDisplay = true
+    }
+    
+    
     let border = 10.0
 
     func primViewCalculateGraph(sender: PrimView) {
         primGraphData = FruchtermanReingold(W: Double(sender.bounds.width) - 2 * border, H: Double(sender.bounds.height) - 2 * border)
-        primGraphData!.setUpGraph(model)
+        let graphType = popUpMenu.selectedItem!.title
+        switch graphType {
+            case "PRIMs": primGraphData!.setUpGraph(model)
+            case "Productions": primGraphData!.setUpLearnGraph(model)
+        default: break // Shouldn't happen
+        }
         primGraphData!.calculate()
     }
     
@@ -203,37 +216,7 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
         updateAllViews()
     }
     
-    func loadOrReloadTask(i: Int) {
-        if (i != model.currentTaskIndex) {
-            modelCode = String(contentsOfURL: model.tasks[i].filename, encoding: NSUTF8StringEncoding, error: nil)
-            if !model.tasks[i].loaded && modelCode != nil {
-                model.scenario = PRScenario()
-                model.parameters = []
-                model.inputs = []
-                model.parseCode(modelCode!,taskNumber: i)
-                model.tasks[i].loaded = true
-            }
-            modelText.string = modelCode
-            if modelCode != nil {
-                model.modelText = modelCode!
-            }
-            model.inputs = model.tasks[i].inputs
-            model.currentTask = model.tasks[i].name
-            println("Setting current task to \(model.currentTask!)")
-            model.currentGoals = model.tasks[i].goalChunk
-            model.currentGoalConstants = model.tasks[i].goalConstants
-            model.parameters = model.tasks[i].parameters
-            model.scenario = model.tasks[i].scenario
-            println("Setting scenario with startscreen \(model.scenario.startScreen.name)")
-            println("Setting parameters")
-            model.loadParameters()
-            println("Setting task index to \(i)")
-            model.currentTaskIndex = i
-            model.newResult()
-            updateAllViews()
-        }
-    }
-    
+       
     func updateAllViews() {
         outputText.string = model.trace
         var s: String = ""
@@ -295,10 +278,18 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
     
     @IBAction func clickInTaskTable(sender: NSTableView) {
         if sender === taskTable && sender.selectedRow != -1 {
-            loadOrReloadTask(sender.selectedRow)
+            model.loadOrReloadTask(sender.selectedRow)
+            modelCode = model.modelText
+            updateAllViews()
         } else if sender == chunkTable && sender.selectedRow != -1 {
             let chunk = model.dm.chunks[dmTable[sender.selectedRow].0]!
-            chunkTextField.stringValue = "\(chunk)"
+            chunkTextField.stringValue = "\(chunk)\nActivation = \(chunk.activation())\n"
+            if !chunk.assocs.isEmpty {
+                chunkTextField.stringValue += "Associations:\n"
+                for (chunkName, assoc) in chunk.assocs {
+                    chunkTextField.stringValue += "\(chunkName): \(assoc)\n"
+                }
+            }
         }
     }
     
@@ -353,17 +344,41 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
     
     @IBAction func reset(sender: NSButton) {
         model.reset(model.currentTaskIndex!)
-        for task in model.tasks {
-            task.loaded = false
-        }
-        if model.currentTaskIndex != nil {
-            model.tasks[model.currentTaskIndex!].loaded = true
-        }
+
         primViewCalculateGraph(primGraph)
         primGraph.needsDisplay = true
         updateAllViews()
     }
     
+    @IBAction func runBatch(sender: NSButton) {
+        var fileDialog: NSOpenPanel = NSOpenPanel()
+        fileDialog.title = "Select batch script file"
+        fileDialog.prompt = "Select"
+        fileDialog.worksWhenModal = true
+        fileDialog.allowsMultipleSelection = false
+        fileDialog.resolvesAliases = true
+        fileDialog.allowedFileTypes = ["bprims"]
+        let result = fileDialog.runModal()
+        if result != NSFileHandlingPanelOKButton { return }
+        var batchScript: String
+        if let filePath = fileDialog.URL {
+            let tmp = String(contentsOfURL: filePath, encoding: NSUTF8StringEncoding, error: nil)
+            if tmp == nil { return }
+            batchScript = tmp!
+        } else { return }
+        let saveDialog = NSSavePanel()
+        saveDialog.title = "Enter the name of the outputfile"
+        saveDialog.prompt = "Save"
+        saveDialog.worksWhenModal = true
+        saveDialog.allowsOtherFileTypes = false
+        saveDialog.allowedFileTypes = ["dat","txt"]
+        let saveResult = saveDialog.runModal()
+        if saveResult != NSFileHandlingPanelOKButton { return }
+        if saveDialog.URL == nil { return }
+        println("Loading script \(fileDialog.URL!) to output to \(saveDialog.URL!)")
+        let batchRunner = BatchRun(script: batchScript, outputFile: saveDialog.URL!, model: model)
+        batchRunner.runScript()
+    }
  
     override func viewDidLoad() {
         super.viewDidLoad()

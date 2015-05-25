@@ -39,6 +39,8 @@ action C1->G1
 
 )
 
+(sgp :imaginal-autoclear nil :ol t :rt -2.0 :lf 0.2)
+
 (screen start
 (card card
 (num1 one four)

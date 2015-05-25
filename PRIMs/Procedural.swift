@@ -97,14 +97,14 @@ class Procedural {
         if best == nil || best!.u < primU {
             if condition != nil {
                 let (primName,_) = chopPrims(condition!.description, 1)
-                let p = Production(name: "t" + primName, model: model, condition: condition!.description, action: action==nil ? nil : action!.description, op: nil)
+                let p = Production(name: "t" + primName, model: model, condition: condition!.description, action: action==nil ? nil : action!.description, op: nil, parent1: nil, parent2: nil, taskID: 0)
                 let prim = Prim(name: primName, model: model)
                 p.addCondition(prim)
                 p.u = primU
                 return Instantiation(prod: p, time: model.time, u: primU)
             } else {
                 let (primName,_) = chopPrims(action!.description, 1)
-                let p = Production(name: "t" + primName, model: model, condition: nil, action: action!.description, op: nil)
+                let p = Production(name: "t" + primName, model: model, condition: nil, action: action!.description, op: nil, parent1: nil, parent2: nil, taskID: 0)
                 let prim = Prim(name: primName, model: model)
                 p.addAction(prim)
                 p.u = primU
@@ -144,22 +144,32 @@ class Procedural {
         let nameP1 = p1.name.hasPrefix("t") ? p1.name.substringFromIndex(advance(p1.name.startIndex,1)) : p1.name
         let nameP2 = p2.name.hasPrefix("t") ? p2.name.substringFromIndex(advance(p2.name.startIndex,1)) : p2.name
         let newName = nameP1 + ";" + nameP2
-        if let existingP = productions[newName] {
+        var newFullName = newName
+        if p2.newCondition != nil {
+            newFullName = newFullName + "|" + p2.newCondition!
+        }
+        if p2.newAction != nil {
+            newFullName = newFullName + "|" + p2.newAction!
+
+        }
+        if let existingP = productions[newFullName] {
             existingP.u += alpha * (p1.u - existingP.u)
-            model.addToTrace("Reinforcing \(existingP.name) new u = \(existingP.u)")
+            model.addToTrace("Reinforcing \(existingP.fullName) new u = \(existingP.u)")
         } else {
-            let newP = Production(name: newName, model: model, condition: p1.condition, action: p1.action, op: p1.op)
+            let newP = Production(name: newName, model: model, condition: p1.condition, action: p1.action, op: p1.op, parent1: p1, parent2: p2, taskID: model.currentTaskIndex!)
             newP.conditions = p1.conditions + p2.conditions
             newP.actions = p1.actions + p2.actions
             newP.newCondition = p2.newCondition
             newP.newAction = p2.newAction
             newP.goalChecks = p1.goalChecks
-            productions[newP.name] = newP
-            model.addToTrace("Compiling \(newP.name)")
+            newP.fullName = newFullName
+            productions[newP.fullName] = newP
+            model.addToTrace("Compiling \(newP.fullName)")
         }
         
     }
     
+    /// Need to either fix this or delete it
     func compileProductions(op: Chunk, inst2: Instantiation) {
         let p2 = inst2.p
         let nameP2 = p2.name.hasPrefix("t") ? p2.name.substringFromIndex(advance(p2.name.startIndex,1)) : p2.name
@@ -169,7 +179,7 @@ class Procedural {
             existingP.u += alpha * (utilityRetrieveOperator - existingP.u)
             model.addToTrace("Reinforcing \(existingP.name) new u = \(existingP.u)")
         } else {
-            let newP = Production(name: newName, model: model, condition: nil, action: nil, op: op)
+            let newP = Production(name: newName, model: model, condition: nil, action: nil, op: op, parent1: p2, parent2: nil, taskID: model.currentTaskIndex!)
             newP.conditions = p2.conditions
             newP.actions = p2.actions
             newP.newCondition = nil

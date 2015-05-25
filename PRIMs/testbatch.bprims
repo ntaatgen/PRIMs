@@ -1,0 +1,5 @@
+repeat 3
+run count traincount 10
+run semantic semantictransfer 10
+reset
+run semantic semanticcontrol 10
