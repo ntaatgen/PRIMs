@@ -50,13 +50,13 @@ class PRScenario {
             }
         } else {
             switch action! {
-            case "focus-first":
+            case "focusfirst":
                 currentScreen!.focusFirst()
-            case "focus-next":
+            case "focusnext":
                 currentScreen!.focusNext()
-            case "focus-down":
+            case "focusdown":
                 currentScreen!.focusDown()
-            case "focus-up":
+            case "focusup":
                 currentScreen!.focusUp()
             default: return nil
             }

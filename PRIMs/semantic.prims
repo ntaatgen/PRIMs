@@ -1,72 +1,67 @@
-;; Semantic model
+define task semantic {
+initial-goals: (semantic)
+start-screen: start
+imaginal-autoclear: nil
+ol: t
+rt: -2.0
+lf: 0.2
+default-operator-self-assoc: 0.0
+}
 
-(set-task semantic)
-(set-goal semantic)
+define goal semantic {
+operator start-semantic(activation= 1.0) {
+"Start semantic reasoning"
+V1<>nil
+WM1=nil
+==>
+V1->WM1
+property->RT1
+V1->RT2
+subvocalize->AC1
+V1->AC2
+}
 
-(add-dm
+operator move-up-tree(activation=1.0) {
+"Move up the tree"
+RT2=WM1
+V2<>WM1
+==>
+RT3->WM1
+property->RT1
+RT3->RT2
+subvocalize->AC1
+RT3->AC2
+}
 
-(start-semantic
-isa operator
-slot1 property
-slot2 subvocalize
-condition V1<>nil;WM1=nil
-action V1->WM1;C1->RT1;V1->RT2;C2->AC1;V1->AC2
-:activation 1.0
-:assoc semantic
-)
+operator say-yes(activation=1.0) {
+"Say yes when found"
+V2=WM1
+==>
+stop->G1
+say->AC1
+yes->AC2
+}
 
-(move-up
-isa operator
-slot1 property
-slot2 subvocalize
-condition RT2=WM1;V2<>WM1
-action RT3->WM1;C1->RT1;RT3->RT2;C2->AC1;RT3->AC2
-:activation 1.0
-:assoc semantic
-)
+operator say-no(activation=1.0) {
+"Say no on retrieval failure"
+V2<>WM1
+RT1=error
+==>
+stop->G1
+say->AC1
+no->AC2
+}
+}
 
-(say-yes
-isa operator
-slot1 stop
-slot2 say
-slot3 yes
-condition V2=WM1
-action C1->G1;C2->AC1;C3->AC2
-:activation 1.0
-:assoc semantic
-)
+define facts {
+(sem1  property  lion  mammal :activation 1.0)
+(sem2  property  mammal  animal :activation 1.0)
+(sem3  property  animal  livingthing :activation 1.0)
+(sem4  property  plant  livingthing :activation 1.0)
+}
 
-(say-no
-isa operator
-slot1 stop
-slot2 say
-slot3 no
-slot4 error
-condition V2<>WM1;RT1=C4
-action C1->G1;C2->AC1;C3->AC2
-:activation 1.0
-:assoc semantic
-)
+define screen start {
+(lion livingthing)
+}
 
-(sem1 isa fact slot1 property slot2 lion slot3 mammal :activation 1.0)
-(sem2 isa fact slot1 property slot2 mammal slot3 animal :activation 1.0)
-(sem3 isa fact slot1 property slot2 animal slot3 livingthing :activation 1.0)
-(sem4 isa fact slot1 property slot2 plant slot3 livingthing :activation 1.0)
-)
-
-(sgp :imaginal-autoclear nil :ol t :rt -2.0 :lf 0.2)
-
-(screen start
-(card card
-(num1 lion livingthing)
-)  )
-
-(start-screen start)
-
-
-
-(specify-inputs
-(i1 lion livingthing)
-(i2 lion plant)
-(i3 lion mammal)
-)
+start-screen = start

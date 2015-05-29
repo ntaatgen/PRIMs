@@ -9,12 +9,17 @@
 import Foundation
 
 class Imaginal {
-    var imaginalLatency = 0.2
+    static let imaginalLatencyDefault = 0.2
+    var imaginalLatency = imaginalLatencyDefault
     let model: Model
     var autoClear = true
     
     init(model: Model) {
         self.model = model
+    }
+    
+    func setParametersToDefault() {
+        imaginalLatency = Imaginal.imaginalLatencyDefault
     }
     
     func action() -> Double {

@@ -9,32 +9,48 @@
 import Foundation
 
 class Procedural {
-    var utilityNoise = 0.05
-    var defaultU = 0.0
-    var primU = 2.0
-    var utilityRetrieveOperator = 2.0
-    var alpha = 0.1
-    var productionActionLatency = 0.2
+    static let utilityNoiseDefault = 0.05
+    var utilityNoise = utilityNoiseDefault
+    static let defaultUdefault = 0.0
+    var defaultU = defaultUdefault
+    static let primUDefault = 2.0
+    var primU = primUDefault
+    static let utilityRetrieveOperatorDefault = 2.0
+    var utilityRetrieveOperator = utilityRetrieveOperatorDefault
+    static let alphaDefault = 0.1
+    var alpha = alphaDefault
+    static let productionActionLatencyDefault = 0.2
+    var productionActionLatency = productionActionLatencyDefault
     var productions: [String:Production] = [:]
     let model: Model
     var productionsForReward: [Instantiation] = []
     var lastProduction: Production? = nil
     var lastOperator: Chunk? = nil
-    var compileOperators = false // if true, operators are compiled into productions, otherwise not
     var retrieveOperatorsConditional = true // if true, operator retrieval is controlled by productions that check the match
-    
-    func addProduction(p: Production) {
-        productions[p.name] = p
-    }
     
     init(model: Model) {
         self.model = model
+    }
+    
+    func setParametersToDefault() {
+        utilityNoise = Procedural.utilityNoiseDefault
+        defaultU = Procedural.defaultUdefault
+        primU = Procedural.primUDefault
+        utilityRetrieveOperator = Procedural.utilityRetrieveOperatorDefault
+        alpha = Procedural.alphaDefault
+        productionActionLatency = Procedural.productionActionLatencyDefault
     }
     
     func reset() {
         lastProduction = nil
         clearRewardTrace()
     }
+    
+    func addProduction(p: Production) {
+        productions[p.name] = p
+    }
+    
+
     
     /**
     Clear the list of productions that fired since the last reward
@@ -68,8 +84,6 @@ class Procedural {
         if compile {
             if lastProduction != nil {
                 compileProductions(lastProduction!, inst2: inst)
-            } else if lastOperator != nil && compileOperators {
-                compileProductions(lastOperator!, inst2: inst)
             }
             lastProduction = inst.p
             return inst.p.fire()

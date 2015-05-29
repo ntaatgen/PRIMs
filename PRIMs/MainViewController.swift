@@ -53,6 +53,7 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
     
     @IBAction func clearGraph(sender: NSButton) {
         model.clearResults()
+        model.newResult()
         updateAllViews()
     }
     
@@ -198,7 +199,11 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
                 model.parameters = []
                 model.inputs = []
                 model.currentTaskIndex = model.tasks.count
-                model.parseCode(modelCode!,taskNumber: model.tasks.count)
+                model.setParametersToDefault()
+                if !model.parseCode(modelCode!,taskNumber: model.tasks.count) {
+                    updateAllViews()
+                    return
+                }
             }
             let newTask = Task(name: model.currentTask!, path: filePath)
             newTask.inputs = model.inputs

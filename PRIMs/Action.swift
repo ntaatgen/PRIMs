@@ -10,15 +10,27 @@ import Foundation
 
 class Action {
     let model: Model
-    var sayLatency = 0.3
-    var subvocalizeLatency = 0.3
-    var readLatency = 0.2
-    var defaultPerceptualActionLatency = 0.2
+    static let sayLatencyDefault = 0.3
+    static let subvocalizeLatencyDefault = 0.3
+    static let readLatencyDefault = 0.2
+    static let defaultPerceptionActionLatencyDefault = 0.2
+    
+    var sayLatency = sayLatencyDefault
+    var subvocalizeLatency = subvocalizeLatencyDefault
+    var readLatency = readLatencyDefault
+    var defaultPerceptualActionLatency = defaultPerceptionActionLatencyDefault
     static let nothing = "nothing"
     
     
     init(model: Model) {
         self.model = model
+    }
+    
+    func setParametersToDefault() {
+         sayLatency = Action.sayLatencyDefault
+         subvocalizeLatency = Action.subvocalizeLatencyDefault
+         readLatency = Action.readLatencyDefault
+         defaultPerceptualActionLatency = Action.defaultPerceptionActionLatencyDefault
     }
 
     func initTask() {

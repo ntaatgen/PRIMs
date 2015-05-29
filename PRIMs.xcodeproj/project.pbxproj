@@ -7,12 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		B80397C51B15B4BF00935F9C /* Parser.swift in Sources */ = {isa = PBXBuildFile; fileRef = B80397C41B15B4BF00935F9C /* Parser.swift */; };
 		B806EFBC1AEFE77900633505 /* Task.swift in Sources */ = {isa = PBXBuildFile; fileRef = B806EFBB1AEFE77900633505 /* Task.swift */; };
 		B806EFBE1AF003CF00633505 /* Action.swift in Sources */ = {isa = PBXBuildFile; fileRef = B806EFBD1AF003CF00633505 /* Action.swift */; };
 		B825B6E51B0C884E009B98BC /* more-fish-goals.prims in Resources */ = {isa = PBXBuildFile; fileRef = B825B6E41B0C884E009B98BC /* more-fish-goals.prims */; };
-		B825B6E71B0CAC38009B98BC /* list-recall-scenario.prims in Resources */ = {isa = PBXBuildFile; fileRef = B825B6E61B0CAC38009B98BC /* list-recall-scenario.prims */; };
 		B826B9AF1B063DBB000950A3 /* how-many-spoons-goals.prims in Resources */ = {isa = PBXBuildFile; fileRef = B826B9AE1B063DBB000950A3 /* how-many-spoons-goals.prims */; };
 		B84BE0781B034C190015DF1F /* PrimView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B84BE0771B034C190015DF1F /* PrimView.swift */; };
+		B85D9CB91B14C9AC0033CEA2 /* list-recall.prims in Resources */ = {isa = PBXBuildFile; fileRef = B85D9CB81B14C9AC0033CEA2 /* list-recall.prims */; };
 		B85FAA5C1AE10CAF00C6F57A /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B85FAA5B1AE10CAF00C6F57A /* AppDelegate.swift */; };
 		B85FAA5E1AE10CAF00C6F57A /* MainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B85FAA5D1AE10CAF00C6F57A /* MainViewController.swift */; };
 		B85FAA601AE10CAF00C6F57A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B85FAA5F1AE10CAF00C6F57A /* Images.xcassets */; };
@@ -28,6 +29,7 @@
 		B85FAAB61AE1569F00C6F57A /* Production.swift in Sources */ = {isa = PBXBuildFile; fileRef = B85FAA961AE10D7500C6F57A /* Production.swift */; };
 		B85FAAB71AE1580200C6F57A /* Instantiation.swift in Sources */ = {isa = PBXBuildFile; fileRef = B85FAA9E1AE10D7500C6F57A /* Instantiation.swift */; };
 		B85FAAB81AE1582400C6F57A /* Procedural.swift in Sources */ = {isa = PBXBuildFile; fileRef = B85FAA971AE10D7500C6F57A /* Procedural.swift */; };
+		B8935EF11B13C93900E4C9E8 /* PrimsModelFileIcon.icns in Resources */ = {isa = PBXBuildFile; fileRef = B8935EF01B13C93900E4C9E8 /* PrimsModelFileIcon.icns */; };
 		B898EA861B0F3C3100B5777E /* testbatch.bprims in Resources */ = {isa = PBXBuildFile; fileRef = B898EA851B0F3C3100B5777E /* testbatch.bprims */; };
 		B898EA881B0F504A00B5777E /* BatchRun.swift in Sources */ = {isa = PBXBuildFile; fileRef = B898EA871B0F504A00B5777E /* BatchRun.swift */; };
 		B898EA8A1B0F5A3500B5777E /* NSScanner+Swift.swift in Sources */ = {isa = PBXBuildFile; fileRef = B898EA891B0F5A3500B5777E /* NSScanner+Swift.swift */; };
@@ -39,7 +41,6 @@
 		B8EEE60D1B01DDC6002EFAD6 /* PRScenario.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8EEE60C1B01DDC6002EFAD6 /* PRScenario.swift */; };
 		B8F00C061B009E810036FFE3 /* PRObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8F00C051B009E810036FFE3 /* PRObject.swift */; };
 		B8F00C081B00A1D10036FFE3 /* PRScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8F00C071B00A1D10036FFE3 /* PRScreen.swift */; };
-		B8FA0B451AE2C837007C9F39 /* Parser.swift in Sources */ = {isa = PBXBuildFile; fileRef = B85FAA981AE10D7500C6F57A /* Parser.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -53,12 +54,13 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		B80397C41B15B4BF00935F9C /* Parser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Parser.swift; sourceTree = "<group>"; };
 		B806EFBB1AEFE77900633505 /* Task.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Task.swift; sourceTree = "<group>"; };
 		B806EFBD1AF003CF00633505 /* Action.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Action.swift; sourceTree = "<group>"; };
 		B825B6E41B0C884E009B98BC /* more-fish-goals.prims */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "more-fish-goals.prims"; sourceTree = "<group>"; };
-		B825B6E61B0CAC38009B98BC /* list-recall-scenario.prims */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "list-recall-scenario.prims"; sourceTree = "<group>"; };
 		B826B9AE1B063DBB000950A3 /* how-many-spoons-goals.prims */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "how-many-spoons-goals.prims"; sourceTree = "<group>"; };
 		B84BE0771B034C190015DF1F /* PrimView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PrimView.swift; sourceTree = "<group>"; };
+		B85D9CB81B14C9AC0033CEA2 /* list-recall.prims */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "list-recall.prims"; sourceTree = "<group>"; };
 		B85FAA561AE10CAF00C6F57A /* PRIMs.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PRIMs.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B85FAA5A1AE10CAF00C6F57A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		B85FAA5B1AE10CAF00C6F57A /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -71,7 +73,6 @@
 		B85FAA951AE10D7500C6F57A /* Chunk.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Chunk.swift; sourceTree = "<group>"; };
 		B85FAA961AE10D7500C6F57A /* Production.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Production.swift; sourceTree = "<group>"; };
 		B85FAA971AE10D7500C6F57A /* Procedural.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Procedural.swift; sourceTree = "<group>"; };
-		B85FAA981AE10D7500C6F57A /* Parser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Parser.swift; sourceTree = "<group>"; };
 		B85FAA991AE10D7500C6F57A /* Declarative.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Declarative.swift; sourceTree = "<group>"; };
 		B85FAA9B1AE10D7500C6F57A /* Support.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Support.swift; sourceTree = "<group>"; };
 		B85FAA9C1AE10D7500C6F57A /* Model.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Model.swift; sourceTree = "<group>"; };
@@ -79,6 +80,7 @@
 		B85FAA9E1AE10D7500C6F57A /* Instantiation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Instantiation.swift; sourceTree = "<group>"; };
 		B85FAAB11AE1188C00C6F57A /* count.prims */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = count.prims; sourceTree = "<group>"; };
 		B85FAAB31AE1326000C6F57A /* Prim.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Prim.swift; sourceTree = "<group>"; };
+		B8935EF01B13C93900E4C9E8 /* PrimsModelFileIcon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = PrimsModelFileIcon.icns; sourceTree = "<group>"; };
 		B898EA851B0F3C3100B5777E /* testbatch.bprims */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = testbatch.bprims; sourceTree = "<group>"; };
 		B898EA871B0F504A00B5777E /* BatchRun.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BatchRun.swift; sourceTree = "<group>"; };
 		B898EA891B0F5A3500B5777E /* NSScanner+Swift.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSScanner+Swift.swift"; sourceTree = "<group>"; };
@@ -137,6 +139,7 @@
 				B85FAA941AE10D0600C6F57A /* Core */,
 				B85FAA5D1AE10CAF00C6F57A /* MainViewController.swift */,
 				B85FAA5F1AE10CAF00C6F57A /* Images.xcassets */,
+				B8935EF01B13C93900E4C9E8 /* PrimsModelFileIcon.icns */,
 				B85FAA611AE10CAF00C6F57A /* Main.storyboard */,
 				B85FAA591AE10CAF00C6F57A /* Supporting Files */,
 				B898EA871B0F504A00B5777E /* BatchRun.swift */,
@@ -180,7 +183,7 @@
 				B85FAA951AE10D7500C6F57A /* Chunk.swift */,
 				B85FAA961AE10D7500C6F57A /* Production.swift */,
 				B85FAA971AE10D7500C6F57A /* Procedural.swift */,
-				B85FAA981AE10D7500C6F57A /* Parser.swift */,
+				B80397C41B15B4BF00935F9C /* Parser.swift */,
 				B85FAA991AE10D7500C6F57A /* Declarative.swift */,
 				B85FAA9B1AE10D7500C6F57A /* Support.swift */,
 				B85FAA9C1AE10D7500C6F57A /* Model.swift */,
@@ -199,7 +202,7 @@
 				B825B6E41B0C884E009B98BC /* more-fish-goals.prims */,
 				B8BEEE691AE79C9F00FF1FBC /* semantic.prims */,
 				B826B9AE1B063DBB000950A3 /* how-many-spoons-goals.prims */,
-				B825B6E61B0CAC38009B98BC /* list-recall-scenario.prims */,
+				B85D9CB81B14C9AC0033CEA2 /* list-recall.prims */,
 				B898EA851B0F3C3100B5777E /* testbatch.bprims */,
 				B8B3E4971B0F9310005E3601 /* spoons-fish.bprims */,
 			);
@@ -307,13 +310,14 @@
 			files = (
 				B8B3E4981B0F9310005E3601 /* spoons-fish.bprims in Resources */,
 				B85FAA601AE10CAF00C6F57A /* Images.xcassets in Resources */,
-				B825B6E71B0CAC38009B98BC /* list-recall-scenario.prims in Resources */,
 				B826B9AF1B063DBB000950A3 /* how-many-spoons-goals.prims in Resources */,
 				B85FAAB21AE1188C00C6F57A /* count.prims in Resources */,
+				B85D9CB91B14C9AC0033CEA2 /* list-recall.prims in Resources */,
 				B85FAA631AE10CAF00C6F57A /* Main.storyboard in Resources */,
 				B898EA861B0F3C3100B5777E /* testbatch.bprims in Resources */,
 				B8BEEE6A1AE79C9F00FF1FBC /* semantic.prims in Resources */,
 				B825B6E51B0C884E009B98BC /* more-fish-goals.prims in Resources */,
+				B8935EF11B13C93900E4C9E8 /* PrimsModelFileIcon.icns in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -339,7 +343,6 @@
 				B85FAAB51AE13FF100C6F57A /* Model.swift in Sources */,
 				B8EEE60D1B01DDC6002EFAD6 /* PRScenario.swift in Sources */,
 				B806EFBE1AF003CF00633505 /* Action.swift in Sources */,
-				B8FA0B451AE2C837007C9F39 /* Parser.swift in Sources */,
 				B85FAAA71AE10D7500C6F57A /* Declarative.swift in Sources */,
 				B806EFBC1AEFE77900633505 /* Task.swift in Sources */,
 				B8B23CDC1AED499C00307F90 /* GraphView.swift in Sources */,
@@ -351,6 +354,7 @@
 				B898EA881B0F504A00B5777E /* BatchRun.swift in Sources */,
 				B85FAAAB1AE10D7500C6F57A /* Tokenizer.swift in Sources */,
 				B85FAAA31AE10D7500C6F57A /* Chunk.swift in Sources */,
+				B80397C51B15B4BF00935F9C /* Parser.swift in Sources */,
 				B85FAAA91AE10D7500C6F57A /* Support.swift in Sources */,
 				B8F00C061B009E810036FFE3 /* PRObject.swift in Sources */,
 				B8CE155E1B022A5300554F5F /* FruchtermanReingold.swift in Sources */,

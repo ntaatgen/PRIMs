@@ -10,33 +10,47 @@ import Foundation
 
 class Declarative  {
     weak var model: Model!
-    /// Baseleveldecay parameter (F in ACT-R)
-    var baseLevelDecay: Double = 0.5
+    static let baseLevelDecayDefault = 0.5
+    static let optimizedLearningDefault = true
+    static let maximumAssociativeStrengthDefault = 3.0
+    static let goalAcitvationDefault = 1.0
+    static let retrievalThresholdDefault = -2.0
+    static let activationNoiseDefault = 0.2
+    static let defaultOperatorAssocDefault = 4.0
+    static let defaultInterOperatorAssocDefault = 2.0
+    static let defaultOperatorSelfAssocDefault = -1.0
+    static let misMatchPenaltyDefault = 5.0
+    static let goalSpreadingActivationDefault = true
+    static let latencyFactorDefault = 0.2
+    /// Baseleveldecay parameter (d in ACT-R)
+    var baseLevelDecay: Double = baseLevelDecayDefault
     /// Optimized learning on or off
-    var optimizedLearning = true
+    var optimizedLearning = optimizedLearningDefault
     /// mas parameter in ACT-R
-    var maximumAssociativeStrength: Double = 3
+    var maximumAssociativeStrength: Double = maximumAssociativeStrengthDefault
     /// W parameter in ACT-R
-    var goalActivation: Double = 3
+    var goalActivation: Double = goalAcitvationDefault
     /// RT or tau parameter in ACT-R
-    var retrievalThreshold: Double = -2
+    var retrievalThreshold: Double = retrievalThresholdDefault
     /// ans parameter in ACT-R
-    var activationNoise: Double? = 0.25
+    var activationNoise: Double? = activationNoiseDefault
     /// Operators are associated with goals, and use this value as standard Sji
-    var defaultOperatorAssoc: Double = 2.0
+    var defaultOperatorAssoc: Double = defaultOperatorAssocDefault
     /// Operators that are associated with the same goal are associated with each other with the following Sji
-    var defaultInterOperatorAssoc: Double = 2.0
+    var defaultInterOperatorAssoc: Double = defaultInterOperatorAssocDefault
     /// Operators are negatively associated with themselves to prevent the same operator from being used twice with the following Sji
-    var defaultOperatorSelfAssoc: Double = -2.0
+    var defaultOperatorSelfAssoc: Double = defaultOperatorSelfAssocDefault
     /// MP parameter in ACT-R
-    var misMatchPenalty: Double = 5
+    var misMatchPenalty: Double = misMatchPenaltyDefault
     /// Parameter that controls whether to use standard spreading from the goal (false), or spreading by activation of goal chunks (true)
-    var goalSpreadingByActivation = true
+    var goalSpreadingByActivation = goalSpreadingActivationDefault
+    /// ACT-R latency factor (F)
+    var latencyFactor = latencyFactorDefault
+
     var chunks = [String:Chunk]()
     var conflictSet: [(Chunk,Double)] = []
     var finsts: [String] = []
     
-    var latencyFactor = 0.2
     
     var retrieveBusy = false
     var retrieveError = false
@@ -44,6 +58,21 @@ class Declarative  {
     
     init(model: Model) {
         self.model = model
+    }
+    
+    func setParametersToDefault() {
+        baseLevelDecay = Declarative.baseLevelDecayDefault
+        optimizedLearning = Declarative.optimizedLearningDefault
+        maximumAssociativeStrength = Declarative.maximumAssociativeStrengthDefault
+        goalActivation = Declarative.goalAcitvationDefault
+        retrievalThreshold = Declarative.retrievalThresholdDefault
+        activationNoise = Declarative.activationNoiseDefault
+        defaultOperatorAssoc = Declarative.defaultOperatorAssocDefault
+        defaultInterOperatorAssoc = Declarative.defaultInterOperatorAssocDefault
+        defaultOperatorSelfAssoc = Declarative.defaultOperatorSelfAssocDefault
+        misMatchPenalty = Declarative.misMatchPenaltyDefault
+        goalSpreadingByActivation = Declarative.goalSpreadingActivationDefault
+        latencyFactor = Declarative.latencyFactorDefault
     }
     
     func duplicateChunk(chunk: Chunk) -> Chunk? {

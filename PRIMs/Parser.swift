@@ -9,319 +9,469 @@
 import Foundation
 
 class Parser  {
-    private let t: Tokenizer
     private let m: Model
     let taskNumber: Int
-    
+    let scanner: NSScanner
     init(model: Model, text: String, taskNumber: Int) {
         m = model
-        t = Tokenizer(s: text)
+        scanner = NSScanner(string: text)
         model.modelText = text
         self.taskNumber = taskNumber
+        whitespaceNewLineParentheses.formUnionWithCharacterSet(whitespaceNewLine)
+        whiteSpaceNewLineParenthesesEqual.formUnionWithCharacterSet(whitespaceNewLine)
     }
     
-    func parseModel() {
-        while (t.token != nil && t.token! != ")") {
-            if t.token! != "(" {
-                println("( expected but found \(t.token!)")
-                return
+    let whitespaceNewLine = NSCharacterSet.whitespaceAndNewlineCharacterSet()
+    let whitespaceNewLineParentheses: NSMutableCharacterSet = NSMutableCharacterSet(charactersInString: "{}()")
+    let whiteSpaceNewLineParenthesesEqual: NSMutableCharacterSet = NSMutableCharacterSet(charactersInString: "{}()=,")
+    var globalVariableMapping: [String:Int] = [:]
+    
+    func parseModel() -> Bool {
+        m.clearTrace()
+        while !scanner.atEnd {
+            let token = scanner.scanUpToCharactersFromSet(whitespaceNewLineParentheses)
+            if token == nil { return false }
+            println("Reading \(token!)")
+            switch token! {
+            case "define":
+                let definedItem = scanner.scanUpToCharactersFromSet(whitespaceNewLineParentheses)
+                if definedItem == nil {
+                    m.addToTraceField("Unexpected end of file after define")
+                    return false
+                }
+                switch definedItem! {
+                case "task": if !parseTask() { return false}
+                case "goal": if !parseGoal() { return false }
+                case "facts": if !parseFacts() { return false }
+                case "screen": if !parseScreen() { return false }
+                default: m.addToTraceField("Don't know how to define \(definedItem!)")
+                    return false
+                }
+            case "transition": if !parseTransition() { return false}
+            case "start-screen": if !parseStartScreen() { return false}
+            default: m.addToTraceField("\(token!) is not a valid top-level statement")
+                return false
             }
-            t.nextToken()
-            switch t.token! {
-            case "add-dm":
-                println("Add-dm")
-                t.nextToken()
-                var chunk: Chunk?
-                do {
-                    chunk = parseChunk(m.dm)
-                    println("Parsed \(chunk)")
-                    if chunk != nil {
-                        chunk!.definedIn = taskNumber
-                        m.dm.addToDM(chunk!)
-                    }
-                } while (chunk != nil && t.token != ")")
-                if t.token != ")" {
-                    println(") expected")
-                    return
+        }
+        return true
+    }
+    
+    func parseTask() -> Bool {
+        let taskName = scanner.scanUpToCharactersFromSet(whitespaceNewLineParentheses)
+        if taskName == nil {
+            m.addToTraceField("Unexpected end of file in goal definition")
+            return false
+        }
+        m.addToTraceField("Defining task \(taskName!)")
+        let readBrace = scanner.scanString("{")
+        if readBrace == nil {
+            m.addToTraceField("'{' Expected after \(taskName!)")
+            return false
+        }
+        var setting: String?
+        while !scanner.scanString("}", intoString: nil) {
+            setting = scanner.scanUpToCharactersFromSet(whitespaceNewLineParentheses)
+            if setting == nil {
+                m.addToTraceField("Unexpected end of file in goal definition")
+                return false
+            }
+        switch setting! {
+        case "initial-goals:":
+            let parenthesis = scanner.scanString("(")
+            if parenthesis == nil {
+                m.addToTraceField("Missing '(' after initial-goals:")
+                return false
+            }
+            var goal: String?
+            let chunk = Chunk(s: "currentGoalChunk", m: m)
+            chunk.setSlot("isa", value: "goal")
+            var slotCount = 1
+            while !scanner.scanString(")", intoString: nil) {
+                goal = scanner.scanUpToCharactersFromSet(whitespaceNewLineParentheses)
+                if goal == nil {
+                    m.addToTraceField("Unexpected end of file in initial-goals:")
+                    return false
                 }
-                t.nextToken()
-                //            case "p":
-                //                    t.nextToken()
-                //                    let prod = parseProduction()
-                //                    if prod != nil { m.procedural.addProduction(prod!) }
-            case "set-task":
-                t.nextToken()
-                m.currentTask = t.token!
-                println("The task is \(t.token!)")
-                t.nextToken()
-                t.nextToken()
-            case "set-goal":
-                t.nextToken()
-                var slotcount = 1
-                let chunk = Chunk(s: "currentGoalChunk", m: m)
-                chunk.setSlot("isa", value: "goal")
-                chunk.setSlot("slot1", value: "start")
-                while t.token! != ")" {
-                    if m.dm.chunks[t.token!] == nil {
-                        let newchunk = Chunk(s: t.token!, m: m)
-                        newchunk.setSlot("isa", value: "goaltype")
-                        newchunk.setSlot("slot1", value: t.token!)
-                        newchunk.fixedActivation = 1.0 // should change this later
-                        m.dm.addToDM(newchunk)
-                    }
-                    chunk.setSlot("slot\(slotcount++)", value: t.token!)
-                    t.nextToken()
+                if m.dm.chunks[goal!] == nil {
+                    let newchunk = Chunk(s: goal!, m: m)
+                    newchunk.setSlot("isa", value: "goaltype")
+                    newchunk.setSlot("slot1", value: goal!)
+                    newchunk.fixedActivation = 1.0 // should change this later
+                    newchunk.definedIn = taskNumber
+                    m.dm.addToDM(newchunk)
                 }
-                m.currentGoals = chunk
-                println("The goalchunk is \(chunk)")
-                t.nextToken()
-            case "set-goal-constants":
-                t.nextToken()
-                var slotcount = 1
-                let chunk = Chunk(s: "constants", m: m)
-                chunk.setSlot("isa", value: "fact")
-                while t.token! != ")" {
-                    chunk.setSlot("slot\(slotcount++)", value: t.token!)
-                    t.nextToken()
-                }
-                m.currentGoalConstants = chunk
-                println("The goal constants are is \(chunk)")
-                t.nextToken()
-            case "specify-inputs":
-                t.nextToken()
-                var chunk: Chunk?
-                do {
-                    chunk = parseInput()
-                    println("Parsed \(chunk)")
-                    if chunk != nil {
-                        m.inputs.append(chunk!)
-                    }
-                } while (chunk != nil && t.token != ")")
-                if t.token != ")" {
-                    println(") expected")
-                    return
-                }
-               println("Inputs:\n\(m.inputs)")
+                chunk.setSlot("slot\(slotCount++)", value: goal!)
+                m.addToTraceField("Task has goal \(goal!)")
                 
-            case "goal-focus":
-                t.nextToken()
-                if let chunk = m.dm.chunks[t.token!] {
-                    let goalChunk = chunk.copy()
-                    m.buffers["goal"] = goalChunk
+            }
+            m.currentGoals = chunk
+        case "task-constants:":
+            let parenthesis = scanner.scanString("(")
+            if parenthesis == nil {
+                m.addToTraceField("Missing '(' after initial-constants:")
+                return false
+            }
+            var goal: String?
+            let chunk = Chunk(s: "constants", m: m)
+            chunk.setSlot("isa", value: "fact")
+            var slotCount = 1
+            while !scanner.scanString(")", intoString: nil) {
+                goal = scanner.scanUpToCharactersFromSet(whitespaceNewLineParentheses)
+                if goal == nil {
+                    m.addToTraceField("Unexpected end of file in initial-constants:")
+                    return false
                 }
-                t.nextToken()
-                t.nextToken()
-            case "set-all-baselevels":
-                t.nextToken()
-                if let timeDiff = NSNumberFormatter().numberFromString(t.token!)?.doubleValue {
-                    t.nextToken()
-                    if let number = NSNumberFormatter().numberFromString(t.token!)?.intValue {
-                        for (_,chunk) in m.dm.chunks {
-                            chunk.setBaseLevel(timeDiff, references: Int(number))
-                        }
-                    }
+                globalVariableMapping[goal!] = slotCount
+                chunk.setSlot("slot\(slotCount++)", value: goal!)
+                m.addToTraceField("Task has constant \(goal!)")
+            }
+            m.currentGoalConstants = chunk
+        case "start-screen:":
+            let startScreen = scanner.scanUpToCharactersFromSet(whitespaceNewLine)
+            if startScreen == nil {
+                m.addToTraceField("Incomplete start-screen declaration")
+                return false
+            }
+            m.startScreenName = startScreen!
+            m.addToTraceField("Setting startscreen to \(startScreen!)")
+        default:
+            let parValue = scanner.scanUpToCharactersFromSet(whitespaceNewLine)
+            if parValue == nil {
+                m.addToTraceField("Missing parameter value for \(setting!)")
+                return false
+            }
+            let success = m.setParameter(setting!, value: parValue!)
+            if !success {
+                m.addToTraceField("Can't set parameter \(setting!) to \(parValue!)")
+                return false
+            }
+            m.addToTraceField("Setting \(setting!) to \(parValue!)")
+            }
+        }
+        m.currentTask = taskName!
+        
+        return true
+    }
+    
+    func parseGoal() -> Bool {
+        let goalName = scanner.scanUpToCharactersFromSet(whitespaceNewLineParentheses)
+        if goalName == nil {
+            m.addToTraceField("Unexpected end of file in goal definition")
+            return false
+        }
+        m.addToTraceField("Defining goal \(goalName!)")
+        if m.dm.chunks[goalName!] == nil {
+            let newchunk = Chunk(s: goalName!, m: m)
+            newchunk.setSlot("isa", value: "goaltype")
+            newchunk.setSlot("slot1", value: goalName!)
+            newchunk.fixedActivation = 1.0 // should change this later
+            newchunk.definedIn = taskNumber
+            m.dm.addToDM(newchunk)
+
+        }
+
+        let readBrace = scanner.scanString("{")
+        if readBrace == nil {
+            m.addToTraceField("'{' Expected after \(goalName!)")
+            return false
+        }
+        var op: String?
+        while !scanner.scanString("}", intoString: nil) {
+            op = scanner.scanUpToCharactersFromSet(whitespaceNewLineParentheses)
+            if op == nil || op! != "operator" {
+                m.addToTraceField("Can only handle operator declarations within a goal definition, but found \(op)")
+                return false
+            }
+            if !parseOperator(goalName!) { return false }
+        }
+        return true
+    }
+    
+    func parseOperator(goalName: String) -> Bool {
+        let operatorName = scanner.scanUpToCharactersFromSet(whitespaceNewLineParentheses)
+        if operatorName == nil {
+            m.addToTraceField("Unexpected end of file in operator definition")
+            return false
+        }
+        let chunk = Chunk(s: operatorName!, m: m)
+        m.addToTraceField("Adding operator \(operatorName!)")
+        chunk.setSlot("isa", value: "operator")
+        var constantSlotCount = 0
+        var localVariableMapping: [String:Int] = [:]
+        if scanner.scanString("(", intoString: nil) {
+            while !scanner.scanString(")", intoString: nil) {
+                let parameter = scanner.scanUpToCharactersFromSet(whiteSpaceNewLineParenthesesEqual)
+                let equalsign = scanner.scanString("=", intoString: nil)
+                if parameter == nil || !equalsign {
+                    m.addToTraceField("Illegal parameter declaration in \(operatorName!)")
+                    return false
                 }
-                t.nextToken()
-                if t.token != ")" {
-                    println(") expected")
-                    return
-                }
-                t.nextToken()
-            case "sgp":
-                t.nextToken()
-                while t.token! != ")" {
-                    let parameter = t.token!
-                    t.nextToken()
-                    let value = t.token!
-                    t.nextToken()
-                    if !m.setParameter(parameter,value: value) {
-                        println("Problem parseing parameter/value pair \(parameter) and \(value)")
-                        return
+                switch parameter! {
+                    case "activation":
+                    let activationValue = scanner.scanDouble()
+                    if activationValue == nil {
+                       m.addToTraceField("Illegal parameter value in \(operatorName!)")
+                    return false
                     }
-                    else {
-                        m.parameters.append((parameter,value))
-                    }
-                }
-                t.nextToken()
-            case "screen":
-                t.nextToken()
-                let screen = parseScreen()
-                m.scenario.screens[screen.name] = screen
-                t.nextToken()
-            case "start-screen":
-                t.nextToken()
-                m.scenario.startScreen = m.scenario.screens[t.token!]!
-                println("Setting startScreen to \(m.scenario.startScreen.name)")
-                t.nextToken()
-                t.nextToken()
-            case "transition":
-                t.nextToken()
-                let sourceScreen = m.scenario.screens[t.token!]
-                t.nextToken()
-                let destinationScreen = m.scenario.screens[t.token!]
-                if sourceScreen == nil || destinationScreen == nil {
-                    println("Illegal transition")
-                    return
-                }
-                println("Setting transition between \(sourceScreen!.name) and \(destinationScreen!.name)")
-                t.nextToken()
-                switch t.token! {
-                case "relative-time":
-                    t.nextToken()
-                    let relTime = NSNumberFormatter().numberFromString(t.token!)?.doubleValue
-                    if relTime != nil {
-                        sourceScreen!.timeTransition = relTime!
-                        sourceScreen!.timeTarget = destinationScreen!
-                        sourceScreen!.timeAbsolute = false
-                    } else {
-                        println("Illegal time in transition")
-                        return
-                    }
-                case "absolute-time":
-                    t.nextToken()
-                    let absTime = NSNumberFormatter().numberFromString(t.token!)?.doubleValue
-                    if absTime != nil {
-                        sourceScreen!.timeTransition = absTime!
-                        sourceScreen!.timeTarget = destinationScreen!
-                        sourceScreen!.timeAbsolute = true
-                    } else {
-                        println("Illegal time in transition")
-                        return
-                    }
-                case "action":
-                    t.nextToken()
-                    sourceScreen!.transitions[t.token!] = destinationScreen
+                    chunk.fixedActivation = activationValue!
+                    m.addToTraceField("Setting fixed activation to \(activationValue!)")
                 default:
-                    println("Unknown transition type \(t.token!)")
-                    return
+                    m.addToTraceField("Unknown parameter \(parameter!)")
+                    return false
                 }
-                t.nextToken()
-                t.nextToken()
-            default: println("Cannot yet handle \(t.token!)")
-                return
+                scanner.scanString(",", intoString: nil)
             }
         }
-    }
-    
-    private func parseChunk(dm: Declarative) -> Chunk? {
-        if t.token != "(" {
-            println("( expected")
-            return nil
+        if !scanner.scanString("{", intoString: nil) {
+            m.addToTraceField("Missing '{'")
+            return false
         }
-        t.nextToken()
-        let chunkName = t.token!
-        t.nextToken()
-        let chunk = Chunk(s: chunkName, m: m)
-        while (t.token != nil && t.token! != ")") {
-            let slot = t.token
-            t.nextToken()
-            let valuestring = t.token
-            t.nextToken()
-            if (slot != nil && valuestring != nil) {
-                if let number = NSNumberFormatter().numberFromString(valuestring!)?.doubleValue   {
-                    if slot != ":activation" {
-                        chunk.setSlot(slot!, value: number)
-                    } else {
-                        chunk.fixedActivation = number
-                    }
-                } else if slot! == ":assoc" {
-                    let value = dm.chunks[valuestring!]
-                    if value != nil {
-                        chunk.assocs[valuestring!] = dm.defaultOperatorAssoc
-//                        println("Setting assoc between \(valuestring) and \(chunkName)")
-                        if chunk.type == "operator" {
-                            chunk.assocs[chunk.name] = dm.defaultOperatorSelfAssoc
-                            for (_,ch) in dm.chunks {
-                                if ch.type == "operator" && ch.assocs[valuestring!] != nil {
-                                    chunk.assocs[ch.name] = dm.defaultInterOperatorAssoc
-                                    ch.assocs[chunk.name] = dm.defaultInterOperatorAssoc
-                                }
+        var conditions = ""
+        var actions = ""
+        var scanningActions = false
+        while !scanner.scanString("}", intoString: nil) {
+            let item = scanner.scanUpToCharactersFromSet(whitespaceNewLineParentheses)
+            println("\(item)")
+            if item == nil {
+                m.addToTraceField("Unexpected end of file in operator definition")
+                return false
+            }
+            if item!.hasPrefix("\"") {
+                scanner.scanUpToString("\"")
+                scanner.scanString("\"")
+            } else if item! == "==>" {
+                scanningActions = true
+            } else {
+                var prim = ""
+                var component = ""
+                for ch in item! {
+                    switch ch {
+                    case "A"..."Z","a"..."z": component += String(ch)
+                    default:
+                        if component != "" {
+                            if bufferMappingA[component] != nil || bufferMappingC[component] != nil || component == "nil" {
+                                prim += component
+                            } else if let globalIndex = globalVariableMapping[component] {
+                                prim += "GC\(globalIndex)"
+                            } else if let localIndex = localVariableMapping[component] {
+                                prim += "C\(localIndex)"
+                            } else {
+                                localVariableMapping[component] = ++constantSlotCount
+                                prim += "C\(constantSlotCount)"
+                                chunk.setSlot("slot\(constantSlotCount)", value: component)
                             }
+                            component = ""
                         }
-                    }
-                    else {
-                        println("Invalid :assoc definition in \(chunkName)")
+                        prim += String(ch)
                     }
                 }
-                else {
-                    chunk.setSlot(slot!,value: valuestring!)
+                if component != "" {
+                    if bufferMappingA[component] != nil || bufferMappingC[component] != nil || component == "nil" {
+                        prim += component
+                    } else if let globalIndex = globalVariableMapping[component] {
+                        prim += "GC\(globalIndex)"
+                    } else if let localIndex = localVariableMapping[component] {
+                        prim += "C\(localIndex)"
+                    } else {
+                        localVariableMapping[component] = ++constantSlotCount
+                        prim += "C\(constantSlotCount)"
+                        chunk.setSlot("slot\(constantSlotCount)", value: component)
+                    }
                 }
-            }
-            else {
-                println("Wrong chunk syntax")
-                return nil
+                if scanningActions {
+                    actions += actions == "" ? prim : ";" + prim
+                } else {
+                    conditions += conditions == "" ? prim : ";" + prim
+                }
             }
         }
-        if (t.token == nil || t.token! != ")") {
-            return nil }
-        t.nextToken()
-        return chunk
+        chunk.setSlot("condition", value: conditions)
+        chunk.setSlot("action", value: actions)
+        chunk.assocs[goalName] = m.dm.defaultOperatorAssoc
+        chunk.assocs[chunk.name] = m.dm.defaultOperatorSelfAssoc
+        for (_,ch) in m.dm.chunks {
+            if ch.type == "operator" && ch.assocs[goalName] != nil {
+                chunk.assocs[ch.name] = m.dm.defaultInterOperatorAssoc
+                ch.assocs[chunk.name] = m.dm.defaultInterOperatorAssoc
+            }
+        }
+        chunk.definedIn = taskNumber
+        m.dm.addToDM(chunk)
+        m.addToTraceField("Adding operator:\n\(chunk)")
+        println("Adding operator\n\(chunk)")
+        
+        return true
     }
     
-    private func parseInput() -> Chunk? {
-        if t.token != "(" {
-            println("( expected")
-            return nil
+    func parseFacts() -> Bool {
+        if !scanner.scanString("{", intoString: nil) {
+            m.addToTraceField("Missing '{' in fact definition.")
+            return false
         }
-        t.nextToken()
-        let chunkName = t.token!
-        t.nextToken()
-        let chunk = Chunk(s: chunkName, m: m)
-        var i = 1
-        while (t.token != nil && t.token! != ")") {
-            let slot = "slot" + String(i++)
-            let valuestring = t.token
-            t.nextToken()
-            if (valuestring != nil) {
-                if let number = NSNumberFormatter().numberFromString(valuestring!)?.doubleValue   {
-                    if slot != ":activation" {
-                        chunk.setSlot(slot, value: number)
-                    } else {
-                        chunk.fixedActivation = number
+        while !scanner.scanString("}", intoString: nil) {
+            if !scanner.scanString("(", intoString: nil) {
+                m.addToTraceField("Missing '(' in fact definition.")
+                return false
+            }
+            var slotindex = 0
+            var chunk: Chunk? = nil
+            while !scanner.scanString(")", intoString: nil) {
+                let slotValue = scanner.scanUpToCharactersFromSet(whitespaceNewLineParentheses)
+                if slotValue == nil {
+                    m.addToTraceField("Unexpected end of file in fact defintion")
+                    return false
+                }
+                if slotValue!.hasPrefix(":") {
+                    switch slotValue! {
+                    case ":activation":
+                        let value = scanner.scanDouble()
+                        if value == nil || chunk == nil {
+                            m.addToTraceField("Invalid parameter value for \(slotValue!)")
+                            return false
+                        }
+                        chunk!.fixedActivation = value!
+                    default:
+                        m.addToTraceField("Unknown parameter \(slotValue!)")
+                        return false
                     }
                 } else {
-                    chunk.setSlot(slot,value: valuestring!)
-                } }
-            else {
-                println("Wrong chunk syntax")
-                return nil
+                    
+                    if slotindex == 0 {
+                        chunk =  Chunk(s: slotValue!, m: m)
+                        chunk!.setSlot("isa", value: "fact")
+                        slotindex++
+                    } else {
+                        chunk!.setSlot("slot\(slotindex++)", value: slotValue!)
+                    }
+                }
+                
             }
+            m.addToTraceField("Reading fact \(chunk!.name)")
+            chunk!.definedIn = taskNumber
+            m.dm.addToDM(chunk!)
         }
-        if (t.token == nil || t.token! != ")") {
-            return nil }
-        t.nextToken()
-        return chunk
+        return true
     }
     
-    private func parseScreen() -> PRScreen {
-        let name = t.token!
-        println("Parsing Screen \(name)")
-        let screen = PRScreen(name: name)
-        t.nextToken() // Should be "("
-        t.nextToken() // Should be the identifier of single object in the Screen
-        let card = parseObject(nil)
-        screen.object = card
-        return screen
+    func parseScreen() -> Bool {
+        let name = scanner.scanUpToCharactersFromSet(whitespaceNewLineParentheses)
+        if name == nil {
+            m.addToTraceField("Missing name in screen definition")
+            return false
+        }
+        if !scanner.scanString("{", intoString: nil) {
+            m.addToTraceField("Missing '{' in screen \(name!) definition.")
+            return false
+        }
+        let screen = PRScreen(name: name!)
+        let topObject = PRObject(name: "card", attributes: ["card"], superObject: nil)
+        screen.object = topObject
+        while !scanner.scanString("}", intoString: nil) {
+            if !scanner.scanString("(", intoString: nil) {
+                m.addToTraceField("Missing '(' in object definition below \(name!)")
+                return false
+            }
+            if !parseObject(topObject) { return false }
+        }
+        m.scenario.screens[screen.name] = screen
+        m.addToTraceField("Adding screen \(screen.name)")
+        return true
     }
     
-    private func parseObject(superObject: PRObject?) -> PRObject {
-        let name = t.token!
-        var attributes: [String] = []
-        t.nextToken()
-        while (t.token != "(" && t.token != ")") {
-            attributes.append(t.token!)
-            t.nextToken()
+    func parseObject(superObject: PRObject) -> Bool {
+        let name = scanner.scanUpToCharactersFromSet(whitespaceNewLineParentheses)
+        if name == nil {
+            m.addToTraceField("Missing name in object definition")
+            return false
         }
-        println("Parsing object \(name) with attributes \(attributes) and parent \(superObject?.name)")
-        let obj = PRObject(name: name, attributes: attributes, superObject: superObject)
-        while (t.token == "(") {
-            t.nextToken()
-            let subObject = parseObject(obj)
+        var attributes: [String] = [name!]
+        while let attribute = scanner.scanUpToCharactersFromSet(whitespaceNewLineParentheses) {
+            attributes.append(attribute)
         }
-        t.nextToken() // closing ")"
-        return obj
+        let object = PRObject(name: m.generateName(s1: name!), attributes: attributes, superObject: superObject)
+        m.addToTraceField("Adding object \(object.name) with attributes \(object.attributes)")
+        while scanner.scanString("(", intoString: nil) {
+            parseObject(object)
+        }
+        if !scanner.scanString(")", intoString: nil) {
+            m.addToTraceField("Missing ')' in object definition \(name!)")
+            return false
+        }
+        return true
     }
     
-       
+    func parseTransition() -> Bool {
+        let parenthesis1 = scanner.scanString("(", intoString: nil)
+        let screen1 = scanner.scanUpToCharactersFromSet(whiteSpaceNewLineParenthesesEqual)
+        let comma = scanner.scanString(",", intoString: nil)
+        let screen2 = scanner.scanUpToCharactersFromSet(whiteSpaceNewLineParenthesesEqual)
+        let parenthesis2 = scanner.scanString(")", intoString: nil)
+        let equalSign = scanner.scanString("=", intoString: nil)
+        let transType = scanner.scanUpToCharactersFromSet(whitespaceNewLineParentheses)
+        let parenthesis3 = scanner.scanString("(", intoString: nil)
+        if !parenthesis1 || !parenthesis2 || !comma || !parenthesis3 || !equalSign || screen1 == nil || screen2 == nil || transType == nil {
+            m.addToTraceField("Illegal transition syntax")
+            return false
+        }
+        let sourceScreen = m.scenario.screens[screen1!]
+        let destinationScreen = m.scenario.screens[screen2!]
+        if sourceScreen == nil || destinationScreen == nil {
+            m.addToTraceField("Either \(screen1!) or \(screen2!) is undeclared")
+            return false
+        }
+        switch transType! {
+            case "absolute-time":
+            let time = scanner.scanDouble()
+            if time == nil {
+                m.addToTraceField("Missing Double after absolute-time")
+                return false
+            }
+            sourceScreen!.timeTransition = time!
+            sourceScreen!.timeTarget = destinationScreen!
+            sourceScreen!.timeAbsolute = true
+            case "relative-time":
+                let time = scanner.scanDouble()
+                if time == nil {
+                    m.addToTraceField("Missing Double after relative-time")
+                    return false
+                }
+                sourceScreen!.timeTransition = time!
+                sourceScreen!.timeTarget = destinationScreen!
+                sourceScreen!.timeAbsolute = false
+            case "action":
+            let action = scanner.scanUpToCharactersFromSet(whiteSpaceNewLineParenthesesEqual)
+            if action == nil {
+                m.addToTraceField("Missing action in transition")
+                return false
+            }
+            sourceScreen!.transitions[action!] = destinationScreen!
+        default:
+            m.addToTraceField("Unknown transition type \(transType!)")
+            return false
+        }
+        scanner.scanString(")", intoString: nil)
+        m.addToTraceField("Defining transition between \(screen1!) and \(screen2!)")
+        return true
+    }
+    
+    func parseStartScreen() -> Bool {
+        let equal = scanner.scanString("=", intoString: nil)
+        let screenName = scanner.scanUpToCharactersFromSet(whitespaceNewLineParentheses)
+        if !equal || screenName == nil {
+            m.addToTraceField("Illegal start-screen defintion")
+            return false
+        }
+        if let screen = m.scenario.screens[screenName!] {
+            m.scenario.startScreen = screen
+        } else {
+            m.addToTraceField("\(screenName!) is not a valid screen")
+            return false
+        }
+        m.addToTraceField("Setting start-screen to \(screenName!)")
+        return true
+    }
+
+    
+
 
 }

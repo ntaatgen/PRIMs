@@ -47,6 +47,7 @@ class Model {
     var tracing: Bool = true
     var parameters: [(String,String)] = []
     var scenario = PRScenario()
+    var startScreenName: String? = nil
     /// Maximum time to run the model
     var timeThreshold = 200.0
     var outputData: [DataLine] = []
@@ -80,8 +81,9 @@ class Model {
             }
         }
     func clearResults() {
-        modelResults = [[]]
-        currentRow = 0
+        modelResults = []
+        resultTaskNumber = []
+        currentRow = -1
         maxX = 0.0
         maxY = 0.0
         currentTrial = 1.0
@@ -97,6 +99,10 @@ class Model {
         println("\(timeString)  " + s)
         trace += "\(timeString)  " + s + "\n"
         }
+    }
+    
+    func addToTraceField(s: String) {
+        trace += s + "\n"
     }
     
     func clearTrace() {
@@ -120,11 +126,14 @@ class Model {
     }
     
     
-    func parseCode(modelCode: String, taskNumber: Int) {
+    func parseCode(modelCode: String, taskNumber: Int) -> Bool {
         let parser = Parser(model: self, text: modelCode, taskNumber: taskNumber)
-        parser.parseModel()
-        modelText = modelCode
-        newResult()
+        let result = parser.parseModel()
+        if result {
+            modelText = modelCode
+            newResult()
+        }
+        return result
     }
     
 
@@ -148,44 +157,53 @@ class Model {
         let numVal = NSNumberFormatter().numberFromString(value)?.doubleValue
         let boolVal = (value != "nil")
         switch parameter {
-        case ":imaginal-delay":
+        case "imaginal-delay:":
             imaginal.imaginalLatency = numVal!
-        case ":imaginal-autoclear":
+        case "imaginal-autoclear:":
             imaginal.autoClear = boolVal
-        case ":egs":
+        case "egs:":
             procedural.utilityNoise = numVal!
-        case ":alpha":
+        case "alpha:":
             procedural.alpha = numVal!
-        case ":nu":
+        case "nu:":
             procedural.defaultU = numVal!
-        case ":primU":
+        case "primU:":
             procedural.primU = numVal!
-        case ":utility-retrieve-operator":
+        case "utility-retrieve-operator:":
             procedural.utilityRetrieveOperator = numVal!
-        case ":dat":
+        case "dat:":
             procedural.productionActionLatency = numVal!
-        case ":bll":
+        case "bll:":
             dm.baseLevelDecay = numVal!
-        case ":ol":
+        case "ol:":
             dm.optimizedLearning = boolVal
-        case ":mas":
+        case "mas:":
             dm.maximumAssociativeStrength = numVal!
-        case ":rt":
+        case "rt:":
             dm.retrievalThreshold = numVal!
-        case ":lf":
+        case "lf:":
             dm.latencyFactor = numVal!
-        case ":mp":
+        case "mp:":
             dm.misMatchPenalty = numVal!
-        case ":ans":
+        case "ans:":
             dm.activationNoise = numVal!
-        case ":default-operator-assoc":
+        case "default-operator-assoc:":
             dm.defaultOperatorAssoc = numVal!
+        case "default-operator-self-assoc:":
+            dm.defaultOperatorSelfAssoc = numVal!
         default: return false
         }
-        println("Parameter \(parameter) has value \(value)")
+//        println("Parameter \(parameter) has value \(value)")
         return true
     }
 
+    func setParametersToDefault() {
+        dm.setParametersToDefault()
+        procedural.setParametersToDefault()
+        action.setParametersToDefault()
+        imaginal.setParametersToDefault()
+    }
+    
     func loadParameters() {
         for (parameter,value) in parameters {
             setParameter(parameter, value: value)
@@ -201,49 +219,44 @@ class Model {
     available productions.
     */
     func findOperatorOrOperatorProduction() -> Bool {
-        let opInst = procedural.compileOperators ? procedural.findOperatorProduction() : nil
-        if opInst == nil {
-            let retrievalRQ = Chunk(s: "operator", m: self)
-            retrievalRQ.setSlot("isa", value: "operator")
-            var (latency,opRetrieved) = dm.retrieve(retrievalRQ)
-            if procedural.retrieveOperatorsConditional {
-                var cfs = dm.conflictSet.sorted({ (item1, item2) -> Bool in
-                    let (_,u1) = item1
-                    let (_,u2) = item2
-                    return u1 > u2
-                })
-//                println("Conflict set \(cfs)")
-                var match = false
-                var candidate: Chunk
-                var activation: Double
-                do {
-                    (candidate, activation) = cfs.removeAtIndex(0)
-                    //                        println("Trying operator \(candidate.name)")
-                    let savedBuffers = buffers
-                    buffers["operator"] = candidate.copy()
-                    let inst = procedural.findMatchingProduction()
-                    match = procedural.fireProduction(inst, compile: false)
-                    buffers = savedBuffers
-                } while !match && !cfs.isEmpty && cfs[0].1 > dm.retrievalThreshold
-                if match {
-                    opRetrieved = candidate
-                    latency = dm.latency(activation)
-                } else { opRetrieved = nil
-                    latency = dm.latency(dm.retrievalThreshold)
-                }
+        
+        let retrievalRQ = Chunk(s: "operator", m: self)
+        retrievalRQ.setSlot("isa", value: "operator")
+        var (latency,opRetrieved) = dm.retrieve(retrievalRQ)
+        if procedural.retrieveOperatorsConditional {
+            var cfs = dm.conflictSet.sorted({ (item1, item2) -> Bool in
+                let (_,u1) = item1
+                let (_,u2) = item2
+                return u1 > u2
+            })
+            //                println("Conflict set \(cfs)")
+            var match = false
+            var candidate: Chunk
+            var activation: Double
+            do {
+                (candidate, activation) = cfs.removeAtIndex(0)
+                //                        println("Trying operator \(candidate.name)")
+                let savedBuffers = buffers
+                buffers["operator"] = candidate.copy()
+                let inst = procedural.findMatchingProduction()
+                match = procedural.fireProduction(inst, compile: false)
+                buffers = savedBuffers
+            } while !match && !cfs.isEmpty && cfs[0].1 > dm.retrievalThreshold
+            if match {
+                opRetrieved = candidate
+                latency = dm.latency(activation)
+            } else { opRetrieved = nil
+                latency = dm.latency(dm.retrievalThreshold)
             }
-            time += latency
-            if opRetrieved == nil { return false }
-            addToTrace("*** Retrieved operator \(opRetrieved!.name) with spread \(opRetrieved!.spreadingActivation())")
-            dm.addToFinsts(opRetrieved!)
-            buffers["goal"]!.setSlot("last-operator", value: opRetrieved!)
-            buffers["operator"] = opRetrieved!.copy()
-            procedural.lastOperator = opRetrieved!
-        } else {
-            addToTrace("Firing operator production \(opInst!.p.name)")
-            procedural.fireProduction(opInst!, compile: true)
-            time += 0.05
         }
+        time += latency
+        if opRetrieved == nil { return false }
+        addToTrace("*** Retrieved operator \(opRetrieved!.name) with spread \(opRetrieved!.spreadingActivation())")
+        dm.addToFinsts(opRetrieved!)
+        buffers["goal"]!.setSlot("last-operator", value: opRetrieved!)
+        buffers["operator"] = opRetrieved!.copy()
+        procedural.lastOperator = opRetrieved!
+        
         return true
     }
     
@@ -341,7 +354,11 @@ class Model {
         currentTaskIndex = nil
         if taskNumber != nil {
             currentTaskIndex = taskNumber!
+            scenario = PRScenario()
+            parameters = []
+            inputs = []
             let parser = Parser(model: self, text: modelText, taskNumber: taskNumber!)
+            setParametersToDefault()
             parser.parseModel()
             newResult()
         }
@@ -374,15 +391,19 @@ class Model {
             scenario = tasks[i].scenario
             println("Setting scenario with startscreen \(scenario.startScreen.name)")
             println("Setting parameters")
+            setParametersToDefault()
             loadParameters()
             println("Setting task index to \(i)")
             newResult()
         }
     }
     
+    func generateName(s1: String = "chunk") -> String {
+        return s1 + "\(chunkIdCounter++)"
+    }
     
     func generateNewChunk(s1: String = "chunk") -> Chunk {
-        let name = s1 + "\(chunkIdCounter++)"
+        let name = generateName(s1: s1)
         let chunk = Chunk(s: name, m: self)
         return chunk
     }

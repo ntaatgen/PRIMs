@@ -1,66 +1,118 @@
-;;; Model to read a list and then recall it
-;;;
+define task list-recall {
+  initial-goals: (read-in-memory rehearse report-vocal )
+  task-constants: ( letter list )
+  start-screen: letter-1
+  rt: -2.0
+}
+
+define goal read-in-memory {
+  operator read-first-letter(activation = 1.0)  {
+  "Read the first letter and put it in WM. Store goal id in WM"
+    WM1=nil
+    V1=letter
+    ==>
+   V2->WM3
+   list->WM1
+   G0->WM2
+   read->AC1
+   nil->V1
+  }
+
+  operator read-next-letter(activation = 1.0) {
+  "Read the next letter, store it in WM"
+    WM1<>nil
+    V1=letter
+    ==>
+    V2->WM3
+    list->WM1
+    WM0->WM2
+    read->AC1
+    nil->V1
+  }
+}
+
+define goal report-vocal {
+  operator start-report(activation = 1.0) {
+  "Retrieve the first item and bump anything remaining in WM to DM"
+    V1=report
+    RT1=nil
+    ==>
+    G0->RT2
+    report->WM1
+  }
+
+  operator report-item(activation = 1.0) {
+  "Say item and retrieve next"
+    V1=report
+    ==>
+    RT3->AC2
+    say->AC1
+    RT0->RT2
+  }
+
+  operator done-report(activation = 1.0) {
+  "On retrieval error end report"
+    V1=report
+    RT1=error
+==>
+    stop->G1
+  }
+}
+
+define goal rehearse {
+  operator rehearse-no-rehearse(activation=1.0) {
+    V1=nil
+    ==>
+    wait->AC1
+  }
+}
 
 
-(set-task list-recall)
-(set-goal read-in-memory rehearse report-vocal)
-(set-goal-constants letter list)
+define screen screen1 {
+(letter x)
+}
 
-(sgp :imaginal-autoclear t :ol t :rt 0.0 :lf 0.3)
+define screen screen2 {
+(letter k)
+}
 
+define screen screen3 {
+(letter p)
+}
 
-(add-dm
-(read-first-letter
-  isa operator
-  slot1 read
-  condition WM1=nil;V1=GC1
-  action V2->WM3;GC2->WM1;G0->WM2;C1->AC1
-:activation 1.0
-:assoc read-in-memory)
+define screen screen4 {
+(letter f)
+}
 
-(read-next-letter
-  isa operator
-  slot1 read
-condition WM1<>nil;V1=GC1l
-action V2->WM3;GC2->WM1;WM0->WM2;C1->AC1
-:activation 1.0
-:assoc read-in-memory)
+define screen report {
+(report)
+}
 
-(start-report
-  isa operator
-  slot1 report
-condition V1=C1;RT1=nil
-action G0->RT2;C1->WM1
-:activation 1.0
-:assoc report-vocal)
+define screen report2 {
+(report check)
+}
 
-(report-item
-  isa operator
-  slot1 report
-  slot2 say
-condition V1=C1
-action RT3->AC2;C2->AC1;RT0->RT2
-:activation 1.0
-:assoc report-vocal)
-
-(done-report
-  isa operator
-  slot1 report
-  slot2 error
-  slot3 stop
-  condition V1=C1;RT1=C2
-  action C3->G1
-:activation 1.0
-:assoc report-vocal)
+define screen start-spoon {
+(placemat one
+(item fork)
+(item fork)
+(item plate)
+(item knife)
+(item spoon))
+(placemat two
+(item fork)
+(item plate)
+(item knife)
+(item spoon)
+(item spoon))
+}
 
 
-(rehearse-no-rehearse
-  isa operator
-  slot1 nothing
-  slot2 wait
-  condition V1=C1
-  action C2->AC1
-:activation 1.0
-:assoc rehearse)
+transition(screen1,screen2) = absolute-time(2.0)
+transition(screen2,screen3) = absolute-time(4.0)
+transition(screen3,screen4) = absolute-time(6.0)
+transition(screen4,report) = absolute-time(8.0)
+transition(report,report2) = action(say)
 
-)
+start-screen = screen1
+
