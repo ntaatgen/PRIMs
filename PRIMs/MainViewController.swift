@@ -8,7 +8,7 @@
 
 import Cocoa
 
-class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDelegate, GraphViewDataSource, PrimViewDataSource {
+class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDelegate, NSSplitViewDelegate, GraphViewDataSource, PrimViewDataSource {
     
     
     var model = Model()
@@ -28,6 +28,46 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
     @IBOutlet weak var chunkTable: NSTableView!
     
     @IBOutlet weak var chunkTextField: NSTextField!
+    
+    // Spitviews
+    
+    @IBOutlet weak var topSplit: NSSplitView!
+    
+    
+    @IBOutlet weak var leftSplit: NSSplitView!
+    
+    @IBOutlet weak var middleSplit: NSSplitView!
+    
+    @IBOutlet weak var rightSplit: NSSplitView!
+    
+    @IBOutlet weak var chunkSplit: NSSplitView!
+    
+    
+    func splitView(splitView: NSSplitView, canCollapseSubview subview: NSView) -> Bool {
+        if subview === middleSplit as NSView || subview === middleSplit.subviews[0] as! NSView {
+            return false
+        }
+        return true
+    }
+    
+    
+    func splitView(splitView: NSSplitView, constrainMaxCoordinate proposedMaximumPosition: CGFloat, ofSubviewAt dividerIndex: Int) -> CGFloat {
+        if splitView === chunkSplit {
+        return proposedMaximumPosition - 100
+        }
+        return proposedMaximumPosition - 200
+    }
+    
+    func splitView(splitView: NSSplitView, constrainMinCoordinate proposedMinimumPosition: CGFloat, ofSubviewAt dividerIndex: Int) -> CGFloat {
+        if splitView === chunkSplit {
+        return proposedMinimumPosition + 100
+        }
+        return proposedMinimumPosition + 200
+    }
+    
+    func splitView(splitView: NSSplitView, shouldCollapseSubview subview: NSView, forDoubleClickOnDividerAtIndex dividerIndex: Int) -> Bool {
+        return  splitView !== chunkSplit
+    }
     
     func numberToColor(i: Int) -> NSColor {
         switch i {
@@ -215,7 +255,7 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
             model.tasks.append(newTask)
 //            model.currentTaskIndex = model.tasks.count - 1
         }
-        modelText.string = modelCode
+//        modelText.string = modelCode
         primViewCalculateGraph(primGraph)
         primGraph.needsDisplay = true
         updateAllViews()
@@ -223,6 +263,7 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
     
        
     func updateAllViews() {
+        model.commitToTrace(false)
         outputText.string = model.trace
         var s: String = ""
         for (bufferName, bufferChunk) in model.buffers {

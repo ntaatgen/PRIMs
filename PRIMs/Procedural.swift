@@ -168,7 +168,7 @@ class Procedural {
         }
         if let existingP = productions[newFullName] {
             existingP.u += alpha * (p1.u - existingP.u)
-            model.addToTrace("Reinforcing \(existingP.fullName) new u = \(existingP.u)")
+            model.addToTrace("Reinforcing \(existingP.name) new u = \(existingP.u)")
         } else {
             let newP = Production(name: newName, model: model, condition: p1.condition, action: p1.action, op: p1.op, parent1: p1, parent2: p2, taskID: model.currentTaskIndex!)
             newP.conditions = p1.conditions + p2.conditions
@@ -178,32 +178,32 @@ class Procedural {
             newP.goalChecks = p1.goalChecks
             newP.fullName = newFullName
             productions[newP.fullName] = newP
-            model.addToTrace("Compiling \(newP.fullName)")
+            model.addToTrace("Compiling \(newP.name)")
         }
         
     }
     
     /// Need to either fix this or delete it
-    func compileProductions(op: Chunk, inst2: Instantiation) {
-        let p2 = inst2.p
-        let nameP2 = p2.name.hasPrefix("t") ? p2.name.substringFromIndex(advance(p2.name.startIndex,1)) : p2.name
-        let newName = op.name + ";" + nameP2
-        if p2.newCondition != nil || p2.op != nil { return } // production has to clear the conditions, and we do not compile over 2 operators (yet)
-        if let existingP = productions[newName] {
-            existingP.u += alpha * (utilityRetrieveOperator - existingP.u)
-            model.addToTrace("Reinforcing \(existingP.name) new u = \(existingP.u)")
-        } else {
-            let newP = Production(name: newName, model: model, condition: nil, action: nil, op: op, parent1: p2, parent2: nil, taskID: model.currentTaskIndex!)
-            newP.conditions = p2.conditions
-            newP.actions = p2.actions
-            newP.newCondition = nil
-            newP.newAction = p2.newAction
-            for (assoc,_) in op.assocs {
-                newP.goalChecks.append(model.dm.chunks[assoc]!)
-            }
-            productions[newP.name] = newP
-            model.addToTrace("Compiling \(newP)")
-        }
-    }
+//    func compileProductions(op: Chunk, inst2: Instantiation) {
+//        let p2 = inst2.p
+//        let nameP2 = p2.name.hasPrefix("t") ? p2.name.substringFromIndex(advance(p2.name.startIndex,1)) : p2.name
+//        let newName = op.name + ";" + nameP2
+//        if p2.newCondition != nil || p2.op != nil { return } // production has to clear the conditions, and we do not compile over 2 operators (yet)
+//        if let existingP = productions[newName] {
+//            existingP.u += alpha * (utilityRetrieveOperator - existingP.u)
+//            model.addToTrace("Reinforcing \(existingP.name) new u = \(existingP.u)")
+//        } else {
+//            let newP = Production(name: newName, model: model, condition: nil, action: nil, op: op, parent1: p2, parent2: nil, taskID: model.currentTaskIndex!)
+//            newP.conditions = p2.conditions
+//            newP.actions = p2.actions
+//            newP.newCondition = nil
+//            newP.newAction = p2.newAction
+//            for (assoc,_) in op.assocs {
+//                newP.goalChecks.append(model.dm.chunks[assoc]!)
+//            }
+//            productions[newP.name] = newP
+//            model.addToTrace("Compiling \(newP)")
+//        }
+//    }
     
 }

@@ -93,12 +93,26 @@ class Model {
         trace = ""
     }
     
+    var traceBuffer: [String] = []
+    
+    
     func addToTrace(s: String) {
         if tracing {
         let timeString = String(format:"%.2f", time)
         println("\(timeString)  " + s)
-        trace += "\(timeString)  " + s + "\n"
+        traceBuffer.append("\(timeString)  " + s)
+//        trace += "\(timeString)  " + s + "\n"
         }
+    }
+    
+    func commitToTrace(indented: Bool) {
+        for s in traceBuffer {
+            if indented {
+                trace += "      "
+            }
+            trace += s + "\n"
+        }
+        traceBuffer = []
     }
     
     func addToTraceField(s: String) {
@@ -270,7 +284,11 @@ class Model {
         var match: Bool = true
         while match && (buffers["operator"]?.slotvals["condition"] != nil || buffers["operator"]?.slotvals["action"] != nil) {
             let inst = procedural.findMatchingProduction()
-            addToTrace("Firing \(inst.p.name)")
+            var pname = inst.p.name
+            if pname.hasPrefix("t") {
+                pname = dropFirst(pname)
+            }
+            addToTrace("Firing \(pname)")
             match = procedural.fireProduction(inst, compile: true)
             time += procedural.productionActionLatency
         }
@@ -313,8 +331,10 @@ class Model {
             if !found {
                 let op = buffers["operator"]!
                 addToTrace("Operator \(op.name) failed")
+                commitToTrace(true)
             }
         } while !found
+        commitToTrace(false)
         let op = buffers["operator"]!.name
         buffers["operator"] = nil
         doAllModuleActions()
