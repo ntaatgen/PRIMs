@@ -33,7 +33,6 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
     
     @IBOutlet weak var topSplit: NSSplitView!
     
-    
     @IBOutlet weak var leftSplit: NSSplitView!
     
     @IBOutlet weak var middleSplit: NSSplitView!
@@ -156,7 +155,7 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
     let border = 10.0
 
     func primViewCalculateGraph(sender: PrimView) {
-        primGraphData = FruchtermanReingold(W: Double(sender.bounds.width) - 2 * border, H: Double(sender.bounds.height) - 2 * border)
+        primGraphData = FruchtermanReingold(W: Double(sender.bounds.width) - 3 * border, H: Double(sender.bounds.height) - 3 * border)
         let graphType = popUpMenu.selectedItem!.title
         switch graphType {
             case "PRIMs": primGraphData!.setUpGraph(model)
@@ -220,7 +219,47 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
         }
     }
     
+    func primViewRescale(sender: PrimView, newW: Double, newH: Double) {
+        if primGraphData != nil {
+            primGraphData!.rescale(newW - 3 * border, newH: newH - 3 * border)
+        }
+    }
 
+    func primViewVertexBroad(sender: PrimView, index: Int) -> Bool {
+        if primGraphData != nil {
+            let key = primGraphData!.keys[index]
+            return primGraphData!.nodes[key]!.taskNode
+        }
+        return false
+    }
+    
+    @IBOutlet weak var allLabelsButton: NSButton!
+    
+    @IBAction func allLabelsButtonPushed(sender: NSButton) {
+        primGraph.needsDisplay = true
+    }
+    
+    func primViewVisibleLabel(sender: PrimView, index: Int) -> String? {
+        if primGraphData != nil {
+            let key = primGraphData!.keys[index]
+            if primGraphData!.nodes[key]!.labelVisible || allLabelsButton.state == NSOnState {
+                return primGraphData!.nodes[key]!.shortName
+            }
+        }
+        return nil
+    }
+    
+    @IBOutlet weak var primViewView: PrimView!
+    
+    var primSubviews: [NSTextField] = []
+    
+    @IBAction func clickInPrimView(sender: NSClickGestureRecognizer) {
+        let location = sender.locationInView(primViewView)
+        primGraphData!.makeVisibleClosestNodeName(Double(location.x) + border,y: Double(location.y) + border)
+        primGraph.needsDisplay = true
+        
+    }
+    
     
     @IBAction func loadModel(sender: NSButton) {
         var fileDialog: NSOpenPanel = NSOpenPanel()

@@ -16,8 +16,12 @@ class Node {
     var dy: Double = 0.0
     var taskNumber: Int = -2 // White node
     var rank = 0.0
+    var taskNode = false
+    var labelVisible = false
+    var shortName: String
     init(name: String) {
         self.name = name
+        self.shortName = name
     }
 }
 
@@ -37,8 +41,8 @@ class FruchtermanReingold {
     var keys: [String] = []
     var nodeToIndex: [String:Int] = [:]
     var edges: [Edge] = []
-    let W: Double
-    let H: Double
+    var W: Double
+    var H: Double
     let iterations = 100
     var constantC = 0.3
     var area: Double {
@@ -73,6 +77,15 @@ class FruchtermanReingold {
         return sqrt(pow(x,2)+pow(y,2))
     }
     
+    func rescale(newW: Double, newH: Double) {
+        for (_,node) in nodes {
+            node.x = node.x * (newW/W)
+            node.y = node.y * (newH/H)
+        }
+        W = newW
+        H = newH
+    }
+    
     func calculate() {
         var maxRank = 0.0
         for (_,node) in nodes {
@@ -81,7 +94,7 @@ class FruchtermanReingold {
             maxRank = max(maxRank,node.rank)
             
         }
-        let rankStep = H / (maxRank - 1)
+        let rankStep = (H - 30) / (maxRank - 1)
         for i in 0..<iterations {
             let temperature = 0.1 * max(W,H) * Double(iterations - i)/Double(iterations)
             // Calculate repulsive forces
@@ -140,6 +153,22 @@ class FruchtermanReingold {
         }
     }
     
+    func makeVisibleClosestNodeName(x: Double, y: Double)  {
+        var closest: Node?
+        var closestDistance: Double = 1E20
+        for (_,node) in nodes {
+            let distance = pow(node.x - x, 2) + pow(node.y - y, 2)
+            if distance < closestDistance {
+                closest = node
+                closestDistance = distance
+            }
+        }
+        if closest != nil {
+            closest!.labelVisible = !closest!.labelVisible
+        }
+    }
+    
+    
     func setUpGraph(model: Model) {
         nodes = [:]
         edges = []
@@ -157,6 +186,7 @@ class FruchtermanReingold {
                             currentNode = node
                         } else {
                             let newNode = Node(name: currentName)
+                            newNode.shortName = lastItem
                             nodes[currentName] = newNode
                             if currentNode != nil {
                                 let newEdge = Edge(from: newNode, to: currentNode!)
@@ -166,19 +196,22 @@ class FruchtermanReingold {
                         }
                     }
                     let operatorNode = Node(name: chunk.name)
-                    operatorNode.taskNumber = chunk.definedIn!
+                    operatorNode.taskNumber = chunk.definedIn[0]
                     nodes[chunk.name] = operatorNode
-                    let taskName = "\(chunk.definedIn!)"
-                    var taskNode: Node
-                    if nodes[taskName] == nil {
-                        taskNode = Node(name: taskName)
-                        taskNode.taskNumber = chunk.definedIn!
-                        nodes[taskName] = taskNode
-                    } else {
-                        taskNode = nodes[taskName]!
+                    for task in chunk.definedIn {
+                        let taskName = model.tasks[task].name
+                        var taskNode: Node
+                        if nodes[taskName] == nil {
+                            taskNode = Node(name: taskName)
+                            taskNode.taskNumber = task
+                            nodes[taskName] = taskNode
+                            taskNode.taskNode = true
+                        } else {
+                            taskNode = nodes[taskName]!
+                        }
+                        let taskEdge = Edge(from: taskNode, to: operatorNode)
+                        edges.append(taskEdge)
                     }
-                    let taskEdge = Edge(from: taskNode, to: operatorNode)
-                    edges.append(taskEdge)
                     let operatorEdge = Edge(from: operatorNode, to: currentNode!)
                     edges.append(operatorEdge)
                     var actionList = chunk.slotvals["action"]!.description.componentsSeparatedByString(";")
@@ -191,6 +224,7 @@ class FruchtermanReingold {
                             currentNode = node
                         } else {
                             let newNode = Node(name: currentName)
+                            newNode.shortName = lastItem
                             newNode.taskNumber = -1
                             nodes[currentName] = newNode
                             if currentNode != nil {
@@ -220,6 +254,7 @@ class FruchtermanReingold {
         for (_,prod) in model.procedural.productions {
             if prod.u > model.procedural.primU {
                 let node = Node(name: prod.fullName)
+                node.shortName = prod.name
                 node.rank = Double(prod.conditions.count + prod.actions.count - 1)
                 node.taskNumber = prod.taskID
                 nodes[node.name] = node

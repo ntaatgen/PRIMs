@@ -506,7 +506,7 @@
                                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                     <subviews>
                                                         <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" columnSelection="YES" multipleSelection="NO" autosaveColumns="NO" headerView="uGt-V2-DLb" id="nhg-Uu-z53">
-                                                            <rect key="frame" x="0.0" y="0.0" width="381.5" height="19"/>
+                                                            <rect key="frame" x="0.0" y="0.0" width="255" height="19"/>
                                                             <autoresizingMask key="autoresizingMask"/>
                                                             <size key="intercellSpacing" width="3" height="2"/>
                                                             <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -525,7 +525,7 @@
                                                                     </textFieldCell>
                                                                     <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                                                 </tableColumn>
-                                                                <tableColumn identifier="Name" width="193.57077877552695" minWidth="40" maxWidth="1000" id="JMT-GR-UWA">
+                                                                <tableColumn identifier="Name" width="194.07077877552695" minWidth="40" maxWidth="1000" id="JMT-GR-UWA">
                                                                     <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Model Name">
                                                                         <font key="font" metaFont="smallSystem"/>
                                                                         <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
@@ -615,10 +615,10 @@
                                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                             <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                                             <size key="minSize" width="511" height="435"/>
-                                                            <size key="maxSize" width="900" height="10000000"/>
+                                                            <size key="maxSize" width="903" height="10000000"/>
                                                             <color key="insertionPointColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                                             <size key="minSize" width="511" height="435"/>
-                                                            <size key="maxSize" width="900" height="10000000"/>
+                                                            <size key="maxSize" width="903" height="10000000"/>
                                                         </textView>
                                                     </subviews>
                                                     <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
@@ -656,6 +656,13 @@
                                                     </popUpButton>
                                                     <customView misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="6gp-bu-1N3" customClass="PrimView" customModule="PRIMs" customModuleProvider="target">
                                                         <rect key="frame" x="0.0" y="1" width="529" height="405"/>
+                                                        <gestureRecognizers>
+                                                            <clickGestureRecognizer delaysPrimaryMouseButtonEvents="YES" numberOfClicksRequired="1" id="Fkz-n2-iLQ">
+                                                                <connections>
+                                                                    <action selector="clickInPrimView:" target="6hi-wd-EyU" id="evx-3a-VAV"/>
+                                                                </connections>
+                                                            </clickGestureRecognizer>
+                                                        </gestureRecognizers>
                                                     </customView>
                                                     <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="L2P-NB-IAd">
                                                         <rect key="frame" x="132" y="414" width="85" height="18"/>
@@ -670,15 +677,29 @@
                                                             <action selector="redisplayPrimGraph:" target="6hi-wd-EyU" id="TaV-th-Xsg"/>
                                                         </connections>
                                                     </button>
+                                                    <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="bsY-vi-SBJ">
+                                                        <rect key="frame" x="225" y="414" width="67" height="18"/>
+                                                        <buttonCell key="cell" type="inline" title="All Labels" bezelStyle="inline" alignment="center" borderStyle="border" inset="2" id="Zif-EK-6Ag">
+                                                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES" changeBackground="YES" changeGray="YES"/>
+                                                            <font key="font" metaFont="smallSystemBold"/>
+                                                        </buttonCell>
+                                                        <connections>
+                                                            <action selector="allLabelsButtonPushed:" target="6hi-wd-EyU" id="Ocv-JC-iVs"/>
+                                                        </connections>
+                                                    </button>
                                                 </subviews>
                                                 <constraints>
                                                     <constraint firstItem="L2P-NB-IAd" firstAttribute="top" secondItem="Cm3-XC-3T4" secondAttribute="top" constant="20.5" id="6yI-AO-dWZ"/>
+                                                    <constraint firstItem="L2P-NB-IAd" firstAttribute="height" secondItem="bsY-vi-SBJ" secondAttribute="height" id="BDK-Tk-61D"/>
+                                                    <constraint firstItem="L2P-NB-IAd" firstAttribute="bottom" secondItem="bsY-vi-SBJ" secondAttribute="bottom" id="C4h-ls-LRm"/>
+                                                    <constraint firstItem="bsY-vi-SBJ" firstAttribute="leading" secondItem="L2P-NB-IAd" secondAttribute="trailing" constant="8" id="KHJ-Qu-DZR"/>
                                                     <constraint firstItem="8Ak-KY-6mN" firstAttribute="leading" secondItem="Cm3-XC-3T4" secondAttribute="leading" constant="20" symbolic="YES" id="LY3-hp-8wU"/>
                                                     <constraint firstItem="8Ak-KY-6mN" firstAttribute="top" secondItem="Cm3-XC-3T4" secondAttribute="top" constant="20" symbolic="YES" id="Ycj-rV-XO3"/>
                                                     <constraint firstItem="6gp-bu-1N3" firstAttribute="top" secondItem="8Ak-KY-6mN" secondAttribute="bottom" constant="6" id="Yom-wz-N8f"/>
                                                     <constraint firstItem="6gp-bu-1N3" firstAttribute="top" secondItem="L2P-NB-IAd" secondAttribute="bottom" constant="9" id="dQg-Uq-5CB"/>
                                                     <constraint firstAttribute="bottom" secondItem="6gp-bu-1N3" secondAttribute="bottom" id="ge7-Kd-XxC"/>
                                                     <constraint firstItem="L2P-NB-IAd" firstAttribute="leading" secondItem="8Ak-KY-6mN" secondAttribute="trailing" constant="8" symbolic="YES" id="kTO-Vh-Id5"/>
+                                                    <constraint firstItem="L2P-NB-IAd" firstAttribute="top" secondItem="bsY-vi-SBJ" secondAttribute="top" id="uop-ha-TJ2"/>
                                                     <constraint firstItem="6gp-bu-1N3" firstAttribute="leading" secondItem="Cm3-XC-3T4" secondAttribute="leading" id="y8q-iG-9pF"/>
                                                     <constraint firstAttribute="trailing" secondItem="6gp-bu-1N3" secondAttribute="trailing" id="yv0-w5-MzC"/>
                                                 </constraints>
@@ -704,7 +725,7 @@
                                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                     <subviews>
                                                         <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" multipleSelection="NO" autosaveColumns="NO" typeSelect="NO" headerView="9ow-zB-Gkh" id="JZd-2N-PhR">
-                                                            <rect key="frame" x="0.0" y="0.0" width="392.5" height="19"/>
+                                                            <rect key="frame" x="0.0" y="0.0" width="392" height="19"/>
                                                             <autoresizingMask key="autoresizingMask"/>
                                                             <size key="intercellSpacing" width="3" height="2"/>
                                                             <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -723,7 +744,7 @@
                                                                     </textFieldCell>
                                                                     <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                                                 </tableColumn>
-                                                                <tableColumn identifier="Utility" width="99" minWidth="40" maxWidth="1000" id="npN-mU-PFO">
+                                                                <tableColumn identifier="Utility" width="98.5" minWidth="40" maxWidth="1000" id="npN-mU-PFO">
                                                                     <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Utility">
                                                                         <font key="font" metaFont="smallSystem"/>
                                                                         <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
@@ -773,7 +794,7 @@
                                                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                                     <subviews>
                                                                         <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" columnReordering="NO" columnSelection="YES" columnResizing="NO" multipleSelection="NO" autosaveColumns="NO" headerView="jf7-kr-igR" id="cSP-hr-9mX">
-                                                                            <rect key="frame" x="0.0" y="0.0" width="376.5" height="19"/>
+                                                                            <rect key="frame" x="0.0" y="0.0" width="198" height="19"/>
                                                                             <autoresizingMask key="autoresizingMask"/>
                                                                             <size key="intercellSpacing" width="3" height="2"/>
                                                                             <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -888,6 +909,7 @@
                         </constraints>
                     </view>
                     <connections>
+                        <outlet property="allLabelsButton" destination="bsY-vi-SBJ" id="77J-9a-xyj"/>
                         <outlet property="bufferText" destination="xEw-Aa-EDs" id="tnZ-gb-jYz"/>
                         <outlet property="chunkSplit" destination="bgX-w0-ezB" id="oTJ-Qx-slf"/>
                         <outlet property="chunkTable" destination="cSP-hr-9mX" id="CDY-u4-JAJ"/>
@@ -898,6 +920,7 @@
                         <outlet property="outputText" destination="VbV-Rf-fw5" id="ddx-zQ-T0C"/>
                         <outlet property="popUpMenu" destination="8Ak-KY-6mN" id="UPw-to-8hz"/>
                         <outlet property="primGraph" destination="6gp-bu-1N3" id="PyU-DJ-7HY"/>
+                        <outlet property="primViewView" destination="6gp-bu-1N3" id="Ex2-3J-kKw"/>
                         <outlet property="productionTable" destination="JZd-2N-PhR" id="7gc-et-Qd7"/>
                         <outlet property="rightSplit" destination="pjd-gZ-p3u" id="L4J-ws-7Ej"/>
                         <outlet property="taskTable" destination="nhg-Uu-z53" id="OSK-uP-ftV"/>

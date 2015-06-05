@@ -26,7 +26,7 @@ class Chunk: Printable {
     var printOrder: [String] = [] // Order in which slots have to be printed
     var assocs: [String:Double] = [:] // Sji table
     /// Task number that refers to the file that the chunk was defined in
-    var definedIn: Int?
+    var definedIn: [Int] = []
     
     /**
     :returns: the type of the chunk, or empty string if there isn't one defined

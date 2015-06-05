@@ -97,8 +97,10 @@ class Parser  {
                     newchunk.setSlot("isa", value: "goaltype")
                     newchunk.setSlot("slot1", value: goal!)
                     newchunk.fixedActivation = 1.0 // should change this later
-                    newchunk.definedIn = taskNumber
+                    newchunk.definedIn = [taskNumber]
                     m.dm.addToDM(newchunk)
+                } else {
+                    m.dm.chunks[goal!]!.definedIn.append(taskNumber)
                 }
                 chunk.setSlot("slot\(slotCount++)", value: goal!)
                 m.addToTraceField("Task has goal \(goal!)")
@@ -165,9 +167,10 @@ class Parser  {
             newchunk.setSlot("isa", value: "goaltype")
             newchunk.setSlot("slot1", value: goalName!)
             newchunk.fixedActivation = 1.0 // should change this later
-            newchunk.definedIn = taskNumber
+            newchunk.definedIn = [taskNumber]
             m.dm.addToDM(newchunk)
-
+        } else {
+            m.dm.chunks[goalName!]!.definedIn.append(taskNumber)
         }
 
         let readBrace = scanner.scanString("{")
@@ -295,7 +298,7 @@ class Parser  {
                 ch.assocs[chunk.name] = m.dm.defaultInterOperatorAssoc
             }
         }
-        chunk.definedIn = taskNumber
+        chunk.definedIn = [taskNumber]
         m.dm.addToDM(chunk)
         m.addToTraceField("Adding operator:\n\(chunk)")
         println("Adding operator\n\(chunk)")
@@ -347,7 +350,7 @@ class Parser  {
                 
             }
             m.addToTraceField("Reading fact \(chunk!.name)")
-            chunk!.definedIn = taskNumber
+            chunk!.definedIn = [taskNumber]
             m.dm.addToDM(chunk!)
         }
         return true

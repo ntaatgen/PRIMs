@@ -122,6 +122,7 @@ class Declarative  {
         if let dupChunk = duplicateChunk(chunk) {
             dupChunk.addReference()
             dupChunk.mergeAssocs(chunk)
+            dupChunk.definedIn.extend(chunk.definedIn)
 //            return dupChunk
         } else {
             chunk.startTime()
