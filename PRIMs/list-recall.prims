@@ -92,21 +92,6 @@ define screen report2 {
 (report check)
 }
 
-define screen start-spoon {
-(placemat one
-(item fork)
-(item fork)
-(item plate)
-(item knife)
-(item spoon))
-(placemat two
-(item fork)
-(item plate)
-(item knife)
-(item spoon)
-(item spoon))
-}
-
 
 transition(screen1,screen2) = absolute-time(2.0)
 transition(screen2,screen3) = absolute-time(4.0)

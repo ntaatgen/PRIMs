@@ -11,7 +11,6 @@ import Foundation
 class Task {
     let name: String
     var loaded: Bool = false
-    var inputs: [Chunk] = []
 //    var inputOutput: { (action: [Val]) -> Chunk?) }
     let filename: NSURL
     var goalChunk: Chunk? = nil

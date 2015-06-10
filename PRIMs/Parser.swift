@@ -44,6 +44,7 @@ class Parser  {
                 case "goal": if !parseGoal() { return false }
                 case "facts": if !parseFacts() { return false }
                 case "screen": if !parseScreen() { return false }
+                case "inputs": if !parseInputs() { return false }
                 default: m.addToTraceField("Don't know how to define \(definedItem!)")
                     return false
                 }
@@ -107,6 +108,32 @@ class Parser  {
                 
             }
             m.currentGoals = chunk
+        case "goals:":
+            let parenthesis = scanner.scanString("(")
+            if parenthesis == nil {
+                m.addToTraceField("Missing '(' after goals:")
+                return false
+            }
+            var goal: String?
+            while !scanner.scanString(")", intoString: nil) {
+                goal = scanner.scanUpToCharactersFromSet(whitespaceNewLineParentheses)
+                if goal == nil {
+                    m.addToTraceField("Unexpected end of file in goals:")
+                    return false
+                }
+                if m.dm.chunks[goal!] == nil {
+                    let newchunk = Chunk(s: goal!, m: m)
+                    newchunk.setSlot("isa", value: "goaltype")
+                    newchunk.setSlot("slot1", value: goal!)
+                    newchunk.fixedActivation = 1.0 // should change this later
+                    newchunk.definedIn = [taskNumber]
+                    m.dm.addToDM(newchunk)
+                } else {
+                    m.dm.chunks[goal!]!.definedIn.append(taskNumber)
+                }
+                m.addToTraceField("Task has goal \(goal!)")
+                
+            }
         case "task-constants:":
             let parenthesis = scanner.scanString("(")
             if parenthesis == nil {
@@ -147,6 +174,8 @@ class Parser  {
                 m.addToTraceField("Can't set parameter \(setting!) to \(parValue!)")
                 return false
             }
+            let newSetting = (setting!,parValue!)
+            m.parameters.append(newSetting)
             m.addToTraceField("Setting \(setting!) to \(parValue!)")
             }
         }
@@ -474,7 +503,33 @@ class Parser  {
         return true
     }
 
-    
+    func parseInputs() -> Bool {
+        if !scanner.scanString("{", intoString: nil) {
+            m.addToTraceField("Missing '{' in inputs definition.")
+            return false
+        }
+        var inputCount = 0
+        while !scanner.scanString("}", intoString: nil) {
+            if !scanner.scanString("(", intoString: nil) {
+                m.addToTraceField("Missing '(' in input definition.")
+                return false
+            }
+            var slotindex = 0
+            var mapping: [String:String] = [:]
+            while !scanner.scanString(")", intoString: nil) {
+                let value = scanner.scanUpToCharactersFromSet(whitespaceNewLineParentheses)
+                if value == nil {
+                    m.addToTraceField("Unexpected end of file in input defintion")
+                    return false
+                }
+                mapping["?\(slotindex++)"] = value!
+            }
+            m.scenario.inputs["task\(inputCount++)"] = mapping
+            m.addToTraceField("Reading input \(mapping)")
+        }
+        return true
+
+    }
 
 
 }

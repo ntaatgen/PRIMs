@@ -58,10 +58,20 @@ define facts {
 (sem2  property  mammal  animal :activation 1.0)
 (sem3  property  animal  livingthing :activation 1.0)
 (sem4  property  plant  livingthing :activation 1.0)
+(sem5  property  tulip plant :activation 1.0)
 }
 
 define screen start {
-(lion livingthing)
+(?0 ?1)
 }
+
+define inputs {
+(lion livingthing)
+(tulip animal)
+(mammal livingthing)
+(lion plant)
+(
+}
+
 
 start-screen = start

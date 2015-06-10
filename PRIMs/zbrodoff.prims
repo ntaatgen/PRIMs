@@ -1,0 +1,144 @@
+define task zbrodoff {
+goals: (countletters answerzbrodoff)
+initial-goals: (retrievezbrodoff)
+task-constants: (zbrodoff countletters answerzbrodoff)
+start-screen: trial
+lf: 0.35
+rt: 0.95
+ans: 0.2
+ol: nil
+imaginal-autoclear: nil
+}
+
+define goal retrievezbrodoff {
+
+operator try-retrieve(activation=2.0) {
+    RT1=nil
+==>
+    zbrodoff->RT1
+    V1->RT2
+    V2->RT3
+}
+
+operator retrieve-success(activation=2.0) {
+    RT1=zbrodoff
+==>
+    RT1->WM1
+    RT2->WM2
+    RT3->WM3
+    RT4->WM4
+    answerzbrodoff->G1
+}
+
+operator retrieve-fail(activation=2.0) {
+    RT1=error
+==>
+    countletters->G1
+    nil->WM1
+}
+
+}
+
+define goal countletters {
+
+operator initialize(activation=2.0) {
+   WM1=nil
+==>
+  zbrodoff->WM1
+  V1->WM2
+  zero->WM3
+  V1->WM4
+  letterfact->RT1
+  V1->RT2
+}
+
+operator letter-to-number(activation=2.0) {
+  RT1=letterfact
+==>
+  RT3->WM4
+  countfact->RT1
+  WM3->RT2
+}
+
+operator number-to-letter(activation=2.0) {
+  RT1=countfact
+  RT3<>V2
+==>
+  RT3->WM3
+  letterfact->RT1
+  WM4->RT2
+}
+
+operator count-done-match(activation=2.0) {
+    RT1=countfact
+    RT3=V2
+==>
+   RT3->WM3
+    answerzbrodoff->G1
+}
+
+}
+
+define goal answerzbrodoff {
+operator answer-yes(activation=2.0){
+    V3=WM4
+==>
+   say->AC1
+   yes->AC2
+   stop->G1
+}
+
+operator answer-no(activation=2.0){
+V3<>WM4
+==>
+say->AC1
+no->AC2
+stop->G1
+}
+}
+
+define facts {
+(cf0 countfact  zero  one :activation 2.0)
+(cf1 countfact  one  two :activation 2.0)
+(cf2 countfact  two  three :activation 2.0)
+(cf3  countfact  three  four :activation 2.0)
+(cf4  countfact  four  five :activation 2.0)
+(cf5  countfact  five  six :activation 2.0)
+(a1 letterfact a b :activation 2.0)
+(b1 letterfact b c :activation 2.0)
+(c1 letterfact c d :activation 2.0)
+(d1 letterfact d e :activation 2.0)
+(e1 letterfact e f :activation 2.0)
+(f1 letterfact f g :activation 2.0)
+(g1 letterfact g h :activation 2.0)
+(h1 letterfact h i :activation 2.0)
+(i1 letterfact i j :activation 2.0)
+(j1 letterfact j k :activation 2.0)
+(k1 letterfact k l :activation 2.0)
+
+}
+
+define screen trial {
+(?0 ?1 ?2)
+}
+
+start-screen = trial
+
+
+define inputs {
+(a two c)
+(b three e)
+(c four g)
+(a two d)
+(b three f)
+(c four h)
+(d two f)
+(e three h)
+(f four j)
+(d two g)
+(e three i)
+(f four k)
+
+}
+
+

@@ -13,6 +13,7 @@ struct DataLine {
     var eventParameter1: String
     var eventParameter2: String = "void"
     var eventParameter3: String = "void"
+    var inputParameters: [String] = ["void","void","void","void","void"]
     var time: Double
 }
 
@@ -40,7 +41,6 @@ class Model {
         }
     }
     var modelText: String = ""
-    var inputs: [Chunk] = []
     var currentTask: String? = nil /// What is the name of the current task
     var currentGoals: Chunk? = nil /// Chunk that has the goals to implement the task
     var currentGoalConstants: Chunk? = nil
@@ -157,10 +157,6 @@ class Model {
         procedural.reset()
         buffers["goal"] = currentGoals?.copy()
         buffers["constants"] = currentGoalConstants?.copy()
-        if !inputs.isEmpty {
-            let trial = inputs[Int(arc4random_uniform(UInt32(inputs.count)))]
-            buffers["input"] = trial
-        }
         action.initTask()
         running = true
         clearTrace()
@@ -343,6 +339,9 @@ class Model {
         }
         if buffers["goal"]?.slotvals["slot1"] != nil && buffers["goal"]!.slotvals["slot1"]!.description == "stop" {
             procedural.issueReward(40.0)
+            if let imaginalChunk = buffers["imaginal"] {
+                dm.addToDM(imaginalChunk)
+            }
             running = false
 //            println("New item = \(newItem)")
             resultAdd(time - startTime)
@@ -355,7 +354,7 @@ class Model {
         while running && (time - startTime < timeThreshold) {
             step()
         }
-        let dl = DataLine(eventType: "trial-end", eventParameter1: "void", eventParameter2: "void", eventParameter3: "void", time: time - startTime)
+        let dl = DataLine(eventType: "trial-end", eventParameter1: "void", eventParameter2: "void", eventParameter3: "void", inputParameters: scenario.inputMappingForTrace, time: time - startTime)
         outputData.append(dl)
         
     }
@@ -370,13 +369,11 @@ class Model {
         startTime = 0
         trace = ""
         waitingForAction = false
-        inputs = []
         currentTaskIndex = nil
         if taskNumber != nil {
             currentTaskIndex = taskNumber!
             scenario = PRScenario()
             parameters = []
-            inputs = []
             let parser = Parser(model: self, text: modelText, taskNumber: taskNumber!)
             setParametersToDefault()
             parser.parseModel()
@@ -398,11 +395,10 @@ class Model {
             if !tasks[i].loaded {
                 scenario = PRScenario()
                 parameters = []
-                inputs = []
+                setParametersToDefault()
                 parseCode(modelText,taskNumber: i)
                 tasks[i].loaded = true
             }
-            inputs = tasks[i].inputs
             currentTask = tasks[i].name
             println("Setting current task to \(currentTask!)")
             currentGoals = tasks[i].goalChunk

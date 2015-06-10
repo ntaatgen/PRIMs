@@ -65,7 +65,11 @@ class BatchRun {
                         model.run()
                         var output: String = ""
                         for line in model.outputData {
-                            output += "\(i) \(taskname!) \(taskLabel!) \(j) \(line.time) \(line.eventType) \(line.eventParameter1) \(line.eventParameter2) \(line.eventParameter3)\n"
+                            output += "\(i) \(taskname!) \(taskLabel!) \(j) \(line.time) \(line.eventType) \(line.eventParameter1) \(line.eventParameter2) \(line.eventParameter3) "
+                            for item in line.inputParameters {
+                                output += item + " "
+                            }
+                            output += "\n"
                         }
                         if !newfile {
                             if NSFileManager.defaultManager().fileExistsAtPath(outputFileName.path!) {

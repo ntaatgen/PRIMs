@@ -16,8 +16,8 @@ class Declarative  {
     static let goalAcitvationDefault = 1.0
     static let retrievalThresholdDefault = -2.0
     static let activationNoiseDefault = 0.2
-    static let defaultOperatorAssocDefault = 4.0
-    static let defaultInterOperatorAssocDefault = 2.0
+    static let defaultOperatorAssocDefault = 8.0
+    static let defaultInterOperatorAssocDefault = 1.0
     static let defaultOperatorSelfAssocDefault = -1.0
     static let misMatchPenaltyDefault = 5.0
     static let goalSpreadingActivationDefault = true

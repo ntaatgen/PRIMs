@@ -50,7 +50,13 @@ define facts {
 }
 
 define screen start {
-(one four)
+(?0 ?1)
+}
+
+define inputs {
+(two four)
+(one three)
+(three five)
 }
 
 start-screen = start

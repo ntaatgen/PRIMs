@@ -19,6 +19,7 @@ protocol PrimViewDataSource: class {
     func primViewEdgeVertices(sender: PrimView, index: Int) -> (Int,Int)
     func primViewRescale(sender: PrimView, newW: Double, newH: Double)
     func primViewVisibleLabel(sender: PrimView, index: Int) -> String?
+    func primViewVertexHalo(sender: PrimView, index: Int) -> Bool
 }
 
 class PrimView: NSView {
@@ -27,9 +28,17 @@ class PrimView: NSView {
     var lineWidth: CGFloat = 2
     var pathLineWidth: CGFloat = 1
     var broadLineWidth: CGFloat = 8
+    var haloSize: CGFloat = 10
     weak var dataSource: PrimViewDataSource!
     
-    func drawVertex(x: CGFloat, y: CGFloat, fillColor: NSColor, lineWidth: CGFloat) {
+    func drawVertex(x: CGFloat, y: CGFloat, fillColor: NSColor, lineWidth: CGFloat, halo: Bool) {
+        if halo {
+            let rect = NSRect(x: x - haloSize, y: y - haloSize, width: haloSize * 2, height: haloSize * 2)
+            let path = NSBezierPath(ovalInRect: rect)
+            path.lineWidth = 0
+            NSColor.yellowColor().setFill()
+            path.fill()
+        }
         let rect = NSRect(x: x - vertexSize, y: y - vertexSize, width: vertexSize * 2, height: vertexSize * 2)
         let path = NSBezierPath(ovalInRect: rect)
         path.lineWidth = lineWidth
@@ -66,7 +75,7 @@ class PrimView: NSView {
         for i in 0..<numNodes {
             let (x,y) = dataSource.primViewVertexCoordinates(self, index: i)
             let lw = dataSource.primViewVertexBroad(self, index: i) ? broadLineWidth : lineWidth
-            drawVertex(CGFloat(x), y: CGFloat(y), fillColor: dataSource.primViewVertexColor(self, index: i),lineWidth: lw)
+            drawVertex(CGFloat(x), y: CGFloat(y), fillColor: dataSource.primViewVertexColor(self, index: i),lineWidth: lw, halo: dataSource.primViewVertexHalo(self, index: i))
         }
         for i in 0..<numNodes {
             if let nodeLabel = dataSource.primViewVisibleLabel(self, index: i) {

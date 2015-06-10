@@ -233,6 +233,14 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
         return false
     }
     
+    func primViewVertexHalo(sender: PrimView, index: Int) -> Bool {
+        if primGraphData != nil {
+            let key = primGraphData!.keys[index]
+            return primGraphData!.nodes[key]!.halo
+        }
+        return false
+    }
+    
     @IBOutlet weak var allLabelsButton: NSButton!
     
     @IBAction func allLabelsButtonPushed(sender: NSButton) {
@@ -255,7 +263,7 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
     
     @IBAction func clickInPrimView(sender: NSClickGestureRecognizer) {
         let location = sender.locationInView(primViewView)
-        primGraphData!.makeVisibleClosestNodeName(Double(location.x) + border,y: Double(location.y) + border)
+        primGraphData!.makeVisibleClosestNodeName(Double(location.x) - border,y: Double(location.y) - border)
         primGraph.needsDisplay = true
         
     }
@@ -271,36 +279,40 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
         let result = fileDialog.runModal()
         if result != NSFileHandlingPanelOKButton { return }
         if let filePath = fileDialog.URL {
-            modelCode = String(contentsOfURL: filePath, encoding: NSUTF8StringEncoding, error: nil)
-            model.inputs = []
-            if modelCode != nil {
-                model.scenario = PRScenario()
-                model.parameters = []
-                model.inputs = []
-                model.currentTaskIndex = model.tasks.count
-                model.setParametersToDefault()
-                if !model.parseCode(modelCode!,taskNumber: model.tasks.count) {
-                    updateAllViews()
-                    return
-                }
-            }
-            let newTask = Task(name: model.currentTask!, path: filePath)
-            newTask.inputs = model.inputs
-            newTask.loaded = true
-            newTask.goalChunk = model.currentGoals
-            newTask.goalConstants = model.currentGoalConstants
-            newTask.parameters = model.parameters
-            newTask.scenario = model.scenario
-            model.tasks.append(newTask)
-//            model.currentTaskIndex = model.tasks.count - 1
+            if !loadModelWithString(filePath) { return }
+            NSDocumentController.sharedDocumentController().noteNewRecentDocumentURL(filePath)
+            //            model.currentTaskIndex = model.tasks.count - 1
         }
 //        modelText.string = modelCode
+
+    }
+    
+    func loadModelWithString(filePath: NSURL) -> Bool {
+        modelCode = String(contentsOfURL: filePath, encoding: NSUTF8StringEncoding, error: nil)
+        if modelCode != nil {
+            model.scenario = PRScenario()
+            model.parameters = []
+            model.currentTaskIndex = model.tasks.count
+            model.setParametersToDefault()
+            if !model.parseCode(modelCode!,taskNumber: model.tasks.count) {
+                updateAllViews()
+                return false
+            }
+        }
+        let newTask = Task(name: model.currentTask!, path: filePath)
+        newTask.loaded = true
+        newTask.goalChunk = model.currentGoals
+        newTask.goalConstants = model.currentGoalConstants
+        newTask.parameters = model.parameters
+        newTask.scenario = model.scenario
+        model.tasks.append(newTask)
         primViewCalculateGraph(primGraph)
         primGraph.needsDisplay = true
         updateAllViews()
+        return true
     }
     
-       
+    
     func updateAllViews() {
         model.commitToTrace(false)
         outputText.string = model.trace
@@ -463,6 +475,7 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
         println("Loading script \(fileDialog.URL!) to output to \(saveDialog.URL!)")
         let batchRunner = BatchRun(script: batchScript, outputFile: saveDialog.URL!, model: model)
         batchRunner.runScript()
+        updateAllViews()
     }
  
     override func viewDidLoad() {

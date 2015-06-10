@@ -1,0 +1,5 @@
+repeat 10
+reset
+run zbrodoff block1 192
+run zbrodoff block2 192
+run zbrodoff block3 192

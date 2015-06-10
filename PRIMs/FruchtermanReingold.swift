@@ -19,6 +19,8 @@ class Node {
     var taskNode = false
     var labelVisible = false
     var shortName: String
+    var definedByTask: Int? = nil
+    var halo = false
     init(name: String) {
         self.name = name
         self.shortName = name
@@ -184,9 +186,16 @@ class FruchtermanReingold {
                         currentName = currentName == "" ? lastItem : lastItem + ";" + currentName
                         if let node = nodes[currentName] {
                             currentNode = node
+                            if currentNode!.definedByTask! != chunk.definedIn[0] || chunk.definedIn.count > 1 {
+                                currentNode!.halo = true
+                            }
                         } else {
                             let newNode = Node(name: currentName)
                             newNode.shortName = lastItem
+                            newNode.definedByTask = chunk.definedIn[0]
+                            if (chunk.definedIn.count > 1) {
+                                newNode.halo = true
+                            }
                             nodes[currentName] = newNode
                             if currentNode != nil {
                                 let newEdge = Edge(from: newNode, to: currentNode!)
@@ -197,6 +206,9 @@ class FruchtermanReingold {
                     }
                     let operatorNode = Node(name: chunk.name)
                     operatorNode.taskNumber = chunk.definedIn[0]
+                    if chunk.definedIn.count > 1 {
+                        operatorNode.halo = true
+                    }
                     nodes[chunk.name] = operatorNode
                     for task in chunk.definedIn {
                         let taskName = model.tasks[task].name
@@ -222,10 +234,17 @@ class FruchtermanReingold {
                         currentName = currentName == "" ? lastItem : lastItem + ";" + currentName
                         if let node = nodes[currentName] {
                             currentNode = node
+                            if currentNode!.definedByTask! != chunk.definedIn[0] || chunk.definedIn.count > 1 {
+                                currentNode!.halo = true
+                            }
                         } else {
                             let newNode = Node(name: currentName)
                             newNode.shortName = lastItem
+                            newNode.definedByTask = chunk.definedIn[0]
                             newNode.taskNumber = -1
+                            if (chunk.definedIn.count > 1) {
+                                newNode.halo = true
+                            }
                             nodes[currentName] = newNode
                             if currentNode != nil {
                                 let newEdge = Edge(from: newNode, to: currentNode!)
