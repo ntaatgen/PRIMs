@@ -47,10 +47,10 @@ class Model {
     var tracing: Bool = true
     var parameters: [(String,String)] = []
     var scenario = PRScenario()
-    var startScreenName: String? = nil
     /// Maximum time to run the model
     var timeThreshold = 200.0
     var outputData: [DataLine] = []
+    var formerBuffers: [String:Chunk] = [:]
     
 //    struct Results {
         var modelResults: [[(Double,Double)]] = []
@@ -99,7 +99,7 @@ class Model {
     func addToTrace(s: String) {
         if tracing {
         let timeString = String(format:"%.2f", time)
-        println("\(timeString)  " + s)
+//        println("\(timeString)  " + s)
         traceBuffer.append("\(timeString)  " + s)
 //        trace += "\(timeString)  " + s + "\n"
         }
@@ -121,6 +121,26 @@ class Model {
     
     func clearTrace() {
         trace = ""
+    }
+    
+    func buffersToText() -> String {
+        var s: String = ""
+        let bufferList = ["goal","operator","imaginal","retrievalR","retrievalH","input","action","constants"]
+        for buffer in bufferList {
+            var bufferChunk = buffers[buffer]
+            if bufferChunk == nil { bufferChunk = formerBuffers[buffer] }
+            if bufferChunk != nil {
+                s += "=" + buffer + ">" + "\n"
+                s += "  " + bufferChunk!.name
+                for slot in bufferChunk!.printOrder {
+                    if let descr = bufferChunk!.slotvals[slot]?.description {
+                        s += "  " + slot + " " + descr + "\n"
+                    }
+                }
+                s += "\n"
+            }
+        }
+        return s
     }
     
     /*
@@ -201,6 +221,16 @@ class Model {
             dm.defaultOperatorAssoc = numVal!
         case "default-operator-self-assoc:":
             dm.defaultOperatorSelfAssoc = numVal!
+        case "production-prim-latency:":
+            procedural.productionAndPrimLatency = numVal!
+        case "say-latency:":
+            action.sayLatency = numVal!
+        case "subvocalize-latency:":
+            action.subvocalizeLatency = numVal!
+        case "read-latency:":
+            action.readLatency = numVal!
+        case "perception-action-latency:":
+            action.defaultPerceptualActionLatency = numVal!
         default: return false
         }
 //        println("Parameter \(parameter) has value \(value)")
@@ -229,7 +259,6 @@ class Model {
     available productions.
     */
     func findOperatorOrOperatorProduction() -> Bool {
-        
         let retrievalRQ = Chunk(s: "operator", m: self)
         retrievalRQ.setSlot("isa", value: "operator")
         var (latency,opRetrieved) = dm.retrieve(retrievalRQ)
@@ -265,6 +294,7 @@ class Model {
         dm.addToFinsts(opRetrieved!)
         buffers["goal"]!.setSlot("last-operator", value: opRetrieved!)
         buffers["operator"] = opRetrieved!.copy()
+        formerBuffers["operator"] = opRetrieved!
         procedural.lastOperator = opRetrieved!
         
         return true
@@ -278,6 +308,7 @@ class Model {
     */
     func carryOutProductionsUntilOperatorDone() -> Bool {
         var match: Bool = true
+        var first: Bool = true
         while match && (buffers["operator"]?.slotvals["condition"] != nil || buffers["operator"]?.slotvals["action"] != nil) {
             let inst = procedural.findMatchingProduction()
             var pname = inst.p.name
@@ -286,7 +317,12 @@ class Model {
             }
             addToTrace("Firing \(pname)")
             match = procedural.fireProduction(inst, compile: true)
-            time += procedural.productionActionLatency
+            if first {
+                time += procedural.productionActionLatency
+                first = false
+            } else {
+            time += procedural.productionAndPrimLatency
+            }
         }
         return match
     }
@@ -295,6 +331,7 @@ class Model {
         var latency = 0.0
         buffers["retrievalH"] = nil
         if buffers["retrievalR"] != nil {
+            formerBuffers["retrievalR"] = buffers["retrievalR"]!
             let retrievalLatency = dm.action()
             latency = max(latency, retrievalLatency)
         }
@@ -303,6 +340,7 @@ class Model {
             latency = max(latency, actionLatency)
         }
         if buffers["action"] != nil {
+            formerBuffers["action"] = buffers["action"]!
             let actionLatency = action.action()
             latency = max(latency, actionLatency)
         }
@@ -320,6 +358,8 @@ class Model {
         }
         dm.clearFinsts()
         var found: Bool = false
+        formerBuffers = [:]
+        commitToTrace(false)
         do {
             procedural.lastProduction = nil
             if !findOperatorOrOperatorProduction() { running = false ; return }
@@ -400,16 +440,16 @@ class Model {
                 tasks[i].loaded = true
             }
             currentTask = tasks[i].name
-            println("Setting current task to \(currentTask!)")
+//            println("Setting current task to \(currentTask!)")
             currentGoals = tasks[i].goalChunk
             currentGoalConstants = tasks[i].goalConstants
             parameters = tasks[i].parameters
             scenario = tasks[i].scenario
-            println("Setting scenario with startscreen \(scenario.startScreen.name)")
-            println("Setting parameters")
+//            println("Setting scenario with startscreen \(scenario.startScreen.name)")
+//            println("Setting parameters")
             setParametersToDefault()
             loadParameters()
-            println("Setting task index to \(i)")
+//            println("Setting task index to \(i)")
             newResult()
         }
     }

@@ -1,0 +1,78 @@
+define task addition {
+initial-goals: (countnumbers)
+goals: (giveanswer)
+task-constants: (addition countfact giveanswer)
+start-screen: add
+imaginal-autoclear: nil
+}
+
+
+define goal countnumbers {
+
+operator init-addition(activation=2.0) {
+WM1=nil
+==>
+addition->WM1
+V1->WM2
+zero->WM3
+V1->WM4
+countfact->RT1
+V1->RT2
+}
+
+operator add-to-sum(activation=2.0) {
+WM4=RT2
+==>
+RT3->WM4
+countfact->RT1
+WM3->RT2
+}
+
+operator add-to-count(activation=2.0) {
+WM3=RT2
+RT3<>V2
+==>
+RT3->WM3
+countfact->RT1
+WM4->RT2
+}
+
+operator finished-sum(activation=2.0) {
+WM3=RT2
+RT3=V2
+==>
+RT3->WM3
+giveanswer->G1
+}
+
+}
+
+define goal giveanswer {
+operator say-sum(activation=2.0) {
+    WM3<>nil
+==>
+    say->AC1
+    WM3->AC2
+    stop->G1
+}
+}
+
+
+define facts {
+(cf0 countfact  zero  one :activation 3.0)
+(cf1 countfact  one  two :activation 3.0)
+(cf2 countfact  two  three :activation 3.0)
+(cf3  countfact  three  four :activation 3.0)
+(cf4  countfact  four  five :activation 3.0)
+(cf5  countfact  five  six :activation 3.0)
+(cf6  countfact  six  seven :activation 3.0)
+(cf7  countfact  seven  eight :activation 3.0)
+(cf8  countfact  eight  nine :activation 3.0)
+
+
+}
+
+define screen add {
+(two three)
+}
+

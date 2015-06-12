@@ -112,6 +112,7 @@ class Prim:Printable {
                 model.buffers[rhsBuffer!]!.slotvals[rhsSlot!] = nil
                 return true
             }
+            if lhsVal == nil && model.buffers[rhsBuffer!] == nil {return true}
             if rhsBuffer == nil || lhsVal == nil {return false} 
             if model.buffers[rhsBuffer!] == nil {
                 let chunk = model.generateNewChunk(s1: rhsBuffer!)
@@ -130,7 +131,7 @@ class Prim:Printable {
     This is the case if the lhs part doesn't resolve to nil
     */
     func testFire() -> Bool {
-        if lhsSlot == nil { return model.buffers[rhsBuffer!] != nil } else {
+        if lhsSlot == nil { return true } else {
             let lhsVal = model.buffers[lhsBuffer!]?.slotValue(lhsSlot!)
             return lhsVal != nil
         }

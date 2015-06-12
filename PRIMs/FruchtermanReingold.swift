@@ -89,59 +89,60 @@ class FruchtermanReingold {
     }
     
     func calculate() {
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0)) { () -> Void in
         var maxRank = 0.0
-        for (_,node) in nodes {
-            node.x = Double(Int(arc4random_uniform(UInt32(W))))
-            node.y = Double(Int(arc4random_uniform(UInt32(H))))
+        for (_,node) in self.nodes {
+            node.x = Double(Int(arc4random_uniform(UInt32(self.W))))
+            node.y = Double(Int(arc4random_uniform(UInt32(self.H))))
             maxRank = max(maxRank,node.rank)
             
         }
-        let rankStep = (H - 30) / (maxRank - 1)
-        for i in 0..<iterations {
-            let temperature = 0.1 * max(W,H) * Double(iterations - i)/Double(iterations)
+        let rankStep = (self.H - 30) / (maxRank - 1)
+        for i in 0..<self.iterations {
+            let temperature = 0.1 * max(self.W,self.H) * Double(self.iterations - i)/Double(self.iterations)
             // Calculate repulsive forces
-            for (_,node) in nodes {
+            for (_,node) in self.nodes {
                 node.dx = 0
                 node.dy = 0
-                for (_,node2) in nodes {
+                for (_,node2) in self.nodes {
                     if node !== node2 {
                         let deltaX = node.x - node2.x
                         let deltaY = node.y - node2.y
-                        let deltaLength = vectorLength(deltaX, y: deltaY)
-                        node.dx += (deltaX / deltaLength) * repulsionForce(deltaLength)
-                        node.dy += (deltaY / deltaLength) * repulsionForce(deltaLength)
+                        let deltaLength = self.vectorLength(deltaX, y: deltaY)
+                        node.dx += (deltaX / deltaLength) * self.repulsionForce(deltaLength)
+                        node.dy += (deltaY / deltaLength) * self.repulsionForce(deltaLength)
                     }
                 }
                 // repulsion of walls
-                node.dx += repulsionForce(node.x)
-                node.dx -= repulsionForce(W - node.x)
-                node.dy += repulsionForce(node.y)
+                node.dx += self.repulsionForce(node.x)
+                node.dx -= self.repulsionForce(self.W - node.x)
+                node.dy += self.repulsionForce(node.y)
 
-                node.dy -= repulsionForce(H - node.y)
+                node.dy -= self.repulsionForce(self.H - node.y)
                 
             }
             // calculate attractive forces
             
-            for edge in edges {
+            for edge in self.edges {
                 let deltaX = edge.from.x - edge.to.x
                 let deltaY = edge.from.y - edge.to.y
-                let deltaLength = vectorLength(deltaX, y: deltaY)
-                edge.from.dx -= (deltaX / deltaLength) * attractionForce(deltaLength)
-                edge.from.dy -= (deltaY / deltaLength) * attractionForce(deltaLength)
-                edge.to.dx += (deltaX / deltaLength) * attractionForce(deltaLength)
-                edge.to.dy += (deltaY / deltaLength) * attractionForce(deltaLength)
+                let deltaLength = self.vectorLength(deltaX, y: deltaY)
+                edge.from.dx -= (deltaX / deltaLength) * self.attractionForce(deltaLength)
+                edge.from.dy -= (deltaY / deltaLength) * self.attractionForce(deltaLength)
+                edge.to.dx += (deltaX / deltaLength) * self.attractionForce(deltaLength)
+                edge.to.dy += (deltaY / deltaLength) * self.attractionForce(deltaLength)
             }
             
             // move the nodes
             
-            for (_,node) in nodes {
+            for (_,node) in self.nodes {
 //                                println("\(node.name) at (\(node.x),\(node.y))")
 //                println("\(node.name) delta (\(node.dx),\(node.dy))")
 
-                node.x += (node.dx / vectorLength(node.dx, y: node.dy)) * min(abs(node.dx), temperature)
-                node.y += (node.dy / vectorLength(node.dx, y: node.dy)) * min(abs(node.dy), temperature)
-                node.x = min(W, max(0, node.x))
-                node.y = min(H, max(0, node.y))
+                node.x += (node.dx / self.vectorLength(node.dx, y: node.dy)) * min(abs(node.dx), temperature)
+                node.y += (node.dy / self.vectorLength(node.dx, y: node.dy)) * min(abs(node.dy), temperature)
+                node.x = min(self.W, max(0, node.x))
+                node.y = min(self.H, max(0, node.y))
 //                println("\(node.name) at (\(node.x),\(node.y))")
                 if node.rank > 0.1 {
                     node.y = rankStep * (node.rank - 1)
@@ -149,13 +150,16 @@ class FruchtermanReingold {
 //                    node.y = min(midY + 0.3 * rankStep, max( midY - 0.3 * rankStep, node.y))
                 }
             }
+            dispatch_async(dispatch_get_main_queue()) {
+                NSNotificationCenter.defaultCenter().postNotificationName("UpdatePrimGraph", object: nil)
+            }
             
-            
+            }
             
         }
     }
     
-    func makeVisibleClosestNodeName(x: Double, y: Double)  {
+    func findClosest(x: Double, y: Double) -> Node? {
         var closest: Node?
         var closestDistance: Double = 1E20
         for (_,node) in nodes {
@@ -165,6 +169,11 @@ class FruchtermanReingold {
                 closestDistance = distance
             }
         }
+        return closest
+    }
+    
+    func makeVisibleClosestNodeName(x: Double, y: Double)  {
+        let closest = findClosest(x, y: y)
         if closest != nil {
             closest!.labelVisible = !closest!.labelVisible
         }

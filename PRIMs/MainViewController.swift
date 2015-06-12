@@ -78,6 +78,8 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
         case 3: return NSColor.purpleColor()
         case 4: return NSColor.cyanColor()
         case 5: return NSColor.magentaColor()
+        case 6: return NSColor.orangeColor()
+        case 7: return NSColor.yellowColor()
         default: return NSColor.blackColor()
         }
     }
@@ -257,9 +259,12 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
         return nil
     }
     
+    func updatePrimGraph() {
+        primGraph.needsDisplay = true
+    }
+    
     @IBOutlet weak var primViewView: PrimView!
     
-    var primSubviews: [NSTextField] = []
     
     @IBAction func clickInPrimView(sender: NSClickGestureRecognizer) {
         let location = sender.locationInView(primViewView)
@@ -268,6 +273,24 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
         
     }
     
+    var nodeToBeMoved: Node?
+    
+    @IBAction func dragInPrimView(sender: NSPanGestureRecognizer) {
+        let location: NSPoint = sender.locationInView(primViewView)
+        switch sender.state {
+        case .Began:
+            nodeToBeMoved = primGraphData!.findClosest(Double(location.x) - border, y: Double(location.y) - border)
+        case .Ended:
+            nodeToBeMoved = nil
+        default: break
+        }
+        if nodeToBeMoved != nil {
+            nodeToBeMoved!.x = Double(location.x) - border
+            nodeToBeMoved!.y = Double(location.y) - border
+            primGraph.needsDisplay = true
+        }
+        
+    }
     
     @IBAction func loadModel(sender: NSButton) {
         var fileDialog: NSOpenPanel = NSOpenPanel()
@@ -280,7 +303,7 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
         if result != NSFileHandlingPanelOKButton { return }
         if let filePath = fileDialog.URL {
             if !loadModelWithString(filePath) { return }
-            NSDocumentController.sharedDocumentController().noteNewRecentDocumentURL(filePath)
+//            NSDocumentController.sharedDocumentController().noteNewRecentDocumentURL(filePath)
             //            model.currentTaskIndex = model.tasks.count - 1
         }
 //        modelText.string = modelCode
@@ -316,17 +339,7 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
     func updateAllViews() {
         model.commitToTrace(false)
         outputText.string = model.trace
-        var s: String = ""
-        for (bufferName, bufferChunk) in model.buffers {
-            s += "=" + bufferName + ">" + "\n"
-            for slot in bufferChunk.printOrder {
-                if bufferChunk.slotvals[slot]?.description != nil {
-                s += "  " + slot + " " + bufferChunk.slotvals[slot]!.description + "\n"
-                }
-            }
-            s += "\n"
-        }
-        bufferText.string = s
+        bufferText.string = model.buffersToText()
         pTable = createProductionTable()
         productionTable.reloadData()
         dmTable = createDMTable()
@@ -447,6 +460,17 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
         updateAllViews()
     }
     
+    @IBAction func clearAll(sender: NSButton) {
+        model = Model()
+        modelCode = nil
+        primViewCalculateGraph(primGraph)
+        primGraph.needsDisplay = true
+        updateAllViews()
+    }
+    @IBOutlet weak var batchProgressBar: NSProgressIndicator!
+    
+    var batchRunner: BatchRun? = nil
+    
     @IBAction func runBatch(sender: NSButton) {
         var fileDialog: NSOpenPanel = NSOpenPanel()
         fileDialog.title = "Select batch script file"
@@ -458,8 +482,10 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
         let result = fileDialog.runModal()
         if result != NSFileHandlingPanelOKButton { return }
         var batchScript: String
+        var directory: NSURL?
         if let filePath = fileDialog.URL {
             let tmp = String(contentsOfURL: filePath, encoding: NSUTF8StringEncoding, error: nil)
+            directory = filePath.URLByDeletingLastPathComponent
             if tmp == nil { return }
             batchScript = tmp!
         } else { return }
@@ -473,14 +499,36 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
         if saveResult != NSFileHandlingPanelOKButton { return }
         if saveDialog.URL == nil { return }
         println("Loading script \(fileDialog.URL!) to output to \(saveDialog.URL!)")
-        let batchRunner = BatchRun(script: batchScript, outputFile: saveDialog.URL!, model: model)
-        batchRunner.runScript()
+        batchRunner = BatchRun(script: batchScript, outputFile: saveDialog.URL!, model: model, controller: self, directory: directory!)
+        model.tracing = false
+        batchProgressBar.doubleValue = 0
+        batchProgressBar.hidden = false
+        outputText.hidden = true
+        outputText.needsDisplay = true
+        batchProgressBar.needsDisplay = true
+        batchProgressBar.displayIfNeeded()
+        model.tracing = false
+        batchRunner!.runScript()
+        batchProgressBar.hidden = true
+        outputText.hidden = false
+        outputText.needsDisplay = true
+        model.tracing = true
         updateAllViews()
+    }
+    
+    func updateProgressBar() {
+        batchProgressBar.doubleValue = batchRunner!.progress
+        batchProgressBar.needsDisplay = true
+        batchProgressBar.displayIfNeeded()
+
     }
  
     override func viewDidLoad() {
         super.viewDidLoad()
- 
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "updatePrimGraph", name: "UpdatePrimGraph", object: nil)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "updateProgressBar", name: "progress", object: nil)
+
+        
     }
 
     override var representedObject: AnyObject? {

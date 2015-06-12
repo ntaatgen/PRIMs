@@ -12,6 +12,7 @@ class Parser  {
     private let m: Model
     let taskNumber: Int
     let scanner: NSScanner
+    var startScreenName: String? = nil
     init(model: Model, text: String, taskNumber: Int) {
         m = model
         scanner = NSScanner(string: text)
@@ -31,7 +32,7 @@ class Parser  {
         while !scanner.atEnd {
             let token = scanner.scanUpToCharactersFromSet(whitespaceNewLineParentheses)
             if token == nil { return false }
-            println("Reading \(token!)")
+//            println("Reading \(token!)")
             switch token! {
             case "define":
                 let definedItem = scanner.scanUpToCharactersFromSet(whitespaceNewLineParentheses)
@@ -49,11 +50,20 @@ class Parser  {
                     return false
                 }
             case "transition": if !parseTransition() { return false}
-            case "start-screen": if !parseStartScreen() { return false}
+//            case "start-screen": if !parseStartScreen() { return false}
             default: m.addToTraceField("\(token!) is not a valid top-level statement")
                 return false
             }
         }
+        if startScreenName == nil {
+            m.addToTraceField("No start screen has been defined")
+            return false
+        }
+        if m.scenario.screens[startScreenName!] == nil {
+            m.addToTraceField("Start-screen \(startScreenName!) is not defined")
+            return false
+        }
+        m.scenario.startScreen = m.scenario.screens[startScreenName!]!
         return true
     }
     
@@ -161,7 +171,7 @@ class Parser  {
                 m.addToTraceField("Incomplete start-screen declaration")
                 return false
             }
-            m.startScreenName = startScreen!
+            startScreenName = startScreen!
             m.addToTraceField("Setting startscreen to \(startScreen!)")
         default:
             let parValue = scanner.scanUpToCharactersFromSet(whitespaceNewLine)
@@ -192,12 +202,14 @@ class Parser  {
         }
         m.addToTraceField("Defining goal \(goalName!)")
         if m.dm.chunks[goalName!] == nil {
-            let newchunk = Chunk(s: goalName!, m: m)
-            newchunk.setSlot("isa", value: "goaltype")
-            newchunk.setSlot("slot1", value: goalName!)
-            newchunk.fixedActivation = 1.0 // should change this later
-            newchunk.definedIn = [taskNumber]
-            m.dm.addToDM(newchunk)
+            m.addToTraceField("Goal \(goalName!) has not been declared at the task level. This may lead to problems.")
+            return false
+//            let newchunk = Chunk(s: goalName!, m: m)
+//            newchunk.setSlot("isa", value: "goaltype")
+//            newchunk.setSlot("slot1", value: goalName!)
+//            newchunk.fixedActivation = 1.0 // should change this later
+//            newchunk.definedIn = [taskNumber]
+//            m.dm.addToDM(newchunk)
         } else {
             m.dm.chunks[goalName!]!.definedIn.append(taskNumber)
         }
@@ -263,7 +275,7 @@ class Parser  {
         var scanningActions = false
         while !scanner.scanString("}", intoString: nil) {
             let item = scanner.scanUpToCharactersFromSet(whitespaceNewLineParentheses)
-            println("\(item)")
+//            println("\(item)")
             if item == nil {
                 m.addToTraceField("Unexpected end of file in operator definition")
                 return false
@@ -330,7 +342,7 @@ class Parser  {
         chunk.definedIn = [taskNumber]
         m.dm.addToDM(chunk)
         m.addToTraceField("Adding operator:\n\(chunk)")
-        println("Adding operator\n\(chunk)")
+//        println("Adding operator\n\(chunk)")
         
         return true
     }
@@ -486,22 +498,22 @@ class Parser  {
         return true
     }
     
-    func parseStartScreen() -> Bool {
-        let equal = scanner.scanString("=", intoString: nil)
-        let screenName = scanner.scanUpToCharactersFromSet(whitespaceNewLineParentheses)
-        if !equal || screenName == nil {
-            m.addToTraceField("Illegal start-screen defintion")
-            return false
-        }
-        if let screen = m.scenario.screens[screenName!] {
-            m.scenario.startScreen = screen
-        } else {
-            m.addToTraceField("\(screenName!) is not a valid screen")
-            return false
-        }
-        m.addToTraceField("Setting start-screen to \(screenName!)")
-        return true
-    }
+//    func parseStartScreen() -> Bool {
+//        let equal = scanner.scanString("=", intoString: nil)
+//        let screenName = scanner.scanUpToCharactersFromSet(whitespaceNewLineParentheses)
+//        if !equal || screenName == nil {
+//            m.addToTraceField("Illegal start-screen defintion")
+//            return false
+//        }
+//        if let screen = m.scenario.screens[screenName!] {
+//            m.scenario.startScreen = screen
+//        } else {
+//            m.addToTraceField("\(screenName!) is not a valid screen")
+//            return false
+//        }
+//        m.addToTraceField("Setting start-screen to \(screenName!)")
+//        return true
+//    }
 
     func parseInputs() -> Bool {
         if !scanner.scanString("{", intoString: nil) {

@@ -19,8 +19,10 @@ class Procedural {
     var utilityRetrieveOperator = utilityRetrieveOperatorDefault
     static let alphaDefault = 0.1
     var alpha = alphaDefault
-    static let productionActionLatencyDefault = 0.2
+    static let productionActionLatencyDefault = 0.05
     var productionActionLatency = productionActionLatencyDefault
+    static let productionAndPrimLatencyDefault = 0.3
+    var productionAndPrimLatency = productionAndPrimLatencyDefault
     var productions: [String:Production] = [:]
     let model: Model
     var productionsForReward: [Instantiation] = []
@@ -39,6 +41,7 @@ class Procedural {
         utilityRetrieveOperator = Procedural.utilityRetrieveOperatorDefault
         alpha = Procedural.alphaDefault
         productionActionLatency = Procedural.productionActionLatencyDefault
+        productionAndPrimLatency = Procedural.productionAndPrimLatencyDefault
     }
     
     func reset() {

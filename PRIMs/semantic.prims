@@ -70,8 +70,6 @@ define inputs {
 (tulip animal)
 (mammal livingthing)
 (lion plant)
-(
+
 }
 
-
-start-screen = start

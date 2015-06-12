@@ -12,11 +12,16 @@ class BatchRun {
     let batchScript: String
     let outputFileName: NSURL
     let model: Model
+    let controller: MainViewController
+    let directory: NSURL
+    var progress: Double = 0.0
     
-    init(script: String, outputFile: NSURL, model: Model) {
+    init(script: String, outputFile: NSURL, model: Model, controller: MainViewController, directory: NSURL) {
         self.batchScript = script
         self.outputFileName = outputFile
         self.model = model
+        self.controller = controller
+        self.directory = directory
     }
     
     func runScript() {
@@ -25,46 +30,50 @@ class BatchRun {
         let repeat = scanner.scanUpToCharactersFromSet(whiteSpaceAndNL)
         let numberOfRepeats = scanner.scanInt()
         if numberOfRepeats == nil {
-            println("Illegal number of repeats")
+            model.addToTraceField("Illegal number of repeats")
             return
         }
-        model.tracing = false
         var newfile = true
         for i in 0..<numberOfRepeats! {
             println("Run #\(i)")
             
-            scanner = NSScanner(string: batchScript)
+            scanner = NSScanner(string: self.batchScript)
             
             while let command = scanner.scanUpToCharactersFromSet(whiteSpaceAndNL) {
                 switch command {
                 case "run":
                     let taskname = scanner.scanUpToCharactersFromSet(whiteSpaceAndNL)
                     if taskname == nil {
-                        println("Illegal task name in run")
+                        self.model.addToTraceField("Illegal task name in run")
                         return
                     }
                     let taskLabel = scanner.scanUpToCharactersFromSet(whiteSpaceAndNL)
                     if taskLabel == nil {
-                        println("Illegal task label in run")
+                        self.model.addToTraceField("Illegal task label in run")
                         return
                     }
                     let numberOfTrials = scanner.scanInt()
                     if numberOfTrials == nil {
-                        println("Illegal number of trials in run")
+                        self.model.addToTraceField("Illegal number of trials in run")
                         return
                     }
-                    println("Running task \(taskname!) with label \(taskLabel!) for \(numberOfTrials!) trials")
-                    let tasknumber = model.findTask(taskname!)
+                    self.model.addToTraceField("Running task \(taskname!) with label \(taskLabel!) for \(numberOfTrials!) trials")
+                    var tasknumber = self.model.findTask(taskname!)
                     if tasknumber == nil {
-                        println("Task \(taskname!) is not loaded")
-                        return
+                        let taskPath = self.directory.URLByAppendingPathComponent(taskname! + ".prims")
+                        println("Trying to load \(taskPath)")
+                        if !self.controller.loadModelWithString(taskPath) {
+                            self.model.addToTraceField("Task \(taskname!) is not loaded nor can it be found")
+                            return
+                        }
+                        tasknumber = self.model.findTask(taskname!)
                     }
-                    model.loadOrReloadTask(tasknumber!)
+                    self.model.loadOrReloadTask(tasknumber!)
                     for j in 0..<numberOfTrials! {
                         println("Trial #\(j)")
-                        model.run()
+                        self.model.run()
                         var output: String = ""
-                        for line in model.outputData {
+                        for line in self.model.outputData {
                             output += "\(i) \(taskname!) \(taskLabel!) \(j) \(line.time) \(line.eventType) \(line.eventParameter1) \(line.eventParameter2) \(line.eventParameter3) "
                             for item in line.inputParameters {
                                 output += item + " "
@@ -72,40 +81,44 @@ class BatchRun {
                             output += "\n"
                         }
                         if !newfile {
-                            if NSFileManager.defaultManager().fileExistsAtPath(outputFileName.path!) {
+                            if NSFileManager.defaultManager().fileExistsAtPath(self.outputFileName.path!) {
                                 var err:NSError?
-                                if let fileHandle = NSFileHandle(forWritingToURL: outputFileName, error: &err) {
+                                if let fileHandle = NSFileHandle(forWritingToURL: self.outputFileName, error: &err) {
                                     fileHandle.seekToEndOfFile()
                                     let data = output.dataUsingEncoding(NSUTF8StringEncoding, allowLossyConversion: false)
                                     fileHandle.writeData(data!)
                                     fileHandle.closeFile()
                                 }
                                 else {
-                                    println("Can't open fileHandle \(err)")
+                                    self.model.addToTraceField("Can't open fileHandle \(err)")
                                 }
                             }
                         }
                         else {
                             newfile = false
                             var err:NSError?
-                            if !output.writeToURL(outputFileName, atomically: false, encoding: NSUTF8StringEncoding, error: &err) {
-                                println("Can't write datafile \(err)")
+                            if !output.writeToURL(self.outputFileName, atomically: false, encoding: NSUTF8StringEncoding, error: &err) {
+                                self.model.addToTraceField("Can't write datafile \(err)")
                                 
                             }
                         }
                     }
                 case "reset":
                     println("Resetting models")
-                    model.reset(nil)
+                    self.model.reset(nil)
                 case "repeat":
                     scanner.scanInt()
                 default: break
                     
                 }
             }
+            progress = 100 * (Double(i) + 1) / Double(numberOfRepeats!)
+            NSNotificationCenter.defaultCenter().postNotificationName("progress",object: nil)
+
         }
+        
+        
     }
-    
     
     
 }

@@ -163,6 +163,9 @@ class Declarative  {
                 }
             }
         }
+//        for (chunk,activation) in conflictSet {
+//            model.addToTrace("   CFS: \(chunk.name) \(activation)")
+//        }
         if bestActivation > retrievalThreshold {
             return (latency(bestActivation) , bestMatch)
         } else {
@@ -207,7 +210,6 @@ class Declarative  {
     func action() -> Double {
         let retrievalQuery = model.buffers["retrievalR"]!
         let (latency, retrieveResult) = retrieve(retrievalQuery)
-        
         if retrieveResult != nil {
             model.addToTrace("Retrieving \(retrieveResult!.name)")
             model.buffers["retrievalH"] = retrieveResult!

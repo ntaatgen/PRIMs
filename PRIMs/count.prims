@@ -58,5 +58,3 @@ define inputs {
 (one three)
 (three five)
 }
-
-start-screen = start

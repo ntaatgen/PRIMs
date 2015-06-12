@@ -1,7 +1,9 @@
 define task more-fish {
 initial-goals: (find-most say-answer)
+goals: (countgoal)
 task-constants: (fish red acquarium)
 imaginal-autoclear: nil
+start-screen: start
 rt: -2.0
 lf: 0.3
 ans: 0.1
@@ -142,5 +144,4 @@ define screen start {
 
 }
 
-start-screen = start
 

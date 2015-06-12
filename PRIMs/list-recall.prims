@@ -1,7 +1,7 @@
 define task list-recall {
   initial-goals: (read-in-memory rehearse report-vocal )
   task-constants: ( letter list )
-  start-screen: letter-1
+  start-screen: screen1
   rt: -2.0
 }
 
@@ -99,5 +99,4 @@ transition(screen3,screen4) = absolute-time(6.0)
 transition(screen4,report) = absolute-time(8.0)
 transition(report,report2) = action(say)
 
-start-screen = screen1
 
