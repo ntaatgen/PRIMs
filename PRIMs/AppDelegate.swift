@@ -21,15 +21,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     func application(sender: NSApplication, openFile filename: String) -> Bool {
         let url = NSURL(fileURLWithPath: filename)
-        if let storyboard = NSStoryboard(name: "Main", bundle: nil) {
-            if let controller = storyboard.instantiateControllerWithIdentifier("PRIMs") as? MainViewController {
-                let url = NSURL(fileURLWithPath: filename)
-                if url == nil { return false }
-                return controller.loadModelWithString(url!)
-            }
-            
-            
+        if url != nil {
+        NSNotificationCenter.defaultCenter().postNotificationName("openFile", object: url!)
+            return true
         }
+
         return false
     }
 

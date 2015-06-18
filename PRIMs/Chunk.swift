@@ -70,6 +70,13 @@ class Chunk: Printable {
         return newChunk
     }
     
+    func copyLiteral() -> Chunk {
+        let newChunk = Chunk(s: self.name, m: self.model)
+        newChunk.slotvals = self.slotvals
+        newChunk.printOrder = self.printOrder
+        return newChunk
+    }
+    
     func inSlot(ch: Chunk) -> Bool {
         for (_,value) in ch.slotvals {
             if value.chunk() === self {
@@ -277,3 +284,8 @@ func == (left: Chunk, right: Chunk) -> Bool {
     }
     return true
 }
+
+func != (left: Chunk, right: Chunk) -> Bool {
+    return !(left == right)
+}
+

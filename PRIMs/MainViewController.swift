@@ -162,6 +162,7 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
         switch graphType {
             case "PRIMs": primGraphData!.setUpGraph(model)
             case "Productions": primGraphData!.setUpLearnGraph(model)
+            case "Declarative": primGraphData!.setUpDMGraph(model)
         default: break // Shouldn't happen
         }
         primGraphData!.calculate()
@@ -268,6 +269,7 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
     
     @IBAction func clickInPrimView(sender: NSClickGestureRecognizer) {
         let location = sender.locationInView(primViewView)
+        if primGraphData == nil { return }
         primGraphData!.makeVisibleClosestNodeName(Double(location.x) - border,y: Double(location.y) - border)
         primGraph.needsDisplay = true
         
@@ -303,7 +305,7 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
         if result != NSFileHandlingPanelOKButton { return }
         if let filePath = fileDialog.URL {
             if !loadModelWithString(filePath) { return }
-//            NSDocumentController.sharedDocumentController().noteNewRecentDocumentURL(filePath)
+            NSDocumentController.sharedDocumentController().noteNewRecentDocumentURL(filePath)
             //            model.currentTaskIndex = model.tasks.count - 1
         }
 //        modelText.string = modelCode
@@ -332,9 +334,16 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
         primViewCalculateGraph(primGraph)
         primGraph.needsDisplay = true
         updateAllViews()
+        model.running = false
         return true
     }
     
+    func respondToOpenFile(notification: NSNotification) {
+        let url = notification.object as? NSURL
+        if url != nil {
+            loadModelWithString(url!)
+        }
+    }
     
     func updateAllViews() {
         model.commitToTrace(false)
@@ -346,7 +355,7 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
         chunkTable.reloadData()
         taskTable.reloadData()
         graph.needsDisplay = true
-        
+        updateBufferView()
 //        graph.setNeedsDisplayInRect(graph.frame)
     }
     
@@ -433,6 +442,106 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
         result = sorted(result, compareChunks)
         return result
     }
+    
+    
+    @IBOutlet weak var bufferViewOperator: NSTextField!
+    
+    @IBOutlet weak var bufferViewInput: NSTextField!
+    
+    @IBOutlet weak var bufferViewRetrievalH: NSTextField!
+    
+    @IBOutlet weak var bufferViewFormerGoal: NSTextField!
+
+    @IBOutlet weak var bufferViewGoal: NSTextField!
+
+    @IBOutlet weak var bufferViewRetrievalNewHarvest: NSTextField!
+    
+    
+    @IBOutlet weak var bufferViewImaginal: NSTextField!
+    
+    @IBOutlet weak var bufferViewAction: NSTextField!
+    
+    @IBOutlet weak var bufferViewRetrievalR: NSTextField!
+    
+    @IBOutlet weak var bufferViewImaginalAction: NSTextField!
+    
+    @IBOutlet weak var bufferViewFormerInput: NSTextField!
+    
+    func formatBuffer(bufferName: String, bufferChunk: Chunk?, bufferAbbreviation: String, showSlot0: Bool = true) -> NSAttributedString {
+        var s = NSMutableAttributedString(string: bufferName, attributes: [NSFontAttributeName : NSFont.boldSystemFontOfSize(12)])
+        var rest: String = ""
+        if bufferChunk != nil {
+            if showSlot0 {
+                rest += " \(bufferAbbreviation)0 \(bufferChunk!.name)\n"
+            }
+            for slotNo in 1...9 {
+                if let value = bufferChunk!.slotvals["slot\(slotNo)"] {
+                    rest += " \(bufferAbbreviation)\(slotNo) \(value.description)\n"
+                }
+            }
+
+        }
+        s.appendAttributedString(NSAttributedString(string: rest))
+        return s
+        
+    }
+    
+    func formatOperator(chunk: Chunk?) -> NSAttributedString {
+        let operatorName = chunk == nil ? "" : chunk!.name
+        var s = NSMutableAttributedString(string: "Operator \(operatorName)\n", attributes: [NSFontAttributeName : NSFont.boldSystemFontOfSize(12)])
+        var rest = ""
+        if let condition = chunk?.slotvals["condition"] {
+            let conditions = condition.description.componentsSeparatedByString(";")
+            rest += "Conditions:"
+            for element in conditions {
+                rest += " \(element)"
+            }
+            rest += "\n"
+        }
+        if let action = chunk?.slotvals["action"] {
+            let actions = action.description.componentsSeparatedByString(";")
+            rest += "Actions:"
+            for element in actions {
+                rest += " \(element)"
+            }
+            rest += "\nConstants:\n"
+        }
+        s.appendAttributedString(NSAttributedString(string: rest))
+        s.appendAttributedString(formatBuffer("", bufferChunk: model.formerBuffers["operator"], bufferAbbreviation: "C", showSlot0: false))
+        return s
+    }
+    
+    func updateBufferView() {
+        if model.buffers["input"] == nil || model.formerBuffers["input"] == nil || model.buffers["input"]! != model.formerBuffers["input"]! {
+        bufferViewInput.attributedStringValue = formatBuffer("Input\n",bufferChunk: model.buffers["input"],bufferAbbreviation: "V")
+        } else {
+            bufferViewInput.stringValue = ""
+        }
+        bufferViewRetrievalH.attributedStringValue = formatBuffer("Retrieval Hv\n", bufferChunk: model.formerBuffers["retrievalH"], bufferAbbreviation: "RT")
+        var s = NSMutableAttributedString(attributedString: formatBuffer("Goal\n", bufferChunk: model.formerBuffers["goal"], bufferAbbreviation: "G"))
+        s.appendAttributedString(formatBuffer("", bufferChunk: model.buffers["constants"], bufferAbbreviation: "GC", showSlot0: false))
+        bufferViewFormerGoal.attributedStringValue = s
+        bufferViewRetrievalR.attributedStringValue = formatBuffer("Retrieval Rq\n", bufferChunk: model.formerBuffers["retrievalR"], bufferAbbreviation: "RT")
+        bufferViewAction.attributedStringValue = formatBuffer("Action\n", bufferChunk: model.formerBuffers["action"], bufferAbbreviation: "AC", showSlot0: false)
+        bufferViewImaginal.attributedStringValue = formatBuffer("Imaginal\n", bufferChunk: model.formerBuffers["imaginal"], bufferAbbreviation: "WM")
+        if model.buffers["imaginal"] == nil || model.formerBuffers["imaginal"] == nil || model.buffers["imaginal"]! != model.formerBuffers["imaginal"]! {
+            bufferViewImaginalAction.attributedStringValue = formatBuffer("Imaginal\n", bufferChunk: model.buffers["imaginal"], bufferAbbreviation: "WM")
+        } else {
+            bufferViewImaginalAction.stringValue = ""
+        }
+        bufferViewOperator.attributedStringValue = formatOperator(model.formerBuffers["operator"])
+        bufferViewFormerInput.attributedStringValue = formatBuffer("Input\n", bufferChunk: model.formerBuffers["input"], bufferAbbreviation: "V", showSlot0: true)
+        if model.buffers["goal"] != nil && model.formerBuffers["goal"] != nil && model.buffers["goal"]!.slotvals["last-operator"] != nil {
+            model.formerBuffers["goal"]!.slotvals["last-operator"] = model.buffers["goal"]!.slotvals["last-operator"]!
+        }
+        if model.buffers["goal"] == nil || model.formerBuffers["goal"] == nil || model.buffers["goal"]! != model.formerBuffers["goal"]! {
+        bufferViewGoal.attributedStringValue = formatBuffer("Goal\n", bufferChunk: model.buffers["goal"], bufferAbbreviation: "G")
+        } else {
+            bufferViewGoal.stringValue = ""
+        }
+        bufferViewRetrievalNewHarvest.attributedStringValue = formatBuffer("Retrieval Hv\n", bufferChunk: model.buffers["retrievalH"], bufferAbbreviation: "RT")
+    }
+    
     
     @IBAction func run(sender: NSButton) {
         model.run()
@@ -527,7 +636,7 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
         super.viewDidLoad()
         NSNotificationCenter.defaultCenter().addObserver(self, selector: "updatePrimGraph", name: "UpdatePrimGraph", object: nil)
         NSNotificationCenter.defaultCenter().addObserver(self, selector: "updateProgressBar", name: "progress", object: nil)
-
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "respondToOpenFile:", name: "openFile", object: nil)
         
     }
 

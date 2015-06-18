@@ -16,9 +16,9 @@
 			<key>CFBundleTypeName</key>
 			<string>PRIMs model file</string>
 			<key>CFBundleTypeRole</key>
-			<string>Editor</string>
+			<string>None</string>
 			<key>LSTypeIsPackage</key>
-			<integer>1</integer>
+			<integer>0</integer>
 		</dict>
 	</array>
 	<key>CFBundleExecutable</key>
@@ -47,5 +47,21 @@
 	<string>Main</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
+	<key>UTImportedTypeDeclarations</key>
+	<array>
+		<dict>
+			<key>UTTypeDescription</key>
+			<string>Prim model file</string>
+			<key>UTTypeIconFile</key>
+			<string>PrimsModelFileIcon</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>prims</string>
+				</array>
+			</dict>
+		</dict>
+	</array>
 </dict>
 </plist>

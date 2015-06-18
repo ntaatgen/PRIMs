@@ -177,7 +177,11 @@ class Model {
         procedural.reset()
         buffers["goal"] = currentGoals?.copy()
         buffers["constants"] = currentGoalConstants?.copy()
+        formerBuffers = [:]
+        formerBuffers["goal"] = buffers["goal"]?.copyLiteral()
+        formerBuffers["constants"] = buffers["constants"]?.copyLiteral()
         action.initTask()
+        formerBuffers["input"] = buffers["input"]?.copyLiteral()
         running = true
         clearTrace()
         outputData = []
@@ -329,6 +333,7 @@ class Model {
     
     func doAllModuleActions() {
         var latency = 0.0
+        formerBuffers["retrievalH"] = buffers["retrievalH"]
         buffers["retrievalH"] = nil
         if buffers["retrievalR"] != nil {
             formerBuffers["retrievalR"] = buffers["retrievalR"]!
@@ -355,10 +360,15 @@ class Model {
         if currentTask == nil { return }
         if !running {
             initializeNewTrial()
+            return
         }
         dm.clearFinsts()
         var found: Bool = false
         formerBuffers = [:]
+        formerBuffers["goal"] = buffers["goal"]?.copyLiteral()
+        formerBuffers["imaginal"] = buffers["imaginal"]?.copyLiteral()
+        formerBuffers["input"] = buffers["input"]?.copyLiteral()
+        formerBuffers["retrievalH"] = buffers["retrievalH"]?.copyLiteral()
         commitToTrace(false)
         do {
             procedural.lastProduction = nil
@@ -451,6 +461,7 @@ class Model {
             loadParameters()
 //            println("Setting task index to \(i)")
             newResult()
+            running = false
         }
     }
     

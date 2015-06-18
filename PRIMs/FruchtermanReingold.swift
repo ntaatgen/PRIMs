@@ -47,6 +47,7 @@ class FruchtermanReingold {
     var H: Double
     let iterations = 100
     var constantC = 0.3
+    var wallRepulsionMultiplier = 5.0
     var area: Double {
         get {
             return W * H
@@ -114,11 +115,11 @@ class FruchtermanReingold {
                     }
                 }
                 // repulsion of walls
-                node.dx += self.repulsionForce(node.x)
-                node.dx -= self.repulsionForce(self.W - node.x)
-                node.dy += self.repulsionForce(node.y)
+                node.dx += self.wallRepulsionMultiplier * self.repulsionForce(node.x)
+                node.dx -= self.wallRepulsionMultiplier * self.repulsionForce(self.W - 1 - node.x)
+                node.dy += self.wallRepulsionMultiplier * self.repulsionForce(node.y)
 
-                node.dy -= self.repulsionForce(self.H - node.y)
+                node.dy -= self.wallRepulsionMultiplier * self.repulsionForce(self.H - 1 - node.y)
                 
             }
             // calculate attractive forces
@@ -310,5 +311,34 @@ class FruchtermanReingold {
         }
     }
     
+    func setUpDMGraph(model: Model) {
+        nodes = [:]
+        edges = []
+        constantC = 0.3
+        for (_,chunk) in model.dm.chunks {
+            if chunk.type == "fact" {
+                let node = Node(name: chunk.name)
+                node.shortName = node.name
+                nodes[node.name] = node
+            }
+        }
+        for (_,chunk) in model.dm.chunks {
+            if chunk.type == "fact" {
+                for (slot,value) in chunk.slotvals {
+                    if let chunk2 = value.chunk() {
+                        if chunk2.type == "fact" {
+                        let edge = Edge(from: nodes[chunk.name]!, to: nodes[chunk2.name]!)
+                        edges.append(edge)
+                        }
+                    }
+                }
+            }
+        }
+        keys = Array(nodes.keys)
+        nodeToIndex = [:]
+        for i in 0..<keys.count {
+            nodeToIndex[keys[i]] = i
+        }
+    }
     
 }

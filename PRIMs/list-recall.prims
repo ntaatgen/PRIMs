@@ -2,6 +2,7 @@ define task list-recall {
   initial-goals: (read-in-memory rehearse report-vocal )
   task-constants: ( letter list )
   start-screen: screen1
+  imaginal-autoclear: t
   rt: -2.0
 }
 
@@ -67,6 +68,12 @@ define goal rehearse {
   }
 }
 
+define facts {
+ (x x)
+ (k k)
+ (p p)
+ (f f)
+}
 
 define screen screen1 {
 (letter x)

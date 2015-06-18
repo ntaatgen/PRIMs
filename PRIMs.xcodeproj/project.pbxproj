@@ -10,11 +10,7 @@
 		B80397C51B15B4BF00935F9C /* Parser.swift in Sources */ = {isa = PBXBuildFile; fileRef = B80397C41B15B4BF00935F9C /* Parser.swift */; };
 		B806EFBC1AEFE77900633505 /* Task.swift in Sources */ = {isa = PBXBuildFile; fileRef = B806EFBB1AEFE77900633505 /* Task.swift */; };
 		B806EFBE1AF003CF00633505 /* Action.swift in Sources */ = {isa = PBXBuildFile; fileRef = B806EFBD1AF003CF00633505 /* Action.swift */; };
-		B825B6E51B0C884E009B98BC /* more-fish-goals.prims in Resources */ = {isa = PBXBuildFile; fileRef = B825B6E41B0C884E009B98BC /* more-fish-goals.prims */; };
-		B826B9AF1B063DBB000950A3 /* how-many-spoons-goals.prims in Resources */ = {isa = PBXBuildFile; fileRef = B826B9AE1B063DBB000950A3 /* how-many-spoons-goals.prims */; };
-		B848EB111B25CF74001C60E8 /* zbrodoff.prims in Resources */ = {isa = PBXBuildFile; fileRef = B848EB101B25CF74001C60E8 /* zbrodoff.prims */; };
 		B84BE0781B034C190015DF1F /* PrimView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B84BE0771B034C190015DF1F /* PrimView.swift */; };
-		B85D9CB91B14C9AC0033CEA2 /* list-recall.prims in Resources */ = {isa = PBXBuildFile; fileRef = B85D9CB81B14C9AC0033CEA2 /* list-recall.prims */; };
 		B85FAA5C1AE10CAF00C6F57A /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B85FAA5B1AE10CAF00C6F57A /* AppDelegate.swift */; };
 		B85FAA5E1AE10CAF00C6F57A /* MainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B85FAA5D1AE10CAF00C6F57A /* MainViewController.swift */; };
 		B85FAA601AE10CAF00C6F57A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B85FAA5F1AE10CAF00C6F57A /* Images.xcassets */; };
@@ -23,21 +19,15 @@
 		B85FAAA31AE10D7500C6F57A /* Chunk.swift in Sources */ = {isa = PBXBuildFile; fileRef = B85FAA951AE10D7500C6F57A /* Chunk.swift */; };
 		B85FAAA71AE10D7500C6F57A /* Declarative.swift in Sources */ = {isa = PBXBuildFile; fileRef = B85FAA991AE10D7500C6F57A /* Declarative.swift */; };
 		B85FAAA91AE10D7500C6F57A /* Support.swift in Sources */ = {isa = PBXBuildFile; fileRef = B85FAA9B1AE10D7500C6F57A /* Support.swift */; };
-		B85FAAB21AE1188C00C6F57A /* count.prims in Resources */ = {isa = PBXBuildFile; fileRef = B85FAAB11AE1188C00C6F57A /* count.prims */; };
 		B85FAAB41AE1326000C6F57A /* Prim.swift in Sources */ = {isa = PBXBuildFile; fileRef = B85FAAB31AE1326000C6F57A /* Prim.swift */; };
 		B85FAAB51AE13FF100C6F57A /* Model.swift in Sources */ = {isa = PBXBuildFile; fileRef = B85FAA9C1AE10D7500C6F57A /* Model.swift */; };
 		B85FAAB61AE1569F00C6F57A /* Production.swift in Sources */ = {isa = PBXBuildFile; fileRef = B85FAA961AE10D7500C6F57A /* Production.swift */; };
 		B85FAAB71AE1580200C6F57A /* Instantiation.swift in Sources */ = {isa = PBXBuildFile; fileRef = B85FAA9E1AE10D7500C6F57A /* Instantiation.swift */; };
 		B85FAAB81AE1582400C6F57A /* Procedural.swift in Sources */ = {isa = PBXBuildFile; fileRef = B85FAA971AE10D7500C6F57A /* Procedural.swift */; };
-		B88C6E411B2720B900F31EE8 /* zbrodoff.bprims in Resources */ = {isa = PBXBuildFile; fileRef = B88C6E401B2720B900F31EE8 /* zbrodoff.bprims */; };
 		B8935EF11B13C93900E4C9E8 /* PrimsModelFileIcon.icns in Resources */ = {isa = PBXBuildFile; fileRef = B8935EF01B13C93900E4C9E8 /* PrimsModelFileIcon.icns */; };
-		B898EA861B0F3C3100B5777E /* testbatch.bprims in Resources */ = {isa = PBXBuildFile; fileRef = B898EA851B0F3C3100B5777E /* testbatch.bprims */; };
 		B898EA881B0F504A00B5777E /* BatchRun.swift in Sources */ = {isa = PBXBuildFile; fileRef = B898EA871B0F504A00B5777E /* BatchRun.swift */; };
 		B898EA8A1B0F5A3500B5777E /* NSScanner+Swift.swift in Sources */ = {isa = PBXBuildFile; fileRef = B898EA891B0F5A3500B5777E /* NSScanner+Swift.swift */; };
 		B8B23CDC1AED499C00307F90 /* GraphView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8B23CDB1AED499C00307F90 /* GraphView.swift */; };
-		B8B3E4981B0F9310005E3601 /* spoons-fish.bprims in Resources */ = {isa = PBXBuildFile; fileRef = B8B3E4971B0F9310005E3601 /* spoons-fish.bprims */; };
-		B8BEEE6A1AE79C9F00FF1FBC /* semantic.prims in Resources */ = {isa = PBXBuildFile; fileRef = B8BEEE691AE79C9F00FF1FBC /* semantic.prims */; };
-		B8C76AC11B286C4800826141 /* addition.prims in Resources */ = {isa = PBXBuildFile; fileRef = B8C76AC01B286C4800826141 /* addition.prims */; };
 		B8CE155E1B022A5300554F5F /* FruchtermanReingold.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8CE155D1B022A5300554F5F /* FruchtermanReingold.swift */; };
 		B8D18E0E1AEEC305007CF2B6 /* Imaginal.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8D18E0D1AEEC305007CF2B6 /* Imaginal.swift */; };
 		B8EEE60D1B01DDC6002EFAD6 /* PRScenario.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8EEE60C1B01DDC6002EFAD6 /* PRScenario.swift */; };
@@ -59,8 +49,8 @@
 		B80397C41B15B4BF00935F9C /* Parser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Parser.swift; sourceTree = "<group>"; };
 		B806EFBB1AEFE77900633505 /* Task.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Task.swift; sourceTree = "<group>"; };
 		B806EFBD1AF003CF00633505 /* Action.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Action.swift; sourceTree = "<group>"; };
-		B825B6E41B0C884E009B98BC /* more-fish-goals.prims */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "more-fish-goals.prims"; sourceTree = "<group>"; };
-		B826B9AE1B063DBB000950A3 /* how-many-spoons-goals.prims */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "how-many-spoons-goals.prims"; sourceTree = "<group>"; };
+		B825B6E41B0C884E009B98BC /* more-fish.prims */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "more-fish.prims"; sourceTree = "<group>"; };
+		B826B9AE1B063DBB000950A3 /* how-many-spoons.prims */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "how-many-spoons.prims"; sourceTree = "<group>"; };
 		B848EB101B25CF74001C60E8 /* zbrodoff.prims */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = zbrodoff.prims; sourceTree = "<group>"; };
 		B84BE0771B034C190015DF1F /* PrimView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PrimView.swift; sourceTree = "<group>"; };
 		B85D9CB81B14C9AC0033CEA2 /* list-recall.prims */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "list-recall.prims"; sourceTree = "<group>"; };
@@ -202,9 +192,9 @@
 			isa = PBXGroup;
 			children = (
 				B85FAAB11AE1188C00C6F57A /* count.prims */,
-				B825B6E41B0C884E009B98BC /* more-fish-goals.prims */,
+				B825B6E41B0C884E009B98BC /* more-fish.prims */,
 				B8BEEE691AE79C9F00FF1FBC /* semantic.prims */,
-				B826B9AE1B063DBB000950A3 /* how-many-spoons-goals.prims */,
+				B826B9AE1B063DBB000950A3 /* how-many-spoons.prims */,
 				B85D9CB81B14C9AC0033CEA2 /* list-recall.prims */,
 				B848EB101B25CF74001C60E8 /* zbrodoff.prims */,
 				B8C76AC01B286C4800826141 /* addition.prims */,
@@ -314,18 +304,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B8B3E4981B0F9310005E3601 /* spoons-fish.bprims in Resources */,
 				B85FAA601AE10CAF00C6F57A /* Images.xcassets in Resources */,
-				B88C6E411B2720B900F31EE8 /* zbrodoff.bprims in Resources */,
-				B8C76AC11B286C4800826141 /* addition.prims in Resources */,
-				B826B9AF1B063DBB000950A3 /* how-many-spoons-goals.prims in Resources */,
-				B85FAAB21AE1188C00C6F57A /* count.prims in Resources */,
-				B85D9CB91B14C9AC0033CEA2 /* list-recall.prims in Resources */,
-				B848EB111B25CF74001C60E8 /* zbrodoff.prims in Resources */,
 				B85FAA631AE10CAF00C6F57A /* Main.storyboard in Resources */,
-				B898EA861B0F3C3100B5777E /* testbatch.bprims in Resources */,
-				B8BEEE6A1AE79C9F00FF1FBC /* semantic.prims in Resources */,
-				B825B6E51B0C884E009B98BC /* more-fish-goals.prims in Resources */,
 				B8935EF11B13C93900E4C9E8 /* PrimsModelFileIcon.icns in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
