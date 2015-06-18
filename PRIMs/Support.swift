@@ -25,6 +25,10 @@ func isVariable(v: Value) -> Bool {
     else { return false }
 }
 
+func string2Double(s: String) -> Double? {
+    let scanner = NSScanner(string: s)
+    return scanner.scanDouble()
+}
 
 // Chunk values can be a symbol, a number or nil
 /**

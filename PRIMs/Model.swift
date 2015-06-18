@@ -188,7 +188,7 @@ class Model {
     }
     
     func setParameter(parameter: String, value: String) -> Bool {
-        let numVal = NSNumberFormatter().numberFromString(value)?.doubleValue
+        let numVal = string2Double(value)
         let boolVal = (value != "nil")
         switch parameter {
         case "imaginal-delay:":
@@ -476,7 +476,7 @@ class Model {
     }
     
     func stringToValue(s: String) -> Value {
-        let possibleNumVal = NSNumberFormatter().numberFromString(s)?.doubleValue
+        let possibleNumVal = string2Double(s)
         if possibleNumVal != nil {
             return Value.Number(possibleNumVal!)
         }

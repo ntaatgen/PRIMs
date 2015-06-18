@@ -146,7 +146,7 @@ class Chunk: Printable {
 
     func setSlot(slot: String, value: String) {
         if slotvals[slot] == nil { printOrder.append(slot) }
-        let possibleNumVal = NSNumberFormatter().numberFromString(value)?.doubleValue
+        let possibleNumVal = string2Double(value) 
         if possibleNumVal != nil {
             slotvals[slot] = Value.Number(possibleNumVal!)
         }
