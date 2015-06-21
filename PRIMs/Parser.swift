@@ -11,8 +11,10 @@ import Foundation
 class Parser  {
     private let m: Model
     let taskNumber: Int
-    let scanner: NSScanner
+    var scanner: NSScanner
     var startScreenName: String? = nil
+    /// Everything after this string on a line will be ignored
+    static let commentString = "//"
     init(model: Model, text: String, taskNumber: Int) {
         m = model
         scanner = NSScanner(string: text)
@@ -22,12 +24,30 @@ class Parser  {
         whiteSpaceNewLineParenthesesEqual.formUnionWithCharacterSet(whitespaceNewLine)
     }
     
-    let whitespaceNewLine = NSCharacterSet.whitespaceAndNewlineCharacterSet()
-    let whitespaceNewLineParentheses: NSMutableCharacterSet = NSMutableCharacterSet(charactersInString: "{}()")
-    let whiteSpaceNewLineParenthesesEqual: NSMutableCharacterSet = NSMutableCharacterSet(charactersInString: "{}()=,")
+    private let whitespaceNewLine = NSCharacterSet.whitespaceAndNewlineCharacterSet()
+    private let whitespaceNewLineParentheses: NSMutableCharacterSet = NSMutableCharacterSet(charactersInString: "{}()")
+    private let whiteSpaceNewLineParenthesesEqual: NSMutableCharacterSet = NSMutableCharacterSet(charactersInString: "{}()=,")
     var globalVariableMapping: [String:Int] = [:]
     
+    /** 
+    Parse a model file. Takes the String that is entered at the creation of the class instance, and sets
+    the necessary variables in the model.
+    
+    :returns: Whether or not parsing was successful
+    */
     func parseModel() -> Bool {
+        // First we filter out comments that are marked by the commentString
+        var newstring = ""
+        scanner.charactersToBeSkipped = nil
+        while !scanner.atEnd {
+            let stringBeforeComment = scanner.scanUpToString(Parser.commentString)
+            if stringBeforeComment != nil {
+                newstring += stringBeforeComment!
+            }
+            scanner.scanUpToString("\n")
+            scanner.scanString("\n")
+        }
+        scanner = NSScanner(string: newstring)
         m.clearTrace()
         while !scanner.atEnd {
             let token = scanner.scanUpToCharactersFromSet(whitespaceNewLineParentheses)
@@ -497,23 +517,6 @@ class Parser  {
         m.addToTraceField("Defining transition between \(screen1!) and \(screen2!)")
         return true
     }
-    
-//    func parseStartScreen() -> Bool {
-//        let equal = scanner.scanString("=", intoString: nil)
-//        let screenName = scanner.scanUpToCharactersFromSet(whitespaceNewLineParentheses)
-//        if !equal || screenName == nil {
-//            m.addToTraceField("Illegal start-screen defintion")
-//            return false
-//        }
-//        if let screen = m.scenario.screens[screenName!] {
-//            m.scenario.startScreen = screen
-//        } else {
-//            m.addToTraceField("\(screenName!) is not a valid screen")
-//            return false
-//        }
-//        m.addToTraceField("Setting start-screen to \(screenName!)")
-//        return true
-//    }
 
     func parseInputs() -> Bool {
         if !scanner.scanString("{", intoString: nil) {

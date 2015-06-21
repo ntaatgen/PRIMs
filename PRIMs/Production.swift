@@ -140,7 +140,8 @@ class Production: Printable {
     
     /**
     Function that executes all the production's actions
-    :param: inst The instantiation of the production
+    
+    :returns:  Whether execution was successful
     */
     func fire() -> Bool {
         if op != nil {

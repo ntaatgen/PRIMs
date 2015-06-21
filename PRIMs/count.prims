@@ -1,5 +1,8 @@
+// First example model: counting
+// Adapted from the ACT-R tutorial by Niels Taatgen
+
 define task count {
-  initial-goals: (count)
+  initial-goals: (count) // In this example the task and the goal are the same
   start-screen: start
   imaginal-autoclear: nil
   ol: t
@@ -11,8 +14,8 @@ define task count {
 define goal count {
   operator start-count(activation= 1.0) {
   "Start counting"
-   V1<>nil
-   WM1=nil
+   V1<>nil  // There has to be a visual input with the starting number
+   WM1=nil  // Imaginal should be empty
   ==>
    V1->WM1
    countfact->RT1
@@ -42,13 +45,13 @@ define goal count {
 }
 
 define facts {
-(one 1)
+(one 1) // Define the numbers themselves. Not really necessary for the model, but they show up in the DM graph.
 (two 2)
 (three 3)
 (four 4)
 (five 5)
 (six 6)
-(cf1 countfact  one  two :activation 1.0)
+(cf1 countfact  one  two :activation 1.0) // Countfacts. They receive a fixed activation for now
 (cf2 countfact  two  three :activation 1.0)
 (cf3  countfact  three  four :activation 1.0)
 (cf4  countfact  four  five :activation 1.0)
