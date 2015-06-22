@@ -51,6 +51,9 @@ class Model {
     var timeThreshold = 200.0
     var outputData: [DataLine] = []
     var formerBuffers: [String:Chunk] = [:]
+    static let rewardDefault = 10.0
+    /// Reward used for operator-goal association learning
+    var reward: Double = rewardDefault
     
 //    struct Results {
         var modelResults: [[(Double,Double)]] = []
@@ -185,59 +188,71 @@ class Model {
         running = true
         clearTrace()
         outputData = []
+        previousOperators = []
     }
     
     func setParameter(parameter: String, value: String) -> Bool {
         let numVal = string2Double(value)
         let boolVal = (value != "nil")
         switch parameter {
-        case "imaginal-delay:":
-            imaginal.imaginalLatency = numVal!
         case "imaginal-autoclear:":
             imaginal.autoClear = boolVal
-        case "egs:":
-            procedural.utilityNoise = numVal!
-        case "alpha:":
-            procedural.alpha = numVal!
-        case "nu:":
-            procedural.defaultU = numVal!
-        case "primU:":
-            procedural.primU = numVal!
-        case "utility-retrieve-operator:":
-            procedural.utilityRetrieveOperator = numVal!
-        case "dat:":
-            procedural.productionActionLatency = numVal!
-        case "bll:":
-            dm.baseLevelDecay = numVal!
         case "ol:":
             dm.optimizedLearning = boolVal
-        case "mas:":
-            dm.maximumAssociativeStrength = numVal!
-        case "rt:":
-            dm.retrievalThreshold = numVal!
-        case "lf:":
-            dm.latencyFactor = numVal!
-        case "mp:":
-            dm.misMatchPenalty = numVal!
-        case "ans:":
-            dm.activationNoise = numVal!
-        case "default-operator-assoc:":
-            dm.defaultOperatorAssoc = numVal!
-        case "default-operator-self-assoc:":
-            dm.defaultOperatorSelfAssoc = numVal!
-        case "production-prim-latency:":
-            procedural.productionAndPrimLatency = numVal!
-        case "say-latency:":
-            action.sayLatency = numVal!
-        case "subvocalize-latency:":
-            action.subvocalizeLatency = numVal!
-        case "read-latency:":
-            action.readLatency = numVal!
-        case "perception-action-latency:":
-            action.defaultPerceptualActionLatency = numVal!
-        default: return false
+        case "goal-operator-learning:":
+            dm.goalOperatorLearning = boolVal
+        default:
+            if (numVal == nil) {return false}
+            switch parameter {
+            case "imaginal-delay:":
+                imaginal.imaginalLatency = numVal!
+            case "egs:":
+                procedural.utilityNoise = numVal!
+            case "alpha:":
+                procedural.alpha = numVal!
+            case "nu:":
+                procedural.defaultU = numVal!
+            case "primU:":
+                procedural.primU = numVal!
+            case "utility-retrieve-operator:":
+                procedural.utilityRetrieveOperator = numVal!
+            case "dat:":
+                procedural.productionActionLatency = numVal!
+            case "bll:":
+                dm.baseLevelDecay = numVal!
+            case "mas:":
+                dm.maximumAssociativeStrength = numVal!
+            case "rt:":
+                dm.retrievalThreshold = numVal!
+            case "lf:":
+                dm.latencyFactor = numVal!
+            case "mp:":
+                dm.misMatchPenalty = numVal!
+            case "ans:":
+                dm.activationNoise = numVal!
+            case "default-operator-assoc:":
+                dm.defaultOperatorAssoc = numVal!
+            case "default-operator-self-assoc:":
+                dm.defaultOperatorSelfAssoc = numVal!
+            case "production-prim-latency:":
+                procedural.productionAndPrimLatency = numVal!
+            case "say-latency:":
+                action.sayLatency = numVal!
+            case "subvocalize-latency:":
+                action.subvocalizeLatency = numVal!
+            case "read-latency:":
+                action.readLatency = numVal!
+            case "perception-action-latency:":
+                action.defaultPerceptualActionLatency = numVal!
+            case "beta:":
+                dm.beta = numVal!
+            case "reward:":
+                    self.reward = numVal!
+                
+            default: return false
+            }
         }
-//        println("Parameter \(parameter) has value \(value)")
+        //        println("Parameter \(parameter) has value \(value)")
         return true
     }
 
@@ -246,6 +261,7 @@ class Model {
         procedural.setParametersToDefault()
         action.setParametersToDefault()
         imaginal.setParametersToDefault()
+        reward = Model.rewardDefault
     }
     
     func loadParameters() {
@@ -253,6 +269,12 @@ class Model {
             setParameter(parameter, value: value)
         }
     }
+    
+    // The next section of code handles operators. This should be migrated to a separate class eventually
+    
+    /// List of chosen operators with time
+    var previousOperators: [(Chunk,Double)] = []
+    
 
     /**
     This function finds an operator. It can do this in several ways depending on the settings
@@ -272,13 +294,11 @@ class Model {
                 let (_,u2) = item2
                 return u1 > u2
             })
-            //                println("Conflict set \(cfs)")
             var match = false
             var candidate: Chunk
             var activation: Double
             do {
                 (candidate, activation) = cfs.removeAtIndex(0)
-                //                        println("Trying operator \(candidate.name)")
                 let savedBuffers = buffers
                 buffers["operator"] = candidate.copy()
                 let inst = procedural.findMatchingProduction()
@@ -294,6 +314,10 @@ class Model {
         }
         time += latency
         if opRetrieved == nil { return false }
+        if dm.goalOperatorLearning {
+            let item = (opRetrieved!, time - latency)
+            previousOperators.append(item)
+        }
         addToTrace("*** Retrieved operator \(opRetrieved!.name) with spread \(opRetrieved!.spreadingActivation())")
         dm.addToFinsts(opRetrieved!)
         buffers["goal"]!.setSlot("last-operator", value: opRetrieved!)
@@ -353,6 +377,27 @@ class Model {
     }
     
     /**
+    Test whether the last action was the goal action
+    
+    :returns: True if goal is reached
+    */
+    func testGoalAction() -> Bool {
+        if scenario.goalAction.isEmpty { return false }
+        let action = formerBuffers["action"]
+        if action == nil { return false }
+        var count = 1
+        for value in scenario.goalAction {
+            if let actionValue = action!.slotvals["slot\(count++)"] {
+                let compareValue = scenario.currentInput[value] ?? value  // if value is a variable, make substitution
+                if actionValue.description != compareValue { return false }
+            } else {
+                return false
+            }
+        }
+        return true
+    }
+    
+    /**
     Execute a single operator by first finding one that matches, and then firing the necessary
     productions to execute it
     */
@@ -378,6 +423,9 @@ class Model {
                 let op = buffers["operator"]!
                 addToTrace("Operator \(op.name) failed")
                 commitToTrace(true)
+                if dm.goalOperatorLearning {
+                    previousOperators.removeLast()
+                }
             }
         } while !found
         commitToTrace(false)
@@ -387,7 +435,7 @@ class Model {
         if scenario.nextEventTime != nil && scenario.nextEventTime! - 0.001 <= time {
             scenario.makeTimeTransition(self)
         }
-        if buffers["goal"]?.slotvals["slot1"] != nil && buffers["goal"]!.slotvals["slot1"]!.description == "stop" {
+        if (buffers["goal"]?.slotvals["slot1"] != nil && buffers["goal"]!.slotvals["slot1"]!.description == "stop") || testGoalAction() {
             procedural.issueReward(40.0)
             if let imaginalChunk = buffers["imaginal"] {
                 dm.addToDM(imaginalChunk)

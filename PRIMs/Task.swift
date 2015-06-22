@@ -16,6 +16,7 @@ class Task {
     var goalChunk: Chunk? = nil
     var goalConstants: Chunk? = nil
     var scenario: PRScenario! = nil
+    var reward: Double = 10.0
     var parameters: [(String,String)] = []
     init(name: String, path: NSURL) {
         self.name = name

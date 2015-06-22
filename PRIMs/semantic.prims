@@ -37,7 +37,6 @@ operator say-yes(activation=1.0) {
 "Say yes when found"
 V2=WM1
 ==>
-stop->G1
 say->AC1
 yes->AC2
 }
@@ -47,7 +46,6 @@ operator say-no(activation=1.0) {
 V2<>WM1
 RT1=error
 ==>
-stop->G1
 say->AC1
 no->AC2
 }
@@ -79,11 +77,15 @@ define screen start {
 (?0 ?1)
 }
 
+define goal-action {
+(say ?2)
+}
+
 define inputs {
-(lion livingthing)
-(tulip animal)
-(mammal livingthing)
-(lion plant)
+(lion livingthing yes)
+(tulip animal no)
+(mammal livingthing yes)
+(lion plant no)
 
 }
 

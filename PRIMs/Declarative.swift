@@ -22,6 +22,8 @@ class Declarative  {
     static let misMatchPenaltyDefault = 5.0
     static let goalSpreadingActivationDefault = true
     static let latencyFactorDefault = 0.2
+    static let goalOperatorLearningDefault = false
+    static let betaDefault = 0.1
     /// Baseleveldecay parameter (d in ACT-R)
     var baseLevelDecay: Double = baseLevelDecayDefault
     /// Optimized learning on or off
@@ -46,9 +48,15 @@ class Declarative  {
     var goalSpreadingByActivation = goalSpreadingActivationDefault
     /// ACT-R latency factor (F)
     var latencyFactor = latencyFactorDefault
-
+    /// Indicates whether associations between goals and operators will be learned
+    var goalOperatorLearning = goalOperatorLearningDefault
+    /// Learning rate of goal operator association learning
+    var beta = betaDefault
+    /// Dictionary with all the chunks in DM, maps name onto Chunk
     var chunks = [String:Chunk]()
+    /// List of all the chunks that partipated in the last retrieval. Tuple has Chunk and activation value
     var conflictSet: [(Chunk,Double)] = []
+    /// Finst list for the current retrieval
     var finsts: [String] = []
     
     
@@ -73,6 +81,8 @@ class Declarative  {
         misMatchPenalty = Declarative.misMatchPenaltyDefault
         goalSpreadingByActivation = Declarative.goalSpreadingActivationDefault
         latencyFactor = Declarative.latencyFactorDefault
+        goalOperatorLearning = Declarative.goalOperatorLearningDefault
+        beta = Declarative.betaDefault
     }
     
     func duplicateChunk(chunk: Chunk) -> Chunk? {

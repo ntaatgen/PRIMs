@@ -23,6 +23,8 @@ class PRScenario {
     var nextEventTime: Double? = nil
     /// Current inputs
     var currentInput: [String:String] = [:]
+    /// The action that finalized the scenario
+    var goalAction: [String] = []
     var inputMappingForTrace: [String] {
         get {
             var mapping = ["Void","Void","Void","Void","Void"]

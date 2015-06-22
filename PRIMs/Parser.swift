@@ -66,6 +66,7 @@ class Parser  {
                 case "facts": if !parseFacts() { return false }
                 case "screen": if !parseScreen() { return false }
                 case "inputs": if !parseInputs() { return false }
+                case "goal-action": if !parseGoalAction() { return false }
                 default: m.addToTraceField("Don't know how to define \(definedItem!)")
                     return false
                 }
@@ -414,6 +415,32 @@ class Parser  {
             chunk!.definedIn = [taskNumber]
             m.dm.addToDM(chunk!)
         }
+        return true
+    }
+    
+    func parseGoalAction() -> Bool {
+        if !scanner.scanString("{", intoString: nil) {
+            m.addToTraceField("Missing '{' in goal-action definition.")
+            return false
+        }
+        m.scenario.goalAction = []
+        if !scanner.scanString("(", intoString: nil) {
+            m.addToTraceField("Missing '(' in goal-action definition")
+            return false
+        }
+        while !scanner.scanString(")", intoString: nil) {
+            let name = scanner.scanUpToCharactersFromSet(whitespaceNewLineParentheses)
+            if name == nil {
+                m.addToTraceField("Unexpected end of file in goal-action definition")
+                return false
+            }
+            m.scenario.goalAction.append(name!)
+        }
+        if !scanner.scanString("}", intoString: nil) {
+            m.addToTraceField("Missing '}' in goal-action definition.")
+            return false
+        }
+        m.addToTraceField("Defining goal-action \(m.scenario.goalAction)")
         return true
     }
     

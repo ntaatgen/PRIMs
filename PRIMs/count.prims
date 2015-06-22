@@ -40,7 +40,8 @@ define goal count {
     "Stop when reaching final number"
     V2=WM1
    ==>
-    stop->G1
+    say->AC1
+    stop->AC2
   }
 }
 
@@ -62,8 +63,13 @@ define screen start {
 (?0 ?1)
 }
 
+define goal-action {
+(say stop)
+}
+
 define inputs {
 (two four)
 (one three)
 (three five)
 }
+
