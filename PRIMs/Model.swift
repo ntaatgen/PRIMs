@@ -51,8 +51,8 @@ class Model {
     var timeThreshold = 200.0
     var outputData: [DataLine] = []
     var formerBuffers: [String:Chunk] = [:]
-    static let rewardDefault = 10.0
-    /// Reward used for operator-goal association learning
+    static let rewardDefault = 0.0
+    /// Reward used for operator-goal association learning. Also determines maximum run time. Switched off when set to 0.0 (default)
     var reward: Double = rewardDefault
     
 //    struct Results {
@@ -275,14 +275,33 @@ class Model {
     /// List of chosen operators with time
     var previousOperators: [(Chunk,Double)] = []
     
+    /**
+    Update the Sji's between the current goal(s?) and the operators that have fired. Restrict to updating the goal in G1 for now.
+
+    :param: payoff The payoff that will be distributed
+    */
+    func updateOperatorSjis(payoff: Double) {
+        if !dm.goalOperatorLearning || reward == 0.0 { return } // only do this when switched on
+        let goalChunk = formerBuffers["goal"]?.slotvals["slot1"]?.chunk() // take formerBuffers goal, because goal may have been replace by stop or nil
+        if goalChunk == nil { return }
+        for (operatorChunk,operatorTime) in previousOperators {
+            let opReward = dm.defaultOperatorAssoc * (payoff - (time - operatorTime)) / reward
+            if operatorChunk.assocs[goalChunk!.name] == nil {
+                operatorChunk.assocs[goalChunk!.name] = 0.0
+            }
+            operatorChunk.assocs[goalChunk!.name]! += dm.beta * (opReward - operatorChunk.assocs[goalChunk!.name]!)
+            addToTrace("Updating assoc between \(goalChunk!.name) and \(operatorChunk.name) to \(operatorChunk.assocs[goalChunk!.name]!)")
+        }
+    }
+    
 
     /**
     This function finds an operator. It can do this in several ways depending on the settings
     of the parameters compileOperators and retrieveOperatorsConditional.
-    If compileOperators is true, this means that an operator can be compiled into a production. In that case
-    this function can fire a production that sets the operator, and carries out some or all of it.
     If retrieveOperatorsConditional is true, an operator is retrieved that is checked by the currently
     available productions.
+    
+    :returns: Whether an operator was successfully found
     */
     func findOperatorOrOperatorProduction() -> Bool {
         let retrievalRQ = Chunk(s: "operator", m: self)
@@ -323,7 +342,7 @@ class Model {
         buffers["goal"]!.setSlot("last-operator", value: opRetrieved!)
         buffers["operator"] = opRetrieved!.copy()
         formerBuffers["operator"] = opRetrieved!
-        procedural.lastOperator = opRetrieved!
+
         
         return true
     }
@@ -428,6 +447,7 @@ class Model {
                 }
             }
         } while !found
+        procedural.lastOperator = formerBuffers["operator"]
         commitToTrace(false)
         let op = buffers["operator"]!.name
         buffers["operator"] = nil
@@ -435,25 +455,39 @@ class Model {
         if scenario.nextEventTime != nil && scenario.nextEventTime! - 0.001 <= time {
             scenario.makeTimeTransition(self)
         }
-        if (buffers["goal"]?.slotvals["slot1"] != nil && buffers["goal"]!.slotvals["slot1"]!.description == "stop") || testGoalAction() {
+        // We are done if the current action is the goal action, or there is no goal action and slot1 in the goal is set to stop
+        if testGoalAction() || (scenario.goalAction.isEmpty && buffers["goal"]?.slotvals["slot1"] != nil && buffers["goal"]!.slotvals["slot1"]!.description == "stop")  {
             procedural.issueReward(40.0)
+            updateOperatorSjis(reward)
             if let imaginalChunk = buffers["imaginal"] {
                 dm.addToDM(imaginalChunk)
             }
             running = false
-//            println("New item = \(newItem)")
             resultAdd(time - startTime)
+            let dl = DataLine(eventType: "trial-end", eventParameter1: "success", eventParameter2: "void", eventParameter3: "void", inputParameters: scenario.inputMappingForTrace, time: time - startTime)
+            outputData.append(dl)
+        } else {
+            // Otherwise, we are also done if slot1 in the goal is set to stop and time runs out, but then there is no reward
+            let maxTime = reward == 0.0 ? timeThreshold : reward
+            if time - startTime > maxTime || (buffers["goal"]?.slotvals["slot1"] != nil && buffers["goal"]!.slotvals["slot1"]!.description == "stop") {
+                procedural.issueReward(0.0)
+                updateOperatorSjis(0.0)
+                running = false
+                resultAdd(time - startTime)
+                let dl = DataLine(eventType: "trial-end", eventParameter1: "fail", eventParameter2: "void", eventParameter3: "void", inputParameters: scenario.inputMappingForTrace, time: time - startTime)
+                outputData.append(dl)
+            }
         }
+
     }
     
     func run() {
         if currentTask == nil { return }
         if !running { step() }
-        while running && (time - startTime < timeThreshold) {
+        while running  {
             step()
         }
-        let dl = DataLine(eventType: "trial-end", eventParameter1: "void", eventParameter2: "void", eventParameter3: "void", inputParameters: scenario.inputMappingForTrace, time: time - startTime)
-        outputData.append(dl)
+
         
     }
     

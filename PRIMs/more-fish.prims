@@ -141,7 +141,11 @@ define screen start {
 ( fish green)
 ( fish red)
 )
-
 }
+
+define goal-action {
+(say left)
+}
+
 
 

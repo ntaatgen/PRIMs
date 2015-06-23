@@ -1,6 +1,9 @@
+// This version of semantic uses all global constants so that operators can be transfered more easily to counting
 
-define task semantic {
+
+define task semantic-global {
 initial-goals: (semantic)
+task-constants: (property subvocalize say yes no)
 start-screen: start
 imaginal-autoclear: nil
 ol: t

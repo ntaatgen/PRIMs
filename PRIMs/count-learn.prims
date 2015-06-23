@@ -1,0 +1,45 @@
+// This is a model that has to learn counting based on operators borrowed from other tasks
+// Adapted from the ACT-R tutorial by Niels Taatgen
+
+define task count-learn {
+initial-goals: (learncount)
+task-constants: (countfact say say stop)
+start-screen: start
+imaginal-autoclear: nil
+ol: t
+rt: -2.0
+lf: 0.2
+default-operator-self-assoc: 0.0
+reward: 10.0
+beta: 0.1
+goal-operator-learning: t
+}
+
+define facts {
+(one 1) // Define the numbers themselves. Not really necessary for the model, but they show up in the DM graph.
+(two 2)
+(three 3)
+(four 4)
+(five 5)
+(six 6)
+(cf1 countfact  one  two :activation 1.0) // Countfacts. They receive a fixed activation for now
+(cf2 countfact  two  three :activation 1.0)
+(cf3  countfact  three  four :activation 1.0)
+(cf4  countfact  four  five :activation 1.0)
+(cf5  countfact  five  six :activation 1.0)
+}
+
+define screen start {
+(?0 ?1)
+}
+
+define goal-action {
+(say stop)
+}
+
+define inputs {
+(two four)
+(one three)
+(three five)
+}
+

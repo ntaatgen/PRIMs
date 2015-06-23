@@ -42,6 +42,7 @@ define goal count {
    ==>
     say->AC1
     stop->AC2
+    stop->G1
   }
 }
 

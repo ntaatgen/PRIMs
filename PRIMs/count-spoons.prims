@@ -116,3 +116,7 @@ define screen start {
    ( item spoon))
 }
 
+define goal-action {
+(say three)
+}
+

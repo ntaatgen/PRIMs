@@ -323,6 +323,8 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
                 updateAllViews()
                 return false
             }
+        } else {
+            return false
         }
         let newTask = Task(name: model.currentTask!, path: filePath)
         newTask.loaded = true

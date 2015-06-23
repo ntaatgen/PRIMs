@@ -154,19 +154,21 @@ define screen trial {
 
 
 define inputs {
-(a two c)
-(b three e)
-(c four g)
-(a two d)
-(b three f)
-(c four h)
-(d two f)
-(e three h)
-(f four j)
-(d two g)
-(e three i)
-(f four k)
-
+(a two c yes)
+(b three e yes)
+(c four g yes)
+(a two d no)
+(b three f no)
+(c four h no)
+(d two f yes)
+(e three h yes)
+(f four j yes)
+(d two g no)
+(e three i no)
+(f four k no)
 }
 
+define goal-action {
+(say ?3)
+}
 

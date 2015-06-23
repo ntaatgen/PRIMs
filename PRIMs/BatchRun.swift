@@ -68,6 +68,10 @@ class BatchRun {
                         }
                         tasknumber = self.model.findTask(taskname!)
                     }
+                    if tasknumber == nil {
+                        self.model.addToTraceField("Task \(taskname!) cannot be found")
+                        return
+                    }
                     self.model.loadOrReloadTask(tasknumber!)
                     for j in 0..<numberOfTrials! {
                         println("Trial #\(j)")

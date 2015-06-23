@@ -1,3 +1,5 @@
+reset
+run semantic semanticcontrol 10
 repeat 10
 reset
 run count traincount 10

@@ -133,6 +133,9 @@ class Declarative  {
             dupChunk.addReference()
             dupChunk.mergeAssocs(chunk)
             dupChunk.definedIn.extend(chunk.definedIn)
+            if chunk.fixedActivation != nil && dupChunk.fixedActivation != nil {
+                dupChunk.fixedActivation = max(chunk.fixedActivation!, dupChunk.fixedActivation!)
+            }
 //            return dupChunk
         } else {
             chunk.startTime()
