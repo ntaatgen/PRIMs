@@ -32,7 +32,7 @@ countgoal->G3
 
 operator count-done-check-if-more(activation=1.0) {
 RT1=nil
-V1=acquarium
+V1=fish
 V2=error
 ==>
 greaterthan->RT1
@@ -41,7 +41,7 @@ WM3->RT3
 }
 
 operator find-most-new-count-is-more(activation=1.0) {
-V1=acquarium
+V1=fish
 V2=error
 RT4=yes
 ==>
@@ -51,7 +51,7 @@ focusup->AC1
 }
 
 operator find-most-new-count-is-not-more(activation=1.0) {
-V1=acquarium
+V1=fish
 V2=error
 RT1=error
 ==>
@@ -70,7 +70,7 @@ focusdown->AC1
 }
 
 operator find-most-all-done(activation=1.0) {
-V1=card
+V1=acquarium
 V2=error
 ==>
 done->WM2

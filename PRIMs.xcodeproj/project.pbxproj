@@ -28,6 +28,7 @@
 		B898EA881B0F504A00B5777E /* BatchRun.swift in Sources */ = {isa = PBXBuildFile; fileRef = B898EA871B0F504A00B5777E /* BatchRun.swift */; };
 		B898EA8A1B0F5A3500B5777E /* NSScanner+Swift.swift in Sources */ = {isa = PBXBuildFile; fileRef = B898EA891B0F5A3500B5777E /* NSScanner+Swift.swift */; };
 		B8B23CDC1AED499C00307F90 /* GraphView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8B23CDB1AED499C00307F90 /* GraphView.swift */; };
+		B8C5482C1B3AB2A700F5D485 /* add-fingers.prims in Resources */ = {isa = PBXBuildFile; fileRef = B8C5482B1B3AB2A700F5D485 /* add-fingers.prims */; };
 		B8CE155E1B022A5300554F5F /* FruchtermanReingold.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8CE155D1B022A5300554F5F /* FruchtermanReingold.swift */; };
 		B8D18E0E1AEEC305007CF2B6 /* Imaginal.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8D18E0D1AEEC305007CF2B6 /* Imaginal.swift */; };
 		B8E827581B38160B00C1E60A /* semantic-global.prims in Resources */ = {isa = PBXBuildFile; fileRef = B8E827571B38160B00C1E60A /* semantic-global.prims */; };
@@ -82,6 +83,7 @@
 		B8B23CDB1AED499C00307F90 /* GraphView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GraphView.swift; sourceTree = "<group>"; };
 		B8B3E4971B0F9310005E3601 /* spoons-fish.bprims */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "spoons-fish.bprims"; sourceTree = "<group>"; };
 		B8BEEE691AE79C9F00FF1FBC /* semantic.prims */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = semantic.prims; sourceTree = "<group>"; };
+		B8C5482B1B3AB2A700F5D485 /* add-fingers.prims */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "add-fingers.prims"; sourceTree = "<group>"; };
 		B8C76AC01B286C4800826141 /* addition.prims */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = addition.prims; sourceTree = "<group>"; };
 		B8CE155D1B022A5300554F5F /* FruchtermanReingold.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FruchtermanReingold.swift; sourceTree = "<group>"; };
 		B8D18E0D1AEEC305007CF2B6 /* Imaginal.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Imaginal.swift; sourceTree = "<group>"; };
@@ -204,6 +206,7 @@
 				B85D9CB81B14C9AC0033CEA2 /* list-recall.prims */,
 				B848EB101B25CF74001C60E8 /* zbrodoff.prims */,
 				B8C76AC01B286C4800826141 /* addition.prims */,
+				B8C5482B1B3AB2A700F5D485 /* add-fingers.prims */,
 				B898EA851B0F3C3100B5777E /* testbatch.bprims */,
 				B84BAE2E1B393B6B005909B7 /* loadall.bprims */,
 				B8B3E4971B0F9310005E3601 /* spoons-fish.bprims */,
@@ -311,6 +314,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B8C5482C1B3AB2A700F5D485 /* add-fingers.prims in Resources */,
 				B8E827581B38160B00C1E60A /* semantic-global.prims in Resources */,
 				B85FAA601AE10CAF00C6F57A /* Images.xcassets in Resources */,
 				B85FAA631AE10CAF00C6F57A /* Main.storyboard in Resources */,

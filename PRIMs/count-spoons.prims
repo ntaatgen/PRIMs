@@ -28,7 +28,7 @@ countgoal->G3
 }
 
 operator count-all-next-container(activation=1.0) {
-V1=placemat
+V1=item
 V2=error
 ==>
 focusup->AC1
@@ -44,7 +44,7 @@ countgoal->G3
 }
 
 operator count-all-done(activation=1.0) {
-V1=card
+V1=placemat
 V2=error
 ==>
 done->WM2

@@ -14,35 +14,35 @@ define task count {
 define goal count {
   operator start-count(activation= 1.0) {
   "Start counting"
-   V1<>nil  // There has to be a visual input with the starting number
-   WM1=nil  // Imaginal should be empty
+   V1 <> nil  // There has to be a visual input with the starting number
+   WM1 = nil  // Imaginal should be empty
   ==>
-   V1->WM1
-   countfact->RT1
-   V1->RT2
-   say->AC1
-   V1->AC2
+   V1 -> WM1 // Copy the start number to working memory
+   countfact -> RT1 // Start retrieving the next number
+   V1 -> RT2
+   say -> AC1 // Say the current number
+   V1 -> AC2
    }
 
   operator iterate(activation=1.0) {
     "Iterate as long as count isn't done"
-    RT2=WM1
-    V2<>WM1
+    RT2 = WM1
+    V2 <> WM1
    ==>
-    RT3->WM1
-    countfact->RT1
-    RT3->RT2
-    say->AC1
-    RT3->AC2
+    RT3 -> WM1
+    countfact -> RT1
+    RT3 -> RT2
+    say -> AC1
+    RT3 ->AC2
   }
 
   operator final(activation=1.0) {
     "Stop when reaching final number"
-    V2=WM1
+    V2 = WM1
    ==>
-    say->AC1
-    stop->AC2
-    stop->G1
+    say -> AC1
+    stop -> AC2
+    stop -> G1
   }
 }
 

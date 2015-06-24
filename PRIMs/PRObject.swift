@@ -9,10 +9,15 @@
 import Foundation
 
 class PRObject{
+    /// Attributes of the object. These will be put in V1..Vn
     let attributes: [String]
+    /// The object that this object is part of, if any
     let superObject: PRObject?
+    /// Name of the object
     let name: String
+    /// List of component objects of the object, if any
     var subObjects: [PRObject] = []
+    /// How many of the subObjects have already been attended?
     var attended = 0
     
     init(name: String, attributes: [String], superObject: PRObject?) {
@@ -24,7 +29,11 @@ class PRObject{
         }
     }
  
-        
+    /** 
+    Convert the current object into a chunk that can be put into the input buffer
+
+    :returns: A chunk representing this object
+    */
     func chunk(model: Model) -> Chunk {
         let chunk = model.generateNewChunk(s1: "perception")
         chunk.setSlot("isa", value: "fact")

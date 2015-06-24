@@ -14,7 +14,7 @@ let bufferMappingC = ["V":"input","WM":"imaginal","G":"goal","C":"operator","AC"
 let bufferMappingA = ["V":"input","WM":"imaginalN","G":"goal","C":"operator","AC":"action","RT":"retrievalR","GC":"constants"]
 
 /** 
-This function takes a string that represents a PRIM, and translaters it its components
+This function takes a string that represents a PRIM, and translates it into its components
 
 :returns: is a five-tuple with left-buffer-name left-buffer-slot, operator, right-buffer-name and right-buffer-slot
 */
@@ -41,18 +41,25 @@ func parseName(name: String) -> (String?,String?,String,String?,String?) {
     }
     components.append(component)
     let compareError = components.count < 4
-    let something = (components[0] != "nil" && components[3] != "nil" && (components.count == 4 || bufferMappingC[components[3]] == "nil"))
-    let parseError = compareError || something
+    let parseError = compareError || (components[0] != "nil" && components[3] != "nil" && (components.count == 4 || bufferMappingC[components[3]] == "nil"))
     if  parseError || components[0] == "nil" && components[1] != "->" {
-        println("Error in parsing \(name)")
         return ("","","",nil,nil)
     } else if components[0] == "nil" {
-        return (nil,nil,"->",bufferMappingA[components[2]]!,"slot" + components[3])
+        let rightBuffer = bufferMappingA[components[2]]
+        if rightBuffer == nil { return ("","","",nil,nil) }
+        return (nil,nil,"->",rightBuffer!,"slot" + components[3])
     } else if components[3] == "nil" {
-        return (bufferMappingC[components[0]]!,"slot" + components[1],components[2],nil,nil)
+        let leftBuffer = bufferMappingC[components[0]]
+        if leftBuffer == nil { return ("","","",nil,nil) }
+        return (leftBuffer!,"slot" + components[1],components[2],nil,nil)
     } else {
-        let rightBuffer = (components[2] == "->") ? bufferMappingA[components[3]]! : bufferMappingC[components[3]]!
-        return (bufferMappingC[components[0]]!,"slot" + components[1],components[2],rightBuffer, "slot" + components[4])
+        let rightBuffer = (components[2] == "->") ? bufferMappingA[components[3]] : bufferMappingC[components[3]]
+        let leftBuffer = bufferMappingC[components[0]]
+        if rightBuffer == nil || leftBuffer == nil {
+            return ("","","",nil,nil)
+        } else {
+            return (leftBuffer!,"slot" + components[1],components[2],rightBuffer!, "slot" + components[4])
+        }
     }
 }
 

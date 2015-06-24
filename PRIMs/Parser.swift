@@ -295,7 +295,7 @@ class Parser  {
         var actions = ""
         var scanningActions = false
         while !scanner.scanString("}", intoString: nil) {
-            let item = scanner.scanUpToCharactersFromSet(whitespaceNewLineParentheses)
+            var item = scanner.scanUpToCharactersFromSet(whitespaceNewLineParentheses)
 //            println("\(item)")
             if item == nil {
                 m.addToTraceField("Unexpected end of file in operator definition")
@@ -309,38 +309,52 @@ class Parser  {
             } else {
                 var prim = ""
                 var component = ""
-                for ch in item! {
-                    switch ch {
-                    case "A"..."Z","a"..."z": component += String(ch)
-                    default:
-                        if component != "" {
-                            if bufferMappingA[component] != nil || bufferMappingC[component] != nil || component == "nil" {
-                                prim += component
-                            } else if let globalIndex = globalVariableMapping[component] {
-                                prim += "GC\(globalIndex)"
-                            } else if let localIndex = localVariableMapping[component] {
-                                prim += "C\(localIndex)"
-                            } else {
-                                localVariableMapping[component] = ++constantSlotCount
-                                prim += "C\(constantSlotCount)"
-                                chunk.setSlot("slot\(constantSlotCount)", value: component)
+                var complete = false
+                while !complete {
+//                    println(item! + " " + component)
+                    for ch in item! {
+                        switch ch {
+                        case "A"..."Z","a"..."z","_",".": component += String(ch)
+                        default:
+                            if component != "" {
+                                if bufferMappingA[component] != nil || bufferMappingC[component] != nil || component == "nil" {
+                                    prim += component
+                                } else if let globalIndex = globalVariableMapping[component] {
+                                    prim += "GC\(globalIndex)"
+                                } else if let localIndex = localVariableMapping[component] {
+                                    prim += "C\(localIndex)"
+                                } else {
+                                    localVariableMapping[component] = ++constantSlotCount
+                                    prim += "C\(constantSlotCount)"
+                                    chunk.setSlot("slot\(constantSlotCount)", value: component)
+                                }
+                                component = ""
                             }
-                            component = ""
+                            prim += String(ch)
                         }
-                        prim += String(ch)
                     }
-                }
-                if component != "" {
-                    if bufferMappingA[component] != nil || bufferMappingC[component] != nil || component == "nil" {
-                        prim += component
-                    } else if let globalIndex = globalVariableMapping[component] {
-                        prim += "GC\(globalIndex)"
-                    } else if let localIndex = localVariableMapping[component] {
-                        prim += "C\(localIndex)"
+                    if component != "" {
+                        if bufferMappingA[component] != nil || bufferMappingC[component] != nil || component == "nil" {
+                            prim += component
+                        } else if let globalIndex = globalVariableMapping[component] {
+                            prim += "GC\(globalIndex)"
+                        } else if let localIndex = localVariableMapping[component] {
+                            prim += "C\(localIndex)"
+                        } else {
+                            localVariableMapping[component] = ++constantSlotCount
+                            prim += "C\(constantSlotCount)"
+                            chunk.setSlot("slot\(constantSlotCount)", value: component)
+                        }
+                        component = ""
+                    }
+                    if parseName(prim).0! == "" { // PRIM is not yet complete
+                        item = scanner.scanUpToCharactersFromSet(whitespaceNewLineParentheses)
+                        if item == nil {
+                            m.addToTraceField("Unexpected end of file in operator definition")
+                            return false
+                        }
                     } else {
-                        localVariableMapping[component] = ++constantSlotCount
-                        prim += "C\(constantSlotCount)"
-                        chunk.setSlot("slot\(constantSlotCount)", value: component)
+                        complete = true
                     }
                 }
                 if scanningActions {

@@ -116,7 +116,7 @@ class Chunk: Printable {
             return fixedActivation!
         } else if model.dm.optimizedLearning {
             let x: Double = log((Double(references)/(1 - model.dm.baseLevelDecay)))
-            let y = model.dm.baseLevelDecay + log(model.time - creationTime!)
+            let y = model.dm.baseLevelDecay * log(model.time - creationTime!)
             return x - y
         } else {
             return log(reduce(map(self.referenceList){ pow((self.model.time - $0),(-self.model.dm.baseLevelDecay))}, 0.0, + )) // Wew! almost lisp! This is the standard baselevel equation
