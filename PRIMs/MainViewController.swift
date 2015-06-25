@@ -17,8 +17,6 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
     
     @IBOutlet var modelText: NSTextView!
     
-    @IBOutlet var bufferText: NSTextView!
-    
     @IBOutlet var outputText: NSTextView!
     
     @IBOutlet weak var productionTable: NSTableView!
@@ -350,7 +348,6 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
     func updateAllViews() {
         model.commitToTrace(false)
         outputText.string = model.trace
-        bufferText.string = model.buffersToText()
         pTable = createProductionTable()
         productionTable.reloadData()
         dmTable = createDMTable()

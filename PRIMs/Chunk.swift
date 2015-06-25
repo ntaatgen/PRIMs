@@ -9,21 +9,29 @@
 import Foundation
 
 class Chunk: Printable {
-
+    /// Name of the chunk
     let name: String
+    /// Model in which the chunk is defined
     let model: Model
+    /// Time at which chunk entered DM. Nil if not a DM chunk (e.g., in a buffer)
     var creationTime: Double? = nil
     /// Number of references. Assume a single reference on creation
     var references: Int = 1
     /// Dictionary with slot-value pairs, initially empty
     var slotvals = [String:Value]()
+    /// List of times at which chunks has been reinforced (assuming non-optimized learning)
     var referenceList = [Double]()
-    var fan: Int = 0 // in how many other chunks does dit chunk appear?
-    var noiseValue: Double = 0 // What was the last noise value
-    var noiseTime: Double = -1 // When was noise last calculated?
-    var fixedActivation: Double? = nil // Sometimes we want to fix baselevelactivation
-    var isRequest: Bool = false
-    var printOrder: [String] = [] // Order in which slots have to be printed
+    /// How many other chunks does this chunk appear in?
+    var fan: Int = 0
+    /// What was the last noise value. Noise is only updated as time progresses
+    var noiseValue: Double = 0
+    /// At what time was noise last updated
+    var noiseTime: Double = -1
+    /// If base-level activation is fixed, this has a value
+    var fixedActivation: Double? = nil
+    /// Order in which the slots of the chunk are printed
+    var printOrder: [String] = []
+    /// Sji values
     var assocs: [String:Double] = [:] // Sji table
     /// Task number that refers to the file that the chunk was defined in
     var definedIn: [Int] = []
@@ -44,25 +52,22 @@ class Chunk: Printable {
         model = m
     }
     
+    /// A string with a printout of the Chunk
     var description: String {
         get {
-//            let actv = self.activation()
             var s = "\(name)\n"
             for slot in printOrder {
                 if let val = slotvals[slot] {
                     s += "  \(slot)  \(val)\n"
                 }
             }
-//            for (slot,val) in slotvals {
-//                s += "  \(slot)  \(val)\n"
-//            }
-//            if creationTime != nil {
-//                s += "Fan = \(fan)  Activation = \(actv)"
-//            }
             return s
         }
     }
     
+    /**
+    :returns: A copy of the chunk with a new name
+    */
     func copy() -> Chunk {
         let newChunk = model.generateNewChunk(s1: self.name)
         newChunk.slotvals = self.slotvals
@@ -70,6 +75,9 @@ class Chunk: Printable {
         return newChunk
     }
     
+    /**
+    :returns: A copy of the chunk with the same name
+    */
     func copyLiteral() -> Chunk {
         let newChunk = Chunk(s: self.name, m: self.model)
         newChunk.slotvals = self.slotvals
@@ -77,6 +85,11 @@ class Chunk: Printable {
         return newChunk
     }
     
+    /**
+    :param: ch A chunk
+
+    :returns: Whether the chunk in the parameter is in one of the slots of the chunk
+    */
     func inSlot(ch: Chunk) -> Bool {
         for (_,value) in ch.slotvals {
             if value.chunk() === self {
@@ -86,6 +99,9 @@ class Chunk: Printable {
         return false
     }
     
+    /**
+    Set the creation time of the chunk to the current time
+    */
     func startTime() {
         creationTime = model.time
         if !model.dm.optimizedLearning {
@@ -105,11 +121,10 @@ class Chunk: Printable {
             }
         }
     }
-//    
-//    baseLevel = Math.log(useCount/(1-model.declarative.baseLevelDecayRate))
-//    - model.declarative.baseLevelDecayRate*Math.log(time-creationTime);
 
-    
+    /**
+    :returns: The current baselevel activation of the chunk
+    */
     func baseLevelActivation () -> Double {
         if creationTime == nil { return 0 }
         if fixedActivation != nil {
@@ -123,6 +138,9 @@ class Chunk: Printable {
         }
     }
     
+    /**
+    Add a reference to the chunk for the current model time
+    */
     func addReference() {
         if creationTime == nil { return }
         if model.dm.optimizedLearning {

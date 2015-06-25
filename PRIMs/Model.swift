@@ -126,25 +126,25 @@ class Model {
         trace = ""
     }
     
-    func buffersToText() -> String {
-        var s: String = ""
-        let bufferList = ["goal","operator","imaginal","retrievalR","retrievalH","input","action","constants"]
-        for buffer in bufferList {
-            var bufferChunk = buffers[buffer]
-            if bufferChunk == nil { bufferChunk = formerBuffers[buffer] }
-            if bufferChunk != nil {
-                s += "=" + buffer + ">" + "\n"
-                s += "  " + bufferChunk!.name
-                for slot in bufferChunk!.printOrder {
-                    if let descr = bufferChunk!.slotvals[slot]?.description {
-                        s += "  " + slot + " " + descr + "\n"
-                    }
-                }
-                s += "\n"
-            }
-        }
-        return s
-    }
+//    func buffersToText() -> String {
+//        var s: String = ""
+//        let bufferList = ["goal","operator","imaginal","retrievalR","retrievalH","input","action","constants"]
+//        for buffer in bufferList {
+//            var bufferChunk = buffers[buffer]
+//            if bufferChunk == nil { bufferChunk = formerBuffers[buffer] }
+//            if bufferChunk != nil {
+//                s += "=" + buffer + ">" + "\n"
+//                s += "  " + bufferChunk!.name
+//                for slot in bufferChunk!.printOrder {
+//                    if let descr = bufferChunk!.slotvals[slot]?.description {
+//                        s += "  " + slot + " " + descr + "\n"
+//                    }
+//                }
+//                s += "\n"
+//            }
+//        }
+//        return s
+//    }
     
     /*
     Code to represent all the tasks

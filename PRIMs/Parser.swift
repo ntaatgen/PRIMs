@@ -23,7 +23,7 @@ class Parser  {
         whitespaceNewLineParentheses.formUnionWithCharacterSet(whitespaceNewLine)
         whiteSpaceNewLineParenthesesEqual.formUnionWithCharacterSet(whitespaceNewLine)
     }
-    
+    var defaultActivation: Double? = nil
     private let whitespaceNewLine = NSCharacterSet.whitespaceAndNewlineCharacterSet()
     private let whitespaceNewLineParentheses: NSMutableCharacterSet = NSMutableCharacterSet(charactersInString: "{}()")
     private let whiteSpaceNewLineParenthesesEqual: NSMutableCharacterSet = NSMutableCharacterSet(charactersInString: "{}()=,")
@@ -194,6 +194,12 @@ class Parser  {
             }
             startScreenName = startScreen!
             m.addToTraceField("Setting startscreen to \(startScreen!)")
+        case "default-activation:":
+            defaultActivation = scanner.scanDouble()
+            if defaultActivation == nil {
+                m.addToTraceField("Invalid value after default-activation:")
+                return false
+            }
         default:
             let parValue = scanner.scanUpToCharactersFromSet(whitespaceNewLine)
             if parValue == nil {
@@ -225,12 +231,6 @@ class Parser  {
         if m.dm.chunks[goalName!] == nil {
             m.addToTraceField("Goal \(goalName!) has not been declared at the task level. This may lead to problems.")
             return false
-//            let newchunk = Chunk(s: goalName!, m: m)
-//            newchunk.setSlot("isa", value: "goaltype")
-//            newchunk.setSlot("slot1", value: goalName!)
-//            newchunk.fixedActivation = 1.0 // should change this later
-//            newchunk.definedIn = [taskNumber]
-//            m.dm.addToDM(newchunk)
         } else {
             m.dm.chunks[goalName!]!.definedIn.append(taskNumber)
         }
@@ -259,6 +259,7 @@ class Parser  {
             return false
         }
         let chunk = Chunk(s: operatorName!, m: m)
+        chunk.fixedActivation = defaultActivation
         m.addToTraceField("Adding operator \(operatorName!)")
         chunk.setSlot("isa", value: "operator")
         var constantSlotCount = 0
@@ -418,6 +419,7 @@ class Parser  {
                     if slotindex == 0 {
                         chunk =  Chunk(s: slotValue!, m: m)
                         chunk!.setSlot("isa", value: "fact")
+                        chunk!.fixedActivation = defaultActivation
                         slotindex++
                     } else {
                         chunk!.setSlot("slot\(slotindex++)", value: slotValue!)

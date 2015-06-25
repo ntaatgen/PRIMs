@@ -5,6 +5,7 @@ define task count {
   initial-goals: (count) // In this example the task and the goal are the same
   start-screen: start
   imaginal-autoclear: nil
+  default-activation: 1.0 // All chunks defined in this model receive a fixed baselevel activation of 1.0
   ol: t
   rt: -2.0
   lf: 0.2
@@ -12,7 +13,7 @@ define task count {
 }
 
 define goal count {
-  operator start-count(activation= 1.0) {
+  operator start-count {
   "Start counting"
    V1 <> nil  // There has to be a visual input with the starting number
    WM1 = nil  // Imaginal should be empty
@@ -24,7 +25,7 @@ define goal count {
    V1 -> AC2
    }
 
-  operator iterate(activation=1.0) {
+  operator iterate {
     "Iterate as long as count isn't done"
     RT2 = WM1
     V2 <> WM1
@@ -36,7 +37,7 @@ define goal count {
     RT3 ->AC2
   }
 
-  operator final(activation=1.0) {
+  operator final {
     "Stop when reaching final number"
     V2 = WM1
    ==>
@@ -53,11 +54,11 @@ define facts {
 (four 4)
 (five 5)
 (six 6)
-(cf1 countfact  one  two :activation 1.0) // Countfacts. They receive a fixed activation for now
-(cf2 countfact  two  three :activation 1.0)
-(cf3  countfact  three  four :activation 1.0)
-(cf4  countfact  four  five :activation 1.0)
-(cf5  countfact  five  six :activation 1.0)
+(cf1 countfact  one  two) // Countfacts. They receive a fixed activation for now
+(cf2 countfact  two  three)
+(cf3  countfact  three  four)
+(cf4  countfact  four  five)
+(cf5  countfact  five  six)
 }
 
 define screen start {
