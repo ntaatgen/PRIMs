@@ -67,6 +67,7 @@ class Parser  {
                 case "screen": if !parseScreen() { return false }
                 case "inputs": if !parseInputs() { return false }
                 case "goal-action": if !parseGoalAction() { return false }
+                case "sji": if !parseSjis() { return false }
                 default: m.addToTraceField("Don't know how to define \(definedItem!)")
                     return false
                 }
@@ -258,7 +259,13 @@ class Parser  {
             m.addToTraceField("Unexpected end of file in operator definition")
             return false
         }
-        let chunk = Chunk(s: operatorName!, m: m)
+        var chunk: Chunk
+        if m.dm.chunks[operatorName!] == nil {
+            chunk = Chunk(s: operatorName!, m: m)
+        } else {
+            chunk = m.generateNewChunk(s1: operatorName!)
+            m.addToTraceField("Warning: Chunk with name \(operatorName!) already exists, renaming it to \(chunk.name)")
+        }
         chunk.fixedActivation = defaultActivation
         m.addToTraceField("Adding operator \(operatorName!)")
         chunk.setSlot("isa", value: "operator")
@@ -348,7 +355,7 @@ class Parser  {
                         }
                         component = ""
                     }
-                    if parseName(prim).0! == "" { // PRIM is not yet complete
+                    if parseName(prim).0 == "" { // PRIM is not yet complete
                         item = scanner.scanUpToCharactersFromSet(whitespaceNewLineParentheses)
                         if item == nil {
                             m.addToTraceField("Unexpected end of file in operator definition")
@@ -589,5 +596,38 @@ class Parser  {
 
     }
 
+    func parseSjis() -> Bool {
+        if !scanner.scanString("{", intoString: nil) {
+            m.addToTraceField("Missing '{' in Sji definition.")
+            return false
+        }
+        while !scanner.scanString("}", intoString: nil) {
+            if !scanner.scanString("(", intoString: nil) {
+                m.addToTraceField("Missing '(' in Sji definition.")
+                return false
+            }
+            let jChunkName = scanner.scanUpToCharactersFromSet(whiteSpaceNewLineParenthesesEqual)
+            let iChunkName = scanner.scanUpToCharactersFromSet(whiteSpaceNewLineParenthesesEqual)
+            let assocValue = scanner.scanDouble()
+            if jChunkName == nil || iChunkName == nil || assocValue == nil {
+                m.addToTraceField("Incomplete Sji definition")
+                return false
+            }
+            if m.dm.chunks[jChunkName!] == nil {
+                m.addToTraceField("Chunk \(jChunkName!) is not defined.")
+                return false
+            }
+            if m.dm.chunks[iChunkName!] == nil {
+                m.addToTraceField("Chunk \(iChunkName!) is not defined.")
+                return false
+            }
+            m.dm.chunks[iChunkName!]!.assocs[jChunkName!] = assocValue
+            if !scanner.scanString(")", intoString: nil) {
+                m.addToTraceField("Missing ')' in Sji definition.")
+            }
+            m.addToTraceField("Adding association between \(jChunkName!) and \(iChunkName!)")
+        }
+        return true
+    }
 
 }

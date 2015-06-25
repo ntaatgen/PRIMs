@@ -1,0 +1,4 @@
+repeat 5
+reset
+run stroop training 100
+run stroop test 100

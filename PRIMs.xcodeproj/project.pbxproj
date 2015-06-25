@@ -31,6 +31,7 @@
 		B8C5482C1B3AB2A700F5D485 /* add-fingers.prims in Resources */ = {isa = PBXBuildFile; fileRef = B8C5482B1B3AB2A700F5D485 /* add-fingers.prims */; };
 		B8CE155E1B022A5300554F5F /* FruchtermanReingold.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8CE155D1B022A5300554F5F /* FruchtermanReingold.swift */; };
 		B8D18E0E1AEEC305007CF2B6 /* Imaginal.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8D18E0D1AEEC305007CF2B6 /* Imaginal.swift */; };
+		B8E0DCE91B3C4FE30097D90F /* stroop.bprims in Resources */ = {isa = PBXBuildFile; fileRef = B8E0DCE81B3C4FE30097D90F /* stroop.bprims */; };
 		B8E827581B38160B00C1E60A /* semantic-global.prims in Resources */ = {isa = PBXBuildFile; fileRef = B8E827571B38160B00C1E60A /* semantic-global.prims */; };
 		B8EEE60D1B01DDC6002EFAD6 /* PRScenario.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8EEE60C1B01DDC6002EFAD6 /* PRScenario.swift */; };
 		B8F00C061B009E810036FFE3 /* PRObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8F00C051B009E810036FFE3 /* PRObject.swift */; };
@@ -87,6 +88,8 @@
 		B8C76AC01B286C4800826141 /* addition.prims */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = addition.prims; sourceTree = "<group>"; };
 		B8CE155D1B022A5300554F5F /* FruchtermanReingold.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FruchtermanReingold.swift; sourceTree = "<group>"; };
 		B8D18E0D1AEEC305007CF2B6 /* Imaginal.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Imaginal.swift; sourceTree = "<group>"; };
+		B8E0DCE71B3BECD70097D90F /* stroop.prims */ = {isa = PBXFileReference; lastKnownFileType = text; path = stroop.prims; sourceTree = "<group>"; };
+		B8E0DCE81B3C4FE30097D90F /* stroop.bprims */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = stroop.bprims; sourceTree = "<group>"; };
 		B8E827561B3811B800C1E60A /* count-learn.prims */ = {isa = PBXFileReference; lastKnownFileType = text; path = "count-learn.prims"; sourceTree = "<group>"; };
 		B8E827571B38160B00C1E60A /* semantic-global.prims */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "semantic-global.prims"; sourceTree = "<group>"; };
 		B8EEE60C1B01DDC6002EFAD6 /* PRScenario.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PRScenario.swift; sourceTree = "<group>"; };
@@ -198,6 +201,7 @@
 			isa = PBXGroup;
 			children = (
 				B85FAAB11AE1188C00C6F57A /* count.prims */,
+				B8E0DCE71B3BECD70097D90F /* stroop.prims */,
 				B8E827561B3811B800C1E60A /* count-learn.prims */,
 				B825B6E41B0C884E009B98BC /* more-fish.prims */,
 				B8BEEE691AE79C9F00FF1FBC /* semantic.prims */,
@@ -211,6 +215,7 @@
 				B84BAE2E1B393B6B005909B7 /* loadall.bprims */,
 				B8B3E4971B0F9310005E3601 /* spoons-fish.bprims */,
 				B88C6E401B2720B900F31EE8 /* zbrodoff.bprims */,
+				B8E0DCE81B3C4FE30097D90F /* stroop.bprims */,
 			);
 			name = Models;
 			sourceTree = "<group>";
@@ -315,6 +320,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B8C5482C1B3AB2A700F5D485 /* add-fingers.prims in Resources */,
+				B8E0DCE91B3C4FE30097D90F /* stroop.bprims in Resources */,
 				B8E827581B38160B00C1E60A /* semantic-global.prims in Resources */,
 				B85FAA601AE10CAF00C6F57A /* Images.xcassets in Resources */,
 				B85FAA631AE10CAF00C6F57A /* Main.storyboard in Resources */,

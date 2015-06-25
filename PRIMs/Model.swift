@@ -230,6 +230,10 @@ class Model {
                 dm.misMatchPenalty = numVal!
             case "ans:":
                 dm.activationNoise = numVal!
+            case "ga:":
+                dm.goalActivation = numVal!
+            case "input-activation:":
+                dm.inputActivation = numVal!
             case "default-operator-assoc:":
                 dm.defaultOperatorAssoc = numVal!
             case "default-operator-self-assoc:":

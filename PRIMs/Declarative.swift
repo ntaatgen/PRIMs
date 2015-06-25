@@ -13,7 +13,8 @@ class Declarative  {
     static let baseLevelDecayDefault = 0.5
     static let optimizedLearningDefault = true
     static let maximumAssociativeStrengthDefault = 3.0
-    static let goalAcitvationDefault = 1.0
+    static let goalActivationDefault = 1.0
+    static let inputActivationDefault = 0.0
     static let retrievalThresholdDefault = -2.0
     static let activationNoiseDefault = 0.2
     static let defaultOperatorAssocDefault = 8.0
@@ -31,7 +32,9 @@ class Declarative  {
     /// mas parameter in ACT-R
     var maximumAssociativeStrength: Double = maximumAssociativeStrengthDefault
     /// W parameter in ACT-R
-    var goalActivation: Double = goalAcitvationDefault
+    var goalActivation: Double = goalActivationDefault
+    /// Spreading activation from perception
+    var inputActivation: Double = inputActivationDefault
     /// RT or tau parameter in ACT-R
     var retrievalThreshold: Double = retrievalThresholdDefault
     /// ans parameter in ACT-R
@@ -72,7 +75,8 @@ class Declarative  {
         baseLevelDecay = Declarative.baseLevelDecayDefault
         optimizedLearning = Declarative.optimizedLearningDefault
         maximumAssociativeStrength = Declarative.maximumAssociativeStrengthDefault
-        goalActivation = Declarative.goalAcitvationDefault
+        goalActivation = Declarative.goalActivationDefault
+        inputActivation = Declarative.inputActivationDefault
         retrievalThreshold = Declarative.retrievalThresholdDefault
         activationNoise = Declarative.activationNoiseDefault
         defaultOperatorAssoc = Declarative.defaultOperatorAssocDefault

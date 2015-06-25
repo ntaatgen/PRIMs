@@ -222,7 +222,36 @@ class Chunk: Printable {
         return 0.0
     }
     
+    /**
+    Calculate the spreading of activation from a certain buffer
 
+    :param: bufferName The name of the buffer
+    :param: spreadingParameterValue The amount of spreading from that particular buffer
+    :returns: The amound of spreading activation from this buffer
+    */
+    func spreadingFromBuffer(bufferName: String, spreadingParameterValue: Double) -> Double {
+        if spreadingParameterValue == 0 { return 0 }
+        var totalSji = 0.0
+        if  let bufferChunk = model.buffers[bufferName] {
+            var totalSlots: Int = 0
+            for (_,value) in bufferChunk.slotvals {
+                switch value {
+                case .Symbol(let valchunk):
+                    totalSji += valchunk.sji(self)
+//                    if valchunk.sji(self) != 0.0 {
+//                        println("Buffer \(bufferName) slot \(value.description) to \(self.name) spreading \(valchunk.sji(self))")
+//                    }
+                    totalSlots++
+                default:
+                    break
+                }
+            }
+            return (totalSlots==0 ? 0 : totalSji * (model.dm.goalActivation / Double(totalSlots)))
+
+        }
+        return 0.0
+    }
+    
     /**
     Calculate spreading activation for the chunk from the goal
     
@@ -232,33 +261,26 @@ class Chunk: Printable {
     */
     func spreadingActivation() -> Double {
         if creationTime == nil {return 0}
-        var totalSji: Double = 0
-        if let goal=model.buffers["goal"] {
-            if model.dm.goalSpreadingByActivation {
+        var totalSpreading: Double = 0
+        if model.dm.goalSpreadingByActivation {
+            if let goal=model.buffers["goal"] {
                 for (_,value) in goal.slotvals {
                     switch value {
                     case .Symbol(let valchunk):
-                        totalSji += valchunk.sji(self) * max(0,valchunk.baseLevelActivation())
+                        totalSpreading += valchunk.sji(self) * max(0,valchunk.baseLevelActivation())
                     default:
                         break
                     }
                 }
-                return totalSji
-            } else {
-                var totalSlots: Int = 0
-                for (_,value) in goal.slotvals {
-                    switch value {
-                    case .Symbol(let valchunk):
-                        totalSji += valchunk.sji(self)
-                        totalSlots++
-                    default:
-                        break
-                    }
-                }
-                return (totalSlots==0 ? 0 : totalSji * (model.dm.goalActivation / Double(totalSlots)))
             }
+        } else {
+            totalSpreading += spreadingFromBuffer("goal", spreadingParameterValue: model.dm.goalActivation)
         }
-        return 0
+        totalSpreading += spreadingFromBuffer("input", spreadingParameterValue: model.dm.inputActivation)
+        if totalSpreading != 0 {
+//        println("Total spreading for \(self.name) is \(totalSpreading)")
+        }
+        return totalSpreading
     }
     
     func calculateNoise() -> Double {
