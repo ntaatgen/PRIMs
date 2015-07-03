@@ -2,8 +2,9 @@
 // Adapatation of original PR model
 
 define task stroop {
-initial-goals: (stroop)
+initial-goals: (stroop neutral)
 goals: (attendcolor defaultattend)
+task-constants: (neutral focuscolor)
 start-screen: stroop-start
 lf: 0.2
 egs: 0.05
@@ -47,7 +48,7 @@ wait -> AC1
 
 
 operator attend(activation=1.1) {
-V1 <> nil
+V1 = stim
 V2 = nil
 ==>
 attend -> AC1
@@ -59,15 +60,22 @@ define goal attendcolor {
 operator prepare {
 "Prepare for the upcoming stimulus"
 V1 = fixation
+G2 = neutral
 ==>
 focuscolor -> G2
+}
+
+operator wait-when-prepared {
+V1 = fixation
+G2 = focuscolor
+==>
 wait -> AC1
 }
 
-
 operator attendjustcolor {
-V1 <> nil
+V1 = stim
 V2 = nil
+G2 = focuscolor
 ==>
 attendcolor -> AC1
 }
@@ -100,15 +108,15 @@ define screen stroop-start {
 }
 
 define screen stimulus {
-(?0)
+(stim)
 }
 
 define screen allproperties {
-(?0 ?1 ?2)
+(stim ?2 ?3)
 }
 
 define screen colorproperty {
-(?0 ?1)
+(stim ?2)
 }
 
 transition(stroop-start,stimulus) = absolute-time(1.0)
@@ -116,12 +124,12 @@ transition(stimulus,allproperties) = action(attend)
 transition(stimulus,colorproperty) = action(attendcolor)
 
 define goal-action {
-(say ?3)
+(say ?4)
 }
 
 define inputs {
-(consistent1 red-color red-word red)
-(consistent2 blue-color blue-word blue)
-(conflict1 red-color blue-word red)
-(conflict2 blue-color red-word blue)
+(consistent1 stim red-color red-word red)
+(consistent2 stim blue-color blue-word blue)
+(conflict1 stim red-color blue-word red)
+(conflict2 stim blue-color red-word blue)
 }

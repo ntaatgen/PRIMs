@@ -1,0 +1,183 @@
+define task zbrodoff-learn {
+initial-goals: (zbrodoff-learn)
+goals: (countletters retrievezbrodoff answerzbrodoff)
+task-constants: (zbrodoff letterfact countfact answerzbrodoff countletters)
+start-screen: trial
+lf: 0.5
+rt: 0.5
+ans: 0.05
+ol: nil
+imaginal-autoclear: nil
+alpha: 0.1
+production-prim-latency: 0.2
+say-latency: 0.5
+default-activation: 2.0
+reward: 15.0
+beta: 0.1
+goal-operator-learning: t
+default-operator-assoc: 4.0
+explore-exploit: 1.0
+}
+
+define goal retrievezbrodoff {
+
+operator try-retrieve {
+    RT1=nil
+==>
+    zbrodoff->RT1
+    V1->RT2
+    V2->RT3
+}
+
+operator retrieve-success {
+    RT1=zbrodoff
+==>
+    RT1->WM1
+    RT2->WM2
+    RT3->WM3
+    RT4->WM4
+    answerzbrodoff->G2
+}
+
+operator retrieve-fail {
+    RT1=error
+==>
+    countletters->G2
+    nil->WM1
+}
+
+}
+
+define goal countletters {
+
+operator initialize {
+   WM1=nil
+   RT1=nil
+==>
+  zbrodoff->WM1
+  V1->WM2
+  zero->WM3
+  V1->WM4
+  letterfact->RT1
+  V1->RT2
+}
+
+operator letter-to-number {
+  WM4=RT2
+==>
+  RT3->WM4
+  countfact->RT1
+  WM3->RT2
+  say->AC1
+  RT3->AC2
+}
+
+operator number-to-letter {
+  WM3=RT2
+  RT3<>V2
+==>
+  RT3->WM3
+  letterfact->RT1
+  WM4->RT2
+}
+
+operator count-done-match {
+    WM3=RT2
+    RT3=V2
+==>
+   RT3->WM3
+    answerzbrodoff->G2
+}
+
+operator count-quit-on-failure {
+   RT1=error
+==>
+   nil->WM1
+   answerzbrodoff->G2
+}
+
+}
+
+define goal answerzbrodoff {
+operator answer-yes{
+    V3=WM4
+==>
+   say->AC1
+   yes->AC2
+   stop->G1
+}
+
+operator answer-no{
+V3<>WM4
+==>
+say->AC1
+no->AC2
+stop->G1
+}
+}
+
+define facts {
+(zero 0)
+(one 1)
+(two 2)
+(three 3)
+(four 4)
+(five 5)
+(six 6)
+(a a)
+(b b)
+(c c)
+(d d)
+(e e)
+(f f)
+(g g)
+(h h)
+(i i)
+(j j)
+(k k)
+(l l)
+(cf0 countfact  zero  one :activation 2.0)
+(cf1 countfact  one  two :activation 2.0)
+(cf2 countfact  two  three :activation 2.0)
+(cf3  countfact  three  four :activation 2.0)
+(cf4  countfact  four  five :activation 2.0)
+(cf5  countfact  five  six :activation 2.0)
+(a1 letterfact a b :activation 2.0)
+(b1 letterfact b c :activation 2.0)
+(c1 letterfact c d :activation 2.0)
+(d1 letterfact d e :activation 2.0)
+(e1 letterfact e f :activation 2.0)
+(f1 letterfact f g :activation 2.0)
+(g1 letterfact g h :activation 2.0)
+(h1 letterfact h i :activation 2.0)
+(i1 letterfact i j :activation 2.0)
+(j1 letterfact j k :activation 2.0)
+(k1 letterfact k l :activation 2.0)
+
+}
+
+define screen trial {
+(?0 ?1 ?2)
+}
+
+
+
+define inputs {
+(a two c yes)
+(b three e yes)
+(c four g yes)
+(a two d no)
+(b three f no)
+(c four h no)
+(d two f yes)
+(e three h yes)
+(f four j yes)
+(d two g no)
+(e three i no)
+(f four k no)
+}
+
+define goal-action {
+(say ?3)
+}
+

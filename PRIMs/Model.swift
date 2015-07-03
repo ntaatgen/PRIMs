@@ -252,7 +252,8 @@ class Model {
                 dm.beta = numVal!
             case "reward:":
                     self.reward = numVal!
-                
+            case "explore-exploit:":
+                dm.explorationExploitationFactor = numVal!
             default: return false
             }
         }
@@ -291,9 +292,11 @@ class Model {
         for (operatorChunk,operatorTime) in previousOperators {
             let opReward = dm.defaultOperatorAssoc * (payoff - (time - operatorTime)) / reward
             if operatorChunk.assocs[goalChunk!.name] == nil {
-                operatorChunk.assocs[goalChunk!.name] = 0.0
+                operatorChunk.assocs[goalChunk!.name] = (0.0, 0)
             }
-            operatorChunk.assocs[goalChunk!.name]! += dm.beta * (opReward - operatorChunk.assocs[goalChunk!.name]!)
+            operatorChunk.assocs[goalChunk!.name]!.0 += dm.beta * (opReward - operatorChunk.assocs[goalChunk!.name]!.0)
+            operatorChunk.assocs[goalChunk!.name]!.1++
+            operatorChunk.addReference() // Also increase baselevel activation of the operator
             addToTrace("Updating assoc between \(goalChunk!.name) and \(operatorChunk.name) to \(operatorChunk.assocs[goalChunk!.name]!)")
         }
     }
@@ -457,7 +460,17 @@ class Model {
         buffers["operator"] = nil
         doAllModuleActions()
         if scenario.nextEventTime != nil && scenario.nextEventTime! - 0.001 <= time {
+            let retainTime = scenario.nextEventTime!
             scenario.makeTimeTransition(self)
+            let result = buffers["input"]
+            if result != nil {
+            let slot1 = result!.slotvals["slot1"]?.description
+            let slot2 = result!.slotvals["slot2"]?.description
+            let slot3 = result!.slotvals["slot3"]?.description
+            
+            let dl = DataLine(eventType: "perception", eventParameter1: slot1 ?? "void", eventParameter2: slot2 ?? "void", eventParameter3: slot3 ?? "void", inputParameters: scenario.inputMappingForTrace, time: retainTime - startTime)
+            outputData.append(dl)
+            }
         }
         // We are done if the current action is the goal action, or there is no goal action and slot1 in the goal is set to stop
         if testGoalAction() || (scenario.goalAction.isEmpty && buffers["goal"]?.slotvals["slot1"] != nil && buffers["goal"]!.slotvals["slot1"]!.description == "stop")  {

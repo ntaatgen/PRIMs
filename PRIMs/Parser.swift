@@ -374,12 +374,14 @@ class Parser  {
         }
         chunk.setSlot("condition", value: conditions)
         chunk.setSlot("action", value: actions)
-        chunk.assocs[goalName] = m.dm.defaultOperatorAssoc
-        chunk.assocs[chunk.name] = m.dm.defaultOperatorSelfAssoc
+//        if !m.dm.goalOperatorLearning  {
+            chunk.assocs[goalName] = (m.dm.defaultOperatorAssoc, 0)
+//        }
+        chunk.assocs[chunk.name] = (m.dm.defaultOperatorSelfAssoc, 0)
         for (_,ch) in m.dm.chunks {
             if ch.type == "operator" && ch.assocs[goalName] != nil {
-                chunk.assocs[ch.name] = m.dm.defaultInterOperatorAssoc
-                ch.assocs[chunk.name] = m.dm.defaultInterOperatorAssoc
+                chunk.assocs[ch.name] = (m.dm.defaultInterOperatorAssoc, 0)
+                ch.assocs[chunk.name] = (m.dm.defaultInterOperatorAssoc, 0)
             }
         }
         chunk.definedIn = [taskNumber]
@@ -621,7 +623,7 @@ class Parser  {
                 m.addToTraceField("Chunk \(iChunkName!) is not defined.")
                 return false
             }
-            m.dm.chunks[iChunkName!]!.assocs[jChunkName!] = assocValue
+            m.dm.chunks[iChunkName!]!.assocs[jChunkName!] = (assocValue!, 0)
             if !scanner.scanString(")", intoString: nil) {
                 m.addToTraceField("Missing ')' in Sji definition.")
             }

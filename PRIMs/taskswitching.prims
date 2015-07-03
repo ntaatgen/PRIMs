@@ -1,0 +1,295 @@
+// Model of task switching from the Karbach and Kray experiment
+// Adapted from the original PR model
+
+define task taskswitching {
+initial-goals: (taskswitching)
+start-screen: taskswitchstart
+task-constants: (dotask nexttask)
+lf: 0.2
+egs: 0.05
+rt: 0.0
+input-activation: 0.0
+default-activation: 1.0
+alpha: 0.05
+goal-operator-learning: t
+beta: 0.05
+reward: 80.0
+imaginal-autoclear: nil
+}
+
+define goal taskswitching {
+
+operator set-first-task {
+V1 = fixation
+G2 = nil
+==>
+foodtask -> WM1
+one -> WM2
+wait -> AC1
+dotask -> G2
+}
+
+operator get-food-property {
+V1 = stimulus
+V2 = nil
+WM1 = foodtask
+RT1 = nil
+==>
+food -> AC1
+}
+
+operator get-size-property {
+V1 = stimulus
+V2 = nil
+WM1 = sizetask
+RT1 = nil
+==>
+size -> AC1
+}
+
+operator get-mapping {
+V1 = stimulus
+V2 <> nil
+RT1 = nil
+==>
+mapping -> RT1
+V2 -> RT2
+}
+
+operator press-key {
+RT1 = mapping
+==>
+press -> AC1
+RT3 -> AC2
+}
+
+operator choose-next-task {
+V1 = fixation
+G2 = dotask
+==>
+nexttask -> G2
+}
+
+operator determine-next-task-retrieve-count {
+V1 = fixation
+RT1 = nil
+G2 = nexttask
+==>
+countfact->RT1
+WM2->RT2
+}
+
+operator determine-next-task-decide-to-stay {
+RT1 = countfact
+RT3 = two
+G2 = nexttask
+
+==>
+RT3 -> WM2
+dotask -> G2
+wait -> AC1
+}
+
+operator determine-next-task-decide-to-switch {
+RT1 = countfact
+RT3 = three
+G2 = nexttask
+==>
+one -> WM2
+othertask -> RT1
+WM1 -> RT2
+}
+
+operator set-other-task {
+RT1 = othertask
+G2 = nexttask
+==>
+RT3 -> WM1
+dotask -> G2
+wait -> AC1
+}
+
+operator last-stimulus {
+V1 = end
+==>
+say -> AC1
+stop -> AC2
+stop -> G1
+}
+
+}
+
+define facts {
+(one 1) // Define the numbers themselves. Not really necessary for the model, but they show up in the DM graph.
+(two 2)
+(three 3)
+(cf1 countfact  one  two) // Countfacts. They receive a fixed activation for now
+(cf2 countfact  two  three)
+(foodtask foodtask)
+(sizetask sizetask)
+(ot1 othertask sizetask foodtask)
+(ot2 othertask foodtask sizetask)
+(mp1 mapping fruit left)
+(mp2 mapping vegetable right)
+(mp3 mapping small left)
+(mp4 mapping large right)
+}
+
+
+define screen taskswitchstart {
+(fixation)
+}
+
+define screen stimulus-1 {
+(stimulus)
+}
+
+define screen food-property-1 {
+(stimulus fruit)
+}
+
+define screen size-property-1 {
+(stimulus small)
+}
+
+define screen next-1 {
+(fixation)
+}
+
+define screen stimulus-2 {
+(stimulus)
+}
+
+define screen food-property-2 {
+(stimulus vegetable)
+}
+
+define screen size-property-2 {
+(stimulus small)
+}
+
+define screen next-2 {
+(fixation)
+}
+
+
+define screen stimulus-3 {
+(stimulus)
+}
+
+define screen food-property-3 {
+(stimulus fruit)
+}
+
+define screen size-property-3 {
+(stimulus large)
+}
+
+define screen next-3 {
+(fixation)
+}
+
+define screen stimulus-4 {
+(stimulus)
+}
+
+define screen food-property-4 {
+(stimulus vegetable)
+}
+
+define screen size-property-4 {
+(stimulus small)
+}
+
+define screen next-4 {
+(fixation)
+}
+
+define screen stimulus-5 {
+(stimulus)
+}
+
+define screen food-property-5 {
+(stimulus fruit)
+}
+
+define screen size-property-5 {
+(stimulus small)
+}
+
+define screen next-5 {
+(fixation)
+}
+
+define screen stimulus-6 {
+(stimulus)
+}
+
+define screen food-property-6 {
+(stimulus vegetable)
+}
+
+define screen size-property-6 {
+(stimulus large)
+}
+
+define screen next-6 {
+(fixation)
+}
+
+define screen stimulus-7 {
+(stimulus)
+}
+
+define screen food-property-7 {
+(stimulus vegetable)
+}
+
+define screen size-property-7 {
+(stimulus small)
+}
+
+define screen next-7 {
+(end)
+}
+
+transition(taskswitchstart, stimulus-1) = relative-time(1.0)
+transition(stimulus-1, food-property-1) = action(food)
+transition(stimulus-1, size-property-1) = action(size)
+transition(food-property-1, next-1) = action(press)
+transition(size-property-1, next-1) = action(press)
+transition(next-1, stimulus-2) = relative-time(1.0)
+transition(stimulus-2, food-property-2) = action(food)
+transition(stimulus-2, size-property-2) = action(size)
+transition(food-property-2, next-2) = action(press)
+transition(size-property-2, next-2) = action(press)
+transition(next-2, stimulus-3) = relative-time(1.0)
+transition(stimulus-3, food-property-3) = action(food)
+transition(stimulus-3, size-property-3) = action(size)
+transition(food-property-3, next-3) = action(press)
+transition(size-property-3, next-3) = action(press)
+transition(next-3, stimulus-4) = relative-time(1.0)
+transition(stimulus-4, food-property-4) = action(food)
+transition(stimulus-4, size-property-4) = action(size)
+transition(food-property-4, next-4) = action(press)
+transition(size-property-4, next-4) = action(press)
+transition(next-4, stimulus-5) = relative-time(1.0)
+transition(stimulus-5, food-property-5) = action(food)
+transition(stimulus-5, size-property-5) = action(size)
+transition(food-property-5, next-5) = action(press)
+transition(size-property-5, next-5) = action(press)
+transition(next-5, stimulus-6) = relative-time(1.0)
+transition(stimulus-6, food-property-6) = action(food)
+transition(stimulus-6, size-property-6) = action(size)
+transition(food-property-6, next-6) = action(press)
+transition(size-property-6, next-6) = action(press)
+transition(next-6, stimulus-7) = relative-time(1.0)
+transition(stimulus-7, food-property-7) = action(food)
+transition(stimulus-7, size-property-7) = action(size)
+transition(food-property-7, next-7) = action(press)
+transition(size-property-7, next-7) = action(press)
+
+
+define goal-action {
+(say stop)
+}

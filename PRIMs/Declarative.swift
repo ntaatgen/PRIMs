@@ -25,6 +25,7 @@ class Declarative  {
     static let latencyFactorDefault = 0.2
     static let goalOperatorLearningDefault = false
     static let betaDefault = 0.1
+    static let explorationExploitationFactorDefault = 0.5
     /// Baseleveldecay parameter (d in ACT-R)
     var baseLevelDecay: Double = baseLevelDecayDefault
     /// Optimized learning on or off
@@ -55,6 +56,8 @@ class Declarative  {
     var goalOperatorLearning = goalOperatorLearningDefault
     /// Learning rate of goal operator association learning
     var beta = betaDefault
+    /// Parameter that controls the amount of exploration vs. exploitation. Higher is more exploration
+    var explorationExploitationFactor = explorationExploitationFactorDefault
     /// Dictionary with all the chunks in DM, maps name onto Chunk
     var chunks = [String:Chunk]()
     /// List of all the chunks that partipated in the last retrieval. Tuple has Chunk and activation value
@@ -87,6 +90,8 @@ class Declarative  {
         latencyFactor = Declarative.latencyFactorDefault
         goalOperatorLearning = Declarative.goalOperatorLearningDefault
         beta = Declarative.betaDefault
+        explorationExploitationFactor = Declarative.explorationExploitationFactorDefault
+
     }
     
     func duplicateChunk(chunk: Chunk) -> Chunk? {

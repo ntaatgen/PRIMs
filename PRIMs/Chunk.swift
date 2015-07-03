@@ -32,7 +32,7 @@ class Chunk: Printable {
     /// Order in which the slots of the chunk are printed
     var printOrder: [String] = []
     /// Sji values
-    var assocs: [String:Double] = [:] // Sji table
+    var assocs: [String:(Double,Int)] = [:] // Sji table
     /// Task number that refers to the file that the chunk was defined in
     var definedIn: [Int] = []
     
@@ -127,14 +127,15 @@ class Chunk: Printable {
     */
     func baseLevelActivation () -> Double {
         if creationTime == nil { return 0 }
-        if fixedActivation != nil {
-            return fixedActivation!
-        } else if model.dm.optimizedLearning {
-            let x: Double = log((Double(references)/(1 - model.dm.baseLevelDecay)))
-            let y = model.dm.baseLevelDecay * log(model.time - creationTime!)
-            return x - y
+ 
+        let fixedComponent = fixedActivation == nil ? 0.0 : exp(fixedActivation!)
+        if model.dm.optimizedLearning {
+            return log(fixedComponent + (Double(references) * pow(model.time - creationTime! + 0.05, -model.dm.baseLevelDecay)) / (1 - model.dm.baseLevelDecay))
+//            let x = log((Double(references)/(1 - model.dm.baseLevelDecay)))
+//            let y = model.dm.baseLevelDecay * log(model.time - creationTime!)
+//            return x - y
         } else {
-            return log(reduce(map(self.referenceList){ pow((self.model.time - $0),(-self.model.dm.baseLevelDecay))}, 0.0, + )) // Wew! almost lisp! This is the standard baselevel equation
+            return log(fixedComponent + reduce(map(self.referenceList){ pow((self.model.time - $0 + 0.05),(-self.model.dm.baseLevelDecay))}, 0.0, + )) // Wew! almost lisp! This is the standard baselevel equation
         }
     }
     
@@ -205,6 +206,22 @@ class Chunk: Printable {
         return false
     }
 
+    
+    /**
+    Add noise to an association value. This is only used for the Sji between goals and operators
+
+    :returns: An Sji value with noise included
+    */
+    
+    func calculateSji(sji: (Double,Int)) -> Double {
+        let (base, references) = sji
+        if references == 0 {
+            return base
+        } else {
+            return base + model.dm.explorationExploitationFactor * actrNoise(model.dm.defaultOperatorAssoc) / sqrt(Double(references))
+        }
+    }
+    
     /**
     Calculate the association between self and another chunk
     The chunk that receives the activation has the Sji in its list
@@ -215,7 +232,7 @@ class Chunk: Printable {
     */
     func sji(chunk: Chunk) -> Double {
         if let value = chunk.assocs[self.name] {
-            return value
+            return calculateSji(value)
         } else if self.appearsInSlotOf(chunk) {
             return model.dm.maximumAssociativeStrength - log(Double(self.fan))
         }
@@ -302,7 +319,7 @@ class Chunk: Printable {
             if assocs[name] == nil {
                 assocs[name] = value
             } else {
-                assocs[name] = max(assocs[name]!,value)
+                assocs[name] = (max(assocs[name]!.0,value.0), assocs[name]!.1 + value.1)
             }
         }
     }

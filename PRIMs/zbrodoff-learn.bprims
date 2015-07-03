@@ -1,0 +1,5 @@
+repeat 5
+reset
+run zbrodoff-learn block1c 192
+run zbrodoff-learn block2c 192
+run zbrodoff-learn block3c 192

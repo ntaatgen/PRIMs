@@ -29,6 +29,7 @@ class PrimView: NSView {
     var pathLineWidth: CGFloat = 1
     var broadLineWidth: CGFloat = 8
     var haloSize: CGFloat = 10
+    var arrowSize: CGFloat = 6
     weak var dataSource: PrimViewDataSource!
     
     func drawVertex(x: CGFloat, y: CGFloat, fillColor: NSColor, lineWidth: CGFloat, halo: Bool) {
@@ -49,9 +50,26 @@ class PrimView: NSView {
     }
     
     func drawEdge(start: NSPoint, end: NSPoint) {
+        let π = CGFloat(M_PI)
+        var angle: CGFloat
+        if start.x != end.x {
+            angle = atan((end.y - start.y) / (end.x - start.x))
+        } else {
+            angle = start.y > end.y ? -π/2 : π/2
+        }
+        if start.x > end.x {
+            angle += π
+        }
+        let intersect = NSPoint(x: end.x - (vertexSize + lineWidth) * cos(angle), y: end.y - (vertexSize + lineWidth) * sin(angle))
+        let arrowtip1 = NSPoint(x: intersect.x + arrowSize * cos(angle - 0.75 * π), y: intersect.y + arrowSize * sin(angle - 0.75 * π))
+        let arrowtip2 = NSPoint(x: intersect.x + arrowSize * cos(angle + 0.75 * π), y: intersect.y + arrowSize * sin(angle + 0.75 * π))
+        
         let path = NSBezierPath()
         path.moveToPoint(start)
-        path.lineToPoint(end)
+        path.lineToPoint(intersect)
+        path.lineToPoint(arrowtip1)
+        path.moveToPoint(intersect)
+        path.lineToPoint(arrowtip2)
         path.lineWidth = pathLineWidth
         NSColor.blackColor().set()
         path.stroke()

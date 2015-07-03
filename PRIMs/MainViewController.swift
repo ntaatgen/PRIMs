@@ -401,7 +401,7 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
             updateAllViews()
         } else if sender == chunkTable && sender.selectedRow != -1 {
             let chunk = model.dm.chunks[dmTable[sender.selectedRow].0]!
-            chunkTextField.stringValue = "\(chunk)\nActivation = \(chunk.activation())\n"
+            chunkTextField.stringValue = "\(chunk)\nBaselevel = \(chunk.baseLevelActivation())\nActivation = \(chunk.activation())\n"
             if !chunk.assocs.isEmpty {
                 chunkTextField.stringValue += "Associations:\n"
                 for (chunkName, assoc) in chunk.assocs {
