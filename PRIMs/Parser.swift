@@ -320,9 +320,19 @@ class Parser  {
                 var complete = false
                 while !complete {
 //                    println(item! + " " + component)
-                    for ch in item! {
+                    item! += "§"
+                    var index = item!.startIndex
+                    var done = false
+                    while !done {
+                        let ch = item![index]
+                        var lookahead = item![advance(index,1)]
                         switch ch {
                         case "A"..."Z","a"..."z","_",".": component += String(ch)
+                        case "-": if lookahead == ">" {
+                            fallthrough
+                        } else {
+                            component += String(ch)
+                            }
                         default:
                             if component != "" {
                                 if bufferMappingA[component] != nil || bufferMappingC[component] != nil || component == "nil" {
@@ -340,6 +350,8 @@ class Parser  {
                             }
                             prim += String(ch)
                         }
+                        index = advance(index, 1)
+                        if item![index] == "§" { done = true }
                     }
                     if component != "" {
                         if bufferMappingA[component] != nil || bufferMappingC[component] != nil || component == "nil" {

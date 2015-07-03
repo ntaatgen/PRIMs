@@ -19,7 +19,7 @@ define goal count {
    WM1 = nil  // Imaginal should be empty
   ==>
    V1 -> WM1 // Copy the start number to working memory
-   countfact -> RT1 // Start retrieving the next number
+   count-fact -> RT1 // Start retrieving the next number
    V1 -> RT2
    say -> AC1 // Say the current number
    V1 -> AC2
@@ -31,7 +31,7 @@ define goal count {
     V2 <> WM1
    ==>
     RT3 -> WM1
-    countfact -> RT1
+    count-fact -> RT1
     RT3 -> RT2
     say -> AC1
     RT3 ->AC2
@@ -54,11 +54,11 @@ define facts {
 (four 4)
 (five 5)
 (six 6)
-(cf1 countfact  one  two) // Countfacts. They receive a fixed activation for now
-(cf2 countfact  two  three)
-(cf3  countfact  three  four)
-(cf4  countfact  four  five)
-(cf5  countfact  five  six)
+(cf1 count-fact  one  two) // Countfacts. They receive a fixed activation for now
+(cf2 count-fact  two  three)
+(cf3  count-fact  three  four)
+(cf4  count-fact  four  five)
+(cf5  count-fact  five  six)
 }
 
 define screen start {
