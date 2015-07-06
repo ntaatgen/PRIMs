@@ -55,15 +55,7 @@ stop->G1
 }
 
 define facts {
-(lion lion)
-(mammal mammal)
-(animal animal)
-(plant plant)
-(livingthing livingthing)
-(tulip tulip)
-(tweety tweety)
-(bird bird)
-(robin robin)
+
 (sem1  property  lion  mammal :activation 1.0)
 (sem2  property  mammal  animal :activation 1.0)
 (sem3  property  animal  livingthing :activation 1.0)

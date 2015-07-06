@@ -6,12 +6,13 @@ define task add-fingers {
 initial-goals: (add-fingers)
 start-screen: add
 imaginal-autoclear: t
+default-activation: 1.0 // All chunks defined in this model receive a fixed baselevel activation of 1.0
 }
 
 
 define goal add-fingers {
 
-operator init-addition(activation=1.0) {
+operator init-addition {
 V1<>nil
 WM1=nil
 ==>
@@ -22,7 +23,7 @@ say->AC1
 V1->AC2
 }
 
-operator add-to-sum(activation=1.0) {
+operator add-to-sum {
 RT2=WM1
 V2<>V3
 ==>
@@ -34,7 +35,7 @@ RT3->AC2
 }
 
 
-operator finished-sum(activation=1.0) {
+operator finished-sum {
 V2=V3
 ==>
 answer->AC1
@@ -44,24 +45,16 @@ stop->G1
 }
 
 define facts {
-(one 1) 
-(two 2)
-(three 3)
-(four 4)
-(five 5)
-(six 6)
-(seven 7)
-(eight 8)
-(nine 9)
-(cf0 countfact  zero  one :activation 3.0)
-(cf1 countfact  one  two :activation 3.0)
-(cf2 countfact  two  three :activation 3.0)
-(cf3  countfact  three  four :activation 3.0)
-(cf4  countfact  four  five :activation 3.0)
-(cf5  countfact  five  six :activation 3.0)
-(cf6  countfact  six  seven :activation 3.0)
-(cf7  countfact  seven  eight :activation 3.0)
-(cf8  countfact  eight  nine :activation 3.0)
+
+(cf0 countfact  zero  one)
+(cf1 countfact  one  two)
+(cf2 countfact  two  three)
+(cf3  countfact  three  four)
+(cf4  countfact  four  five)
+(cf5  countfact  five  six)
+(cf6  countfact  six  seven)
+(cf7  countfact  seven  eight)
+(cf8  countfact  eight  nine)
 
 }
 

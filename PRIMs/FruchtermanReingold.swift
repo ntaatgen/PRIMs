@@ -314,7 +314,7 @@ class FruchtermanReingold {
     func setUpDMGraph(model: Model) {
         nodes = [:]
         edges = []
-        constantC = 0.3
+        constantC = 1.0
         for (_,chunk) in model.dm.chunks {
             if chunk.type == "fact" {
                 let node = Node(name: chunk.name)
@@ -326,7 +326,7 @@ class FruchtermanReingold {
             if chunk.type == "fact" {
                 for (slot,value) in chunk.slotvals {
                     if let chunk2 = value.chunk() {
-                        if chunk2.type == "fact" {
+                        if chunk2.type == "fact" && chunk2.name != chunk.name {
                         let edge = Edge(from: nodes[chunk.name]!, to: nodes[chunk2.name]!)
                         edges.append(edge)
                         }

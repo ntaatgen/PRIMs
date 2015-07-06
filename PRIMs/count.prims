@@ -48,12 +48,7 @@ define goal count {
 }
 
 define facts {
-(one 1) // Define the numbers themselves. Not really necessary for the model, but they show up in the DM graph.
-(two 2)
-(three 3)
-(four 4)
-(five 5)
-(six 6)
+
 (cf1 count-fact  one  two) // Countfacts. They receive a fixed activation for now
 (cf2 count-fact  two  three)
 (cf3  count-fact  three  four)

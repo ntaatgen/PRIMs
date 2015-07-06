@@ -117,25 +117,7 @@ stop->G1
 }
 
 define facts {
-(zero 0)
-(one 1)
-(two 2)
-(three 3)
-(four 4)
-(five 5)
-(six 6)
-(a a)
-(b b)
-(c c)
-(d d)
-(e e)
-(f f)
-(g g)
-(h h)
-(i i)
-(j j)
-(k k)
-(l l)
+
 (cf0 countfact  zero  one :activation 2.0)
 (cf1 countfact  one  two :activation 2.0)
 (cf2 countfact  two  three :activation 2.0)

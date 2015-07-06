@@ -82,12 +82,7 @@ attendcolor -> AC1
 }
 
 define facts {
-(red red)
-(blue blue)
-(blue-word blue-word)
-(red-word red-word)
-(blue-color blue-color)
-(red-color red-color)
+
 (red-word-assoc mapping red-word red :activation 0.0)
 (blue-word-assoc mapping blue-word blue :activation 0.0)
 (red-color-assoc mapping red-color red :activation 0.0)

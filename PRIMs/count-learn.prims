@@ -16,12 +16,7 @@ goal-operator-learning: t
 }
 
 define facts {
-(one 1) // Define the numbers themselves. Not really necessary for the model, but they show up in the DM graph.
-(two 2)
-(three 3)
-(four 4)
-(five 5)
-(six 6)
+
 (cf1 countfact  one  two :activation 1.0) // Countfacts. They receive a fixed activation for now
 (cf2 countfact  two  three :activation 1.0)
 (cf3  countfact  three  four :activation 1.0)

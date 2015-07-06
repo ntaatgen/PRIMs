@@ -296,18 +296,17 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
         var fileDialog: NSOpenPanel = NSOpenPanel()
         fileDialog.prompt = "Select model file"
         fileDialog.worksWhenModal = true
-        fileDialog.allowsMultipleSelection = false
+        fileDialog.allowsMultipleSelection = true
         fileDialog.resolvesAliases = true
         fileDialog.allowedFileTypes = ["prims"]
         let result = fileDialog.runModal()
         if result != NSFileHandlingPanelOKButton { return }
-        if let filePath = fileDialog.URL {
+        let URLs = fileDialog.URLs as? [NSURL]
+        if URLs == nil { return }
+        for filePath in URLs! {
             if !loadModelWithString(filePath) { return }
             NSDocumentController.sharedDocumentController().noteNewRecentDocumentURL(filePath)
-            //            model.currentTaskIndex = model.tasks.count - 1
         }
-//        modelText.string = modelCode
-
     }
     
     func loadModelWithString(filePath: NSURL) -> Bool {

@@ -442,7 +442,15 @@ class Parser  {
                         chunk!.setSlot("isa", value: "fact")
                         chunk!.fixedActivation = defaultActivation
                         slotindex++
+                        m.dm.addToDM(chunk!)
                     } else {
+                        if m.dm.chunks[slotValue!] == nil {
+                            let extraChunk = Chunk(s: slotValue!, m: m)
+                            extraChunk.setSlot("isa", value: "fact")
+                            extraChunk.setSlot("slot1", value: slotValue!)
+                            m.dm.addToDM(extraChunk)
+                            m.addToTraceField("Adding undefined fact \(extraChunk.name) as default chunk")
+                        }
                         chunk!.setSlot("slot\(slotindex++)", value: slotValue!)
                     }
                 }
@@ -450,7 +458,6 @@ class Parser  {
             }
             m.addToTraceField("Reading fact \(chunk!.name)")
             chunk!.definedIn = [taskNumber]
-            m.dm.addToDM(chunk!)
         }
         return true
     }
