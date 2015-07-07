@@ -1,8 +1,0 @@
-repeat 1
-reset
-run more-fish fish 1
-run addition add 1
-run list-recall list 1
-run count-spoons spoons 1
-run semantic-global semantic 1
-
