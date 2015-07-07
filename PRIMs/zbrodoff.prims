@@ -1,7 +1,7 @@
 define task zbrodoff {
 goals: (countletters answerzbrodoff)
 initial-goals: (retrievezbrodoff)
-task-constants: (zbrodoff letterfact countfact answerzbrodoff countletters)
+task-constants: (zbrodoff letter-fact count-fact answerzbrodoff countletters)
 start-screen: trial
 lf: 0.5
 rt: 1.2
@@ -11,11 +11,12 @@ imaginal-autoclear: nil
 alpha: 0.1
 production-prim-latency: 0.2
 say-latency: 0.5
+default-activation: 2.0
 }
 
 define goal retrievezbrodoff {
 
-operator try-retrieve(activation=2.0) {
+operator try-retrieve {
     RT1=nil
 ==>
     zbrodoff->RT1
@@ -23,7 +24,7 @@ operator try-retrieve(activation=2.0) {
     V2->RT3
 }
 
-operator retrieve-success(activation=2.0) {
+operator retrieve-success {
     RT1=zbrodoff
 ==>
     RT1->WM1
@@ -33,7 +34,7 @@ operator retrieve-success(activation=2.0) {
     answerzbrodoff->G1
 }
 
-operator retrieve-fail(activation=2.0) {
+operator retrieve-fail {
     RT1=error
 ==>
     countletters->G1
@@ -44,35 +45,35 @@ operator retrieve-fail(activation=2.0) {
 
 define goal countletters {
 
-operator initialize(activation=2.0) {
+operator initialize {
    WM1=nil
 ==>
   zbrodoff->WM1
   V1->WM2
   zero->WM3
   V1->WM4
-  letterfact->RT1
+  letter-fact->RT1
   V1->RT2
 }
 
-operator letter-to-number(activation=2.0) {
+operator letter-to-number {
   WM4=RT2
 ==>
   RT3->WM4
-  countfact->RT1
+  count-fact->RT1
   WM3->RT2
 }
 
-operator number-to-letter(activation=2.0) {
+operator number-to-letter {
   WM3=RT2
   RT3<>V2
 ==>
   RT3->WM3
-  letterfact->RT1
+  letter-fact->RT1
   WM4->RT2
 }
 
-operator count-done-match(activation=2.0) {
+operator count-done-match {
     WM3=RT2
     RT3=V2
 ==>
@@ -80,7 +81,7 @@ operator count-done-match(activation=2.0) {
     answerzbrodoff->G1
 }
 
-operator count-quit-on-failure(activation=2.0) {
+operator count-quit-on-failure {
    RT1=error
 ==>
    nil->WM1
@@ -90,7 +91,7 @@ operator count-quit-on-failure(activation=2.0) {
 }
 
 define goal answerzbrodoff {
-operator answer-yes(activation=2.0){
+operator answer-yes{
     V3=WM4
 ==>
    say->AC1
@@ -98,7 +99,7 @@ operator answer-yes(activation=2.0){
    stop->G1
 }
 
-operator answer-no(activation=2.0){
+operator answer-no{
 V3<>WM4
 ==>
 say->AC1
@@ -108,42 +109,24 @@ stop->G1
 }
 
 define facts {
-(zero 0)
-(one 1)
-(two 2)
-(three 3)
-(four 4)
-(five 5)
-(six 6)
-(a a)
-(b b)
-(c c)
-(d d)
-(e e)
-(f f)
-(g g)
-(h h)
-(i i)
-(j j)
-(k k)
-(l l)
-(cf0 countfact  zero  one :activation 2.0)
-(cf1 countfact  one  two :activation 2.0)
-(cf2 countfact  two  three :activation 2.0)
-(cf3  countfact  three  four :activation 2.0)
-(cf4  countfact  four  five :activation 2.0)
-(cf5  countfact  five  six :activation 2.0)
-(a1 letterfact a b :activation 2.0)
-(b1 letterfact b c :activation 2.0)
-(c1 letterfact c d :activation 2.0)
-(d1 letterfact d e :activation 2.0)
-(e1 letterfact e f :activation 2.0)
-(f1 letterfact f g :activation 2.0)
-(g1 letterfact g h :activation 2.0)
-(h1 letterfact h i :activation 2.0)
-(i1 letterfact i j :activation 2.0)
-(j1 letterfact j k :activation 2.0)
-(k1 letterfact k l :activation 2.0)
+
+(cf0 count-fact  zero  one)
+(cf1 count-fact  one  two)
+(cf2 count-fact  two  three)
+(cf3  count-fact  three  four)
+(cf4  count-fact  four  five)
+(cf5  count-fact  five  six)
+(a1 letter-fact a b)
+(b1 letter-fact b c)
+(c1 letter-fact c d)
+(d1 letter-fact d e)
+(e1 letter-fact e f)
+(f1 letter-fact f g)
+(g1 letter-fact g h)
+(h1 letter-fact h i)
+(i1 letter-fact i j)
+(j1 letter-fact j k)
+(k1 letter-fact k l)
 
 }
 

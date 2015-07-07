@@ -3,7 +3,7 @@
 
 define task stroop {
 initial-goals: (stroop neutral)
-goals: (attendcolor defaultattend)
+goals: (attendcolor default-attend)
 task-constants: (neutral focuscolor)
 start-screen: stroop-start
 lf: 0.2
@@ -37,7 +37,7 @@ stop -> G1
 
 }
 
-define goal defaultattend {
+define goal default-attend {
 
 operator just-wait(activation=1.1) {
 "Just wait for the stimulus"

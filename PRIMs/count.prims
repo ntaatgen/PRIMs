@@ -4,7 +4,7 @@
 define task count {
   initial-goals: (count) // In this example the task and the goal are the same
   start-screen: start
-  imaginal-autoclear: nil
+  imaginal-autoclear: nil 
   default-activation: 1.0 // All chunks defined in this model receive a fixed baselevel activation of 1.0
   ol: t
   rt: -2.0

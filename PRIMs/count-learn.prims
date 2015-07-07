@@ -1,11 +1,13 @@
 // This is a model that has to learn counting based on operators borrowed from other tasks
+// More in particular, it can borrow all it needs from semantic-global
 // Adapted from the ACT-R tutorial by Niels Taatgen
 
 define task count-learn {
 initial-goals: (learncount)
-task-constants: (countfact say say stop)
+task-constants: (count-fact say say stop)
 start-screen: start
 imaginal-autoclear: nil
+default-activation: 1.0 // All chunks defined in this model receive a fixed baselevel activation of 1.0
 ol: t
 rt: -2.0
 lf: 0.2
@@ -17,11 +19,11 @@ goal-operator-learning: t
 
 define facts {
 
-(cf1 countfact  one  two :activation 1.0) // Countfacts. They receive a fixed activation for now
-(cf2 countfact  two  three :activation 1.0)
-(cf3  countfact  three  four :activation 1.0)
-(cf4  countfact  four  five :activation 1.0)
-(cf5  countfact  five  six :activation 1.0)
+(cf1 count-fact  one  two) // Countfacts. They receive a fixed activation for now
+(cf2 count-fact  two  three)
+(cf3  count-fact  three  four)
+(cf4  count-fact  four  five)
+(cf5  count-fact  five  six)
 }
 
 define screen start {
