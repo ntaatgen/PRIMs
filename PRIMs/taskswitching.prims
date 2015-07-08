@@ -2,19 +2,19 @@
 // Adapted from the original PR model
 
 define task taskswitching {
-initial-goals: (taskswitching)
-start-screen: taskswitchstart
-task-constants: (dotask nexttask)
-lf: 0.2
-egs: 0.05
-rt: 0.0
-input-activation: 0.0
-default-activation: 1.0
-alpha: 0.05
-goal-operator-learning: t
-beta: 0.05
-reward: 80.0
-imaginal-autoclear: nil
+    initial-goals: (taskswitching)
+    start-screen: taskswitchstart
+    task-constants: (dotask nexttask)
+    lf: 0.2
+    egs: 0.05
+    rt: 0.0
+    input-activation: 0.0
+    default-activation: 1.0
+    alpha: 0.05
+    goal-operator-learning: t
+    beta: 0.05
+    reward: 80.0
+    imaginal-autoclear: nil
 }
 
 define goal taskswitching {
