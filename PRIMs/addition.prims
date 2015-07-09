@@ -1,75 +1,78 @@
+// Add numbers by counting
+// and remember the answer for later retrieval
+//
+
 define task addition {
-initial-goals: (countnumbers)
-goals: (giveanswer)
-task-constants: (addition countfact countfact giveanswer)
-start-screen: add
-imaginal-autoclear: nil
+    initial-goals: (countnumbers)
+    goals: (giveanswer)
+    task-constants: (addition count-fact count-fact giveanswer)
+    start-screen: add
+    imaginal-autoclear: nil
+    default-activation: 1.0
 }
 
 
 define goal countnumbers {
 
-operator init-addition(activation=1.0) {
-WM1=nil
-==>
-addition->WM1
-V1->WM2
-zero->WM3
-V1->WM4
-GC2->RT1
-V1->RT2
-}
+    operator init-addition {
+        WM1=nil
+        ==>
+        addition->WM1
+        V1->WM2
+        zero->WM3
+        V1->WM4
+        GC2->RT1
+        V1->RT2
+    }
 
-operator add-to-sum(activation=1.0) {
-WM4=RT2
-==>
-RT3->WM4
-GC3->RT1
-WM3->RT2
-}
+    operator add-to-sum {
+        WM4=RT2
+        ==>
+        RT3->WM4
+        GC3->RT1
+        WM3->RT2
+    }
 
-operator add-to-count(activation=1.0) {
-WM3=RT2
-RT3<>V2
-==>
-RT3->WM3
-GC2->RT1
-WM4->RT2
-}
+    operator add-to-count {
+        WM3=RT2
+        RT3<>V2
+        ==>
+        RT3->WM3
+        GC2->RT1
+        WM4->RT2
+    }
 
-operator finished-sum(activation=1.0) {
-WM3=RT2
-RT3=V2
-==>
-RT3->WM3
-giveanswer->G1
-}
+    operator finished-sum {
+        WM3=RT2
+        RT3=V2
+        ==>
+        RT3->WM3
+        giveanswer->G1
+    }
 
 }
 
 define goal giveanswer {
-operator say-sum(activation=1.0) {
-    WM3<>nil
-==>
-    say->AC1
-    WM4->AC2
-    stop->G1
-}
+    operator say-sum {
+        WM3<>nil
+    ==>
+        say->AC1
+        WM4->AC2
+        stop->G1
+    }
 }
 
 
 define facts {
-(cf0 countfact  zero  one :activation 3.0)
-(cf1 countfact  one  two :activation 3.0)
-(cf2 countfact  two  three :activation 3.0)
-(cf3  countfact  three  four :activation 3.0)
-(cf4  countfact  four  five :activation 3.0)
-(cf5  countfact  five  six :activation 3.0)
-(cf6  countfact  six  seven :activation 3.0)
-(cf7  countfact  seven  eight :activation 3.0)
-(cf8  countfact  eight  nine :activation 3.0)
-
-
+    (cf0 count-fact  zero  one :activation 3.0)
+    (cf1 count-fact  one  two :activation 3.0)
+    (cf2 count-fact  two  three :activation 3.0)
+    (cf3  count-fact  three  four :activation 3.0)
+    (cf4  count-fact  four  five :activation 3.0)
+    (cf5  count-fact  five  six :activation 3.0)
+    (cf6  count-fact  six  seven :activation 3.0)
+    (cf7  count-fact  seven  eight :activation 3.0)
+    (cf8  count-fact  eight  nine :activation 3.0)
 }
 
 define inputs {

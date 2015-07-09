@@ -47,7 +47,7 @@ class FruchtermanReingold {
     var H: Double
     let iterations = 100
     var constantC = 0.3
-    var wallRepulsionMultiplier = 5.0
+    var wallRepulsionMultiplier = 2.0
     var area: Double {
         get {
             return W * H
@@ -115,11 +115,11 @@ class FruchtermanReingold {
                     }
                 }
                 // repulsion of walls
-                node.dx += self.wallRepulsionMultiplier * self.repulsionForce(node.x)
-                node.dx -= self.wallRepulsionMultiplier * self.repulsionForce(self.W - 1 - node.x)
-                node.dy += self.wallRepulsionMultiplier * self.repulsionForce(node.y)
+                node.dx += self.wallRepulsionMultiplier * self.repulsionForce(node.x + 1)
+                node.dx -= self.wallRepulsionMultiplier * self.repulsionForce(self.W + 1 - node.x)
+                node.dy += self.wallRepulsionMultiplier * self.repulsionForce(node.y + 1)
 
-                node.dy -= self.wallRepulsionMultiplier * self.repulsionForce(self.H - 1 - node.y)
+                node.dy -= self.wallRepulsionMultiplier * self.repulsionForce(self.H + 1 - node.y)
                 
             }
             // calculate attractive forces

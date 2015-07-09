@@ -1,69 +1,72 @@
+// Simple semantic model
+//
 
 define task semantic {
-initial-goals: (semantic)
-start-screen: start
-imaginal-autoclear: nil
-ol: t
-rt: -2.0
-lf: 0.2
-default-operator-self-assoc: 0.0
+    initial-goals: (semantic)
+    start-screen: start
+    imaginal-autoclear: nil
+    ol: t
+    rt: -2.0
+    lf: 0.2
+    default-operator-self-assoc: 0.0
+    default-activation: 1.0
 }
 
 define goal semantic {
-operator start-semantic(activation= 1.0) {
-"Start semantic reasoning"
-V1<>nil
-WM1=nil
-==>
-V1->WM1
-property->RT1
-V1->RT2
-subvocalize->AC1
-V1->AC2
-}
+    operator start-semantic {
+    "Start semantic reasoning"
+        V1 <> nil
+        WM1 = nil
+        ==>
+        V1 -> WM1
+        property -> RT1
+        V1 -> RT2
+        subvocalize -> AC1
+        V1 -> AC2
+    }
 
-operator move-up-tree(activation=1.0) {
-"Move up the tree"
-RT2=WM1
-V2<>WM1
-==>
-RT3->WM1
-property->RT1
-RT3->RT2
-subvocalize->AC1
-RT3->AC2
-}
+    operator move-up-tree {
+    "Move up the tree"
+        RT2 = WM1
+        V2 <> WM1
+        ==>
+        RT3 -> WM1
+        property -> RT1
+        RT3 -> RT2
+        subvocalize -> AC1
+        RT3 -> AC2
+    }
 
-operator say-yes(activation=1.0) {
-"Say yes when found"
-V2=WM1
-==>
-say->AC1
-yes->AC2
-stop->G1
-}
+    operator say-yes {
+    "Say yes when found"
+        V2 = WM1
+        ==>
+        say -> AC1
+        yes -> AC2
+        stop -> G1
+    }
 
-operator say-no(activation=1.0) {
-"Say no on retrieval failure"
-V2<>WM1
-RT1=error
-==>
-say->AC1
-no->AC2
-stop->G1
-}
+    operator say-no {
+    "Say no on retrieval failure"
+        V2 <> WM1
+        RT1 = error
+        ==>
+        say -> AC1
+        no -> AC2
+        stop -> G1
+    }
 }
 
 define facts {
 
-(sem1  property  lion  mammal :activation 1.0)
-(sem2  property  mammal  animal :activation 1.0)
-(sem3  property  animal  livingthing :activation 1.0)
-(sem4  property  plant  livingthing :activation 1.0)
-(sem5  property  tulip plant :activation 1.0)
-(sem6  property  bird animal :activation 1.0)
-(sem7  property  tweety bird :activation 1.0)
-(sem8  property  robin bird :activation 1.0)
+    (sem1  property  lion  mammal)
+    (sem2  property  mammal  animal)
+    (sem3  property  animal  livingthing)
+    (sem4  property  plant  livingthing)
+    (sem5  property  tulip plant)
+    (sem6  property  bird animal)
+    (sem7  property  tweety bird)
+    (sem8  property  robin bird)
 
 
 }

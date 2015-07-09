@@ -19,118 +19,118 @@ define task taskswitching {
 
 define goal taskswitching {
 
-operator set-first-task {
-V1 = fixation
-G2 = nil
-==>
-foodtask -> WM1
-one -> WM2
-wait -> AC1
-dotask -> G2
-}
+    operator set-first-task {
+        V1 = fixation
+        G2 = nil
+        ==>
+        foodtask -> WM1
+        one -> WM2
+        wait -> AC1
+        dotask -> G2
+    }
 
-operator get-food-property {
-V1 = stimulus
-V2 = nil
-WM1 = foodtask
-RT1 = nil
-==>
-food -> AC1
-}
+    operator get-food-property {
+        V1 = stimulus
+        V2 = nil
+        WM1 = foodtask
+        RT1 = nil
+        ==>
+        food -> AC1
+    }
 
-operator get-size-property {
-V1 = stimulus
-V2 = nil
-WM1 = sizetask
-RT1 = nil
-==>
-size -> AC1
-}
+    operator get-size-property {
+        V1 = stimulus
+        V2 = nil
+        WM1 = sizetask
+        RT1 = nil
+        ==>
+        size -> AC1
+    }
 
-operator get-mapping {
-V1 = stimulus
-V2 <> nil
-RT1 = nil
-==>
-mapping -> RT1
-V2 -> RT2
-}
+    operator get-mapping {
+        V1 = stimulus
+        V2 <> nil
+        RT1 = nil
+        ==>
+        mapping -> RT1
+        V2 -> RT2
+    }
 
-operator press-key {
-RT1 = mapping
-==>
-press -> AC1
-RT3 -> AC2
-}
+    operator press-key {
+        RT1 = mapping
+        ==>
+        press -> AC1
+        RT3 -> AC2
+    }
 
-operator choose-next-task {
-V1 = fixation
-G2 = dotask
-==>
-nexttask -> G2
-}
+    operator choose-next-task {
+        V1 = fixation
+        G2 = dotask
+        ==>
+        nexttask -> G2
+    }
 
-operator determine-next-task-retrieve-count {
-V1 = fixation
-RT1 = nil
-G2 = nexttask
-==>
-countfact->RT1
-WM2->RT2
-}
+    operator determine-next-task-retrieve-count {
+        V1 = fixation
+        RT1 = nil
+        G2 = nexttask
+        ==>
+        count-fact->RT1
+        WM2->RT2
+    }
 
-operator determine-next-task-decide-to-stay {
-RT1 = countfact
-RT3 = two
-G2 = nexttask
+    operator determine-next-task-decide-to-stay {
+        RT1 = count-fact
+        RT3 = two
+        G2 = nexttask
 
-==>
-RT3 -> WM2
-dotask -> G2
-wait -> AC1
-}
+        ==>
+        RT3 -> WM2
+        dotask -> G2
+        wait -> AC1
+    }
 
-operator determine-next-task-decide-to-switch {
-RT1 = countfact
-RT3 = three
-G2 = nexttask
-==>
-one -> WM2
-othertask -> RT1
-WM1 -> RT2
-}
+    operator determine-next-task-decide-to-switch {
+        RT1 = count-fact
+        RT3 = three
+        G2 = nexttask
+        ==>
+        one -> WM2
+        othertask -> RT1
+        WM1 -> RT2
+    }
 
-operator set-other-task {
-RT1 = othertask
-G2 = nexttask
-==>
-RT3 -> WM1
-dotask -> G2
-wait -> AC1
-}
+    operator set-other-task {
+        RT1 = othertask
+        G2 = nexttask
+        ==>
+        RT3 -> WM1
+        dotask -> G2
+        wait -> AC1
+    }
 
-operator last-stimulus {
-V1 = end
-==>
-say -> AC1
-stop -> AC2
-stop -> G1
-}
+    operator last-stimulus {
+        V1 = end
+        ==>
+        say -> AC1
+        stop -> AC2
+        stop -> G1
+    }
 
 }
 
 define facts {
 
-(cf1 countfact  one  two) // Countfacts. They receive a fixed activation for now
-(cf2 countfact  two  three)
-(foodtask foodtask)
-(sizetask sizetask)
-(ot1 othertask sizetask foodtask)
-(ot2 othertask foodtask sizetask)
-(mp1 mapping fruit left)
-(mp2 mapping vegetable right)
-(mp3 mapping small left)
-(mp4 mapping large right)
+    (cf1 count-fact  one  two) // count-facts. They receive a fixed activation for now
+    (cf2 count-fact  two  three)
+    (foodtask foodtask)
+    (sizetask sizetask)
+    (ot1 othertask sizetask foodtask)
+    (ot2 othertask foodtask sizetask)
+    (mp1 mapping fruit left)
+    (mp2 mapping vegetable right)
+    (mp3 mapping small left)
+    (mp4 mapping large right)
 }
 
 
