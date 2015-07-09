@@ -171,7 +171,9 @@ class Procedural {
         }
         if let existingP = productions[newFullName] {
             existingP.u += alpha * (p1.u - existingP.u)
-            model.addToTrace("Reinforcing \(existingP.name) new u = \(existingP.u)")
+            if model.stepping {
+                model.addToTrace("Reinforcing \(existingP.name) new u = \(existingP.u)")
+            }
         } else {
             let newP = Production(name: newName, model: model, condition: p1.condition, action: p1.action, op: p1.op, parent1: p1, parent2: p2, taskID: model.currentTaskIndex!)
             newP.conditions = p1.conditions + p2.conditions
@@ -181,7 +183,9 @@ class Procedural {
             newP.goalChecks = p1.goalChecks
             newP.fullName = newFullName
             productions[newP.fullName] = newP
-            model.addToTrace("Compiling \(newP.name)")
+            if model.stepping {
+                model.addToTrace("Compiling \(newP.name)")
+            }
         }
         
     }

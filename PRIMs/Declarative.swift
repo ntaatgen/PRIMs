@@ -17,11 +17,11 @@ class Declarative  {
     static let inputActivationDefault = 0.0
     static let retrievalThresholdDefault = -2.0
     static let activationNoiseDefault = 0.2
-    static let defaultOperatorAssocDefault = 8.0
+    static let defaultOperatorAssocDefault = 3.0
     static let defaultInterOperatorAssocDefault = 1.0
     static let defaultOperatorSelfAssocDefault = -1.0
     static let misMatchPenaltyDefault = 5.0
-    static let goalSpreadingActivationDefault = true
+    static let goalSpreadingActivationDefault = false
     static let latencyFactorDefault = 0.2
     static let goalOperatorLearningDefault = false
     static let betaDefault = 0.1

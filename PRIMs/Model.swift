@@ -54,6 +54,7 @@ class Model {
     static let rewardDefault = 0.0
     /// Reward used for operator-goal association learning. Also determines maximum run time. Switched off when set to 0.0 (default)
     var reward: Double = rewardDefault
+    var stepping = false
     
 //    struct Results {
         var modelResults: [[(Double,Double)]] = []
@@ -306,7 +307,7 @@ class Model {
     This function finds an operator. It can do this in several ways depending on the settings
     of the parameters compileOperators and retrieveOperatorsConditional.
     If retrieveOperatorsConditional is true, an operator is retrieved that is checked by the currently
-    available productions.
+    available productions. If successful, the operator is placed in the operator buffer.
     
     :returns: Whether an operator was successfully found
     */
@@ -320,6 +321,12 @@ class Model {
                 let (_,u2) = item2
                 return u1 > u2
             })
+            if stepping {
+                addToTrace("Conflict Set")
+                for (chunk,activation) in cfs {
+                    addToTrace("  \(chunk.name) A = \(activation)")
+                }
+            }
             var match = false
             var candidate: Chunk
             var activation: Double

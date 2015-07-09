@@ -554,7 +554,9 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
     }
     
     @IBAction func step(sender: NSButton) {
+        model.stepping = true
         model.step()
+        model.stepping = false
         updateAllViews()
         
     }
