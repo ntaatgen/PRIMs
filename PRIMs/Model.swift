@@ -237,6 +237,8 @@ class Model {
                 dm.inputActivation = numVal!
             case "default-operator-assoc:":
                 dm.defaultOperatorAssoc = numVal!
+            case "default-inter-operator-assoc:":
+                dm.defaultInterOperatorAssoc = numVal!
             case "default-operator-self-assoc:":
                 dm.defaultOperatorSelfAssoc = numVal!
             case "production-prim-latency:":

@@ -55,23 +55,23 @@ class Action {
         if ac != nil {
             switch ac! {
             case "say":
-                model.addToTrace("Saying \(par1 == nil ? Action.nothing : par1!)")
                 latency = sayLatency
+                model.addToTrace("Saying \(par1 == nil ? Action.nothing : par1!) (latency = \(latency))")
             case "subvocalize":
-                model.addToTrace("Subvocalizing \(par1 == nil ? Action.nothing : par1!)")
                 latency = subvocalizeLatency
+                model.addToTrace("Subvocalizing \(par1 == nil ? Action.nothing : par1!) (latency = \(latency))")
             case "read":
-                model.addToTrace("Reading")
                 latency = defaultPerceptualActionLatency
+                model.addToTrace("Reading (latency = \(latency))")
             case "wait":
-                model.addToTrace("Waiting")
+                model.addToTrace("Waiting (latency = \(latency))")
+                latency = 0.05
                 if model.scenario.nextEventTime == nil {
-                    latency = 0.05
                 } else {
                     latency = max(0, model.scenario.nextEventTime! - model.time)
                 }
                     
-            default: model.addToTrace("\(ac!)-ing \(par1 == nil ? Action.nothing : par1!)")
+            default: model.addToTrace("\(ac!)-ing \(par1 == nil ? Action.nothing : par1!) (latency = \(latency))")
             }
             let dl = DataLine(eventType: "action", eventParameter1: ac!, eventParameter2: par1 ?? "void", eventParameter3: "void", inputParameters: model.scenario.inputMappingForTrace,time: model.time + latency - model.startTime)
             model.outputData.append(dl)

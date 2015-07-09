@@ -233,7 +233,7 @@ class Declarative  {
         let retrievalQuery = model.buffers["retrievalR"]!
         let (latency, retrieveResult) = retrieve(retrievalQuery)
         if retrieveResult != nil {
-            model.addToTrace("Retrieving \(retrieveResult!.name)")
+            model.addToTrace("Retrieving \(retrieveResult!.name) (latency = \(latency))")
             model.buffers["retrievalH"] = retrieveResult!
         } else {
             model.addToTrace("Retrieval failure")

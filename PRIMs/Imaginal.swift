@@ -35,7 +35,7 @@ class Imaginal {
             if overlap && autoClear {
                 newImaginal.setSlot("isa", value: oldImaginal.slotvals["isa"]!)
                 model.buffers["imaginal"] = newImaginal
-                model.addToTrace("New imaginal chunk \(newImaginal.name)")
+                model.addToTrace("New imaginal chunk \(newImaginal.name)  (latency = \(imaginalLatency))")
                 model.dm.addToDM(oldImaginal)
                 return imaginalLatency
             } else {
@@ -47,7 +47,7 @@ class Imaginal {
         }
         newImaginal.setSlot("isa", value: "fact")
         model.buffers["imaginal"] = newImaginal
-        model.addToTrace("New imaginal chunk \(newImaginal.name)")
+        model.addToTrace("New imaginal chunk \(newImaginal.name)  (latency = \(imaginalLatency))")
         return imaginalLatency
     }
 }

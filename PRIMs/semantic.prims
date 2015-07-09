@@ -61,8 +61,8 @@ define facts {
 
     (sem1  property  lion  mammal)
     (sem2  property  mammal  animal)
-    (sem3  property  animal  livingthing)
-    (sem4  property  plant  livingthing)
+    (sem3  property  animal living-thing)
+    (sem4  property  plant living-thing)
     (sem5  property  tulip plant)
     (sem6  property  bird animal)
     (sem7  property  tweety bird)
@@ -80,9 +80,9 @@ define goal-action {
 }
 
 define inputs {
-(lion livingthing yes)
+(lion living-thing yes)
 (tulip animal no)
-(mammal livingthing yes)
+(mammal living-thing yes)
 (lion plant no)
 
 }
