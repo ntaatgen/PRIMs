@@ -105,7 +105,6 @@ define goal say-answer {
 }
 
 define screen start {
-
   ( placemat one
    ( item fork)
    ( item fork)

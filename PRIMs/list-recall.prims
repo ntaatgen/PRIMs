@@ -1,6 +1,7 @@
 define task list-recall {
   initial-goals: (read-in-memory rehearse report-vocal )
-  task-constants: ( letter list )
+  goals: (be-lazy)
+  task-constants: ( letter list say)
   start-screen: screen1
   imaginal-autoclear: t
   rt: -2.0
@@ -16,7 +17,6 @@ define goal read-in-memory {
    V2->WM3
    list->WM1
    G0->WM2
-   read->AC1
    nil->V1
   }
 
@@ -28,7 +28,6 @@ define goal read-in-memory {
     V2->WM3
     list->WM1
     WM0->WM2
-    read->AC1
     nil->V1
   }
 }
@@ -61,7 +60,9 @@ define goal report-vocal {
   }
 }
 
-define goal rehearse {
+
+
+define goal be-lazy {
   operator rehearse-no-rehearse {
     V1=nil
     ==>
@@ -96,15 +97,9 @@ define screen report {
 (report)
 }
 
-define screen report2 {
-(report check)
-}
-
-
 transition(screen1,screen2) = absolute-time(2.0)
 transition(screen2,screen3) = absolute-time(4.0)
 transition(screen3,screen4) = absolute-time(6.0)
 transition(screen4,report) = absolute-time(8.0)
-transition(report,report2) = action(say)
 
 
