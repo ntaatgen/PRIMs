@@ -25,7 +25,7 @@ class Declarative  {
     static let latencyFactorDefault = 0.2
     static let goalOperatorLearningDefault = false
     static let betaDefault = 0.1
-    static let explorationExploitationFactorDefault = 0.5
+    static let explorationExploitationFactorDefault = 0.0
     /// Baseleveldecay parameter (d in ACT-R)
     var baseLevelDecay: Double = baseLevelDecayDefault
     /// Optimized learning on or off
