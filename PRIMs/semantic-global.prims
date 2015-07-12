@@ -6,6 +6,7 @@ initial-goals: (semantic)
 task-constants: (property subvocalize say yes no)
 start-screen: start
 imaginal-autoclear: nil
+default-activation: 1.0
 ol: t
 rt: -2.0
 lf: 0.2
