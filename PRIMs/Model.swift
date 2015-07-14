@@ -202,6 +202,8 @@ class Model {
             dm.optimizedLearning = boolVal
         case "goal-operator-learning:":
             dm.goalOperatorLearning = boolVal
+        case "goal-chunk-spreads:":
+            dm.goalSpreadingByActivation = boolVal
         default:
             if (numVal == nil) {return false}
             switch parameter {
