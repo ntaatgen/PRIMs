@@ -24,7 +24,6 @@
 		B85FAAB61AE1569F00C6F57A /* Production.swift in Sources */ = {isa = PBXBuildFile; fileRef = B85FAA961AE10D7500C6F57A /* Production.swift */; };
 		B85FAAB71AE1580200C6F57A /* Instantiation.swift in Sources */ = {isa = PBXBuildFile; fileRef = B85FAA9E1AE10D7500C6F57A /* Instantiation.swift */; };
 		B85FAAB81AE1582400C6F57A /* Procedural.swift in Sources */ = {isa = PBXBuildFile; fileRef = B85FAA971AE10D7500C6F57A /* Procedural.swift */; };
-		B871ECEA1B4482800029A571 /* taskswitching.prims in Resources */ = {isa = PBXBuildFile; fileRef = B871ECE91B4482800029A571 /* taskswitching.prims */; };
 		B8935EF11B13C93900E4C9E8 /* PrimsModelFileIcon.icns in Resources */ = {isa = PBXBuildFile; fileRef = B8935EF01B13C93900E4C9E8 /* PrimsModelFileIcon.icns */; };
 		B898EA881B0F504A00B5777E /* BatchRun.swift in Sources */ = {isa = PBXBuildFile; fileRef = B898EA871B0F504A00B5777E /* BatchRun.swift */; };
 		B898EA8A1B0F5A3500B5777E /* NSScanner+Swift.swift in Sources */ = {isa = PBXBuildFile; fileRef = B898EA891B0F5A3500B5777E /* NSScanner+Swift.swift */; };
@@ -55,6 +54,7 @@
 		B806EFBD1AF003CF00633505 /* Action.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Action.swift; sourceTree = "<group>"; };
 		B825B6E41B0C884E009B98BC /* more-fish.prims */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "more-fish.prims"; sourceTree = "<group>"; };
 		B826B9AE1B063DBB000950A3 /* count-spoons.prims */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "count-spoons.prims"; sourceTree = "<group>"; };
+		B83A89211B558B4900382B3D /* GoalOperatorLearning.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GoalOperatorLearning.swift; sourceTree = "<group>"; };
 		B84BE0771B034C190015DF1F /* PrimView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PrimView.swift; sourceTree = "<group>"; };
 		B85D9CB81B14C9AC0033CEA2 /* list-recall.prims */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "list-recall.prims"; sourceTree = "<group>"; };
 		B85FAA561AE10CAF00C6F57A /* PRIMs.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PRIMs.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -75,7 +75,6 @@
 		B85FAA9E1AE10D7500C6F57A /* Instantiation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Instantiation.swift; sourceTree = "<group>"; };
 		B85FAAB11AE1188C00C6F57A /* count.prims */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = count.prims; sourceTree = "<group>"; };
 		B85FAAB31AE1326000C6F57A /* Prim.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Prim.swift; sourceTree = "<group>"; };
-		B871ECE91B4482800029A571 /* taskswitching.prims */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = taskswitching.prims; sourceTree = "<group>"; };
 		B8935EF01B13C93900E4C9E8 /* PrimsModelFileIcon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = PrimsModelFileIcon.icns; sourceTree = "<group>"; };
 		B898EA851B0F3C3100B5777E /* testbatch.bprims */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = testbatch.bprims; sourceTree = "<group>"; };
 		B898EA871B0F504A00B5777E /* BatchRun.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BatchRun.swift; sourceTree = "<group>"; };
@@ -86,9 +85,10 @@
 		B8B3E4971B0F9310005E3601 /* spoons-fish.bprims */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "spoons-fish.bprims"; sourceTree = "<group>"; };
 		B8BEEE691AE79C9F00FF1FBC /* semantic.prims */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = semantic.prims; sourceTree = "<group>"; };
 		B8C76AC01B286C4800826141 /* addition.prims */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = addition.prims; sourceTree = "<group>"; };
+		B8C8DB4E1B568E8F00D5102F /* taskswitching.prims */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = taskswitching.prims; sourceTree = "<group>"; };
+		B8C8DB501B5690BC00D5102F /* stroop.prims */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = stroop.prims; sourceTree = "<group>"; };
 		B8CE155D1B022A5300554F5F /* FruchtermanReingold.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FruchtermanReingold.swift; sourceTree = "<group>"; };
 		B8D18E0D1AEEC305007CF2B6 /* Imaginal.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Imaginal.swift; sourceTree = "<group>"; };
-		B8E0DCE71B3BECD70097D90F /* stroop.prims */ = {isa = PBXFileReference; lastKnownFileType = text; path = stroop.prims; sourceTree = "<group>"; };
 		B8E0DCE81B3C4FE30097D90F /* stroop.bprims */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = stroop.bprims; sourceTree = "<group>"; };
 		B8E827561B3811B800C1E60A /* count-learn.prims */ = {isa = PBXFileReference; lastKnownFileType = text; path = "count-learn.prims"; sourceTree = "<group>"; };
 		B8E827571B38160B00C1E60A /* semantic-global.prims */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "semantic-global.prims"; sourceTree = "<group>"; };
@@ -141,6 +141,7 @@
 				B8F00C041B009E690036FFE3 /* Interface */,
 				B85FAA941AE10D0600C6F57A /* Core */,
 				B85FAA5D1AE10CAF00C6F57A /* MainViewController.swift */,
+				B83A89211B558B4900382B3D /* GoalOperatorLearning.swift */,
 				B85FAA5F1AE10CAF00C6F57A /* Images.xcassets */,
 				B8935EF01B13C93900E4C9E8 /* PrimsModelFileIcon.icns */,
 				B85FAA611AE10CAF00C6F57A /* Main.storyboard */,
@@ -201,8 +202,8 @@
 			isa = PBXGroup;
 			children = (
 				B85FAAB11AE1188C00C6F57A /* count.prims */,
-				B8E0DCE71B3BECD70097D90F /* stroop.prims */,
-				B871ECE91B4482800029A571 /* taskswitching.prims */,
+				B8C8DB501B5690BC00D5102F /* stroop.prims */,
+				B8C8DB4E1B568E8F00D5102F /* taskswitching.prims */,
 				B8E827561B3811B800C1E60A /* count-learn.prims */,
 				B825B6E41B0C884E009B98BC /* more-fish.prims */,
 				B8BEEE691AE79C9F00FF1FBC /* semantic.prims */,
@@ -323,7 +324,6 @@
 				B85FAA601AE10CAF00C6F57A /* Images.xcassets in Resources */,
 				B85FAA631AE10CAF00C6F57A /* Main.storyboard in Resources */,
 				B8B15FA61B46864300892AAE /* taskswitchstrooptransfer.bprims in Resources */,
-				B871ECEA1B4482800029A571 /* taskswitching.prims in Resources */,
 				B8935EF11B13C93900E4C9E8 /* PrimsModelFileIcon.icns in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

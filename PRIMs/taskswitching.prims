@@ -3,8 +3,9 @@
 
 define task taskswitching {
     initial-goals: (taskswitching)
+    goals: (prepare-next)
     start-screen: taskswitchstart
-    task-constants: (dotask nexttask)
+    task-constants: (dotask prepare-next)
     lf: 0.2
     egs: 0.05
     rt: 0.0
@@ -20,14 +21,11 @@ define task taskswitching {
 
 define goal taskswitching {
 
-    operator set-first-task {
+    operator choose-next-task {
         V1 = fixation
         G2 = nil
         ==>
-        foodtask -> WM1
-        one -> WM2
-        wait -> AC1
-        dotask -> G2
+        prepare-next -> G2
     }
 
     operator get-food-property {
@@ -64,51 +62,7 @@ define goal taskswitching {
         RT3 -> AC2
     }
 
-    operator choose-next-task {
-        V1 = fixation
-        G2 = dotask
-        ==>
-        nexttask -> G2
-    }
 
-    operator determine-next-task-retrieve-count {
-        V1 = fixation
-        RT1 = nil
-        G2 = nexttask
-        ==>
-        count-fact->RT1
-        WM2->RT2
-    }
-
-    operator determine-next-task-decide-to-stay {
-        RT1 = count-fact
-        RT3 = two
-        G2 = nexttask
-
-        ==>
-        RT3 -> WM2
-        dotask -> G2
-        wait -> AC1
-    }
-
-    operator determine-next-task-decide-to-switch {
-        RT1 = count-fact
-        RT3 = three
-        G2 = nexttask
-        ==>
-        one -> WM2
-        othertask -> RT1
-        WM1 -> RT2
-    }
-
-    operator set-other-task {
-        RT1 = othertask
-        G2 = nexttask
-        ==>
-        RT3 -> WM1
-        dotask -> G2
-        wait -> AC1
-    }
 
     operator last-stimulus {
         V1 = end
@@ -118,6 +72,54 @@ define goal taskswitching {
         stop -> G1
     }
 
+
+}
+
+define goal prepare-next {
+    operator set-first-task {
+        V1 = fixation
+        WM1 = nil
+        ==>
+        foodtask -> WM1
+        one -> WM2
+        nil -> G2
+        wait -> AC1
+    }
+
+    operator determine-next-task-retrieve-count {
+        V1 = fixation
+        RT1 = nil
+        WM1 <> nil
+        ==>
+        count-fact->RT1
+        WM2->RT2
+    }
+
+    operator determine-next-task-decide-to-stay {
+        RT1 = count-fact
+        RT3 = two
+        ==>
+        RT3 -> WM2
+        nil -> G2
+        wait -> AC1
+    }
+
+    operator determine-next-task-decide-to-switch {
+        RT1 = count-fact
+        RT3 = three
+        ==>
+        one -> WM2
+        othertask -> RT1
+        WM1 -> RT2
+    }
+
+    operator set-other-task {
+        RT1 = othertask
+        ==>
+        RT3 -> WM1
+        nil -> G2
+        wait -> AC1
+    }
 }
 
 define facts {

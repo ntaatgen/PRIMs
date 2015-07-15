@@ -2,8 +2,8 @@
 // Adapatation of original PR model
 
 define task stroop {
-    initial-goals: (stroop)
-    goals: (attendcolor default-attend focuscolor)
+    initial-goals: (stroop neutral)
+    goals: (attendcolor default-attend)
     task-constants: (neutral focuscolor)
     start-screen: stroop-start
     lf: 0.2
@@ -38,48 +38,48 @@ define goal stroop {
         stop -> G1
     }
 
-}
+//}
 
-define goal default-attend {
+//define goal default-attend {
 
-    operator just-wait(activation=1.5) {
+    operator just-wait {
     "Just wait for the stimulus"
         V1 = fixation
+        G2 = neutral
         ==>
         wait -> AC1
     }
 
 
-    operator attend(activation=1.5) {
+    operator attend {
         V1 = stim
         V2 = nil
         ==>
         attend -> AC1
     }
-}
+//}
 
-define goal attendcolor {
+//define goal attendcolor {
 
     operator prepare {
         "Prepare for the upcoming stimulus"
         V1 = fixation
-        G2 = nil
+        G2 = neutral
         ==>
         focuscolor -> G2
     }
 
     operator wait-when-prepared {
         V1 = fixation
-        G2 <> nil
+        G2 = focuscolor
         ==>
         wait -> AC1
     }
-}
 
-define goal focuscolor {
     operator attendjustcolor {
         V1 = stim
         V2 = nil
+        G2 = focuscolor
         ==>
         attendcolor -> AC1
     }
