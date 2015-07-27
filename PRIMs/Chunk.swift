@@ -183,7 +183,7 @@ class Chunk: Printable {
     
     func slotValue(slot: String) -> Value? {
         if slot == "slot0" {
-            return .Symbol(self)
+            return slotvals[slot] ?? .Symbol(self)
         } else {
             return slotvals[slot]
         }
@@ -263,7 +263,7 @@ class Chunk: Printable {
                     break
                 }
             }
-            return (totalSlots==0 ? 0 : totalSji * (model.dm.goalActivation / Double(totalSlots)))
+            return (totalSlots==0 ? 0 : totalSji * (spreadingParameterValue / Double(totalSlots)))
 
         }
         return 0.0

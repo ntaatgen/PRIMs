@@ -172,7 +172,7 @@ class Declarative  {
         chunkloop: for (_,ch1) in chunks {
             if !contains(finsts, ch1.name) {
                 for (slot,value) in chunk.slotvals {
-                    if let val1 = ch1.slotvals[slot] {
+                    if let val1 = ch1.slotValue(slot)  {
                         if !val1.isEqual(value) {
                             continue chunkloop }
                     } else { continue chunkloop }

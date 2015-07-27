@@ -470,7 +470,9 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
         var rest: String = ""
         if bufferChunk != nil {
             if showSlot0 {
-                rest += " \(bufferAbbreviation)0 \(bufferChunk!.name)\n"
+                if let value = bufferChunk!.slotValue("slot0") {
+                rest += " \(bufferAbbreviation)0 \(value.description)\n"
+                }
             }
             for slotNo in 1...9 {
                 if let value = bufferChunk!.slotvals["slot\(slotNo)"] {
@@ -562,7 +564,7 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
     }
     
     @IBAction func reset(sender: NSButton) {
-        model.reset(model.currentTaskIndex!)
+        model.reset(model.currentTaskIndex)
 
         primViewCalculateGraph(primGraph)
         primGraph.needsDisplay = true
