@@ -40,7 +40,11 @@ class BatchRun {
             scanner = NSScanner(string: self.batchScript)
             
             while let command = scanner.scanUpToCharactersFromSet(whiteSpaceAndNL) {
+                var stopByTime = false
                 switch command {
+                case "run-time":
+                    stopByTime = true
+                    fallthrough
                 case "run":
                     let taskname = scanner.scanUpToCharactersFromSet(whiteSpaceAndNL)
                     if taskname == nil {
@@ -52,12 +56,12 @@ class BatchRun {
                         self.model.addToTraceField("Illegal task label in run")
                         return
                     }
-                    let numberOfTrials = scanner.scanInt()
-                    if numberOfTrials == nil {
-                        self.model.addToTraceField("Illegal number of trials in run")
+                    let endCriterium = scanner.scanDouble()
+                    if endCriterium == nil {
+                        self.model.addToTraceField("Illegal number of trials or end time in run")
                         return
                     }
-                    self.model.addToTraceField("Running task \(taskname!) with label \(taskLabel!) for \(numberOfTrials!) trials")
+                    self.model.addToTraceField("Running task \(taskname!) with label \(taskLabel!) until \(endCriterium!) trials")
                     var tasknumber = self.model.findTask(taskname!)
                     if tasknumber == nil {
                         let taskPath = self.directory.URLByAppendingPathComponent(taskname! + ".prims")
@@ -73,7 +77,11 @@ class BatchRun {
                         return
                     }
                     self.model.loadOrReloadTask(tasknumber!)
-                    for j in 0..<numberOfTrials! {
+                    var j = 0
+                    let startTime = self.model.time
+                    while (!stopByTime && j < Int(endCriterium!)) || (stopByTime && (self.model.time - startTime) < endCriterium!) {
+                        j++
+//                    for j in 0..<numberOfTrials! {
                         println("Trial #\(j)")
                         self.model.run()
                         var output: String = ""
