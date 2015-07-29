@@ -109,18 +109,21 @@ class PRScenario {
     }
 
     func makeTimeTransition(model: Model) {
-        currentScreen = currentScreen!.timeTarget!
-        currentScreen!.start()
-        if currentScreen!.timeTransition != nil {
-            if currentScreen!.timeAbsolute {
-                nextEventTime = model.startTime + currentScreen!.timeTransition!
+        do {
+            currentScreen = currentScreen!.timeTarget!
+            currentScreen!.start()
+            if currentScreen!.timeTransition != nil {
+                if currentScreen!.timeAbsolute {
+                    nextEventTime = model.startTime + currentScreen!.timeTransition!
+                    
+                } else {
+                    nextEventTime = model.time + currentScreen!.timeTransition!
+                }
             } else {
-                nextEventTime = model.time + currentScreen!.timeTransition!
+                nextEventTime = nil
             }
-        } else {
-            nextEventTime = nil
-        }
-        let chunk = currentScreen!.current(model)
+        } while nextEventTime != nil && nextEventTime! < model.time
+        let chunk = makeSubstitutions(currentScreen!.current(model))
         model.buffers["input"] = chunk
         model.addToTrace("Switching to screen \(currentScreen!.name), next switch is \(nextEventTime)")
         
