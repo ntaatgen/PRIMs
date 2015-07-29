@@ -23,6 +23,7 @@ class Model {
     lazy var procedural: Procedural = { () -> Procedural in return Procedural(model: self) }()
     lazy var imaginal: Imaginal = { () -> Imaginal in return Imaginal(model: self) }()
     lazy var action: Action = { () -> Action in return Action(model: self) }()
+    lazy var operators: Operator = { () -> Operator in return Operator(model: self) }()
     var buffers: [String:Chunk] = [:]
     var chunkIdCounter = 0
     var running = false
@@ -537,6 +538,7 @@ class Model {
         trace = ""
         waitingForAction = false
         currentTaskIndex = nil
+        operators.reset()
         if taskNumber != nil {
             currentTaskIndex = taskNumber!
             scenario = PRScenario()

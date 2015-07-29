@@ -15,9 +15,9 @@ define task semantic {
 define goal semantic {
     operator start-semantic {
     "Start semantic reasoning"
-        V1 <> nil
         WM1 = nil
-        ==>
+        V1 <> nil
+     ==>
         V1 -> WM1
         property -> RT1
         V1 -> RT2

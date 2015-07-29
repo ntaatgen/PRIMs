@@ -24,15 +24,13 @@
 		B85FAAB61AE1569F00C6F57A /* Production.swift in Sources */ = {isa = PBXBuildFile; fileRef = B85FAA961AE10D7500C6F57A /* Production.swift */; };
 		B85FAAB71AE1580200C6F57A /* Instantiation.swift in Sources */ = {isa = PBXBuildFile; fileRef = B85FAA9E1AE10D7500C6F57A /* Instantiation.swift */; };
 		B85FAAB81AE1582400C6F57A /* Procedural.swift in Sources */ = {isa = PBXBuildFile; fileRef = B85FAA971AE10D7500C6F57A /* Procedural.swift */; };
+		B866FCB31B67BC010084EAAE /* Operator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B866FCB21B67BC010084EAAE /* Operator.swift */; };
 		B8935EF11B13C93900E4C9E8 /* PrimsModelFileIcon.icns in Resources */ = {isa = PBXBuildFile; fileRef = B8935EF01B13C93900E4C9E8 /* PrimsModelFileIcon.icns */; };
 		B898EA881B0F504A00B5777E /* BatchRun.swift in Sources */ = {isa = PBXBuildFile; fileRef = B898EA871B0F504A00B5777E /* BatchRun.swift */; };
 		B898EA8A1B0F5A3500B5777E /* NSScanner+Swift.swift in Sources */ = {isa = PBXBuildFile; fileRef = B898EA891B0F5A3500B5777E /* NSScanner+Swift.swift */; };
-		B8B15FA61B46864300892AAE /* taskswitchstrooptransfer.bprims in Resources */ = {isa = PBXBuildFile; fileRef = B8B15FA51B46864300892AAE /* taskswitchstrooptransfer.bprims */; };
 		B8B23CDC1AED499C00307F90 /* GraphView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8B23CDB1AED499C00307F90 /* GraphView.swift */; };
 		B8CE155E1B022A5300554F5F /* FruchtermanReingold.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8CE155D1B022A5300554F5F /* FruchtermanReingold.swift */; };
 		B8D18E0E1AEEC305007CF2B6 /* Imaginal.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8D18E0D1AEEC305007CF2B6 /* Imaginal.swift */; };
-		B8E0DCE91B3C4FE30097D90F /* stroop.bprims in Resources */ = {isa = PBXBuildFile; fileRef = B8E0DCE81B3C4FE30097D90F /* stroop.bprims */; };
-		B8E827581B38160B00C1E60A /* semantic-global.prims in Resources */ = {isa = PBXBuildFile; fileRef = B8E827571B38160B00C1E60A /* semantic-global.prims */; };
 		B8EEE60D1B01DDC6002EFAD6 /* PRScenario.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8EEE60C1B01DDC6002EFAD6 /* PRScenario.swift */; };
 		B8F00C061B009E810036FFE3 /* PRObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8F00C051B009E810036FFE3 /* PRObject.swift */; };
 		B8F00C081B00A1D10036FFE3 /* PRScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8F00C071B00A1D10036FFE3 /* PRScreen.swift */; };
@@ -75,6 +73,7 @@
 		B85FAA9E1AE10D7500C6F57A /* Instantiation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Instantiation.swift; sourceTree = "<group>"; };
 		B85FAAB11AE1188C00C6F57A /* count.prims */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = count.prims; sourceTree = "<group>"; };
 		B85FAAB31AE1326000C6F57A /* Prim.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Prim.swift; sourceTree = "<group>"; };
+		B866FCB21B67BC010084EAAE /* Operator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Operator.swift; sourceTree = "<group>"; };
 		B8935EF01B13C93900E4C9E8 /* PrimsModelFileIcon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = PrimsModelFileIcon.icns; sourceTree = "<group>"; };
 		B898EA851B0F3C3100B5777E /* testbatch.bprims */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = testbatch.bprims; sourceTree = "<group>"; };
 		B898EA871B0F504A00B5777E /* BatchRun.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BatchRun.swift; sourceTree = "<group>"; };
@@ -183,6 +182,7 @@
 			isa = PBXGroup;
 			children = (
 				B85FAAB31AE1326000C6F57A /* Prim.swift */,
+				B866FCB21B67BC010084EAAE /* Operator.swift */,
 				B8D18E0D1AEEC305007CF2B6 /* Imaginal.swift */,
 				B85FAA951AE10D7500C6F57A /* Chunk.swift */,
 				B85FAA961AE10D7500C6F57A /* Production.swift */,
@@ -319,11 +319,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B8E0DCE91B3C4FE30097D90F /* stroop.bprims in Resources */,
-				B8E827581B38160B00C1E60A /* semantic-global.prims in Resources */,
 				B85FAA601AE10CAF00C6F57A /* Images.xcassets in Resources */,
 				B85FAA631AE10CAF00C6F57A /* Main.storyboard in Resources */,
-				B8B15FA61B46864300892AAE /* taskswitchstrooptransfer.bprims in Resources */,
 				B8935EF11B13C93900E4C9E8 /* PrimsModelFileIcon.icns in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -342,6 +339,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B866FCB31B67BC010084EAAE /* Operator.swift in Sources */,
 				B85FAAB81AE1582400C6F57A /* Procedural.swift in Sources */,
 				B898EA8A1B0F5A3500B5777E /* NSScanner+Swift.swift in Sources */,
 				B8D18E0E1AEEC305007CF2B6 /* Imaginal.swift in Sources */,

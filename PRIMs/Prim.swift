@@ -12,13 +12,15 @@ import Foundation
 let bufferMappingC = ["V":"input","WM":"imaginal","G":"goal","C":"operator","AC":"action","RT":"retrievalH","GC":"constants"]
 /// Buffer mappings for buffer that are used in the lhs of an action
 let bufferMappingA = ["V":"input","WM":"imaginalN","G":"goal","C":"operator","AC":"action","RT":"retrievalR","GC":"constants"]
+/// Buffer Order determines which buffer is preferred on the left side of a PRIM (lower is left)
+let bufferOrder = ["input":1,"goal":2,"imaginal":3,"retrievalH":4,"constants":5,"operator":6]
 
 /** 
 This function takes a string that represents a PRIM, and translates it into its components
 
-:returns: is a five-tuple with left-buffer-name left-buffer-slot, operator, right-buffer-name and right-buffer-slot
+:returns: is a five-tuple with left-buffer-name left-buffer-slot, operator, right-buffer-name, right-buffer-slot, PRIM with reversed lhs and rhs if necessary
 */
-func parseName(name: String) -> (String?,String?,String,String?,String?) {
+func parseName(name: String) -> (String?,String?,String,String?,String?,String?) {
     var components: [String] = []
     var component = ""
     var prevComponentCat = 1
@@ -43,22 +45,34 @@ func parseName(name: String) -> (String?,String?,String,String?,String?) {
     let compareError = components.count < 4
     let parseError = compareError || (components[0] != "nil" && components[3] != "nil" && (components.count == 4 || bufferMappingC[components[3]] == "nil"))
     if  parseError || components[0] == "nil" && components[1] != "->" {
-        return ("","","",nil,nil)
+        return ("","","",nil,nil,nil)
     } else if components[0] == "nil" {
         let rightBuffer = bufferMappingA[components[2]]
-        if rightBuffer == nil { return ("","","",nil,nil) }
-        return (nil,nil,"->",rightBuffer!,"slot" + components[3])
+        if rightBuffer == nil { return ("","","",nil,nil,nil) }
+        return (nil,nil,"->",rightBuffer!,"slot" + components[3],nil)
     } else if components[3] == "nil" {
         let leftBuffer = bufferMappingC[components[0]]
-        if leftBuffer == nil { return ("","","",nil,nil) }
-        return (leftBuffer!,"slot" + components[1],components[2],nil,nil)
+        if leftBuffer == nil { return ("","","",nil,nil,nil) }
+        return (leftBuffer!,"slot" + components[1],components[2],nil,nil,nil)
     } else {
-        let rightBuffer = (components[2] == "->") ? bufferMappingA[components[3]] : bufferMappingC[components[3]]
-        let leftBuffer = bufferMappingC[components[0]]
+        var rightBuffer = (components[2] == "->") ? bufferMappingA[components[3]] : bufferMappingC[components[3]]
+        var leftBuffer = bufferMappingC[components[0]]
         if rightBuffer == nil || leftBuffer == nil {
-            return ("","","",nil,nil)
+            return ("","","",nil,nil,nil)
         } else {
-            return (leftBuffer!,"slot" + components[1],components[2],rightBuffer!, "slot" + components[4])
+            var newPrim: String? = nil
+            if (components[2] == "=" || components[2] == "<>") && bufferOrder[leftBuffer!]! >= bufferOrder[rightBuffer!]! {
+                if (bufferOrder[leftBuffer!]! > bufferOrder[rightBuffer!]!) || (components[1].toInt() > components[4].toInt()) {
+                    let tmp = rightBuffer
+                    rightBuffer = leftBuffer
+                    leftBuffer = tmp
+                    let tmp2 = components[1]
+                    components[1] = components[4]
+                    components[4] = tmp2
+                    newPrim = components[3] + components[1] + components[2] + components[0] + components[4]
+                }
+            }
+            return (leftBuffer!,"slot" + components[1],components[2],rightBuffer!, "slot" + components[4],newPrim)
         }
     }
 }
@@ -81,7 +95,7 @@ class Prim:Printable {
     init(name: String, model: Model) {
         self.name = name
         self.model = model
-        (lhsBuffer,lhsSlot,op,rhsBuffer,rhsSlot) = parseName(name)
+        (lhsBuffer,lhsSlot,op,rhsBuffer,rhsSlot,_) = parseName(name)
     }
     
     

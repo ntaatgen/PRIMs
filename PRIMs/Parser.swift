@@ -299,8 +299,8 @@ class Parser  {
             m.addToTraceField("Missing '{'")
             return false
         }
-        var conditions = ""
-        var actions = ""
+        var conditions = [String]()
+        var actions = [String]()
         var scanningActions = false
         while !scanner.scanString("}", intoString: nil) {
             var item = scanner.scanUpToCharactersFromSet(whitespaceNewLineParentheses)
@@ -377,15 +377,19 @@ class Parser  {
                         complete = true
                     }
                 }
+                let (_,_,_,_,_,newPrim) = parseName(prim)
+                if newPrim != nil {
+                    prim = newPrim!
+                }
                 if scanningActions {
-                    actions += actions == "" ? prim : ";" + prim
+                    actions.insert(prim, atIndex: 0)
                 } else {
-                    conditions += conditions == "" ? prim : ";" + prim
+                    conditions.insert(prim, atIndex: 0)
                 }
             }
         }
-        chunk.setSlot("condition", value: conditions)
-        chunk.setSlot("action", value: actions)
+        m.operators.addOperator(chunk, conditions: conditions, actions: actions)
+
 //        if !m.dm.goalOperatorLearning  {
             chunk.assocs[goalName] = (m.dm.defaultOperatorAssoc, 0)
 //        }
