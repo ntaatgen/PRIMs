@@ -97,4 +97,116 @@ class Operator {
         operatorCA.append((op.name, conditionList, actionList))
     }
     
+    
+    /// List of chosen operators with time
+    var previousOperators: [(Chunk,Double)] = []
+    
+    /**
+    Update the Sji's between the current goal(s?) and the operators that have fired. Restrict to updating the goal in G1 for now.
+    
+    :param: payoff The payoff that will be distributed
+    */
+    func updateOperatorSjis(payoff: Double) {
+        if !model.dm.goalOperatorLearning || model.reward == 0.0 { return } // only do this when switched on
+        let goalChunk = model.formerBuffers["goal"]?.slotvals["slot1"]?.chunk() // take formerBuffers goal, because goal may have been replace by stop or nil
+        if goalChunk == nil { return }
+        for (operatorChunk,operatorTime) in previousOperators {
+            let opReward = model.dm.defaultOperatorAssoc * (payoff - (model.time - operatorTime)) / model.reward
+            if operatorChunk.assocs[goalChunk!.name] == nil {
+                operatorChunk.assocs[goalChunk!.name] = (0.0, 0)
+            }
+            operatorChunk.assocs[goalChunk!.name]!.0 += model.dm.beta * (opReward - operatorChunk.assocs[goalChunk!.name]!.0)
+            operatorChunk.assocs[goalChunk!.name]!.1++
+            operatorChunk.addReference() // Also increase baselevel activation of the operator
+            model.addToTrace("Updating assoc between \(goalChunk!.name) and \(operatorChunk.name) to \(operatorChunk.assocs[goalChunk!.name]!)")
+        }
+    }
+    
+    
+    /**
+    This function finds an operator. It can do this in several ways depending on the settings
+    of the parameters compileOperators and retrieveOperatorsConditional.
+    If retrieveOperatorsConditional is true, an operator is retrieved that is checked by the currently
+    available productions. If successful, the operator is placed in the operator buffer.
+    
+    :returns: Whether an operator was successfully found
+    */
+    func findOperatorOrOperatorProduction() -> Bool {
+        let retrievalRQ = Chunk(s: "operator", m: model)
+        retrievalRQ.setSlot("isa", value: "operator")
+        var (latency,opRetrieved) = model.dm.retrieve(retrievalRQ)
+        if model.procedural.retrieveOperatorsConditional {
+            var cfs = model.dm.conflictSet.sorted({ (item1, item2) -> Bool in
+                let (_,u1) = item1
+                let (_,u2) = item2
+                return u1 > u2
+            })
+            if model.stepping {
+                model.addToTrace("Conflict Set")
+                for (chunk,activation) in cfs {
+                    model.addToTrace("  \(chunk.name) A = \(activation)")
+                }
+            }
+            var match = false
+            var candidate: Chunk
+            var activation: Double
+            do {
+                (candidate, activation) = cfs.removeAtIndex(0)
+                let savedBuffers = model.buffers
+                model.buffers["operator"] = candidate.copy()
+                let inst = model.procedural.findMatchingProduction()
+                match = model.procedural.fireProduction(inst, compile: false)
+                model.buffers = savedBuffers
+            } while !match && !cfs.isEmpty && cfs[0].1 > model.dm.retrievalThreshold
+            if match {
+                opRetrieved = candidate
+                latency = model.dm.latency(activation)
+            } else { opRetrieved = nil
+                latency = model.dm.latency(model.dm.retrievalThreshold)
+            }
+        }
+        model.time += latency
+        if opRetrieved == nil { return false }
+        if model.dm.goalOperatorLearning {
+            let item = (opRetrieved!, model.time - latency)
+            previousOperators.append(item)
+        }
+        model.addToTrace("*** Retrieved operator \(opRetrieved!.name) with spread \(opRetrieved!.spreadingActivation())")
+        model.dm.addToFinsts(opRetrieved!)
+        model.buffers["goal"]!.setSlot("last-operator", value: opRetrieved!)
+        model.buffers["operator"] = opRetrieved!.copy()
+        model.formerBuffers["operator"] = opRetrieved!
+        
+        
+        return true
+    }
+    
+    
+    /**
+    This function carries out productions for the current operator until it has a PRIM that fails, in
+    which case it returns false, or until all the conditions of the operator have been tested and
+    all actions have been carried out.
+    */
+    func carryOutProductionsUntilOperatorDone() -> Bool {
+        var match: Bool = true
+        var first: Bool = true
+        while match && (model.buffers["operator"]?.slotvals["condition"] != nil || model.buffers["operator"]?.slotvals["action"] != nil) {
+            let inst = model.procedural.findMatchingProduction()
+            var pname = inst.p.name
+            if pname.hasPrefix("t") {
+                pname = dropFirst(pname)
+            }
+            model.addToTrace("Firing \(pname)")
+            match = model.procedural.fireProduction(inst, compile: true)
+            if first {
+                model.time += model.procedural.productionActionLatency
+                first = false
+            } else {
+                model.time += model.procedural.productionAndPrimLatency
+            }
+        }
+        return match
+    }
+    
+    
 }

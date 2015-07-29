@@ -190,7 +190,7 @@ class Model {
         running = true
         clearTrace()
         outputData = []
-        previousOperators = []
+        operators.previousOperators = []
     }
     
     func setParameter(parameter: String, value: String) -> Bool {
@@ -283,116 +283,6 @@ class Model {
     
     // The next section of code handles operators. This should be migrated to a separate class eventually
     
-    /// List of chosen operators with time
-    var previousOperators: [(Chunk,Double)] = []
-    
-    /**
-    Update the Sji's between the current goal(s?) and the operators that have fired. Restrict to updating the goal in G1 for now.
-
-    :param: payoff The payoff that will be distributed
-    */
-    func updateOperatorSjis(payoff: Double) {
-        if !dm.goalOperatorLearning || reward == 0.0 { return } // only do this when switched on
-        let goalChunk = formerBuffers["goal"]?.slotvals["slot1"]?.chunk() // take formerBuffers goal, because goal may have been replace by stop or nil
-        if goalChunk == nil { return }
-        for (operatorChunk,operatorTime) in previousOperators {
-            let opReward = dm.defaultOperatorAssoc * (payoff - (time - operatorTime)) / reward
-            if operatorChunk.assocs[goalChunk!.name] == nil {
-                operatorChunk.assocs[goalChunk!.name] = (0.0, 0)
-            }
-            operatorChunk.assocs[goalChunk!.name]!.0 += dm.beta * (opReward - operatorChunk.assocs[goalChunk!.name]!.0)
-            operatorChunk.assocs[goalChunk!.name]!.1++
-            operatorChunk.addReference() // Also increase baselevel activation of the operator
-            addToTrace("Updating assoc between \(goalChunk!.name) and \(operatorChunk.name) to \(operatorChunk.assocs[goalChunk!.name]!)")
-        }
-    }
-    
-
-    /**
-    This function finds an operator. It can do this in several ways depending on the settings
-    of the parameters compileOperators and retrieveOperatorsConditional.
-    If retrieveOperatorsConditional is true, an operator is retrieved that is checked by the currently
-    available productions. If successful, the operator is placed in the operator buffer.
-    
-    :returns: Whether an operator was successfully found
-    */
-    func findOperatorOrOperatorProduction() -> Bool {
-        let retrievalRQ = Chunk(s: "operator", m: self)
-        retrievalRQ.setSlot("isa", value: "operator")
-        var (latency,opRetrieved) = dm.retrieve(retrievalRQ)
-        if procedural.retrieveOperatorsConditional {
-            var cfs = dm.conflictSet.sorted({ (item1, item2) -> Bool in
-                let (_,u1) = item1
-                let (_,u2) = item2
-                return u1 > u2
-            })
-            if stepping {
-                addToTrace("Conflict Set")
-                for (chunk,activation) in cfs {
-                    addToTrace("  \(chunk.name) A = \(activation)")
-                }
-            }
-            var match = false
-            var candidate: Chunk
-            var activation: Double
-            do {
-                (candidate, activation) = cfs.removeAtIndex(0)
-                let savedBuffers = buffers
-                buffers["operator"] = candidate.copy()
-                let inst = procedural.findMatchingProduction()
-                match = procedural.fireProduction(inst, compile: false)
-                buffers = savedBuffers
-            } while !match && !cfs.isEmpty && cfs[0].1 > dm.retrievalThreshold
-            if match {
-                opRetrieved = candidate
-                latency = dm.latency(activation)
-            } else { opRetrieved = nil
-                latency = dm.latency(dm.retrievalThreshold)
-            }
-        }
-        time += latency
-        if opRetrieved == nil { return false }
-        if dm.goalOperatorLearning {
-            let item = (opRetrieved!, time - latency)
-            previousOperators.append(item)
-        }
-        addToTrace("*** Retrieved operator \(opRetrieved!.name) with spread \(opRetrieved!.spreadingActivation())")
-        dm.addToFinsts(opRetrieved!)
-        buffers["goal"]!.setSlot("last-operator", value: opRetrieved!)
-        buffers["operator"] = opRetrieved!.copy()
-        formerBuffers["operator"] = opRetrieved!
-
-        
-        return true
-    }
-    
-    
-    /**
-    This function carries out productions for the current operator until it has a PRIM that fails, in
-    which case it returns false, or until all the conditions of the operator have been tested and
-    all actions have been carried out.
-    */
-    func carryOutProductionsUntilOperatorDone() -> Bool {
-        var match: Bool = true
-        var first: Bool = true
-        while match && (buffers["operator"]?.slotvals["condition"] != nil || buffers["operator"]?.slotvals["action"] != nil) {
-            let inst = procedural.findMatchingProduction()
-            var pname = inst.p.name
-            if pname.hasPrefix("t") {
-                pname = dropFirst(pname)
-            }
-            addToTrace("Firing \(pname)")
-            match = procedural.fireProduction(inst, compile: true)
-            if first {
-                time += procedural.productionActionLatency
-                first = false
-            } else {
-            time += procedural.productionAndPrimLatency
-            }
-        }
-        return match
-    }
-    
     func doAllModuleActions() {
         var latency = 0.0
         formerBuffers["retrievalH"] = buffers["retrievalH"]
@@ -455,21 +345,21 @@ class Model {
         commitToTrace(false)
         do {
             procedural.lastProduction = nil
-            if !findOperatorOrOperatorProduction() {
+            if !operators.findOperatorOrOperatorProduction() {
                 running = false
                 procedural.issueReward(0.0)
-                updateOperatorSjis(0.0)
+                operators.updateOperatorSjis(0.0)
                 let dl = DataLine(eventType: "trial-end", eventParameter1: "fail", eventParameter2: "void", eventParameter3: "void", inputParameters: scenario.inputMappingForTrace, time: time - startTime)
                 outputData.append(dl)
                 return
             }
-            found = carryOutProductionsUntilOperatorDone()
+            found = operators.carryOutProductionsUntilOperatorDone()
             if !found {
                 let op = buffers["operator"]!
                 addToTrace("Operator \(op.name) failed")
                 commitToTrace(true)
                 if dm.goalOperatorLearning {
-                    previousOperators.removeLast()
+                    operators.previousOperators.removeLast()
                 }
             }
         } while !found
@@ -494,7 +384,7 @@ class Model {
         // We are done if the current action is the goal action, or there is no goal action and slot1 in the goal is set to stop
         if testGoalAction() || (scenario.goalAction.isEmpty && buffers["goal"]?.slotvals["slot1"] != nil && buffers["goal"]!.slotvals["slot1"]!.description == "stop")  {
             procedural.issueReward(40.0)
-            updateOperatorSjis(reward)
+            operators.updateOperatorSjis(reward)
             if let imaginalChunk = buffers["imaginal"] {
                 dm.addToDM(imaginalChunk)
             }
@@ -507,7 +397,7 @@ class Model {
             let maxTime = reward == 0.0 ? timeThreshold : reward
             if time - startTime > maxTime || (buffers["goal"]?.slotvals["slot1"] != nil && buffers["goal"]!.slotvals["slot1"]!.description == "stop") {
                 procedural.issueReward(0.0)
-                updateOperatorSjis(0.0)
+                operators.updateOperatorSjis(0.0)
                 running = false
                 resultAdd(time - startTime)
                 let dl = DataLine(eventType: "trial-end", eventParameter1: "fail", eventParameter2: "void", eventParameter3: "void", inputParameters: scenario.inputMappingForTrace, time: time - startTime)
