@@ -85,6 +85,24 @@ define goal focuscolor {
     }
 }
 
+define action say {
+    latency: 0.3
+    noise: 0.1
+    distribution: uniform
+    output: Saying
+}
+
+define action attend {
+    latency: 0.085
+    output: Attending
+}
+
+define action attendcolor {
+    latency: 0.085
+    output: AttendingColor
+}
+
+
 define facts {
     (red-word-assoc response red-word red :activation 0.0)
     (blue-word-assoc response blue-word blue :activation 0.0)

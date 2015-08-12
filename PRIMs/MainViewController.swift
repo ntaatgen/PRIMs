@@ -19,6 +19,8 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
     
     @IBOutlet var outputText: NSTextView!
     
+    @IBOutlet weak var outputScrollView: NSScrollView!
+    
     @IBOutlet weak var productionTable: NSTableView!
   
     @IBOutlet weak var taskTable: NSTableView!
@@ -323,17 +325,10 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
         } else {
             return false
         }
-        let newTask = Task(name: model.currentTask!, path: filePath)
-        newTask.loaded = true
-        newTask.goalChunk = model.currentGoals
-        newTask.goalConstants = model.currentGoalConstants
-        newTask.parameters = model.parameters
-        newTask.scenario = model.scenario
-        model.tasks.append(newTask)
+        model.addTask(filePath)
         primViewCalculateGraph(primGraph)
         primGraph.needsDisplay = true
         updateAllViews()
-        model.running = false
         return true
     }
     
@@ -347,6 +342,10 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
     func updateAllViews() {
         model.commitToTrace(false)
         outputText.string = model.trace
+//        let bottomOffset = CGPointMake(0, outputText.bounds.size.height)
+//        println("bottomOffset = \(bottomOffset)")
+//        outputScrollView.documentView!.scrollToPoint(bottomOffset)
+
         pTable = createProductionTable()
         productionTable.reloadData()
         dmTable = createDMTable()

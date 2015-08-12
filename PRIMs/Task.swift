@@ -18,6 +18,7 @@ class Task {
     var scenario: PRScenario! = nil
     var reward: Double = 10.0
     var parameters: [(String,String)] = []
+    var actions: [String:ActionInstance] = [:]
     init(name: String, path: NSURL) {
         self.name = name
         self.filename = path

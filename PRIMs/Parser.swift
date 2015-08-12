@@ -68,6 +68,7 @@ class Parser  {
                 case "inputs": if !parseInputs() { return false }
                 case "goal-action": if !parseGoalAction() { return false }
                 case "sji": if !parseSjis() { return false }
+                case "action": if !parseAction() { return false }
                 default: m.addToTraceField("Don't know how to define \(definedItem!)")
                     return false
                 }
@@ -220,6 +221,76 @@ class Parser  {
         m.currentTask = taskName!
         
         return true
+    }
+    
+    
+    func parseAction() -> Bool {
+        let actionName = scanner.scanUpToCharactersFromSet(whitespaceNewLineParentheses)
+        if actionName == nil {
+            m.addToTraceField("Expected name of action in action definition")
+            return false
+        }
+        m.addToTraceField("Defining action \(actionName!)")
+        var action: ActionInstance = ActionInstance(name: actionName!, meanLatency: m.action.defaultPerceptualActionLatency)
+        let readBrace = scanner.scanString("{")
+        if readBrace == nil {
+            m.addToTraceField("'{' Expected after \(actionName!)")
+            return false
+        }
+        var setting: String?
+        while !scanner.scanString("}", intoString: nil) {
+            setting = scanner.scanUpToCharactersFromSet(whitespaceNewLineParentheses)
+            if setting == nil {
+                m.addToTraceField("Unexpected end of file in action definition")
+                return false
+            }
+            switch setting! {
+            case "output:":
+                let outputString = scanner.scanUpToCharactersFromSet(whitespaceNewLine)
+                if outputString == nil {
+                    m.addToTraceField("No output string after output: in action declaration")
+                    return false
+                }
+                action.outputString = outputString!
+                m.addToTraceField("Setting output string to \(outputString!)")
+            case "latency:":
+                let value = scanner.scanDouble()
+                if value == nil {
+                    m.addToTraceField("Invalid value after latency:")
+                    return false
+                }
+                action.meanLatency = value!
+            case "noise:":
+                let value = scanner.scanDouble()
+                if value == nil {
+                    m.addToTraceField("Invalid value after noise:")
+                    return false
+                }
+                action.noiseValue = value!
+            case "distribution:":
+                let distribution = scanner.scanUpToCharactersFromSet(whitespaceNewLine)
+                if distribution == nil {
+                    m.addToTraceField("No string after distribution: in action declaration")
+                    return false
+                }
+                switch distribution! {
+                case "none": action.noiseType = .None
+                case "uniform": action.noiseType = .Uniform
+                case "logistic": action.noiseType = .Logistic
+                default: m.addToTraceField("Unknown noise distrubution \(distribution!)")
+                    return false
+                }
+                
+            default:
+                m.addToTraceField("Don't know about \(setting!) in action declaration")
+                return false
+
+            }
+        }
+        m.action.actions[actionName!] = action
+        
+        return true
+
     }
     
     func parseGoal() -> Bool {

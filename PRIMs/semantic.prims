@@ -57,6 +57,21 @@ define goal semantic {
     }
 }
 
+define action subvocalize {
+    latency: 0.2
+    noise: 0.08
+    distribution: uniform
+    output: Subvocalizing
+}
+
+define action say {
+    latency: 0.3
+    noise: 0.1
+    distribution: uniform
+    output: Saying
+}
+
+
 define facts {
 
     (sem1  property  lion  mammal)

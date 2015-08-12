@@ -175,6 +175,18 @@ class Model {
         return result
     }
     
+    func addTask(filePath: NSURL) {
+        let newTask = Task(name: currentTask!, path: filePath)
+        newTask.loaded = true
+        newTask.goalChunk = currentGoals
+        newTask.goalConstants = currentGoalConstants
+        newTask.parameters = parameters
+        newTask.scenario = scenario
+        newTask.actions = action.actions
+        tasks.append(newTask)
+        running = false
+    }
+    
 
     func initializeNewTrial() {
         startTime = time
@@ -246,12 +258,6 @@ class Model {
                 dm.defaultOperatorSelfAssoc = numVal!
             case "production-prim-latency:":
                 procedural.productionAndPrimLatency = numVal!
-            case "say-latency:":
-                action.sayLatency = numVal!
-            case "subvocalize-latency:":
-                action.subvocalizeLatency = numVal!
-            case "read-latency:":
-                action.readLatency = numVal!
             case "perception-action-latency:":
                 action.defaultPerceptualActionLatency = numVal!
             case "beta:":
@@ -464,6 +470,7 @@ class Model {
             currentGoalConstants = tasks[i].goalConstants
             parameters = tasks[i].parameters
             scenario = tasks[i].scenario
+            action.actions = tasks[i].actions
 //            println("Setting scenario with startscreen \(scenario.startScreen.name)")
 //            println("Setting parameters")
             setParametersToDefault()
