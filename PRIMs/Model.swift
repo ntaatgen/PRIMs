@@ -263,7 +263,9 @@ class Model {
             case "beta:":
                 dm.beta = numVal!
             case "reward:":
-                    self.reward = numVal!
+                self.reward = numVal!
+            case "procedural-reward:":
+                procedural.proceduralReward = numVal!
             case "explore-exploit:":
                 dm.explorationExploitationFactor = numVal!
             default: return false
@@ -331,6 +333,19 @@ class Model {
         return true
     }
     
+    func logInput(inputTime: Double) {
+        let result = buffers["input"]
+        if result != nil {
+            let slot1 = result!.slotvals["slot1"]?.description
+            let slot2 = result!.slotvals["slot2"]?.description
+            let slot3 = result!.slotvals["slot3"]?.description
+            
+            let dl = DataLine(eventType: "perception", eventParameter1: slot1 ?? "void", eventParameter2: slot2 ?? "void", eventParameter3: slot3 ?? "void", inputParameters: scenario.inputMappingForTrace, time: inputTime - startTime)
+            outputData.append(dl)
+            
+        }
+    }
+    
     /**
     Execute a single operator by first finding one that matches, and then firing the necessary
     productions to execute it
@@ -352,12 +367,19 @@ class Model {
         do {
             procedural.lastProduction = nil
             if !operators.findOperatorOrOperatorProduction() {
-                running = false
-                procedural.issueReward(0.0)
-                operators.updateOperatorSjis(0.0)
-                let dl = DataLine(eventType: "trial-end", eventParameter1: "fail", eventParameter2: "void", eventParameter3: "void", inputParameters: scenario.inputMappingForTrace, time: time - startTime)
-                outputData.append(dl)
-                return
+                if scenario.nextEventTime == nil {
+                    running = false
+//                    procedural.issueReward(0.0)
+                    operators.updateOperatorSjis(0.0)
+                    let dl = DataLine(eventType: "trial-end", eventParameter1: "fail", eventParameter2: "void", eventParameter3: "void", inputParameters: scenario.inputMappingForTrace, time: time - startTime)
+                    outputData.append(dl)
+                    return
+                } else {
+                    time = scenario.nextEventTime!
+                    scenario.makeTimeTransition(self)
+                    logInput(time)
+                    return
+                }
             }
             found = operators.carryOutProductionsUntilOperatorDone()
             if !found {
@@ -367,8 +389,10 @@ class Model {
                 if dm.goalOperatorLearning {
                     operators.previousOperators.removeLast()
                 }
+                procedural.clearRewardTrace()  // Don't reward productions that didn't work
             }
         } while !found
+        procedural.issueReward(procedural.proceduralReward) // Have to make this into a setable parameter
         procedural.lastOperator = formerBuffers["operator"]
         commitToTrace(false)
         let op = buffers["operator"]!.name
@@ -377,19 +401,11 @@ class Model {
         if scenario.nextEventTime != nil && scenario.nextEventTime! - 0.001 <= time {
             let retainTime = scenario.nextEventTime!
             scenario.makeTimeTransition(self)
-            let result = buffers["input"]
-            if result != nil {
-            let slot1 = result!.slotvals["slot1"]?.description
-            let slot2 = result!.slotvals["slot2"]?.description
-            let slot3 = result!.slotvals["slot3"]?.description
-            
-            let dl = DataLine(eventType: "perception", eventParameter1: slot1 ?? "void", eventParameter2: slot2 ?? "void", eventParameter3: slot3 ?? "void", inputParameters: scenario.inputMappingForTrace, time: retainTime - startTime)
-            outputData.append(dl)
-            }
+            logInput(retainTime)
         }
         // We are done if the current action is the goal action, or there is no goal action and slot1 in the goal is set to stop
         if testGoalAction() || (scenario.goalAction.isEmpty && buffers["goal"]?.slotvals["slot1"] != nil && buffers["goal"]!.slotvals["slot1"]!.description == "stop")  {
-            procedural.issueReward(40.0)
+//            procedural.issueReward(40.0)
             operators.updateOperatorSjis(reward)
             if let imaginalChunk = buffers["imaginal"] {
                 dm.addToDM(imaginalChunk)
@@ -402,7 +418,7 @@ class Model {
             // Otherwise, we are also done if slot1 in the goal is set to stop and time runs out, but then there is no reward
             let maxTime = reward == 0.0 ? timeThreshold : reward
             if time - startTime > maxTime || (buffers["goal"]?.slotvals["slot1"] != nil && buffers["goal"]!.slotvals["slot1"]!.description == "stop") {
-                procedural.issueReward(0.0)
+//                procedural.issueReward(0.0)
                 operators.updateOperatorSjis(0.0)
                 running = false
                 resultAdd(time - startTime)
@@ -410,8 +426,9 @@ class Model {
                 outputData.append(dl)
             }
         }
-
+        
     }
+    
     
     func run() {
         if currentTask == nil { return }
@@ -419,9 +436,7 @@ class Model {
         while running  {
             step()
         }
-
-        
-    }
+        }
     
     func reset(taskNumber: Int?) {
         dm = Declarative(model: self)

@@ -10,6 +10,7 @@ define task count {
   rt: -2.0
   lf: 0.2
   default-operator-self-assoc: 0.0
+  egs: 0.05
 }
 
 define goal count {

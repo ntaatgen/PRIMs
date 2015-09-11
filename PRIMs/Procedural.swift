@@ -23,6 +23,8 @@ class Procedural {
     var productionActionLatency = productionActionLatencyDefault
     static let productionAndPrimLatencyDefault = 0.3
     var productionAndPrimLatency = productionAndPrimLatencyDefault
+    static let proceduralRewardDefault = 4.0
+    var proceduralReward = proceduralRewardDefault
     var productions: [String:Production] = [:]
     let model: Model
     var productionsForReward: [Instantiation] = []
@@ -42,6 +44,7 @@ class Procedural {
         alpha = Procedural.alphaDefault
         productionActionLatency = Procedural.productionActionLatencyDefault
         productionAndPrimLatency = Procedural.productionAndPrimLatencyDefault
+        proceduralReward = Procedural.proceduralRewardDefault
     }
     
     func reset() {
@@ -74,7 +77,7 @@ class Procedural {
     */
     func issueReward(reward: Double) {
         for inst in productionsForReward {
-            let payoff = reward - (model.time - inst.time)
+            let payoff = reward   - (model.time - inst.time) 
             inst.p.u = inst.p.u + alpha * (payoff - inst.p.u)
         }
         clearRewardTrace()

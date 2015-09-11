@@ -135,6 +135,12 @@ class Production: Printable {
                 return false
             }
         }
+        if newCondition != nil {
+            model.buffers["operator"]!.setSlot("condition", value: newCondition!)
+        } else {
+            model.buffers["operator"]!.slotvals["condition"] = nil
+        }
+
         return true
     }
     
@@ -144,9 +150,9 @@ class Production: Printable {
     :returns:  Whether execution was successful
     */
     func fire() -> Bool {
-        if op != nil {
-            model.buffers["operator"] = op!.copy()
-        }
+//        if op != nil {
+//            model.buffers["operator"] = op!.copy()
+//        }
         for bc in conditions {
             if !bc.fire() { // println("\(bc) does not match")
                 return false } // one of the conditions does not match

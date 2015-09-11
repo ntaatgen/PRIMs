@@ -128,6 +128,7 @@ class Operator {
     of the parameters compileOperators and retrieveOperatorsConditional.
     If retrieveOperatorsConditional is true, an operator is retrieved that is checked by the currently
     available productions. If successful, the operator is placed in the operator buffer.
+    CHANGE: We now always assume retrieveOperatorsConditional is true
     
     :returns: Whether an operator was successfully found
     */
@@ -135,7 +136,7 @@ class Operator {
         let retrievalRQ = Chunk(s: "operator", m: model)
         retrievalRQ.setSlot("isa", value: "operator")
         var (latency,opRetrieved) = model.dm.retrieve(retrievalRQ)
-        if model.procedural.retrieveOperatorsConditional {
+//        if model.procedural.retrieveOperatorsConditional {
             var cfs = model.dm.conflictSet.sorted({ (item1, item2) -> Bool in
                 let (_,u1) = item1
                 let (_,u2) = item2
@@ -156,15 +157,20 @@ class Operator {
                 model.buffers["operator"] = candidate.copy()
                 let inst = model.procedural.findMatchingProduction()
                 match = model.procedural.fireProduction(inst, compile: false)
+                if match && candidate.spreadingActivation() <= 0.0 && model.buffers["operator"]?.slotValue("condition") != nil {
+                    match = false
+                    model.addToTrace("   Rejected operator \(candidate.name) because it has no associations and no production that tests all conditions")
+                }
                 model.buffers = savedBuffers
             } while !match && !cfs.isEmpty && cfs[0].1 > model.dm.retrievalThreshold
             if match {
                 opRetrieved = candidate
                 latency = model.dm.latency(activation)
-            } else { opRetrieved = nil
+            } else {
+                opRetrieved = nil
                 latency = model.dm.latency(model.dm.retrievalThreshold)
             }
-        }
+//        }
         model.time += latency
         if opRetrieved == nil { return false }
         if model.dm.goalOperatorLearning {
