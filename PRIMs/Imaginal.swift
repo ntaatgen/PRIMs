@@ -34,13 +34,22 @@ class Imaginal {
             }
             if overlap && autoClear {
                 newImaginal.setSlot("isa", value: oldImaginal.slotvals["isa"]!)
+                for (slot,value) in newImaginal.slotvals {
+                    if value.description == "nil" {
+                        newImaginal.slotvals[slot] = nil
+                    }
+                }
                 model.buffers["imaginal"] = newImaginal
                 model.addToTrace("New imaginal chunk \(newImaginal.name)  (latency = \(imaginalLatency))")
                 model.dm.addToDM(oldImaginal)
                 return imaginalLatency
             } else {
                 for (slot,value) in newImaginal.slotvals {
-                    oldImaginal.setSlot(slot, value: value)
+                    if value.description == "nil" {
+                        oldImaginal.slotvals[slot] = nil
+                    } else {
+                        oldImaginal.setSlot(slot, value: value)
+                    }
                 }
                 return 0.0
             }

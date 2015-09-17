@@ -133,12 +133,15 @@ class Prim:Printable {
                 model.buffers[rhsBuffer!]!.slotvals[rhsSlot!] = nil
                 return true
             }
-            if lhsVal == nil && model.buffers[rhsBuffer!] == nil {return true}
-            if rhsBuffer == nil || lhsVal == nil {return false} 
+//            if rhsBuffer == nil || lhsVal == nil {return false}
             if model.buffers[rhsBuffer!] == nil {
                 let chunk = model.generateNewChunk(s1: rhsBuffer!)
                 chunk.setSlot("isa",value: "fact")
                 model.buffers[rhsBuffer!] = chunk
+            }
+            if lhsVal == nil {
+                model.buffers[rhsBuffer!]!.setSlot(rhsSlot!, value: "nil")
+                return true
             }
             model.buffers[rhsBuffer!]!.setSlot(rhsSlot!, value: lhsVal!)
             return true
