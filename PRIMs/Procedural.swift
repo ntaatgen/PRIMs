@@ -116,14 +116,14 @@ class Procedural {
         }
         if best == nil || best!.u < primU {
             if condition != nil {
-                let (primName,_) = chopPrims(condition!.description, 1)
+                let (primName,_) = chopPrims(condition!.description, n: 1)
                 let p = Production(name: "t" + primName, model: model, condition: condition!.description, action: action==nil ? nil : action!.description, op: nil, parent1: nil, parent2: nil, taskID: 0)
                 let prim = Prim(name: primName, model: model)
                 p.addCondition(prim)
                 p.u = primU
                 return Instantiation(prod: p, time: model.time, u: primU)
             } else {
-                let (primName,_) = chopPrims(action!.description, 1)
+                let (primName,_) = chopPrims(action!.description, n: 1)
                 let p = Production(name: "t" + primName, model: model, condition: nil, action: action!.description, op: nil, parent1: nil, parent2: nil, taskID: 0)
                 let prim = Prim(name: primName, model: model)
                 p.addAction(prim)
@@ -136,7 +136,6 @@ class Procedural {
     }
     
     func findOperatorProduction() -> Instantiation? {
-        let opBuffer = model.buffers["operator"]
         var best: Instantiation? = nil
         var ins: Instantiation?
         for (_,p) in productions {
@@ -161,8 +160,8 @@ class Procedural {
     
     func compileProductions(p1: Production, inst2: Instantiation) {
         let p2 = inst2.p
-        let nameP1 = p1.name.hasPrefix("t") ? p1.name.substringFromIndex(advance(p1.name.startIndex,1)) : p1.name
-        let nameP2 = p2.name.hasPrefix("t") ? p2.name.substringFromIndex(advance(p2.name.startIndex,1)) : p2.name
+        let nameP1 = p1.name.hasPrefix("t") ? p1.name.substringFromIndex(p1.name.startIndex.advancedBy(1)) : p1.name
+        let nameP2 = p2.name.hasPrefix("t") ? p2.name.substringFromIndex(p2.name.startIndex.advancedBy(1)) : p2.name
         let newName = nameP1 + ";" + nameP2
         var newFullName = newName
         if p2.newCondition != nil {

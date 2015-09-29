@@ -98,7 +98,7 @@ class PrimView: NSView {
         for i in 0..<numNodes {
             if let nodeLabel = dataSource.primViewVisibleLabel(self, index: i) {
                 let (x,y) = dataSource.primViewVertexCoordinates(self, index: i)
-                var s = NSMutableAttributedString(string: nodeLabel)
+                let s = NSMutableAttributedString(string: nodeLabel)
                 s.addAttribute(NSFontAttributeName, value: NSFont.userFontOfSize(10.0)!, range: NSMakeRange(0, s.length))
                 s.drawAtPoint(NSPoint(x: x + Double(vertexSize), y: y + Double(vertexSize)))
 //                s.drawInRect(NSRect(x: x, y: y, width: 100.0, height: 40.0))

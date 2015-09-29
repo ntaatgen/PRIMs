@@ -41,7 +41,7 @@ Chunks can have different types in their slots:
 - Text : a string
 
 */
-enum Value: Printable {
+enum Value: CustomStringConvertible {
     case Symbol(Chunk)
     case Number(Double)
     case Text(String)
@@ -100,17 +100,17 @@ enum Value: Printable {
 /**
 Chop a PRIM string into separate PRIM
 
-:param: s The String with the list of PRIMs
+- parameter s: The String with the list of PRIMs
 
-:param: n How many PRIMs should be chopped off
+- parameter n: How many PRIMs should be chopped off
 
-:returns: A tuple of two strings with the first n PRIMs and the rest
+- returns: A tuple of two strings with the first n PRIMs and the rest
 */
 func chopPrims(s: String, n: Int) -> (String,String) {
     let x = s.componentsSeparatedByString(";")
     if x.count == n {
         return (s, "")
     } else {
-        return (reduce(x[1..<n], x[0], { $0 + ";" + $1}),reduce(x[(n+1)..<x.count], x[n], { $0 + ";" + $1} ))
+        return (x[1..<n].reduce(x[0], combine: { $0 + ";" + $1}),x[(n+1)..<x.count].reduce(x[n], combine: { $0 + ";" + $1} ))
     }
 }

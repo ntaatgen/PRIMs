@@ -324,7 +324,7 @@ class FruchtermanReingold {
         }
         for (_,chunk) in model.dm.chunks {
             if chunk.type == "fact" {
-                for (slot,value) in chunk.slotvals {
+                for (_,value) in chunk.slotvals {
                     if let chunk2 = value.chunk() {
                         if chunk2.type == "fact" && chunk2.name != chunk.name {
                         let edge = Edge(from: nodes[chunk.name]!, to: nodes[chunk2.name]!)

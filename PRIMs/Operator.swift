@@ -34,7 +34,7 @@ class Operator {
     func determineOverlap(oldList: [String], newList: [String]) -> Int {
         var count = 0
         for prim in oldList {
-            if !contains(newList, prim) {
+            if !newList.contains(prim) {
                 return count
             }
             count++
@@ -55,7 +55,7 @@ class Operator {
             }
         }
         for prim in source {
-            if !contains(primArray, prim) {
+            if !primArray.contains(prim) {
                 primList = (primList == "" ? prim : prim + ";" ) + primList
                 primArray.append(prim)
             }
@@ -104,7 +104,7 @@ class Operator {
     /**
     Update the Sji's between the current goal(s?) and the operators that have fired. Restrict to updating the goal in G1 for now.
     
-    :param: payoff The payoff that will be distributed
+    - parameter payoff: The payoff that will be distributed
     */
     func updateOperatorSjis(payoff: Double) {
         if !model.dm.goalOperatorLearning || model.reward == 0.0 { return } // only do this when switched on
@@ -130,14 +130,14 @@ class Operator {
     available productions. If successful, the operator is placed in the operator buffer.
     CHANGE: We now always assume retrieveOperatorsConditional is true
     
-    :returns: Whether an operator was successfully found
+    - returns: Whether an operator was successfully found
     */
     func findOperatorOrOperatorProduction() -> Bool {
         let retrievalRQ = Chunk(s: "operator", m: model)
         retrievalRQ.setSlot("isa", value: "operator")
         var (latency,opRetrieved) = model.dm.retrieve(retrievalRQ)
 //        if model.procedural.retrieveOperatorsConditional {
-            var cfs = model.dm.conflictSet.sorted({ (item1, item2) -> Bool in
+            var cfs = model.dm.conflictSet.sort({ (item1, item2) -> Bool in
                 let (_,u1) = item1
                 let (_,u2) = item2
                 return u1 > u2
@@ -151,7 +151,7 @@ class Operator {
             var match = false
             var candidate: Chunk
             var activation: Double
-            do {
+            repeat {
                 (candidate, activation) = cfs.removeAtIndex(0)
                 let savedBuffers = model.buffers
                 model.buffers["operator"] = candidate.copy()
@@ -200,7 +200,7 @@ class Operator {
             let inst = model.procedural.findMatchingProduction()
             var pname = inst.p.name
             if pname.hasPrefix("t") {
-                pname = dropFirst(pname)
+                pname = String(pname.characters.dropFirst())
             }
             model.addToTrace("Firing \(pname)")
             match = model.procedural.fireProduction(inst, compile: true)

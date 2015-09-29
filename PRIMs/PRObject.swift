@@ -32,10 +32,10 @@ class PRObject{
     /** 
     Convert the current object into a chunk that can be put into the input buffer
 
-    :returns: A chunk representing this object
+    - returns: A chunk representing this object
     */
     func chunk(model: Model) -> Chunk {
-        let chunk = model.generateNewChunk(s1: "perception")
+        let chunk = model.generateNewChunk("perception")
         chunk.setSlot("isa", value: "fact")
         for i in 0..<attributes.count {
             chunk.setSlot("slot\(i + 1)", value: attributes[i])

@@ -8,7 +8,7 @@
 
 import Foundation
 
-class Production: Printable {
+class Production: CustomStringConvertible {
     let name: String
     var fullName: String!
     weak var model: Model!
@@ -76,13 +76,13 @@ class Production: Printable {
     
     func addCondition(cd: Prim) {
         conditions.append(cd)
-        let (_,new) = chopPrims(condition!, conditions.count)
+        let (_,new) = chopPrims(condition!, n: conditions.count)
         newCondition = new == "" ? nil : new
     }
     
     func addAction(ac: Prim) {
         actions.append(ac)
-        let (_,new) = chopPrims(action!, actions.count)
+        let (_,new) = chopPrims(action!, n: actions.count)
         newAction = new == "" ? nil : new
     }
     
@@ -90,7 +90,7 @@ class Production: Printable {
     This function checks whether a production can fire, which is the case if it matches both the
     condition and action in the operator buffer
     
-    :returns: If the production can be instantiated with the current buffers, otherwise nil
+    - returns: If the production can be instantiated with the current buffers, otherwise nil
     */
     func instantiate() -> Instantiation? {
 
@@ -147,7 +147,7 @@ class Production: Printable {
     /**
     Function that executes all the production's actions
     
-    :returns:  Whether execution was successful
+    - returns:  Whether execution was successful
     */
     func fire() -> Bool {
 //        if op != nil {

@@ -33,7 +33,7 @@ class Parser  {
     Parse a model file. Takes the String that is entered at the creation of the class instance, and sets
     the necessary variables in the model.
     
-    :returns: Whether or not parsing was successful
+    - returns: Whether or not parsing was successful
     */
     func parseModel() -> Bool {
         // First we filter out comments that are marked by the commentString
@@ -334,7 +334,7 @@ class Parser  {
         if m.dm.chunks[operatorName!] == nil {
             chunk = Chunk(s: operatorName!, m: m)
         } else {
-            chunk = m.generateNewChunk(s1: operatorName!)
+            chunk = m.generateNewChunk(operatorName!)
             m.addToTraceField("Warning: Chunk with name \(operatorName!) already exists, renaming it to \(chunk.name)")
         }
         chunk.fixedActivation = defaultActivation
@@ -396,7 +396,7 @@ class Parser  {
                     var done = false
                     while !done {
                         let ch = item![index]
-                        var lookahead = item![advance(index,1)]
+                        let lookahead = item![index.advancedBy(1)]
                         switch ch {
                         case "A"..."Z","a"..."z","_",".": component += String(ch)
                         case "-": if lookahead == ">" {
@@ -421,7 +421,7 @@ class Parser  {
                             }
                             prim += String(ch)
                         }
-                        index = advance(index, 1)
+                        index = index.advancedBy(1)
                         if item![index] == "§" { done = true }
                     }
                     if component != "" {
@@ -598,7 +598,7 @@ class Parser  {
         while let attribute = scanner.scanUpToCharactersFromSet(whitespaceNewLineParentheses) {
             attributes.append(attribute)
         }
-        let object = PRObject(name: m.generateName(s1: name!), attributes: attributes, superObject: superObject)
+        let object = PRObject(name: m.generateName(name!), attributes: attributes, superObject: superObject)
         m.addToTraceField("Adding object \(object.name) with attributes \(object.attributes)")
         while scanner.scanString("(", intoString: nil) {
             parseObject(object)

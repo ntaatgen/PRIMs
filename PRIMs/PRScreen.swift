@@ -74,16 +74,16 @@ class PRScreen {
     /**
     Generate a chunk that encodes the currently attended object. If no object is attended, return an error chunk. If no object is attended because there are no more objects in the current container, but the type of the objects in the container in slot1, and error in slot2
     
-    :returns: A chunk
+    - returns: A chunk
     */
     func current(model: Model) -> Chunk {
         if currentAttendedObject == nil && (currentParentObject == nil || currentParentObject!.subObjects.count == 0) {
-            let result = model.generateNewChunk(s1: "perception")
+            let result = model.generateNewChunk("perception")
             result.setSlot("isa", value: "fact")
             result.setSlot("slot1", value: "error")
             return result
         } else if currentAttendedObject == nil {
-            let result = model.generateNewChunk(s1: "perception")
+            let result = model.generateNewChunk("perception")
             result.setSlot("isa", value: "fact")
             result.setSlot("slot1", value: currentParentObject!.subObjects[0].attributes[0])
             result.setSlot("slot2", value: "error")

@@ -27,7 +27,7 @@ class Imaginal {
         model.buffers["imaginalN"] = nil
         if let oldImaginal = model.buffers["imaginal"] {
             var overlap = false
-            for (slot,value) in newImaginal.slotvals {
+            for (slot,_) in newImaginal.slotvals {
                 if slot != "isa" && oldImaginal.slotvals[slot] != nil {
                     overlap = true
                 }

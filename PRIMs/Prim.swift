@@ -18,13 +18,13 @@ let bufferOrder = ["input":1,"goal":2,"imaginal":3,"retrievalH":4,"constants":5,
 /** 
 This function takes a string that represents a PRIM, and translates it into its components
 
-:returns: is a five-tuple with left-buffer-name left-buffer-slot, operator, right-buffer-name, right-buffer-slot, PRIM with reversed lhs and rhs if necessary
+- returns: is a five-tuple with left-buffer-name left-buffer-slot, operator, right-buffer-name, right-buffer-slot, PRIM with reversed lhs and rhs if necessary
 */
 func parseName(name: String) -> (String?,String?,String,String?,String?,String?) {
     var components: [String] = []
     var component = ""
     var prevComponentCat = 1
-    for ch in name {
+    for ch in name.characters {
         var componentCat: Int
         switch ch {
         case "A"..."Z":  componentCat = 1
@@ -62,7 +62,7 @@ func parseName(name: String) -> (String?,String?,String,String?,String?,String?)
         } else {
             var newPrim: String? = nil
             if (components[2] == "=" || components[2] == "<>") && bufferOrder[leftBuffer!]! >= bufferOrder[rightBuffer!]! {
-                if (bufferOrder[leftBuffer!]! > bufferOrder[rightBuffer!]!) || (components[1].toInt() > components[4].toInt()) {
+                if (bufferOrder[leftBuffer!]! > bufferOrder[rightBuffer!]!) || (Int(components[1]) > Int(components[4])) {
                     let tmp = rightBuffer
                     rightBuffer = leftBuffer
                     leftBuffer = tmp
@@ -77,7 +77,7 @@ func parseName(name: String) -> (String?,String?,String,String?,String?,String?)
     }
 }
 
-class Prim:Printable {
+class Prim:CustomStringConvertible {
     let lhsBuffer: String?
     let lhsSlot: String?
     let rhsBuffer: String? // Can be nil
@@ -104,7 +104,7 @@ class Prim:Printable {
     Carry out the PRIM, either by checking its condition or by performing its action. 
     In the case of an action to an empty buffer, an empty fact chunk is created in that buffer.
 
-    :returns: a Bool to indicate success
+    - returns: a Bool to indicate success
     */
     func fire() -> Bool {
         let lhsVal = lhsBuffer == nil ? nil : model.buffers[lhsBuffer!]?.slotValue(lhsSlot!)
@@ -135,7 +135,7 @@ class Prim:Printable {
             }
 //            if rhsBuffer == nil || lhsVal == nil {return false}
             if model.buffers[rhsBuffer!] == nil {
-                let chunk = model.generateNewChunk(s1: rhsBuffer!)
+                let chunk = model.generateNewChunk(rhsBuffer!)
                 chunk.setSlot("isa",value: "fact")
                 model.buffers[rhsBuffer!] = chunk
             }

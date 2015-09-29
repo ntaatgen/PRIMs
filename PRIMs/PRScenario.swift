@@ -109,7 +109,7 @@ class PRScenario {
     }
 
     func makeTimeTransition(model: Model) {
-        do {
+        repeat {
             currentScreen = currentScreen!.timeTarget!
             currentScreen!.start()
             if currentScreen!.timeTransition != nil {

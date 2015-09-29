@@ -27,7 +27,7 @@ class BatchRun {
     func runScript() {
         var scanner = NSScanner(string: batchScript)
         let whiteSpaceAndNL = NSMutableCharacterSet.whitespaceAndNewlineCharacterSet()
-        let repeat = scanner.scanUpToCharactersFromSet(whiteSpaceAndNL)
+        _ = scanner.scanUpToCharactersFromSet(whiteSpaceAndNL)
         let numberOfRepeats = scanner.scanInt()
         if numberOfRepeats == nil {
             model.addToTraceField("Illegal number of repeats")
@@ -35,7 +35,7 @@ class BatchRun {
         }
         var newfile = true
         for i in 0..<numberOfRepeats! {
-            println("Run #\(i)")
+            print("Run #\(i)")
             
             scanner = NSScanner(string: self.batchScript)
             
@@ -65,7 +65,7 @@ class BatchRun {
                     var tasknumber = self.model.findTask(taskname!)
                     if tasknumber == nil {
                         let taskPath = self.directory.URLByAppendingPathComponent(taskname! + ".prims")
-                        println("Trying to load \(taskPath)")
+                        print("Trying to load \(taskPath)")
                         if !self.controller.loadModelWithString(taskPath) {
                             self.model.addToTraceField("Task \(taskname!) is not loaded nor can it be found")
                             return
@@ -82,7 +82,7 @@ class BatchRun {
                     while (!stopByTime && j < Int(endCriterium!)) || (stopByTime && (self.model.time - startTime) < endCriterium!) {
                         j++
 //                    for j in 0..<numberOfTrials! {
-                        println("Trial #\(j)")
+                        print("Trial #\(j)")
                         self.model.run()
                         var output: String = ""
                         for line in self.model.outputData {
@@ -95,13 +95,14 @@ class BatchRun {
                         if !newfile {
                             if NSFileManager.defaultManager().fileExistsAtPath(self.outputFileName.path!) {
                                 var err:NSError?
-                                if let fileHandle = NSFileHandle(forWritingToURL: self.outputFileName, error: &err) {
+                                do {
+                                    let fileHandle = try NSFileHandle(forWritingToURL: self.outputFileName)
                                     fileHandle.seekToEndOfFile()
                                     let data = output.dataUsingEncoding(NSUTF8StringEncoding, allowLossyConversion: false)
                                     fileHandle.writeData(data!)
                                     fileHandle.closeFile()
-                                }
-                                else {
+                                } catch let error as NSError {
+                                    err = error
                                     self.model.addToTraceField("Can't open fileHandle \(err)")
                                 }
                             }
@@ -109,14 +110,17 @@ class BatchRun {
                         else {
                             newfile = false
                             var err:NSError?
-                            if !output.writeToURL(self.outputFileName, atomically: false, encoding: NSUTF8StringEncoding, error: &err) {
+                            do {
+                                try output.writeToURL(self.outputFileName, atomically: false, encoding: NSUTF8StringEncoding)
+                            } catch let error as NSError {
+                                err = error
                                 self.model.addToTraceField("Can't write datafile \(err)")
                                 
                             }
                         }
                     }
                 case "reset":
-                    println("Resetting models")
+                    print("Resetting models")
                     self.model.reset(nil)
                 case "repeat":
                     scanner.scanInt()

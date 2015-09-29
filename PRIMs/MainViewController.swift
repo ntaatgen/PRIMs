@@ -43,7 +43,7 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
     
     
     func splitView(splitView: NSSplitView, canCollapseSubview subview: NSView) -> Bool {
-        if subview === middleSplit as NSView || subview === middleSplit.subviews[0] as! NSView {
+        if subview === middleSplit as NSView || subview === middleSplit.subviews[0] {
             return false
         }
         return true
@@ -295,7 +295,7 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
     }
     
     @IBAction func loadModel(sender: NSButton) {
-        var fileDialog: NSOpenPanel = NSOpenPanel()
+        let fileDialog: NSOpenPanel = NSOpenPanel()
         fileDialog.prompt = "Select model file"
         fileDialog.worksWhenModal = true
         fileDialog.allowsMultipleSelection = true
@@ -303,16 +303,16 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
         fileDialog.allowedFileTypes = ["prims"]
         let result = fileDialog.runModal()
         if result != NSFileHandlingPanelOKButton { return }
-        let URLs = fileDialog.URLs as? [NSURL]
-        if URLs == nil { return }
-        for filePath in URLs! {
+        let URLs = fileDialog.URLs // as? [NSURL]
+//        if URLs == nil { return }
+        for filePath in URLs {
             if !loadModelWithString(filePath) { return }
             NSDocumentController.sharedDocumentController().noteNewRecentDocumentURL(filePath)
         }
     }
     
     func loadModelWithString(filePath: NSURL) -> Bool {
-        modelCode = String(contentsOfURL: filePath, encoding: NSUTF8StringEncoding, error: nil)
+        modelCode = try? String(contentsOfURL: filePath, encoding: NSUTF8StringEncoding)
         if modelCode != nil {
             model.scenario = PRScenario()
             model.parameters = []
@@ -416,7 +416,7 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
         for (_,p) in model.procedural.productions {
             result.append(p)
         }
-        result.sort({$0.u > $1.u})
+        result.sortInPlace({$0.u > $1.u})
         return result
     }
     
@@ -436,7 +436,7 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
             let chunkType = chunkTp == nil ? "No Type" : chunkTp!.description
             result.append((chunk.name,chunkType,chunk.activation()))
         }
-        result = sorted(result, compareChunks)
+        result = result.sort(compareChunks)
         return result
     }
     
@@ -465,7 +465,7 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
     @IBOutlet weak var bufferViewFormerInput: NSTextField!
     
     func formatBuffer(bufferName: String, bufferChunk: Chunk?, bufferAbbreviation: String, showSlot0: Bool = true) -> NSAttributedString {
-        var s = NSMutableAttributedString(string: bufferName, attributes: [NSFontAttributeName : NSFont.boldSystemFontOfSize(12)])
+        let s = NSMutableAttributedString(string: bufferName, attributes: [NSFontAttributeName : NSFont.boldSystemFontOfSize(12)])
         var rest: String = ""
         if bufferChunk != nil {
             if showSlot0 {
@@ -487,7 +487,7 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
     
     func formatOperator(chunk: Chunk?) -> NSAttributedString {
         let operatorName = chunk == nil ? "" : chunk!.name
-        var s = NSMutableAttributedString(string: "Operator \(operatorName)\n", attributes: [NSFontAttributeName : NSFont.boldSystemFontOfSize(12)])
+        let s = NSMutableAttributedString(string: "Operator \(operatorName)\n", attributes: [NSFontAttributeName : NSFont.boldSystemFontOfSize(12)])
         var rest = ""
         if let condition = chunk?.slotvals["condition"] {
             let conditions = condition.description.componentsSeparatedByString(";")
@@ -517,7 +517,7 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
             bufferViewInput.stringValue = ""
         }
         bufferViewRetrievalH.attributedStringValue = formatBuffer("Retrieval Hv\n", bufferChunk: model.formerBuffers["retrievalH"], bufferAbbreviation: "RT")
-        var s = NSMutableAttributedString(attributedString: formatBuffer("Goal\n", bufferChunk: model.formerBuffers["goal"], bufferAbbreviation: "G"))
+        let s = NSMutableAttributedString(attributedString: formatBuffer("Goal\n", bufferChunk: model.formerBuffers["goal"], bufferAbbreviation: "G"))
         s.appendAttributedString(formatBuffer("", bufferChunk: model.buffers["constants"], bufferAbbreviation: "GC", showSlot0: false))
         bufferViewFormerGoal.attributedStringValue = s
         bufferViewRetrievalR.attributedStringValue = formatBuffer("Retrieval Rq\n", bufferChunk: model.formerBuffers["retrievalR"], bufferAbbreviation: "RT")
@@ -582,7 +582,7 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
     var batchRunner: BatchRun? = nil
     
     @IBAction func runBatch(sender: NSButton) {
-        var fileDialog: NSOpenPanel = NSOpenPanel()
+        let fileDialog: NSOpenPanel = NSOpenPanel()
         fileDialog.title = "Select batch script file"
         fileDialog.prompt = "Select"
         fileDialog.worksWhenModal = true
@@ -594,7 +594,7 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
         var batchScript: String
         var directory: NSURL?
         if let filePath = fileDialog.URL {
-            let tmp = String(contentsOfURL: filePath, encoding: NSUTF8StringEncoding, error: nil)
+            let tmp = try? String(contentsOfURL: filePath, encoding: NSUTF8StringEncoding)
             directory = filePath.URLByDeletingLastPathComponent
             if tmp == nil { return }
             batchScript = tmp!
@@ -608,7 +608,7 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
         let saveResult = saveDialog.runModal()
         if saveResult != NSFileHandlingPanelOKButton { return }
         if saveDialog.URL == nil { return }
-        println("Loading script \(fileDialog.URL!) to output to \(saveDialog.URL!)")
+        print("Loading script \(fileDialog.URL!) to output to \(saveDialog.URL!)")
         batchRunner = BatchRun(script: batchScript, outputFile: saveDialog.URL!, model: model, controller: self, directory: directory!)
         model.tracing = false
         batchProgressBar.doubleValue = 0

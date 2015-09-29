@@ -8,7 +8,7 @@
 
 import Foundation
 
-class Chunk: Printable {
+class Chunk: CustomStringConvertible {
     /// Name of the chunk
     let name: String
     /// Model in which the chunk is defined
@@ -37,7 +37,7 @@ class Chunk: Printable {
     var definedIn: [Int] = []
     
     /**
-    :returns: the type of the chunk, or empty string if there isn't one defined
+    - returns: the type of the chunk, or empty string if there isn't one defined
     */
     var type: String {
         if let tp = slotvals["isa"] {
@@ -66,17 +66,17 @@ class Chunk: Printable {
     }
     
     /**
-    :returns: A copy of the chunk with a new name
+    - returns: A copy of the chunk with a new name
     */
     func copy() -> Chunk {
-        let newChunk = model.generateNewChunk(s1: self.name)
+        let newChunk = model.generateNewChunk(self.name)
         newChunk.slotvals = self.slotvals
         newChunk.printOrder = self.printOrder
         return newChunk
     }
     
     /**
-    :returns: A copy of the chunk with the same name
+    - returns: A copy of the chunk with the same name
     */
     func copyLiteral() -> Chunk {
         let newChunk = Chunk(s: self.name, m: self.model)
@@ -86,9 +86,9 @@ class Chunk: Printable {
     }
     
     /**
-    :param: ch A chunk
+    - parameter ch: A chunk
 
-    :returns: Whether the chunk in the parameter is in one of the slots of the chunk
+    - returns: Whether the chunk in the parameter is in one of the slots of the chunk
     */
     func inSlot(ch: Chunk) -> Bool {
         for (_,value) in ch.slotvals {
@@ -123,7 +123,7 @@ class Chunk: Printable {
     }
 
     /**
-    :returns: The current baselevel activation of the chunk
+    - returns: The current baselevel activation of the chunk
     */
     func baseLevelActivation () -> Double {
         if creationTime == nil { return 0 }
@@ -135,7 +135,7 @@ class Chunk: Printable {
 //            let y = model.dm.baseLevelDecay * log(model.time - creationTime!)
 //            return x - y
         } else {
-            return log(fixedComponent + reduce(map(self.referenceList){ pow((self.model.time - $0 + 0.05),(-self.model.dm.baseLevelDecay))}, 0.0, + )) // Wew! almost lisp! This is the standard baselevel equation
+            return log(fixedComponent + self.referenceList.map{ pow((self.model.time - $0 + 0.05),(-self.model.dm.baseLevelDecay))}.reduce(0.0, combine: + )) // Wew! almost lisp! This is the standard baselevel equation
         }
     }
     
@@ -210,7 +210,7 @@ class Chunk: Printable {
     /**
     Add noise to an association value. This is only used for the Sji between goals and operators
 
-    :returns: An Sji value with noise included
+    - returns: An Sji value with noise included
     */
     
     func calculateSji(sji: (Double,Int)) -> Double {
@@ -226,9 +226,9 @@ class Chunk: Printable {
     Calculate the association between self and another chunk
     The chunk that receives the activation has the Sji in its list
     
-    :param: chunk the chunk that the association is with
+    - parameter chunk: the chunk that the association is with
     
-    :returns: the Sji value
+    - returns: the Sji value
     */
     func sji(chunk: Chunk) -> Double {
         if let value = chunk.assocs[self.name] {
@@ -242,9 +242,9 @@ class Chunk: Printable {
     /**
     Calculate the spreading of activation from a certain buffer
 
-    :param: bufferName The name of the buffer
-    :param: spreadingParameterValue The amount of spreading from that particular buffer
-    :returns: The amound of spreading activation from this buffer
+    - parameter bufferName: The name of the buffer
+    - parameter spreadingParameterValue: The amount of spreading from that particular buffer
+    - returns: The amound of spreading activation from this buffer
     */
     func spreadingFromBuffer(bufferName: String, spreadingParameterValue: Double) -> Double {
         if spreadingParameterValue == 0 { return 0 }
@@ -274,7 +274,7 @@ class Chunk: Printable {
     
     Can be calculated in two ways, either standard ACT-R's equation, or by making spreading dependent on the activation of the chunks in the goal slots
     
-    :returns: The amount of spreading activation
+    - returns: The amount of spreading activation
     */
     func spreadingActivation() -> Double {
         if creationTime == nil {return 0}

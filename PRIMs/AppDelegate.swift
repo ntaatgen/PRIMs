@@ -21,12 +21,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     func application(sender: NSApplication, openFile filename: String) -> Bool {
         let url = NSURL(fileURLWithPath: filename)
-        if url != nil {
-        NSNotificationCenter.defaultCenter().postNotificationName("openFile", object: url!)
+//        if u÷rl != nil {
+        NSNotificationCenter.defaultCenter().postNotificationName("openFile", object: url)
             return true
-        }
+//        }
 
-        return false
+//        return false
     }
 
     

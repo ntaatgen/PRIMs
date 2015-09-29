@@ -71,7 +71,7 @@ class Model {
                 modelResults[currentRow].append((x,y))
                 maxX = max(maxX, x)
             } else {
-                var newItem = [(1.0,y)]
+                let newItem = [(1.0,y)]
                 modelResults.insert(newItem, atIndex: currentRow)
                 currentTrial = 2.0
             }
@@ -315,7 +315,7 @@ class Model {
     /**
     Test whether the last action was the goal action
     
-    :returns: True if goal is reached
+    - returns: True if goal is reached
     */
     func testGoalAction() -> Bool {
         if scenario.goalAction.isEmpty { return false }
@@ -364,7 +364,7 @@ class Model {
         formerBuffers["input"] = buffers["input"]?.copyLiteral()
         formerBuffers["retrievalH"] = buffers["retrievalH"]?.copyLiteral()
         commitToTrace(false)
-        do {
+        repeat {
             procedural.lastProduction = nil
             if !operators.findOperatorOrOperatorProduction() {
                 if scenario.nextEventTime == nil {
@@ -395,7 +395,7 @@ class Model {
         procedural.issueReward(procedural.proceduralReward) // Have to make this into a setable parameter
         procedural.lastOperator = formerBuffers["operator"]
         commitToTrace(false)
-        let op = buffers["operator"]!.name
+//        let op = buffers["operator"]!.name
         buffers["operator"] = nil
         doAllModuleActions()
         if scenario.nextEventTime != nil && scenario.nextEventTime! - 0.001 <= time {
@@ -470,7 +470,7 @@ class Model {
     
     func loadOrReloadTask(i: Int) {
         if (i != currentTaskIndex) {
-            modelText = String(contentsOfURL: tasks[i].filename, encoding: NSUTF8StringEncoding, error: nil)!
+            modelText = try! String(contentsOfURL: tasks[i].filename, encoding: NSUTF8StringEncoding)
             currentTaskIndex = i
             if !tasks[i].loaded {
                 scenario = PRScenario()
@@ -501,7 +501,7 @@ class Model {
     }
     
     func generateNewChunk(s1: String = "chunk") -> Chunk {
-        let name = generateName(s1: s1)
+        let name = generateName(s1)
         let chunk = Chunk(s: name, m: self)
         return chunk
     }

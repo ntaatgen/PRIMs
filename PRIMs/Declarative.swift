@@ -141,7 +141,7 @@ class Declarative  {
         if let dupChunk = duplicateChunk(chunk) {
             dupChunk.addReference()
             dupChunk.mergeAssocs(chunk)
-            dupChunk.definedIn.extend(chunk.definedIn)
+            dupChunk.definedIn.appendContentsOf(chunk.definedIn)
             if chunk.fixedActivation != nil && dupChunk.fixedActivation != nil {
                 dupChunk.fixedActivation = max(chunk.fixedActivation!, dupChunk.fixedActivation!)
             }
@@ -170,7 +170,7 @@ class Declarative  {
         var bestActivation: Double = retrievalThreshold
         conflictSet = []
         chunkloop: for (_,ch1) in chunks {
-            if !contains(finsts, ch1.name) {
+            if !finsts.contains(ch1.name) {
                 for (slot,value) in chunk.slotvals {
                     if let val1 = ch1.slotValue(slot)  {
                         if !val1.isEqual(value) {
