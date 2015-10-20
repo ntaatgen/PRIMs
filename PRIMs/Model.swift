@@ -250,6 +250,10 @@ class Model {
                 dm.goalActivation = numVal!
             case "input-activation:":
                 dm.inputActivation = numVal!
+            case "retrieval-activation:":
+                dm.retrievalActivation = numVal!
+            case "wm-activation:", "imaginal-activation:":
+                dm.imaginalActivation = numVal!
             case "default-operator-assoc:":
                 dm.defaultOperatorAssoc = numVal!
             case "default-inter-operator-assoc:":

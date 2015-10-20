@@ -294,9 +294,8 @@ class Chunk: CustomStringConvertible {
             totalSpreading += spreadingFromBuffer("goal", spreadingParameterValue: model.dm.goalActivation)
         }
         totalSpreading += spreadingFromBuffer("input", spreadingParameterValue: model.dm.inputActivation)
-        if totalSpreading != 0 {
-//        println("Total spreading for \(self.name) is \(totalSpreading)")
-        }
+        totalSpreading += spreadingFromBuffer("retrievalH", spreadingParameterValue: model.dm.retrievalActivation)
+        totalSpreading += spreadingFromBuffer("imaginal", spreadingParameterValue: model.dm.imaginalActivation)
         return totalSpreading
     }
     

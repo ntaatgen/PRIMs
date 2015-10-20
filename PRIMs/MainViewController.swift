@@ -550,7 +550,7 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
     
     @IBAction func run10(sender: NSButton) {
         model.tracing = false
-        for i in 0..<10 { run(sender) }
+        for _ in 0..<10 { run(sender) }
         model.tracing = true
     }
     
