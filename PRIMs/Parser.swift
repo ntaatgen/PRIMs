@@ -517,7 +517,6 @@ class Parser  {
                         chunk!.setSlot("isa", value: "fact")
                         chunk!.fixedActivation = defaultActivation
                         slotindex++
-                        m.dm.addToDM(chunk!)
                     } else {
                         if m.dm.chunks[slotValue!] == nil {
                             let extraChunk = Chunk(s: slotValue!, m: m)
@@ -529,8 +528,17 @@ class Parser  {
                         chunk!.setSlot("slot\(slotindex++)", value: slotValue!)
                     }
                 }
-                
             }
+            if let existingChunk = m.dm.chunks[chunk!.name] {
+                if chunk! != existingChunk {
+                    m.addToTraceField("Fact \(chunk!.name) has already been defined with different values, consider renaming it.")
+                    return false
+                } else {
+                    m.addToTraceField("Fact \(chunk!.name) has already been defined elsewhere with same slot values, overwriting it.")
+                }
+            }
+            m.dm.addToDM(chunk!)
+            
             m.addToTraceField("Reading fact \(chunk!.name)")
             chunk!.definedIn = [taskNumber]
         }

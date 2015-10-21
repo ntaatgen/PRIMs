@@ -10,7 +10,7 @@ import Foundation
 
 /// Buffer mappings for buffers that can be used as source (in condition or lhs of action)
 let bufferMappingC = ["V":"input","WM":"imaginal","G":"goal","C":"operator","AC":"action","RT":"retrievalH","GC":"constants"]
-/// Buffer mappings for buffer that are used in the lhs of an action
+/// Buffer mappings for buffer that are used in the rhs of an action
 let bufferMappingA = ["V":"input","WM":"imaginalN","G":"goal","C":"operator","AC":"action","RT":"retrievalR","GC":"constants"]
 /// Buffer Order determines which buffer is preferred on the left side of a PRIM (lower is left)
 let bufferOrder = ["input":1,"goal":2,"imaginal":3,"retrievalH":4,"constants":5,"operator":6]
@@ -107,7 +107,8 @@ class Prim:CustomStringConvertible {
     - returns: a Bool to indicate success
     */
     func fire() -> Bool {
-        let lhsVal = lhsBuffer == nil ? nil : model.buffers[lhsBuffer!]?.slotValue(lhsSlot!)
+        let lhsVal = lhsBuffer == nil ? nil :
+        lhsBuffer! == "operator" ? model.buffers[lhsBuffer!]?.slotValue(lhsSlot!) : model.formerBuffers[lhsBuffer!]?.slotValue(lhsSlot!)
 
         switch op {
         case "=":

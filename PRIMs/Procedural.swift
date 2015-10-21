@@ -84,10 +84,11 @@ class Procedural {
     }
     
     func fireProduction(inst: Instantiation, compile: Bool) -> Bool {
-        if !inst.p.name.hasPrefix("t") {
-            addToRewardTrace(inst)
-        }
+
         if compile {
+            if !inst.p.name.hasPrefix("t") {
+                addToRewardTrace(inst)
+            }
             if lastProduction != nil {
                 compileProductions(lastProduction!, inst2: inst)
             }

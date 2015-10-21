@@ -367,10 +367,11 @@ class Model {
         formerBuffers["imaginal"] = buffers["imaginal"]?.copyLiteral()
         formerBuffers["input"] = buffers["input"]?.copyLiteral()
         formerBuffers["retrievalH"] = buffers["retrievalH"]?.copyLiteral()
+        formerBuffers["constants"] = buffers["constants"]?.copyLiteral()
         commitToTrace(false)
         repeat {
             procedural.lastProduction = nil
-            if !operators.findOperatorOrOperatorProduction() {
+            if !operators.findOperator() {
                 if scenario.nextEventTime == nil {
                     running = false
 //                    procedural.issueReward(0.0)
@@ -390,6 +391,11 @@ class Model {
                 let op = buffers["operator"]!
                 addToTrace("Operator \(op.name) failed")
                 commitToTrace(true)
+                buffers["goal"] = formerBuffers["goal"]
+                buffers["imaginal"] = formerBuffers["imaginal"]
+                buffers["input"] = formerBuffers["input"]
+                buffers["retrievalH"] = formerBuffers["retrievalH"]
+                buffers["constants"] = formerBuffers["constants"]
                 if dm.goalOperatorLearning {
                     operators.previousOperators.removeLast()
                 }

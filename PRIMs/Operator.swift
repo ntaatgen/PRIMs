@@ -124,19 +124,14 @@ class Operator {
     
     
     /**
-    This function finds an operator. It can do this in several ways depending on the settings
-    of the parameters compileOperators and retrieveOperatorsConditional.
-    If retrieveOperatorsConditional is true, an operator is retrieved that is checked by the currently
-    available productions. If successful, the operator is placed in the operator buffer.
-    CHANGE: We now always assume retrieveOperatorsConditional is true
+    This function finds an applicable operator and puts it in the operator buffer.
     
     - returns: Whether an operator was successfully found
     */
-    func findOperatorOrOperatorProduction() -> Bool {
+    func findOperator() -> Bool {
         let retrievalRQ = Chunk(s: "operator", m: model)
         retrievalRQ.setSlot("isa", value: "operator")
         var (latency,opRetrieved) = model.dm.retrieve(retrievalRQ)
-//        if model.procedural.retrieveOperatorsConditional {
             var cfs = model.dm.conflictSet.sort({ (item1, item2) -> Bool in
                 let (_,u1) = item1
                 let (_,u2) = item2
@@ -151,9 +146,10 @@ class Operator {
             var match = false
             var candidate: Chunk
             var activation: Double
+        
             repeat {
                 (candidate, activation) = cfs.removeAtIndex(0)
-                let savedBuffers = model.buffers
+//                let savedBuffers = model.buffers
                 model.buffers["operator"] = candidate.copy()
                 let inst = model.procedural.findMatchingProduction()
                 match = model.procedural.fireProduction(inst, compile: false)
@@ -161,7 +157,8 @@ class Operator {
                     match = false
                     model.addToTrace("   Rejected operator \(candidate.name) because it has no associations and no production that tests all conditions")
                 }
-                model.buffers = savedBuffers
+//                model.buffers = savedBuffers
+                model.buffers["operator"] = nil
             } while !match && !cfs.isEmpty && cfs[0].1 > model.dm.retrievalThreshold
             if match {
                 opRetrieved = candidate
@@ -170,7 +167,6 @@ class Operator {
                 opRetrieved = nil
                 latency = model.dm.latency(model.dm.retrievalThreshold)
             }
-//        }
         model.time += latency
         if opRetrieved == nil { return false }
         if model.dm.goalOperatorLearning {
