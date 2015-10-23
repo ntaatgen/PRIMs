@@ -28,7 +28,7 @@ class Model {
     var chunkIdCounter = 0
     var running = false
     var startTime: Double = 0.0
-    var trace: String {
+    var trace: [(Int,String)] {
         didSet {
             NSNotificationCenter.defaultCenter().postNotificationName("TraceChanged", object: nil)
         }
@@ -55,7 +55,6 @@ class Model {
     static let rewardDefault = 0.0
     /// Reward used for operator-goal association learning. Also determines maximum run time. Switched off when set to 0.0 (default)
     var reward: Double = rewardDefault
-    var stepping = false
     
 //    struct Results {
         var modelResults: [[(Double,Double)]] = []
@@ -95,37 +94,65 @@ class Model {
     }
         
     init() {
-        trace = ""
+        trace = []
     }
     
-    var traceBuffer: [String] = []
+    var traceBuffer: [(Int,String)] = []
     
-    
-    func addToTrace(s: String) {
+    /**
+    Add an entry to the traceBuffer
+    - parameter s: the string tot add
+    - parameter level: the level of the entry
+    */
+    func addToTrace(s: String, level: Int) {
         if tracing {
         let timeString = String(format:"%.2f", time)
-//        println("\(timeString)  " + s)
-        traceBuffer.append("\(timeString)  " + s)
+        traceBuffer.append((level,"\(timeString)  " + s))
 //        trace += "\(timeString)  " + s + "\n"
         }
     }
     
+    /**
+    Add the items in the traceBuffer to the trace. Indented items in the trace belong
+    to a part of the execution that has failed, and therefore also receive a higher level
+    - parameter indented: should the added items be indented
+   */
     func commitToTrace(indented: Bool) {
-        for s in traceBuffer {
+        for (i,s) in traceBuffer {
             if indented {
-                trace += "      "
+                trace.append((max(i, 3) ,"       " + s))
+            } else {
+                trace.append((i,s))
             }
-            trace += s + "\n"
         }
         traceBuffer = []
     }
     
+    /**
+    Add an item to trace so that it is always visible and do not gets a timestamp. This is used when parsing a model
+    - parameter s: the string to add
+    */
     func addToTraceField(s: String) {
-        trace += s + "\n"
+        trace.append((0,s))
     }
     
     func clearTrace() {
-        trace = ""
+        trace = []
+    }
+    
+    /**
+    Generate a text string that reflects the current trace
+     - parameter maxLevel: Maximum level to include in the trace
+     - returns: the String
+    */
+    func getTrace(maxLevel: Int) -> String {
+        var result = ""
+        for (level,s) in trace {
+            if level <= maxLevel {
+                result += s + "\n"
+            }
+        }
+        return result
     }
     
 //    func buffersToText() -> String {
@@ -389,7 +416,7 @@ class Model {
             found = operators.carryOutProductionsUntilOperatorDone()
             if !found {
                 let op = buffers["operator"]!
-                addToTrace("Operator \(op.name) failed")
+                addToTrace("Operator \(op.name) failed", level: 2)
                 commitToTrace(true)
                 buffers["goal"] = formerBuffers["goal"]
                 buffers["imaginal"] = formerBuffers["imaginal"]
@@ -456,7 +483,7 @@ class Model {
         chunkIdCounter = 0
         running = false
         startTime = 0
-        trace = ""
+        trace = []
         waitingForAction = false
         currentTaskIndex = nil
         operators.reset()

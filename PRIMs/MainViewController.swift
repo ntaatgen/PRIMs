@@ -153,7 +153,6 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
         primGraph.needsDisplay = true
     }
     
-    
     let border = 10.0
 
     func primViewCalculateGraph(sender: PrimView) {
@@ -294,6 +293,53 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
         
     }
     
+    
+    /// Code that handles the trace window and its popup
+    
+    @IBOutlet weak var traceSelectionMenu: NSPopUpButton!
+    
+    
+    @IBAction func traceMenuSelected(sender: NSPopUpButton) {
+        updateTrace()
+    }
+    
+    func updateTrace() {
+        let traceLevel = traceSelectionMenu.selectedItem!.title
+        switch traceLevel {
+        case "Operators only": outputText.string = model.getTrace(1)
+        case "Operators and modules": outputText.string = model.getTrace(2)
+        case "Operators and productions": outputText.string = model.getTrace(3)
+        case "Operators, productions, compilation": outputText.string = model.getTrace(4)
+        case "All": outputText.string = model.getTrace(5)
+        default: break // shouldn't happen
+        }
+    }
+    
+//    @IBOutlet weak var popUpMenu: NSPopUpButton!
+//    
+//    @IBAction func popUpMenuSelected(sender: NSPopUpButton) {
+//        primViewCalculateGraph(primGraph)
+//        primGraph.needsDisplay = true
+//    }
+//    
+//    let border = 10.0
+//    
+//    func primViewCalculateGraph(sender: PrimView) {
+//        primGraphData = FruchtermanReingold(W: Double(sender.bounds.width) - 3 * border, H: Double(sender.bounds.height) - 3 * border)
+//        let graphType = popUpMenu.selectedItem!.title
+//        switch graphType {
+//        case "PRIMs": primGraphData!.setUpGraph(model)
+//        case "Productions": primGraphData!.setUpLearnGraph(model)
+//        case "Declarative": primGraphData!.setUpDMGraph(model)
+//        default: break // Shouldn't happen
+//        }
+//        primGraphData!.calculate()
+//    }
+//    
+    
+    /// Code to load models
+    
+    
     @IBAction func loadModel(sender: NSButton) {
         let fileDialog: NSOpenPanel = NSOpenPanel()
         fileDialog.prompt = "Select model file"
@@ -341,7 +387,7 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
     
     func updateAllViews() {
         model.commitToTrace(false)
-        outputText.string = model.trace
+        updateTrace()
 //        let bottomOffset = CGPointMake(0, outputText.bounds.size.height)
 //        println("bottomOffset = \(bottomOffset)")
 //        outputScrollView.documentView!.scrollToPoint(bottomOffset)
@@ -555,9 +601,7 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
     }
     
     @IBAction func step(sender: NSButton) {
-        model.stepping = true
         model.step()
-        model.stepping = false
         updateAllViews()
         
     }

@@ -270,7 +270,7 @@ class Parser  {
             case "distribution:":
                 let distribution = scanner.scanUpToCharactersFromSet(whitespaceNewLine)
                 if distribution == nil {
-                    m.addToTraceField("No string after distribution: in action declaration")
+                    m.addToTraceField("No string after distribution in action declaration")
                     return false
                 }
                 switch distribution! {

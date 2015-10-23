@@ -125,7 +125,7 @@ class PRScenario {
         } while nextEventTime != nil && nextEventTime! < model.time
         let chunk = makeSubstitutions(currentScreen!.current(model))
         model.buffers["input"] = chunk
-        model.addToTrace("Switching to screen \(currentScreen!.name), next switch is \(nextEventTime)")
+        model.addToTrace("Switching to screen \(currentScreen!.name), next switch is \(nextEventTime)", level: 2)
         
     }
     

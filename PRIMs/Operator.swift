@@ -118,7 +118,7 @@ class Operator {
             operatorChunk.assocs[goalChunk!.name]!.0 += model.dm.beta * (opReward - operatorChunk.assocs[goalChunk!.name]!.0)
             operatorChunk.assocs[goalChunk!.name]!.1++
             operatorChunk.addReference() // Also increase baselevel activation of the operator
-            model.addToTrace("Updating assoc between \(goalChunk!.name) and \(operatorChunk.name) to \(operatorChunk.assocs[goalChunk!.name]!)")
+            model.addToTrace("Updating assoc between \(goalChunk!.name) and \(operatorChunk.name) to \(operatorChunk.assocs[goalChunk!.name]!)", level: 5)
         }
     }
     
@@ -137,12 +137,10 @@ class Operator {
                 let (_,u2) = item2
                 return u1 > u2
             })
-            if model.stepping {
-                model.addToTrace("Conflict Set")
-                for (chunk,activation) in cfs {
-                    model.addToTrace("  \(chunk.name) A = \(activation)")
-                }
-            }
+        model.addToTrace("Conflict Set", level: 5)
+        for (chunk,activation) in cfs {
+            model.addToTrace("  \(chunk.name) A = \(activation)", level: 5)
+        }
             var match = false
             var candidate: Chunk
             var activation: Double
@@ -155,7 +153,7 @@ class Operator {
                 match = model.procedural.fireProduction(inst, compile: false)
                 if match && candidate.spreadingActivation() <= 0.0 && model.buffers["operator"]?.slotValue("condition") != nil {
                     match = false
-                    model.addToTrace("   Rejected operator \(candidate.name) because it has no associations and no production that tests all conditions")
+                    model.addToTrace("   Rejected operator \(candidate.name) because it has no associations and no production that tests all conditions", level: 2)
                 }
 //                model.buffers = savedBuffers
                 model.buffers["operator"] = nil
@@ -173,7 +171,7 @@ class Operator {
             let item = (opRetrieved!, model.time - latency)
             previousOperators.append(item)
         }
-        model.addToTrace("*** Retrieved operator \(opRetrieved!.name) with spread \(opRetrieved!.spreadingActivation())")
+        model.addToTrace("*** Retrieved operator \(opRetrieved!.name) with spread \(opRetrieved!.spreadingActivation())", level: 1)
         model.dm.addToFinsts(opRetrieved!)
         model.buffers["goal"]!.setSlot("last-operator", value: opRetrieved!)
         model.buffers["operator"] = opRetrieved!.copy()
@@ -198,7 +196,7 @@ class Operator {
             if pname.hasPrefix("t") {
                 pname = String(pname.characters.dropFirst())
             }
-            model.addToTrace("Firing \(pname)")
+            model.addToTrace("Firing \(pname)", level: 3)
             match = model.procedural.fireProduction(inst, compile: true)
             if first {
                 model.time += model.procedural.productionActionLatency

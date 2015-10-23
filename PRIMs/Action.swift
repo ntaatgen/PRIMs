@@ -79,7 +79,7 @@ class Action {
             latency = defaultPerceptualActionLatency
         }
         if ac! == "wait" {
-            model.addToTrace("Waiting (latency = \(latency))")
+            model.addToTrace("Waiting (latency = \(latency))",level: 2)
             latency = 0.05
             if model.scenario.nextEventTime == nil {
             } else {
@@ -87,9 +87,9 @@ class Action {
             }
         } else if actionInstance != nil {
             latency = actionInstance!.latency()
-            model.addToTrace("\(actionInstance!.outputString) \(par1 == nil ? nothing : par1!) \(par2 == nil ? nothing : par2!) (latency = \(latency))")
+            model.addToTrace("\(actionInstance!.outputString) \(par1 == nil ? nothing : par1!) \(par2 == nil ? nothing : par2!) (latency = \(latency))", level: 2)
         } else {
-            model.addToTrace("\(ac!)-ing \(par1 == nil ? nothing : par1!) \(par2 == nil ? nothing : par2!) (latency = \(latency))")
+            model.addToTrace("\(ac!)-ing \(par1 == nil ? nothing : par1!) \(par2 == nil ? nothing : par2!) (latency = \(latency))", level: 2)
 
         }
             let dl = DataLine(eventType: "action", eventParameter1: ac!, eventParameter2: par1 ?? "void", eventParameter3: par2 ?? "void", inputParameters: model.scenario.inputMappingForTrace,time: model.time + latency - model.startTime)

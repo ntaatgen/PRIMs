@@ -40,7 +40,7 @@ class Imaginal {
                     }
                 }
                 model.buffers["imaginal"] = newImaginal
-                model.addToTrace("New imaginal chunk \(newImaginal.name)  (latency = \(imaginalLatency))")
+                model.addToTrace("New imaginal chunk \(newImaginal.name)  (latency = \(imaginalLatency))", level: 2)
                 model.dm.addToDM(oldImaginal)
                 return imaginalLatency
             } else {
@@ -56,7 +56,7 @@ class Imaginal {
         }
         newImaginal.setSlot("isa", value: "fact")
         model.buffers["imaginal"] = newImaginal
-        model.addToTrace("New imaginal chunk \(newImaginal.name)  (latency = \(imaginalLatency))")
+        model.addToTrace("New imaginal chunk \(newImaginal.name)  (latency = \(imaginalLatency))", level: 2)
         return imaginalLatency
     }
 }

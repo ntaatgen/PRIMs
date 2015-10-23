@@ -241,10 +241,10 @@ class Declarative  {
         let retrievalQuery = model.buffers["retrievalR"]!
         let (latency, retrieveResult) = retrieve(retrievalQuery)
         if retrieveResult != nil {
-            model.addToTrace("Retrieving \(retrieveResult!.name) (latency = \(latency))")
+            model.addToTrace("Retrieving \(retrieveResult!.name) (latency = \(latency))", level: 2)
             model.buffers["retrievalH"] = retrieveResult!
         } else {
-            model.addToTrace("Retrieval failure")
+            model.addToTrace("Retrieval failure", level: 2)
             let failChunk = Chunk(s: "RetrievalFailure", m: model)
             failChunk.setSlot("slot1", value: "error")
             model.buffers["retrievalH"] = failChunk
