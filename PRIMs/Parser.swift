@@ -518,7 +518,7 @@ class Parser  {
                         chunk!.fixedActivation = defaultActivation
                         slotindex++
                     } else {
-                        if m.dm.chunks[slotValue!] == nil {
+                        if m.dm.chunks[slotValue!] == nil && slotValue! != chunk!.name {
                             let extraChunk = Chunk(s: slotValue!, m: m)
                             extraChunk.setSlot("isa", value: "fact")
                             extraChunk.setSlot("slot1", value: slotValue!)
