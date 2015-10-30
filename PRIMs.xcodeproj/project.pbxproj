@@ -10,6 +10,7 @@
 		B80397C51B15B4BF00935F9C /* Parser.swift in Sources */ = {isa = PBXBuildFile; fileRef = B80397C41B15B4BF00935F9C /* Parser.swift */; };
 		B806EFBC1AEFE77900633505 /* Task.swift in Sources */ = {isa = PBXBuildFile; fileRef = B806EFBB1AEFE77900633505 /* Task.swift */; };
 		B806EFBE1AF003CF00633505 /* Action.swift in Sources */ = {isa = PBXBuildFile; fileRef = B806EFBD1AF003CF00633505 /* Action.swift */; };
+		B814B7821BE3BE3B00FF6E2D /* count.prims in Resources */ = {isa = PBXBuildFile; fileRef = B814B7811BE3BE3B00FF6E2D /* count.prims */; };
 		B84BE0781B034C190015DF1F /* PrimView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B84BE0771B034C190015DF1F /* PrimView.swift */; };
 		B85FAA5C1AE10CAF00C6F57A /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B85FAA5B1AE10CAF00C6F57A /* AppDelegate.swift */; };
 		B85FAA5E1AE10CAF00C6F57A /* MainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B85FAA5D1AE10CAF00C6F57A /* MainViewController.swift */; };
@@ -50,6 +51,7 @@
 		B80397C41B15B4BF00935F9C /* Parser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Parser.swift; sourceTree = "<group>"; };
 		B806EFBB1AEFE77900633505 /* Task.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Task.swift; sourceTree = "<group>"; };
 		B806EFBD1AF003CF00633505 /* Action.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Action.swift; sourceTree = "<group>"; };
+		B814B7811BE3BE3B00FF6E2D /* count.prims */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = count.prims; sourceTree = "<group>"; };
 		B825B6E41B0C884E009B98BC /* more-fish.prims */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "more-fish.prims"; sourceTree = "<group>"; };
 		B826B9AE1B063DBB000950A3 /* count-spoons.prims */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "count-spoons.prims"; sourceTree = "<group>"; };
 		B83A89211B558B4900382B3D /* GoalOperatorLearning.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GoalOperatorLearning.swift; sourceTree = "<group>"; };
@@ -71,7 +73,7 @@
 		B85FAA9B1AE10D7500C6F57A /* Support.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Support.swift; sourceTree = "<group>"; };
 		B85FAA9C1AE10D7500C6F57A /* Model.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Model.swift; sourceTree = "<group>"; };
 		B85FAA9E1AE10D7500C6F57A /* Instantiation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Instantiation.swift; sourceTree = "<group>"; };
-		B85FAAB11AE1188C00C6F57A /* count.prims */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = count.prims; sourceTree = "<group>"; };
+		B85FAAB11AE1188C00C6F57A /* count-buf-stuf.prims */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "count-buf-stuf.prims"; sourceTree = "<group>"; };
 		B85FAAB31AE1326000C6F57A /* Prim.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Prim.swift; sourceTree = "<group>"; };
 		B866FCB21B67BC010084EAAE /* Operator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Operator.swift; sourceTree = "<group>"; };
 		B8935EF01B13C93900E4C9E8 /* PrimsModelFileIcon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = PrimsModelFileIcon.icns; sourceTree = "<group>"; };
@@ -203,7 +205,8 @@
 		B898EA8B1B0F6A1400B5777E /* Models */ = {
 			isa = PBXGroup;
 			children = (
-				B85FAAB11AE1188C00C6F57A /* count.prims */,
+				B85FAAB11AE1188C00C6F57A /* count-buf-stuf.prims */,
+				B814B7811BE3BE3B00FF6E2D /* count.prims */,
 				B8C8DB501B5690BC00D5102F /* stroop.prims */,
 				B8C8DB4E1B568E8F00D5102F /* taskswitching.prims */,
 				B8E827561B3811B800C1E60A /* count-learn.prims */,
@@ -325,6 +328,7 @@
 			files = (
 				B85FAA601AE10CAF00C6F57A /* Images.xcassets in Resources */,
 				B85FAA631AE10CAF00C6F57A /* Main.storyboard in Resources */,
+				B814B7821BE3BE3B00FF6E2D /* count.prims in Resources */,
 				B8935EF11B13C93900E4C9E8 /* PrimsModelFileIcon.icns in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

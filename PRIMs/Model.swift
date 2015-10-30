@@ -244,6 +244,8 @@ class Model {
             dm.goalOperatorLearning = boolVal
         case "goal-chunk-spreads:":
             dm.goalSpreadingByActivation = boolVal
+        case "declarative-buffer-stuffing:":
+            dm.declarativeBufferStuffing = boolVal
         default:
             if (numVal == nil) {return false}
             switch parameter {
@@ -326,8 +328,8 @@ class Model {
         var latency = 0.0
         formerBuffers["retrievalH"] = buffers["retrievalH"]
         buffers["retrievalH"] = nil
-        if buffers["retrievalR"] != nil {
-            formerBuffers["retrievalR"] = buffers["retrievalR"]!
+        if buffers["retrievalR"] != nil || dm.declarativeBufferStuffing {
+            formerBuffers["retrievalR"] = buffers["retrievalR"]
             let retrievalLatency = dm.action()
             latency = max(latency, retrievalLatency)
         }

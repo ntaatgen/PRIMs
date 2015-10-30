@@ -28,6 +28,7 @@ class Declarative  {
     static let goalOperatorLearningDefault = false
     static let betaDefault = 0.1
     static let explorationExploitationFactorDefault = 0.0
+    static let declarativeBufferStuffingDefault = false
     /// Baseleveldecay parameter (d in ACT-R)
     var baseLevelDecay: Double = baseLevelDecayDefault
     /// Optimized learning on or off
@@ -64,6 +65,8 @@ class Declarative  {
     var beta = betaDefault
     /// Parameter that controls the amount of exploration vs. exploitation. Higher is more exploration
     var explorationExploitationFactor = explorationExploitationFactorDefault
+    /// Parameter that control whether we use declarative buffer stuffing
+    var declarativeBufferStuffing = declarativeBufferStuffingDefault
     /// Dictionary with all the chunks in DM, maps name onto Chunk
     var chunks = [String:Chunk]()
     /// List of all the chunks that partipated in the last retrieval. Tuple has Chunk and activation value
@@ -78,6 +81,7 @@ class Declarative  {
     
     init(model: Model) {
         self.model = model
+
     }
     
     func setParametersToDefault() {
@@ -99,7 +103,7 @@ class Declarative  {
         goalOperatorLearning = Declarative.goalOperatorLearningDefault
         beta = Declarative.betaDefault
         explorationExploitationFactor = Declarative.explorationExploitationFactorDefault
-
+        declarativeBufferStuffing = Declarative.declarativeBufferStuffingDefault
     }
     
     func duplicateChunk(chunk: Chunk) -> Chunk? {
@@ -238,20 +242,26 @@ class Declarative  {
     }
 
     func action() -> Double {
-        let retrievalQuery = model.buffers["retrievalR"]!
+        let stuff = model.buffers["retrievalR"] == nil
+        let emptyRetrieval = Chunk(s: "emptyRetrieval", m: model)
+        emptyRetrieval.setSlot("isa", value: "fact")
+        let retrievalQuery = model.buffers["retrievalR"] ?? emptyRetrieval
         let (latency, retrieveResult) = retrieve(retrievalQuery)
         if retrieveResult != nil {
-            model.addToTrace("Retrieving \(retrieveResult!.name) (latency = \(latency))", level: 2)
+            if stuff {
+                model.addToTrace("Stuffing retrieval buffer \(retrieveResult!.name) (latency = \(latency))", level: 2)
+            } else {
+                model.addToTrace("Retrieving \(retrieveResult!.name) (latency = \(latency))", level: 2)
+            }
             model.buffers["retrievalH"] = retrieveResult!
-        } else {
+        } else if !stuff  {
             model.addToTrace("Retrieval failure", level: 2)
             let failChunk = Chunk(s: "RetrievalFailure", m: model)
             failChunk.setSlot("slot1", value: "error")
             model.buffers["retrievalH"] = failChunk
         }
-        
         model.buffers["retrievalR"] = nil
-        return latency
+        return retrieveResult == nil && stuff ? 0.0 : latency
     }
     
 }
