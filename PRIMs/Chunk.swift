@@ -330,12 +330,13 @@ func == (left: Chunk, right: Chunk) -> Bool {
     if left.slotvals.count != right.slotvals.count { return false }
     for (slot1,value1) in left.slotvals {
         if let rightVal = right.slotvals[slot1] {
-            switch (rightVal,value1) {
-            case (.Number(let val1),.Number(let val2)): if val1 != val2 { return false }
-            case (.Text(let s1), .Text(let s2)): if s1 != s2 { return false }
-            case (.Symbol(let c1), .Symbol(let c2)): if c1 !== c2 { return false }
-            default: return false
-            }
+            if value1.description != rightVal.description { return false }
+//            switch (rightVal,value1) {
+//            case (.Number(let val1),.Number(let val2)): if val1 != val2 { return false }
+//            case (.Text(let s1), .Text(let s2)): if s1 != s2 { return false }
+//            case (.Symbol(let c1), .Symbol(let c2)): if c1 !== c2 { return false }
+//            default: return false
+//            }
         } else { return false }
     }
     return true

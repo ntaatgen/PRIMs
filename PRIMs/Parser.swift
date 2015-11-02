@@ -335,7 +335,7 @@ class Parser  {
             chunk = Chunk(s: operatorName!, m: m)
         } else {
             chunk = m.generateNewChunk(operatorName!)
-            m.addToTraceField("Warning: Chunk with name \(operatorName!) already exists, renaming it to \(chunk.name)")
+//            m.addToTraceField("Warning: Chunk with name \(operatorName!) already exists, renaming it to \(chunk.name)")
         }
         chunk.fixedActivation = defaultActivation
         m.addToTraceField("Adding operator \(operatorName!)")
@@ -518,14 +518,18 @@ class Parser  {
                         chunk!.fixedActivation = defaultActivation
                         slotindex++
                     } else {
-                        if m.dm.chunks[slotValue!] == nil && slotValue! != chunk!.name {
+                        if m.dm.chunks[slotValue!] != nil {
+                            chunk!.setSlot("slot\(slotindex++)", value: slotValue!)
+                        } else if slotValue! == chunk!.name {
+                            chunk!.setSlot("slot\(slotindex++)", value:  chunk!)
+                        } else {
                             let extraChunk = Chunk(s: slotValue!, m: m)
                             extraChunk.setSlot("isa", value: "fact")
                             extraChunk.setSlot("slot1", value: slotValue!)
                             m.dm.addToDM(extraChunk)
                             m.addToTraceField("Adding undefined fact \(extraChunk.name) as default chunk")
+                            chunk!.setSlot("slot\(slotindex++)", value: slotValue!)
                         }
-                        chunk!.setSlot("slot\(slotindex++)", value: slotValue!)
                     }
                 }
             }
