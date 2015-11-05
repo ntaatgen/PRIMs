@@ -29,6 +29,7 @@ class Declarative  {
     static let betaDefault = 0.1
     static let explorationExploitationFactorDefault = 0.0
     static let declarativeBufferStuffingDefault = false
+    static let retrievalReinforcesDefault = false
     /// Baseleveldecay parameter (d in ACT-R)
     var baseLevelDecay: Double = baseLevelDecayDefault
     /// Optimized learning on or off
@@ -67,6 +68,8 @@ class Declarative  {
     var explorationExploitationFactor = explorationExploitationFactorDefault
     /// Parameter that control whether we use declarative buffer stuffing
     var declarativeBufferStuffing = declarativeBufferStuffingDefault
+    /// Parameter that determines whether a retrieval alone increase baselevel activation
+    var retrievalReinforces = retrievalReinforcesDefault
     /// Dictionary with all the chunks in DM, maps name onto Chunk
     var chunks = [String:Chunk]()
     /// List of all the chunks that partipated in the last retrieval. Tuple has Chunk and activation value
@@ -104,6 +107,7 @@ class Declarative  {
         beta = Declarative.betaDefault
         explorationExploitationFactor = Declarative.explorationExploitationFactorDefault
         declarativeBufferStuffing = Declarative.declarativeBufferStuffingDefault
+        retrievalReinforces = Declarative.retrievalReinforcesDefault
     }
     
     func duplicateChunk(chunk: Chunk) -> Chunk? {
@@ -252,6 +256,9 @@ class Declarative  {
                 model.addToTrace("Stuffing retrieval buffer \(retrieveResult!.name) (latency = \(latency))", level: 2)
             } else {
                 model.addToTrace("Retrieving \(retrieveResult!.name) (latency = \(latency))", level: 2)
+                if retrievalReinforces {
+                    retrieveResult!.addReference()
+                }
             }
             model.buffers["retrievalH"] = retrieveResult!
         } else if !stuff  {

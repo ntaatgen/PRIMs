@@ -246,6 +246,8 @@ class Model {
             dm.goalSpreadingByActivation = boolVal
         case "declarative-buffer-stuffing:":
             dm.declarativeBufferStuffing = boolVal
+        case "retrieval-reinforces:":
+            dm.retrievalReinforces = boolVal
         default:
             if (numVal == nil) {return false}
             switch parameter {
