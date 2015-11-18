@@ -526,6 +526,7 @@ class Parser  {
                             let extraChunk = Chunk(s: slotValue!, m: m)
                             extraChunk.setSlot("isa", value: "fact")
                             extraChunk.setSlot("slot1", value: slotValue!)
+                            extraChunk.fixedActivation = defaultActivation
                             m.dm.addToDM(extraChunk)
                             m.addToTraceField("Adding undefined fact \(extraChunk.name) as default chunk")
                             chunk!.setSlot("slot\(slotindex++)", value: slotValue!)
