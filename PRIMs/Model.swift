@@ -30,7 +30,9 @@ class Model {
     var startTime: Double = 0.0
     var trace: [(Int,String)] {
         didSet {
-            NSNotificationCenter.defaultCenter().postNotificationName("TraceChanged", object: nil)
+            if !silent {
+                NSNotificationCenter.defaultCenter().postNotificationName("TraceChanged", object: nil)
+            }
         }
     }
     var waitingForAction: Bool = false {
@@ -52,9 +54,11 @@ class Model {
     var timeThreshold = 200.0
     var outputData: [DataLine] = []
     var formerBuffers: [String:Chunk] = [:]
+    var modelCode: String?
     static let rewardDefault = 0.0
     /// Reward used for operator-goal association learning. Also determines maximum run time. Switched off when set to 0.0 (default)
     var reward: Double = rewardDefault
+    let silent: Bool
     
 //    struct Results {
         var modelResults: [[(Double,Double)]] = []
@@ -64,6 +68,7 @@ class Model {
         var maxY = 0.0
         var currentTrial = 1.0
         func resultAdd(y:Double) {
+            if silent { return }
             let x = currentTrial
             currentTrial += 1.0
             if currentRow < modelResults.count {
@@ -77,6 +82,7 @@ class Model {
             maxY = max(maxY, y)
         }
         func newResult() {
+            if silent { return }
             if currentRow < modelResults.count {
                 currentRow = currentRow + 1
                 resultTaskNumber.append(currentTaskIndex!)
@@ -93,9 +99,28 @@ class Model {
         currentTrial = 1.0
     }
         
-    init() {
+    init(silent: Bool) {
         trace = []
+        self.silent = silent
     }
+    
+    func loadModelWithString(filePath: NSURL) -> Bool {
+        modelCode = try? String(contentsOfURL: filePath, encoding: NSUTF8StringEncoding)
+        if modelCode != nil {
+            scenario = PRScenario()
+            parameters = []
+            currentTaskIndex = tasks.count
+            setParametersToDefault()
+            if !parseCode(modelCode!,taskNumber: tasks.count) {
+                return false
+            }
+        } else {
+            return false
+        }
+        addTask(filePath)
+        return true
+    }
+
     
     var traceBuffer: [(Int,String)] = []
     
@@ -105,7 +130,7 @@ class Model {
     - parameter level: the level of the entry
     */
     func addToTrace(s: String, level: Int) {
-        if tracing {
+        if !silent && tracing {
         let timeString = String(format:"%.2f", time)
         traceBuffer.append((level,"\(timeString)  " + s))
 //        trace += "\(timeString)  " + s + "\n"
@@ -118,11 +143,13 @@ class Model {
     - parameter indented: should the added items be indented
    */
     func commitToTrace(indented: Bool) {
-        for (i,s) in traceBuffer {
-            if indented {
-                trace.append((max(i, 3) ,"       " + s))
-            } else {
-                trace.append((i,s))
+        if !silent {
+            for (i,s) in traceBuffer {
+                if indented {
+                    trace.append((max(i, 3) ,"       " + s))
+                } else {
+                    trace.append((i,s))
+                }
             }
         }
         traceBuffer = []
@@ -133,7 +160,9 @@ class Model {
     - parameter s: the string to add
     */
     func addToTraceField(s: String) {
-        trace.append((0,s))
+        if !silent {
+            trace.append((0,s))
+        }
     }
     
     func clearTrace() {

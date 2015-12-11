@@ -11,9 +11,9 @@ import Cocoa
 class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDelegate, NSSplitViewDelegate, GraphViewDataSource, PrimViewDataSource {
     
     
-    var model = Model()
+    var model = Model(silent: false)
     
-    var modelCode: String? = nil
+//    var modelCode: String? = nil
     
     @IBOutlet var modelText: NSTextView!
     
@@ -352,36 +352,37 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
         let URLs = fileDialog.URLs // as? [NSURL]
 //        if URLs == nil { return }
         for filePath in URLs {
-            if !loadModelWithString(filePath) { return }
+            if !model.loadModelWithString(filePath) {
+                updateAllViews()
+                return
+            }
+            primViewCalculateGraph(primGraph)
+            primGraph.needsDisplay = true
+            updateAllViews()
             NSDocumentController.sharedDocumentController().noteNewRecentDocumentURL(filePath)
         }
     }
     
-    func loadModelWithString(filePath: NSURL) -> Bool {
-        modelCode = try? String(contentsOfURL: filePath, encoding: NSUTF8StringEncoding)
-        if modelCode != nil {
-            model.scenario = PRScenario()
-            model.parameters = []
-            model.currentTaskIndex = model.tasks.count
-            model.setParametersToDefault()
-            if !model.parseCode(modelCode!,taskNumber: model.tasks.count) {
-                updateAllViews()
-                return false
-            }
-        } else {
-            return false
-        }
-        model.addTask(filePath)
-        primViewCalculateGraph(primGraph)
-        primGraph.needsDisplay = true
-        updateAllViews()
-        return true
-    }
-    
+//    currentTaskIndex = model.tasks.count
+//    setParametersToDefault()
+//    if !parseCode(modelCode!,taskNumber: tasks.count) {
+//    return false
+//    }
+//} else {
+//    return false
+//}
+//addTask(filePath)
+//primViewCalculateGraph(primGraph)
+//primGraph.needsDisplay = true
+//updateAllViews()
+
     func respondToOpenFile(notification: NSNotification) {
         let url = notification.object as? NSURL
         if url != nil {
-            loadModelWithString(url!)
+            model.loadModelWithString(url!)
+            primViewCalculateGraph(primGraph)
+            primGraph.needsDisplay = true
+            updateAllViews()
         }
     }
     
@@ -441,7 +442,7 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
     @IBAction func clickInTaskTable(sender: NSTableView) {
         if sender === taskTable && sender.selectedRow != -1 {
             model.loadOrReloadTask(sender.selectedRow)
-            modelCode = model.modelText
+//            modelCode = model.modelText
             updateAllViews()
         } else if sender == chunkTable && sender.selectedRow != -1 {
             let chunk = model.dm.chunks[dmTable[sender.selectedRow].0]!
@@ -615,8 +616,8 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
     }
     
     @IBAction func clearAll(sender: NSButton) {
-        model = Model()
-        modelCode = nil
+        model = Model(silent: false)
+//        modelCode = nil
         primViewCalculateGraph(primGraph)
         primGraph.needsDisplay = true
         updateAllViews()
@@ -653,20 +654,20 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
         if saveResult != NSFileHandlingPanelOKButton { return }
         if saveDialog.URL == nil { return }
         print("Loading script \(fileDialog.URL!) to output to \(saveDialog.URL!)")
-        batchRunner = BatchRun(script: batchScript, outputFile: saveDialog.URL!, model: model, controller: self, directory: directory!)
-        model.tracing = false
+        batchRunner = BatchRun(script: batchScript, mainModel: model, outputFile: saveDialog.URL!, controller: self, directory: directory!)
+//        model.tracing = false
         batchProgressBar.doubleValue = 0
         batchProgressBar.hidden = false
         outputText.hidden = true
         outputText.needsDisplay = true
         batchProgressBar.needsDisplay = true
         batchProgressBar.displayIfNeeded()
-        model.tracing = false
+//        model.tracing = false
         batchRunner!.runScript()
         batchProgressBar.hidden = true
         outputText.hidden = false
         outputText.needsDisplay = true
-        model.tracing = true
+//        model.tracing = true
         updateAllViews()
     }
     

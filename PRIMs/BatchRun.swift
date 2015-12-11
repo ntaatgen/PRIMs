@@ -11,17 +11,19 @@ import Foundation
 class BatchRun {
     let batchScript: String
     let outputFileName: NSURL
-    let model: Model
+    var model: Model
+    let mainModel: Model
     let controller: MainViewController
     let directory: NSURL
     var progress: Double = 0.0
     
-    init(script: String, outputFile: NSURL, model: Model, controller: MainViewController, directory: NSURL) {
+    init(script: String, mainModel: Model, outputFile: NSURL, controller: MainViewController, directory: NSURL) {
         self.batchScript = script
         self.outputFileName = outputFile
-        self.model = model
+        self.model = Model(silent: true)
         self.controller = controller
         self.directory = directory
+        self.mainModel = mainModel
     }
     
     func runScript() {
@@ -30,7 +32,7 @@ class BatchRun {
         _ = scanner.scanUpToCharactersFromSet(whiteSpaceAndNL)
         let numberOfRepeats = scanner.scanInt()
         if numberOfRepeats == nil {
-            model.addToTraceField("Illegal number of repeats")
+            self.mainModel.addToTraceField("Illegal number of repeats")
             return
         }
         var newfile = true
@@ -48,32 +50,32 @@ class BatchRun {
                 case "run":
                     let taskname = scanner.scanUpToCharactersFromSet(whiteSpaceAndNL)
                     if taskname == nil {
-                        self.model.addToTraceField("Illegal task name in run")
+                        self.mainModel.addToTraceField("Illegal task name in run")
                         return
                     }
                     let taskLabel = scanner.scanUpToCharactersFromSet(whiteSpaceAndNL)
                     if taskLabel == nil {
-                        self.model.addToTraceField("Illegal task label in run")
+                        self.mainModel.addToTraceField("Illegal task label in run")
                         return
                     }
                     let endCriterium = scanner.scanDouble()
                     if endCriterium == nil {
-                        self.model.addToTraceField("Illegal number of trials or end time in run")
+                        self.mainModel.addToTraceField("Illegal number of trials or end time in run")
                         return
                     }
-                    self.model.addToTraceField("Running task \(taskname!) with label \(taskLabel!) until \(endCriterium!) trials")
+                    self.mainModel.addToTraceField("Running task \(taskname!) with label \(taskLabel!) until \(endCriterium!) trials")
                     var tasknumber = self.model.findTask(taskname!)
                     if tasknumber == nil {
                         let taskPath = self.directory.URLByAppendingPathComponent(taskname! + ".prims")
                         print("Trying to load \(taskPath)")
-                        if !self.controller.loadModelWithString(taskPath) {
-                            self.model.addToTraceField("Task \(taskname!) is not loaded nor can it be found")
+                        if !self.model.loadModelWithString(taskPath) {
+                            self.mainModel.addToTraceField("Task \(taskname!) is not loaded nor can it be found")
                             return
                         }
                         tasknumber = self.model.findTask(taskname!)
                     }
                     if tasknumber == nil {
-                        self.model.addToTraceField("Task \(taskname!) cannot be found")
+                        self.mainModel.addToTraceField("Task \(taskname!) cannot be found")
                         return
                     }
                     self.model.loadOrReloadTask(tasknumber!)
@@ -114,14 +116,14 @@ class BatchRun {
                                 try output.writeToURL(self.outputFileName, atomically: false, encoding: NSUTF8StringEncoding)
                             } catch let error as NSError {
                                 err = error
-                                self.model.addToTraceField("Can't write datafile \(err)")
+                                self.mainModel.addToTraceField("Can't write datafile \(err)")
                                 
                             }
                         }
                     }
                 case "reset":
                     print("Resetting models")
-                    self.model.reset(nil)
+                    self.model = Model(silent: true)
                 case "repeat":
                     scanner.scanInt()
                 default: break
