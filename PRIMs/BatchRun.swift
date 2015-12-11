@@ -27,7 +27,10 @@ class BatchRun {
     }
     
     func runScript() {
-        var scanner = NSScanner(string: batchScript)
+        mainModel.clearTrace()
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0)) { () -> Void in
+
+        var scanner = NSScanner(string: self.batchScript)
         let whiteSpaceAndNL = NSMutableCharacterSet.whitespaceAndNewlineCharacterSet()
         _ = scanner.scanUpToCharactersFromSet(whiteSpaceAndNL)
         let numberOfRepeats = scanner.scanInt()
@@ -37,8 +40,10 @@ class BatchRun {
         }
         var newfile = true
         for i in 0..<numberOfRepeats! {
-            print("Run #\(i)")
-            
+            self.mainModel.addToTraceField("Run #\(i + 1)")
+            dispatch_async(dispatch_get_main_queue()) {
+                self.controller.updateAllViews()
+            }
             scanner = NSScanner(string: self.batchScript)
             
             while let command = scanner.scanUpToCharactersFromSet(whiteSpaceAndNL) {
@@ -64,6 +69,9 @@ class BatchRun {
                         return
                     }
                     self.mainModel.addToTraceField("Running task \(taskname!) with label \(taskLabel!) until \(endCriterium!) trials")
+                    dispatch_async(dispatch_get_main_queue()) {
+                        self.controller.updateAllViews()
+                    }
                     var tasknumber = self.model.findTask(taskname!)
                     if tasknumber == nil {
                         let taskPath = self.directory.URLByAppendingPathComponent(taskname! + ".prims")
@@ -122,7 +130,10 @@ class BatchRun {
                         }
                     }
                 case "reset":
-                    print("Resetting models")
+                    self.mainModel.addToTraceField("Resetting models")
+                    dispatch_async(dispatch_get_main_queue()) {
+                        self.controller.updateAllViews()
+                    }
                     self.model = Model(silent: true)
                 case "repeat":
                     scanner.scanInt()
@@ -130,13 +141,18 @@ class BatchRun {
                     
                 }
             }
-            progress = 100 * (Double(i) + 1) / Double(numberOfRepeats!)
-            NSNotificationCenter.defaultCenter().postNotificationName("progress",object: nil)
-
+            self.progress = 100 * (Double(i) + 1) / Double(numberOfRepeats!)
+            dispatch_async(dispatch_get_main_queue()) {
+                NSNotificationCenter.defaultCenter().postNotificationName("progress",object: nil)
+            }
+            }
+            self.mainModel.addToTraceField("Done")
+            dispatch_async(dispatch_get_main_queue()) {
+                NSNotificationCenter.defaultCenter().postNotificationName("progress",object: nil)
+            }
         }
         
-        
     }
-    
+
     
 }
