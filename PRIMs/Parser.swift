@@ -78,6 +78,7 @@ class Parser  {
                 return false
             }
         }
+        m.dm.stringsToChunks()
         if startScreenName == nil {
             m.addToTraceField("No start screen has been defined")
             return false

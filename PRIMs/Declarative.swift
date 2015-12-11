@@ -176,6 +176,30 @@ class Declarative  {
         }
     }
     
+    /**
+    Checks all chunks in DM to make sure threre are no Strings in slots that are the same as the name
+    of a chunk (replaces those).
+    */
+    func stringsToChunks() {
+        for (_,chunk) in chunks {
+            for (slot,val) in chunk.slotvals {
+                switch val {
+                case .Text(let s):
+                    if let altChunk = chunks[s] {
+                        chunk.slotvals[slot] = Value.Symbol(altChunk)
+//                        print("Fixing \(altChunk.name) in \(chunk.name)")
+                    }
+                default: break
+                }
+            }
+        }
+    }
+    
+    /**
+    Calculate chunk latency
+    - parameter activation: an activation value
+    - returns: the latency
+    */
     func latency(activation: Double) -> Double {
         return latencyFactor * exp(-activation)
     }
