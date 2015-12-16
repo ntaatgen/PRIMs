@@ -41,7 +41,7 @@ struct ActionInstance {
 
 
 class Action {
-    let model: Model
+    unowned let model: Model
     static let defaultPerceptionActionLatencyDefault = 0.2
     /// Default latency for an action when left unspecified
     var defaultPerceptualActionLatency = defaultPerceptionActionLatencyDefault
@@ -51,6 +51,10 @@ class Action {
     
     init(model: Model) {
         self.model = model
+    }
+    
+    deinit {
+        print("Action is deinitialized")
     }
     
     func setParametersToDefault() {

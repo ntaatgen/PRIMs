@@ -12,7 +12,7 @@ class Chunk: CustomStringConvertible {
     /// Name of the chunk
     let name: String
     /// Model in which the chunk is defined
-    let model: Model
+    unowned let model: Model
     /// Time at which chunk entered DM. Nil if not a DM chunk (e.g., in a buffer)
     var creationTime: Double? = nil
     /// Number of references. Assume a single reference on creation
@@ -50,6 +50,10 @@ class Chunk: CustomStringConvertible {
     init (s: String, m: Model) {
         name = s
         model = m
+    }
+    
+    deinit {
+        print("\(name) is deinitialized")
     }
     
     /// A string with a printout of the Chunk

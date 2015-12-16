@@ -12,20 +12,31 @@ class PRObject{
     /// Attributes of the object. These will be put in V1..Vn
     let attributes: [String]
     /// The object that this object is part of, if any
-    let superObject: PRObject?
+    weak var superObject: PRObject?
     /// Name of the object
     let name: String
     /// List of component objects of the object, if any
     var subObjects: [PRObject] = []
     /// How many of the subObjects have already been attended?
     var attended = 0
-    
+    /// Has the object itself been attended?
+    var selfAttended = false
     init(name: String, attributes: [String], superObject: PRObject?) {
         self.name = name
         self.attributes = attributes
         self.superObject = superObject
         if superObject != nil {
             superObject!.subObjects.append(self)
+        }
+    }
+    
+    /**
+    Reset selfAttended state
+    */
+    func unattend() {
+        selfAttended = false
+        for obj in subObjects {
+            obj.unattend()
         }
     }
  

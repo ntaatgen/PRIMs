@@ -1,4 +1,4 @@
-repeat 10
+repeat 1
 reset
 run count traincount 100
 run semantic semantictransfer 100

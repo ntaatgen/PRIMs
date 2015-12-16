@@ -9,7 +9,7 @@
 import Foundation
 
 class Declarative  {
-    weak var model: Model!
+    unowned let model: Model
     static let baseLevelDecayDefault = 0.5
     static let optimizedLearningDefault = true
     static let maximumAssociativeStrengthDefault = 3.0
@@ -85,6 +85,9 @@ class Declarative  {
     init(model: Model) {
         self.model = model
 
+    }
+    deinit {
+        print("Declarative is deinitialized")
     }
     
     func setParametersToDefault() {

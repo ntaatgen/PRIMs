@@ -26,7 +26,7 @@ class Procedural {
     static let proceduralRewardDefault = 4.0
     var proceduralReward = proceduralRewardDefault
     var productions: [String:Production] = [:]
-    let model: Model
+    unowned let model: Model
     var productionsForReward: [Instantiation] = []
     var lastProduction: Production? = nil
     var lastOperator: Chunk? = nil
@@ -34,6 +34,10 @@ class Procedural {
     
     init(model: Model) {
         self.model = model
+    }
+    
+    deinit {
+        print("Procedural is deinitialized")
     }
     
     func setParametersToDefault() {

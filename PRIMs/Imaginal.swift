@@ -11,13 +11,16 @@ import Foundation
 class Imaginal {
     static let imaginalLatencyDefault = 0.2
     var imaginalLatency = imaginalLatencyDefault
-    let model: Model
+    unowned let model: Model
     var autoClear = true
     
     init(model: Model) {
         self.model = model
     }
     
+    deinit {
+        print("Imaginal is deinitialized")
+    }
     func setParametersToDefault() {
         imaginalLatency = Imaginal.imaginalLatencyDefault
     }

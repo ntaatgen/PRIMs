@@ -9,7 +9,7 @@
 import Foundation
 
 class Parser  {
-    private let m: Model
+    unowned let m: Model
     let taskNumber: Int
     var scanner: NSScanner
     var startScreenName: String? = nil
@@ -22,6 +22,9 @@ class Parser  {
         self.taskNumber = taskNumber
         whitespaceNewLineParentheses.formUnionWithCharacterSet(whitespaceNewLine)
         whiteSpaceNewLineParenthesesEqual.formUnionWithCharacterSet(whitespaceNewLine)
+    }
+    deinit {
+        print("Parser is deinitialized")
     }
     var defaultActivation: Double? = nil
     private let whitespaceNewLine = NSCharacterSet.whitespaceAndNewlineCharacterSet()

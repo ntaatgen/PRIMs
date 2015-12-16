@@ -12,8 +12,8 @@ class BatchRun {
     let batchScript: String
     let outputFileName: NSURL
     var model: Model
-    let mainModel: Model
-    let controller: MainViewController
+    unowned let mainModel: Model
+    unowned let controller: MainViewController
     let directory: NSURL
     var progress: Double = 0.0
     
@@ -134,6 +134,13 @@ class BatchRun {
                     dispatch_async(dispatch_get_main_queue()) {
                         self.controller.updateAllViews()
                     }
+                    print("*** About to reset model ***")
+                    self.model.dm = nil
+                    self.model.procedural = nil
+                    self.model.action = nil
+                    self.model.operators = nil
+                    self.model.action = nil
+                    self.model.imaginal = nil
                     self.model = Model(silent: true)
                 case "repeat":
                     scanner.scanInt()

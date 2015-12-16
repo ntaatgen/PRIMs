@@ -22,7 +22,7 @@ class PRScreen {
     /// Is the transitiontime absolute (relative to start of trial), or relative (to the moment this screen came on)
     var timeAbsolute: Bool = true
     /// What is the parent of the object we are currently attending?
-    var currentParentObject: PRObject? = nil
+    weak var currentParentObject: PRObject? = nil
     /// What is the object we are currently attending?
     var currentAttendedObject: PRObject? {
         get {
@@ -56,7 +56,6 @@ class PRScreen {
         }
     }
     
-    
     func focusDown() {
         currentParentObject = currentAttendedObject
         if currentParentObject != nil {
@@ -69,6 +68,13 @@ class PRScreen {
             currentParentObject = currentParentObject!.superObject
             focusNext()
         }
+    }
+    
+    /**
+    Set attention status of all objects on the screen to false
+    */
+    func unattend() {
+        object.unattend()
     }
     
     /**

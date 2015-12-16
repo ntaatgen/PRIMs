@@ -14,12 +14,16 @@ import Foundation
 class Operator {
     /// This Array has all the operators with arrays of their conditions and actions. We use this to find the optimal ovelap when defining new operators
     var operatorCA: [(String,[String],[String])] = []
-    let model: Model
+    unowned let model: Model
     
     init(model: Model) {
         self.model = model
     }
 
+    deinit {
+        print("operator is deinitialized")
+    }
+    
     /**
     Reset the operator object
     */

@@ -11,7 +11,8 @@ import Foundation
 class Production: CustomStringConvertible {
     let name: String
     var fullName: String!
-    weak var model: Model!
+    unowned let model: Model
+//    weak var model: Model!
     let condition: String?
     let action: String?
     let op: Chunk?
@@ -68,6 +69,10 @@ class Production: CustomStringConvertible {
             self.parent2 = parent2
         }
         self.taskID = taskID
+    }
+    
+    deinit {
+        print("\(name) is deinitialized")
     }
     
     func setFullName() {

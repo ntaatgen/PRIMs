@@ -485,7 +485,7 @@
                                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                     <subviews>
                                                         <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" columnSelection="YES" multipleSelection="NO" autosaveColumns="NO" headerView="uGt-V2-DLb" id="nhg-Uu-z53">
-                                                            <rect key="frame" x="0.0" y="0.0" width="355" height="540"/>
+                                                            <rect key="frame" x="0.0" y="0.0" width="355" height="249"/>
                                                             <autoresizingMask key="autoresizingMask"/>
                                                             <size key="intercellSpacing" width="3" height="2"/>
                                                             <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -541,7 +541,7 @@
                                                 </tableHeaderView>
                                             </scrollView>
                                             <customView misplaced="YES" id="3X7-8i-9Q8">
-                                                <rect key="frame" x="0.0" y="589" width="357" height="617"/>
+                                                <rect key="frame" x="0.0" y="283" width="357" height="617"/>
                                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                                 <subviews>
                                                     <textField verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="0lk-Sf-xTV">
@@ -893,7 +893,7 @@
                                                                     </textFieldCell>
                                                                     <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                                                 </tableColumn>
-                                                                <tableColumn identifier="Utility" width="64" minWidth="40" maxWidth="1000" id="npN-mU-PFO">
+                                                                <tableColumn identifier="Utility" width="63.5" minWidth="40" maxWidth="1000" id="npN-mU-PFO">
                                                                     <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Utility">
                                                                         <font key="font" metaFont="smallSystem"/>
                                                                         <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
@@ -916,7 +916,7 @@
                                                     <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                                 </clipView>
                                                 <scroller key="horizontalScroller" hidden="YES" verticalHuggingPriority="750" horizontal="YES" id="1sg-ii-AeT">
-                                                    <rect key="frame" x="1" y="347" width="1" height="15"/>
+                                                    <rect key="frame" x="1" y="480" width="1" height="15"/>
                                                     <autoresizingMask key="autoresizingMask"/>
                                                 </scroller>
                                                 <scroller key="verticalScroller" hidden="YES" verticalHuggingPriority="750" horizontal="NO" id="qGB-QD-ecy">
@@ -994,7 +994,7 @@
                                                         </constraints>
                                                     </customView>
                                                     <customView misplaced="YES" id="4Zc-Vn-9TF">
-                                                        <rect key="frame" x="3" y="0.0" width="178" height="157"/>
+                                                        <rect key="frame" x="182" y="0.0" width="178" height="157"/>
                                                         <autoresizingMask key="autoresizingMask"/>
                                                         <subviews>
                                                             <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="lbp-yj-rmp">
