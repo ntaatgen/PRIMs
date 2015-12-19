@@ -68,7 +68,11 @@ class BatchRun {
                         self.mainModel.addToTraceField("Illegal number of trials or end time in run")
                         return
                     }
-                    self.mainModel.addToTraceField("Running task \(taskname!) with label \(taskLabel!) until \(endCriterium!) trials")
+                    if stopByTime {
+                        self.mainModel.addToTraceField("Running task \(taskname!) with label \(taskLabel!) for \(endCriterium!) seconds")
+                    } else {
+                        self.mainModel.addToTraceField("Running task \(taskname!) with label \(taskLabel!) for \(endCriterium!) trials")
+                    }
                     dispatch_async(dispatch_get_main_queue()) {
                         self.controller.updateAllViews()
                     }

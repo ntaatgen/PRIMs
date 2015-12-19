@@ -35,6 +35,9 @@ class PRScenario {
             return mapping
         }
     }
+    deinit {
+        print("PRScenario is deinitialized")
+    }
     func goStart(model: Model) {
         if !inputs.isEmpty && trials.isEmpty {
             for (name,_) in inputs {
@@ -92,14 +95,22 @@ class PRScenario {
             }
         } else {
             switch action! {
-            case "focusfirst":
+            case "focusfirst","focus-first":
                 currentScreen!.focusFirst()
-            case "focusnext":
+            case "focusnext","focus-next":
                 currentScreen!.focusNext()
-            case "focusdown":
+            case "focusdown","focus-down":
                 currentScreen!.focusDown()
-            case "focusup":
+            case "focusup","focus-up":
                 currentScreen!.focusUp()
+            case "attendfirst","attend-first":
+                currentScreen!.attendFirst()
+            case "attendrandom","attend-random":
+                currentScreen!.attendRandom()
+            case "attenddownrandom","attend-down-random":
+                currentScreen!.attendDownRandom()
+            case "attenduprandom","attend-up-random":
+                currentScreen!.attendUpRandom()
             default: return nil
             }
         }

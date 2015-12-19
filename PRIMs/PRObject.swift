@@ -29,6 +29,9 @@ class PRObject{
             superObject!.subObjects.append(self)
         }
     }
+    deinit {
+        print("PRobject \(name) is deinitialized")
+    }
     
     /**
     Reset selfAttended state
@@ -39,7 +42,14 @@ class PRObject{
             obj.unattend()
         }
     }
- 
+    
+    /** 
+    Set state to attended
+    */
+    func attend() {
+        selfAttended = true
+    }
+    
     /** 
     Convert the current object into a chunk that can be put into the input buffer
 
