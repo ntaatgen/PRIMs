@@ -25,9 +25,11 @@ class PRScenario {
     var currentInput: [String:String] = [:]
     /// The action that finalized the scenario
     var goalAction: [String] = []
+    /// A script that runs the experiment. Replaces most of the above.
+    var script: Script?
     var inputMappingForTrace: [String] {
         get {
-            var mapping = ["Void","Void","Void","Void","Void"]
+            var mapping: [String] = ["Void","Void","Void","Void","Void"]
             for i in 0..<min(5,currentInput.count) {
                 let index = "?\(i)"
                 mapping[i] = self.currentInput[index]!
@@ -82,16 +84,18 @@ class PRScenario {
     func doAction(model: Model, action: String?, par1: String?) -> Chunk? {
         if action == nil { return nil }
         if let transition = currentScreen!.transitions[action!] {
-            currentScreen = transition
-            currentScreen!.start()
-            if currentScreen!.timeTransition != nil {
-                if currentScreen!.timeAbsolute {
-                    nextEventTime = model.startTime + currentScreen!.timeTransition!
+            if script == nil {
+                currentScreen = transition
+                currentScreen!.start()
+                if currentScreen!.timeTransition != nil {
+                    if currentScreen!.timeAbsolute {
+                        nextEventTime = model.startTime + currentScreen!.timeTransition!
+                    } else {
+                        nextEventTime = model.time + currentScreen!.timeTransition!
+                    }
                 } else {
-                    nextEventTime = model.time + currentScreen!.timeTransition!
+                    nextEventTime = nil
                 }
-            } else {
-                nextEventTime = nil
             }
         } else {
             switch action! {

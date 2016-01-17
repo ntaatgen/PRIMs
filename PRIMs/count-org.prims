@@ -3,6 +3,7 @@
 
 define task count {
   initial-goals: (count) // In this example the task and the goal are the same
+  start-screen: start
   imaginal-autoclear: nil 
   default-activation: 1.0 // All chunks defined in this model receive a fixed baselevel activation of 1.0
   ol: t
@@ -68,15 +69,17 @@ define action say {
   output: Saying
 }
 
-
-define script {
-    digits = ["one","two","three","four","five","six","seven",
-        "eight","nine","ten"]
-    start = random(3)
-    end = start + 1 + random(3)
-    print("Counting from",digits[start],"to",digits[end])
-    screen(digits[start],digits[end])
-    run-until-action("say","stop")
-    issue-reward()
-    trial-end()
+define screen start {
+(?0 ?1)
 }
+
+define goal-action {
+(say stop)
+}
+
+define inputs {
+(two four)
+(one three)
+(three five)
+}
+

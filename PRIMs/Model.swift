@@ -80,7 +80,7 @@ class Model {
                 modelResults[currentRow].append((x,y))
                 maxX = max(maxX, x)
             } else {
-                let newItem = [(1.0,y)]
+                let newItem: [(Double, Double)] = [(1.0,y)]
                 modelResults.insert(newItem, atIndex: currentRow)
                 currentTrial = 2.0
             }
@@ -126,6 +126,7 @@ class Model {
             currentTaskIndex = tasks.count
             setParametersToDefault()
             if !parseCode(modelCode!,taskNumber: tasks.count) {
+                reset(nil)
                 return false
             }
         } else {
@@ -272,6 +273,20 @@ class Model {
         running = true
         clearTrace()
         outputData = []
+        operators.previousOperators = []
+    }
+
+    func initializeNextTrial() {
+        startTime = time
+        buffers = [:]
+        procedural.reset()
+        buffers["goal"] = currentGoals?.copy()
+        buffers["constants"] = currentGoalConstants?.copy()
+        formerBuffers = [:]
+        formerBuffers["goal"] = buffers["goal"]?.copyLiteral()
+        formerBuffers["constants"] = buffers["constants"]?.copyLiteral()
+        formerBuffers["input"] = buffers["input"]?.copyLiteral()
+//        outputData = []
         operators.previousOperators = []
     }
     
@@ -424,11 +439,80 @@ class Model {
         }
     }
     
+    
+    func step() {
+        if scenario.script == nil {
+            oldStep()
+        } else {
+            if scenario.script!.scriptHasEnded()  {
+                scenario.script!.reset()
+            }
+            if scenario.script!.scriptHasNotStarted() {
+                initializeNewTrial()
+            }
+            scenario.script!.step(self)
+        }
+    }
+    
+    /**
+        Run the current script and execute a single operator when there is a script
+    */
+    func newStep() {
+        dm.clearFinsts()
+        var found: Bool = false
+        formerBuffers = [:]
+        formerBuffers["goal"] = buffers["goal"]?.copyLiteral()
+        formerBuffers["imaginal"] = buffers["imaginal"]?.copyLiteral()
+        formerBuffers["input"] = buffers["input"]?.copyLiteral()
+        formerBuffers["retrievalH"] = buffers["retrievalH"]?.copyLiteral()
+        formerBuffers["constants"] = buffers["constants"]?.copyLiteral()
+        commitToTrace(false)
+        repeat {
+            procedural.lastProduction = nil
+            if !operators.findOperator() {
+                if scenario.nextEventTime == nil {
+                    running = false
+                    //                    procedural.issueReward(0.0)
+                    operators.updateOperatorSjis(0.0)
+                    let dl = DataLine(eventType: "trial-end", eventParameter1: "fail", eventParameter2: "void", eventParameter3: "void", inputParameters: scenario.inputMappingForTrace, time: time - startTime)
+                    outputData.append(dl)
+                    return
+                } else {
+                    time = scenario.nextEventTime!
+                    logInput(time)
+                    return
+                }
+            }
+            found = operators.carryOutProductionsUntilOperatorDone()
+            if !found {
+                let op = buffers["operator"]!
+                addToTrace("Operator \(op.name) failed", level: 2)
+                commitToTrace(true)
+                buffers["goal"] = formerBuffers["goal"]
+                buffers["imaginal"] = formerBuffers["imaginal"]
+                buffers["input"] = formerBuffers["input"]
+                buffers["retrievalH"] = formerBuffers["retrievalH"]
+                buffers["constants"] = formerBuffers["constants"]
+                if dm.goalOperatorLearning {
+                    operators.previousOperators.removeLast()
+                }
+                procedural.clearRewardTrace()  // Don't reward productions that didn't work
+            }
+        } while !found
+        procedural.issueReward(procedural.proceduralReward) // Have to make this into a setable parameter
+        procedural.lastOperator = formerBuffers["operator"]
+        commitToTrace(false)
+        //        let op = buffers["operator"]!.name
+        buffers["operator"] = nil
+        doAllModuleActions()
+    }
+    
+    
     /**
     Execute a single operator by first finding one that matches, and then firing the necessary
-    productions to execute it
+    productions to execute it. This version is used when there is no script
     */
-    func step() {
+    func oldStep() {
         if currentTask == nil { return }
         if !running {
             initializeNewTrial()
@@ -530,7 +614,7 @@ class Model {
         chunkIdCounter = 0
         running = false
         startTime = 0
-        trace = []
+//        trace = []
         waitingForAction = false
         currentTaskIndex = nil
         operators.reset()

@@ -2,7 +2,6 @@ define task list-recall {
   initial-goals: (read-in-memory rehearse report-vocal )
   goals: (be-lazy)
   task-constants: ( letter list say)
-  start-screen: screen1
   imaginal-autoclear: t
   rt: -2.0
   default-activation: 1.0
@@ -57,6 +56,8 @@ define goal report-vocal {
     RT1=error
 ==>
     stop->G1
+    say -> AC1
+    stop -> AC2
   }
 }
 
@@ -71,35 +72,36 @@ define goal be-lazy {
 }
 
 define facts {
- (x x)
- (k k)
- (p p)
+ (a a)
+ (b b)
+ (c c)
+ (d d)
+ (e e)
  (f f)
+ (g g)
+ (h h)
+ (i i)
+ (j j)
 }
 
-define screen screen1 {
-(letter x)
+define script {
+    spans = [3, 4, 5, 6]
+    letters = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"]
+    i = 0
+    while (i < 4) {
+        print("Testing span",spans[i])
+        j = 0
+        while (j < spans[i]) {
+            screen("letter",letters[random(10)])
+            run-relative-time(2.0)
+            j = j + 1
+        }
+        screen("report")
+        run-until-action("say", "stop")
+        issue-reward()
+        trial-end()
+        i = i + 1
+    }
 }
-
-define screen screen2 {
-(letter k)
-}
-
-define screen screen3 {
-(letter p)
-}
-
-define screen screen4 {
-(letter f)
-}
-
-define screen report {
-(report)
-}
-
-transition(screen1,screen2) = absolute-time(2.0)
-transition(screen2,screen3) = absolute-time(4.0)
-transition(screen3,screen4) = absolute-time(6.0)
-transition(screen4,report) = absolute-time(8.0)
 
 

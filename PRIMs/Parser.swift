@@ -72,6 +72,7 @@ class Parser  {
                 case "goal-action": if !parseGoalAction() { return false }
                 case "sji": if !parseSjis() { return false }
                 case "action": if !parseAction() { return false }
+                case "script": if !parseScript() { return false }
                 default: m.addToTraceField("Don't know how to define \(definedItem!)")
                     return false
                 }
@@ -82,15 +83,17 @@ class Parser  {
             }
         }
         m.dm.stringsToChunks()
-        if startScreenName == nil {
-            m.addToTraceField("No start screen has been defined")
+        if startScreenName == nil  && m.scenario.script == nil {
+            m.addToTraceField("No start screen or script has been defined")
             return false
         }
-        if m.scenario.screens[startScreenName!] == nil {
+        if startScreenName != nil && m.scenario.screens[startScreenName!] == nil {
             m.addToTraceField("Start-screen \(startScreenName!) is not defined")
             return false
         }
-        m.scenario.startScreen = m.scenario.screens[startScreenName!]!
+        if startScreenName != nil {
+            m.scenario.startScreen = m.scenario.screens[startScreenName!]!
+        }
         return true
     }
     
@@ -743,4 +746,47 @@ class Parser  {
         return true
     }
 
+    func parseScript() -> Bool {
+        if !scanner.scanString("{", intoString: nil) {
+            m.addToTraceField("Missing '{' in Sji definition.")
+            return false
+        }
+        let braceSet = NSMutableCharacterSet(charactersInString: "{}")
+        var script: String = ""
+        var braceCount = 1
+        while braceCount > 0 {
+            let s = scanner.scanUpToCharactersFromSet(braceSet)
+            if s != nil {
+                script += s!
+            }
+            if scanner.scanString("{") != nil  {
+                braceCount++
+                script += "{"
+            } else if scanner.scanString("}") != nil {
+                braceCount--                
+                if braceCount > 0 {
+                    script += "}"
+                }
+            }
+        }
+        let sc = Script()
+        do {
+            try sc.parse(script)
+            m.addToTraceField("Defined the following script:\n\(script)")
+        } catch ParsingError.UnExpectedEOF {
+            m.addToTraceField("Unexpected end of file while parsing script")
+            return false
+        } catch ParsingError.Expected(let expectedString, let priorString) {
+            m.addToTraceField("Script:\n\(priorString)\nExpected \"\(expectedString)\"")
+            return false
+        } catch ParsingError.OperatorExpected(let expectedString, let priorString) {
+            m.addToTraceField("Script:\n\(priorString)\nExpected an operator but found \"\(expectedString)\"")
+            return false
+        } catch {
+            m.addToTraceField("Unknown error thrown in script parsing")
+            return false
+        }
+        m.scenario.script = sc
+        return true
+    }
 }

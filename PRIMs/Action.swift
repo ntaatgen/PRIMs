@@ -62,8 +62,10 @@ class Action {
     }
 
     func initTask() {
-        model.scenario.goStart(model)
-        model.buffers["input"] = model.scenario.current(model)
+        if model.scenario.script == nil {
+            model.scenario.goStart(model)
+            model.buffers["input"] = model.scenario.current(model)
+        }
     }
     
     
