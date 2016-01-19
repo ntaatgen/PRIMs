@@ -90,6 +90,7 @@ define script {
     i = 0
     while (i < 4) {
         print("Testing span",spans[i])
+        trial-start()
         j = 0
         while (j < spans[i]) {
             screen("letter",letters[random(10)])
@@ -100,6 +101,7 @@ define script {
         run-until-action("say", "stop")
         issue-reward()
         trial-end()
+        sleep(5)
         i = i + 1
     }
 }

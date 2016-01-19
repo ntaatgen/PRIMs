@@ -24,9 +24,9 @@ enum Statement: CustomStringConvertible {
 }
 
 class Assignment: CustomStringConvertible {
-    let lhs: String
+    let lhs: Factor
     let rhs: Expression
-    init(lhs: String, rhs: Expression) {
+    init(lhs: Factor, rhs: Expression) {
         self.lhs = lhs
         self.rhs = rhs
     }
@@ -92,7 +92,7 @@ class WhileClause: CustomStringConvertible {
     }
 }
 
-class Expression {
+class Expression: CustomStringConvertible {
     let preop: String
     let firstTerm: Term
     let op: String
@@ -102,6 +102,10 @@ class Expression {
         self.firstTerm = firstTerm
         self.op = op
         self.secondTerm = secondTerm
+    }
+    var description: String {
+        let second = secondTerm == nil ? "" : "\(secondTerm!)"
+        return "\(preop)\(firstTerm)\(op)\(second)"
     }
     func eval(env: Environment) throws -> Factor {
         var term1 = try firstTerm.eval(env)
@@ -142,7 +146,7 @@ class Expression {
     }
 }
     
-class Term {
+class Term: CustomStringConvertible {
     let factor: Factor
     let op: String
     let term: Term?
@@ -150,6 +154,10 @@ class Term {
         self.factor = factor
         self.op = op
         self.term = term
+    }
+    var description: String {
+        let second = term == nil ? "" : "\(term!)"
+        return "\(factor)\(op)\(second)"
     }
     func eval(env: Environment) throws -> Factor {
         var factor1 = try factor.eval(env)
@@ -182,10 +190,19 @@ class Term {
     }
 }
 
-class ScriptArray {
-    let elements: [Expression]
+class ScriptArray: CustomStringConvertible {
+    var elements: [Expression]
     init(elements: [Expression]) {
         self.elements = elements
+    }
+    var description: String {
+        if elements.count == 0 { return "[]" }
+        var s = "[\(elements[0])"
+        for elem in elements.dropFirst() {
+            s += ", \(elem)"
+        }        
+        s += "]"
+        return s
     }
     func eval(env: Environment) throws -> Factor {
         var newElements: [Expression] = []
@@ -350,6 +367,7 @@ enum ParsingError: ErrorType {
     case UnExpectedEOF
     case Expected(String, String)
     case OperatorExpected(String, String)
+    case InvalidAssignmentLHS
 }
 
 enum RunTimeError: ErrorType {
@@ -378,6 +396,21 @@ class Environment {
             return try outer!.lookup(symbol)
         } else {
             throw RunTimeError.unDeclaratedIdentifier(symbol)
+        }
+    }
+    func arrayAssign(a: String, index: Int, value: Factor) throws {
+        let factor = try lookup(a)
+        switch factor {
+        case .Arr(let arr):
+            if index < arr.elements.endIndex {
+                arr.elements[index] = Expression(preop: "", firstTerm: Term(factor: value, op: "", term: nil), op: "", secondTerm: nil)
+            } else {
+                while arr.elements.endIndex < index {
+                    arr.elements.append(Expression(preop: "", firstTerm: Term(factor: Factor.IntNumber(0), op: "", term: nil), op: "", secondTerm: nil))
+                }
+                arr.elements.append(Expression(preop: "", firstTerm: Term(factor: value, op: "", term: nil), op: "", secondTerm: nil))
+            }
+        default: RunTimeError.indexingNonArray
         }
     }
 }
@@ -734,12 +767,17 @@ class Script {
     
     func parseAssign(tokens: [String], startIndex: Int, endIndex: Int) throws -> (asRes: Assignment, lastIndex: Int) {
         print("Parsing Assignment at \(tokens[startIndex])")
-        let lhs = tokens[startIndex]
-        var index = try nextToken(startIndex, endIndex: endIndex)
+//        let lhs = tokens[startIndex]
+        let lhs = try parseFactor(tokens, startIndex: startIndex, endIndex: endIndex)
+        var index = lhs.lastIndex
+        switch lhs.factor {
+        case .Symbol(_), .ArrayElem(_): break
+        default: throw ParsingError.InvalidAssignmentLHS
+        }
         guard tokens[index] == "=" else { throw ParsingError.Expected("=",constructPrior(tokens, index: index)) }
         index = try nextToken(index, endIndex: endIndex)
         let rhs = try parseExpression(tokens, startIndex: index, endIndex: endIndex)
-        return (Assignment(lhs: lhs, rhs: rhs.expression), rhs.lastIndex)
+        return (Assignment(lhs: lhs.factor, rhs: rhs.expression), rhs.lastIndex)
     }
     
     func parseArray(tokens: [String], startIndex: Int, endIndex: Int) throws -> (arr: ScriptArray, lastIndex: Int) {
@@ -809,7 +847,17 @@ class Script {
                 switch cur {
                 case .Assign(let assign):
                     let value = try assign.rhs.eval(env)
-                    env.add(assign.lhs, value: value)
+                    switch assign.lhs {
+                    case .Symbol(let symbol): env.add(symbol, value: value)
+                    case .ArrayElem(let arr):
+                        let index = try arr.index.eval(env)
+                        switch index {
+                        case .IntNumber(let i):
+                        try env.arrayAssign(arr.name , index: i, value: value)
+                        default: throw RunTimeError.nonNumberArgument
+                        }
+                    default: break // cannot happen, checked during parse
+                    }
                 case .IfCl(let ifClause):
                     let result = try ifClause.test.eval(env)
                     env = Environment(outer: env)

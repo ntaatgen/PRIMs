@@ -9,16 +9,21 @@
 import Foundation
 
 let scriptFunctions: [String:([Factor], Model?) throws -> (result: Factor?, done: Bool, cont:Bool)] =
-    ["screen": setScreen,
-     "random": randIntNumber,
-        "time": modelTime,
-     "run-until-action": runUntilAction,
-    "run-relative-time": runRelativeTime,
-        "run-until-relative-time-or-action": runRelativeTimeOrAction,
-     "print": printArg,
+["screen": setScreen,
+    "nested-screen": setScreenArray,
+    "random": randIntNumber,
+    "time": modelTime,
+    "run-until-action": runUntilAction,
+    "run-relative-time": runRelativeTimeOrAction,
+    "run-absolute-time": runAbsoluteTimeOrAction,
+    "run-until-relative-time-or-action": runRelativeTimeOrAction,
+    "run-absolute-time-or-action": runAbsoluteTimeOrAction,
+    "print": printArg,
     "trial-end": trialEnd,
+    "trial-start": trialStart,
     "issue-reward": issueReward,
-    "shuffle": shuffle]
+    "shuffle": shuffle,
+    "sleep": sleepPrims]
 
 
 
@@ -26,13 +31,80 @@ let scriptFunctions: [String:([Factor], Model?) throws -> (result: Factor?, done
 // model.scenario.nextEventTime: time at which the script continues
 // model.scenario.currentScreen: screen we are working on
 
+/**
+    Helper function for setScreenArray
+*/
+func createPRObject(f: ScriptArray, sup: PRObject?, model: Model) throws -> PRObject {
+    guard f.elements.count > 0 else { throw RunTimeError.errorInFunction("Invalid Screen definition") }
+    let name = f.elements[0].firstTerm.factor.description
+    var i = 1
+    var attributes: [String] = [name]
+    var done = false
+    while i < f.elements.count && !done {
+        switch f.elements[i].firstTerm.factor {
+        case .Str(let s):
+            attributes.append(s)
+        case .IntNumber(let num):
+            attributes.append(String(num))
+        case .RealNumber(let num):
+            attributes.append(String(num))
+        case .Arr:
+            done = true
+            i--
+        default:
+            throw RunTimeError.errorInFunction("Invalid Screen definition")
+        }
+        i++
+    }
+    let obj = PRObject(name: model.generateName(name), attributes: attributes, superObject: sup)
+    while (i < f.elements.count) {
+        switch f.elements[i].firstTerm.factor {
+        case .Arr(let arr):
+            let subObj = try createPRObject(arr, sup: obj, model: model)
+                obj.subObjects.append(subObj)
+        default:
+            throw RunTimeError.errorInFunction("Invalid Screen definition")
+        }
+        i++
+    }
+    return obj
+}
+
+/**
+ Set the screen to a particular context.
+ Pass a set of (possibly nested) Arrays (e.g. screen(["acquarium", "one", ["fish", "red"], ["fish", "green"]])).
+ */
+func setScreenArray(content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool, cont: Bool) {
+    let screen = PRScreen(name: "run-time")
+    let rootObject = PRObject(name: "card", attributes: ["card"], superObject: nil)
+    screen.object = rootObject
+    for obj in content {
+        switch obj {
+        case .Arr(let arr):
+            let obj = try createPRObject(arr, sup: rootObject, model: model!)
+            rootObject.subObjects.append(obj)
+        default:
+            throw RunTimeError.errorInFunction("Wrong argument in screen-array")
+        }
+    }
+    model!.scenario.currentScreen = screen
+    screen.start()
+    model!.buffers["input"] = model!.scenario.current(model!)
+    return (nil, true, true)
+}
+
+
+/**
+    Set the screen to a particular context. Can be called in two different ways.
+    Just pass the contents of the screen as arguments (e.g. screen("one","two").
+*/
 func setScreen(content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool, cont: Bool) {
     let screen = PRScreen(name: "run-time")
     let rootObject = PRObject(name: "card", attributes: ["card"], superObject: nil)
     screen.object = rootObject
     var attributes: [String] = []
     for obj in content {
-        switch (obj) {
+        switch obj {
         case .Str(let s):
             attributes.append(s)
         case .IntNumber(let num):
@@ -104,6 +176,15 @@ func shuffle(content: [Factor], model: Model?)  throws -> (result: Factor?, done
     }
 }
 
+/** 
+   Starts a trial: adds a line to the data and sets the startTime to the current model time.
+   Also causes model to pause when stepping
+*/
+ func trialStart(content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool, cont:Bool) {
+    model!.startTime = model!.time
+    return (nil, true, false)
+}
+
 /**
     Ends a trial: adds a line to the data, stores the result for the graph,
     initialized the model for a new trial
@@ -123,43 +204,12 @@ func trialEnd(content: [Factor], model: Model?) throws -> (result: Factor?, done
 /**
   Run the model until it takes the action specified
 */
-func runUntilAction(content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool, cont:Bool) {
+func runUntilAction(var content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool, cont:Bool) {
     model!.newStep()
-    for i in 0..<content.endIndex {
-        if let action = model!.formerBuffers["action"]?.slotvals["slot\(i + 1)"]?.description {
-            print(content[i], action)
-            if content[i] != Factor.Str(action) {
-                return (nil, false, false) // slots don't match
-            }
-        } else {
-            return (nil, false, false) // There is no action slot
-        }
-    }
-    return (nil, true, false)
+    content.insert(Factor.RealNumber(model!.time + 1E+06), atIndex: 0)
+    return try runRelativeTimeOrAction(content, model: model)
 }
 
-/**
-   Run the model for a specific amount of time
-*/
-func runRelativeTime(content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool, cont:Bool) {
-    guard content.endIndex == 1 else { throw RunTimeError.invalidNumberOfArguments }
-    if model!.scenario.nextEventTime == nil {
-        var time: Double
-        switch content[0] {
-        case .IntNumber(let num): time = Double(num)
-        case .RealNumber(let num): time = num
-        default: throw RunTimeError.nonNumberArgument
-        }
-        model!.scenario.nextEventTime = model!.time + time
-    }
-    model!.newStep()
-    if model!.time >= model!.scenario.nextEventTime {
-        model!.scenario.nextEventTime = nil
-        return (nil, true, false)
-    } else {
-        return (nil, false, false)
-    }
-}
 
 /**
     Run the model for a specific amount of time OR until it performs
@@ -167,7 +217,7 @@ func runRelativeTime(content: [Factor], model: Model?) throws -> (result: Factor
     rest of the arguments are action slots to be compared
 */
 func runRelativeTimeOrAction(content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool, cont:Bool) {
-    guard content.endIndex > 1 else { throw RunTimeError.invalidNumberOfArguments }
+    guard content.endIndex >= 1 else { throw RunTimeError.invalidNumberOfArguments }
     if model!.scenario.nextEventTime == nil {
         var time: Double
         switch content[0] {
@@ -178,15 +228,20 @@ func runRelativeTimeOrAction(content: [Factor], model: Model?) throws -> (result
         model!.scenario.nextEventTime = model!.time + time
     }
     model!.newStep()
-    var actionFound = true
-    for i in 0..<content.endIndex {
-        if let action = model!.formerBuffers["action"]?.slotvals["slot\(i + 1)"]?.description {
-            print(content[i], action)
-            if content[i] != Factor.Str(action) {
+    var actionFound: Bool
+    if content.endIndex == 1 {
+        actionFound = false
+    } else {
+    actionFound = true
+        for i in 1..<content.endIndex {
+            if let action = model!.formerBuffers["action"]?.slotvals["slot\(i + 1)"]?.description {
+                print(content[i], action)
+                if content[i] != Factor.Str(action) {
+                    actionFound = false
+                }
+            } else {
                 actionFound = false
             }
-        } else {
-            actionFound = false
         }
     }
     if actionFound || model!.time >= model!.scenario.nextEventTime {
@@ -196,6 +251,25 @@ func runRelativeTimeOrAction(content: [Factor], model: Model?) throws -> (result
         return (nil, false, false)
     }
     
+}
+
+/**
+ Run the model until a certain moment in time OR until it performs
+ the specified action. First argument is the time, the
+ rest of the arguments are action slots to be compared
+ */
+func runAbsoluteTimeOrAction(content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool, cont:Bool) {
+    guard content.endIndex >= 1 else { throw RunTimeError.invalidNumberOfArguments }
+    if model!.scenario.nextEventTime == nil {
+        var time: Double
+        switch content[0] {
+        case .IntNumber(let num): time = Double(num)
+        case .RealNumber(let num): time = num
+        default: throw RunTimeError.nonNumberArgument
+        }
+        model!.scenario.nextEventTime = time
+    }
+    return try runRelativeTimeOrAction(content, model: model)
 }
 
 
@@ -216,5 +290,24 @@ func issueReward(content: [Factor], model: Model?) throws -> (result: Factor?, d
     model!.operators.updateOperatorSjis(reward)
     return (nil, true, true)
 }
+
+/**
+  Move the model clock forward by the number of seconds in the argument
+*/
+func sleepPrims(content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool, cont:Bool) {
+    guard content.endIndex == 1 else { throw RunTimeError.invalidNumberOfArguments }
+    switch content[0] {
+    case .IntNumber(let num):
+        model!.time += Double(num)
+    case .RealNumber(let num):
+        model!.time += num
+    default: throw RunTimeError.nonNumberArgument
+    }
+    return (nil, true, true)
+}
+
+
+
+
 
 
