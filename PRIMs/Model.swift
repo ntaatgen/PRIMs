@@ -24,11 +24,6 @@ class Model {
     var imaginal: Imaginal!
     var action: Action!
     var operators: Operator!
-//    lazy var dm: Declarative = { () -> Declarative in return Declarative(model: self) }()
-//    lazy var procedural: Procedural = { () -> Procedural in return Procedural(model: self) }()
-//    lazy var imaginal: Imaginal = { () -> Imaginal in return Imaginal(model: self) }()
-//    lazy var action: Action = { () -> Action in return Action(model: self) }()
-//    lazy var operators: Operator = { () -> Operator in return Operator(model: self) }()
     var buffers: [String:Chunk] = [:]
     var chunkIdCounter = 0
     var running = false

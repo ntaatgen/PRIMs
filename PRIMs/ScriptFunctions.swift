@@ -61,8 +61,7 @@ func createPRObject(f: ScriptArray, sup: PRObject?, model: Model) throws -> PROb
     while (i < f.elements.count) {
         switch f.elements[i].firstTerm.factor {
         case .Arr(let arr):
-            let subObj = try createPRObject(arr, sup: obj, model: model)
-                obj.subObjects.append(subObj)
+            let _ = try createPRObject(arr, sup: obj, model: model)
         default:
             throw RunTimeError.errorInFunction("Invalid Screen definition")
         }
@@ -207,7 +206,6 @@ func trialEnd(content: [Factor], model: Model?) throws -> (result: Factor?, done
   Run the model until it takes the action specified
 */
 func runUntilAction(var content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool, cont:Bool) {
-    model!.newStep()
     content.insert(Factor.RealNumber(model!.time + 1E+06), atIndex: 0)
     return try runRelativeTimeOrAction(content, model: model)
 }

@@ -398,6 +398,17 @@ class Environment {
             throw RunTimeError.unDeclaratedIdentifier(symbol)
         }
     }
+
+    func simpleAssign(v: String, value: Factor, orgEnv: Environment)  {
+        if let _ = vars[v] {
+            add(v, value:  value)
+        } else if outer != nil {
+            outer!.simpleAssign(v, value: value, orgEnv: orgEnv)
+        } else {
+            orgEnv.add(v, value: value)
+        }
+    }
+    
     func arrayAssign(a: String, index: Int, value: Factor) throws {
         let factor = try lookup(a)
         switch factor {
@@ -443,7 +454,7 @@ class Script {
     func readNextToken(input :String, startIndex : String.Index) -> (token : String?, nextIndex : String.Index) {
         var nextIndex = startIndex
         while nextIndex != input.endIndex {
-            if a(input, index: nextIndex, char: " ") || a(input, index: nextIndex, char: "\n") {
+            if a(input, index: nextIndex, char: " ") || a(input, index: nextIndex, char: "\n") || a(input, index: nextIndex, char: "\t") {
                 nextIndex++
             } else {
                 break
@@ -782,15 +793,16 @@ class Script {
     
     func parseArray(tokens: [String], startIndex: Int, endIndex: Int) throws -> (arr: ScriptArray, lastIndex: Int) {
         print("Parsing Array at \(tokens[startIndex])")
-        var index = startIndex
+        var index = try nextToken(startIndex, endIndex: endIndex)
         var expres: [Expression] = []
         while tokens[index] != "]" {
-            index = try nextToken(index, endIndex: endIndex)
             let expr = try parseExpression(tokens, startIndex: index, endIndex: endIndex)
             expres.append(expr.expression)
             index = expr.lastIndex
             guard tokens[index] == "," || tokens[index] == "]" else { throw ParsingError.Expected(",",constructPrior(tokens, index: index)) }
-//            index = try nextToken(index, endIndex: endIndex)
+            if tokens[index] == "," {
+                index = try nextToken(index, endIndex: endIndex)
+            }
         }
         index = try nextToken(index, endIndex: endIndex)
         return (ScriptArray(elements: expres), index)
@@ -848,7 +860,8 @@ class Script {
                 case .Assign(let assign):
                     let value = try assign.rhs.eval(env)
                     switch assign.lhs {
-                    case .Symbol(let symbol): env.add(symbol, value: value)
+                    case .Symbol(let symbol):
+                         env.simpleAssign(symbol, value: value, orgEnv: env)
                     case .ArrayElem(let arr):
                         let index = try arr.index.eval(env)
                         switch index {
@@ -891,23 +904,23 @@ class Script {
             }
         
         } catch RunTimeError.divisionByZero {
-            model.addToTraceField("Runtime error: division by zero in \(statements[env.pc - 1])")
+            model.addToTraceField("Runtime error: division by zero in \(env.statements[env.pc - 1])")
         } catch RunTimeError.unDeclaratedIdentifier(let s) {
-            model.addToTraceField("Runtime error: undeclared identifier \(s) in \(statements[env.pc - 1])")
+            model.addToTraceField("Runtime error: undeclared identifier \(s) in \(env.statements[env.pc - 1])")
         } catch RunTimeError.nonNumberArgument {
-            model.addToTraceField("Runtime error: non number argument in \(statements[env.pc - 1])")
+            model.addToTraceField("Runtime error: non number argument in \(env.statements[env.pc - 1])")
         } catch RunTimeError.missingSecondArgument {
-            model.addToTraceField("Runtime error: missing second argument in \(statements[env.pc - 1])")
+            model.addToTraceField("Runtime error: missing second argument in \(env.statements[env.pc - 1])")
         } catch RunTimeError.indexingNonArray {
-            model.addToTraceField("Runtime error: trying to index a non-array in \(statements[env.pc - 1])")
+            model.addToTraceField("Runtime error: trying to index a non-array in \(env.statements[env.pc - 1])")
         } catch RunTimeError.invalidNumberOfArguments {
-            model.addToTraceField("Runtime error: invalid number of arguments in \(statements[env.pc - 1])")
+            model.addToTraceField("Runtime error: invalid number of arguments in \(env.statements[env.pc - 1])")
         } catch RunTimeError.errorInFunction(let fn) {
-            model.addToTraceField("Runtime error: error in function (\(fn)) in \(statements[env.pc - 1])")
+            model.addToTraceField("Runtime error: error in function (\(fn)) in \(env.statements[env.pc - 1])")
         } catch RunTimeError.undefinedFunction(let fn) {
-            model.addToTraceField("Runtime error: undefined function \(fn) in \(statements[env.pc - 1])")
+            model.addToTraceField("Runtime error: undefined function \(fn) in \(env.statements[env.pc - 1])")
         } catch {
-            model.addToTraceField("Unknown runtime error in \(statements[env.pc - 1])")
+            model.addToTraceField("Unknown runtime error in \(env.statements[env.pc - 1])")
         }
 
     }
