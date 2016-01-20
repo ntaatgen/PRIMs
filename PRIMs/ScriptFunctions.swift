@@ -23,6 +23,7 @@ let scriptFunctions: [String:([Factor], Model?) throws -> (result: Factor?, done
     "trial-start": trialStart,
     "issue-reward": issueReward,
     "shuffle": shuffle,
+    "length": length,
     "sleep": sleepPrims]
 
 
@@ -197,6 +198,7 @@ func trialEnd(content: [Factor], model: Model?) throws -> (result: Factor?, done
     model!.resultAdd(model!.time - model!.startTime)
     let dl = DataLine(eventType: "trial-end", eventParameter1: "success", eventParameter2: "void", eventParameter3: "void", inputParameters: model!.scenario.inputMappingForTrace, time: model!.time - model!.startTime)
     model!.outputData.append(dl)
+    model!.commitToTrace(false)
     model!.initializeNextTrial()
     return(nil, true, false)
 }
@@ -234,7 +236,7 @@ func runRelativeTimeOrAction(content: [Factor], model: Model?) throws -> (result
     } else {
     actionFound = true
         for i in 1..<content.endIndex {
-            if let action = model!.formerBuffers["action"]?.slotvals["slot\(i + 1)"]?.description {
+            if let action = model!.formerBuffers["action"]?.slotvals["slot\(i)"]?.description {
                 print(content[i], action)
                 if content[i] != Factor.Str(action) {
                     actionFound = false
@@ -306,8 +308,17 @@ func sleepPrims(content: [Factor], model: Model?) throws -> (result: Factor?, do
     return (nil, true, true)
 }
 
-
-
+/**
+  Return the length of an array
+*/
+func length(content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool, cont:Bool) {
+    guard content.endIndex == 1 else { throw RunTimeError.invalidNumberOfArguments }
+    switch content[0] {
+    case .Arr(let a): return (Factor.IntNumber(a.elements.count), true, true)
+    case .Str(let s): return (Factor.IntNumber(s.characters.count), true, true)
+    default: throw RunTimeError.errorInFunction("Trying to get the length of a non-array or -string")
+    }
+}
 
 
 
