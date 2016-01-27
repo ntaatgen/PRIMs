@@ -13,6 +13,7 @@ let scriptFunctions: [String:([Factor], Model?) throws -> (result: Factor?, done
     "nested-screen": setScreenArray,
     "random": randIntNumber,
     "time": modelTime,
+    "run-step": runStep,
     "run-until-action": runUntilAction,
     "run-relative-time": runRelativeTimeOrAction,
     "run-absolute-time": runAbsoluteTimeOrAction,
@@ -24,7 +25,10 @@ let scriptFunctions: [String:([Factor], Model?) throws -> (result: Factor?, done
     "issue-reward": issueReward,
     "shuffle": shuffle,
     "length": length,
-    "sleep": sleepPrims]
+    "sleep": sleepPrims,
+    "set-data-file-field": setDataFileField,
+    "last-action": lastAction
+    ]
 
 
 
@@ -203,10 +207,20 @@ func trialEnd(content: [Factor], model: Model?) throws -> (result: Factor?, done
 }
 
 /**
+  Run the model a single step
+*/
+func runStep(content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool, cont:Bool) {
+    model!.newStep()
+    print("Running a step")
+    return (nil, true, false)
+}
+
+/**
   Run the model until it takes the action specified
 */
 func runUntilAction(var content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool, cont:Bool) {
-    content.insert(Factor.RealNumber(model!.time + 1E+06), atIndex: 0)
+    print("Running until action \(content)")
+    content.insert(Factor.RealNumber(-1.0), atIndex: 0)
     return try runRelativeTimeOrAction(content, model: model)
 }
 
@@ -225,26 +239,30 @@ func runRelativeTimeOrAction(content: [Factor], model: Model?) throws -> (result
         case .RealNumber(let num): time = num
         default: throw RunTimeError.nonNumberArgument
         }
-        model!.scenario.nextEventTime = model!.time + time
+        if time >= 0 {
+            model!.scenario.nextEventTime = model!.time + time
+        }
     }
     model!.newStep()
     var actionFound: Bool
     if content.endIndex == 1 {
         actionFound = false
     } else {
-    actionFound = true
+        actionFound = true
         for i in 1..<content.endIndex {
             if let action = model!.formerBuffers["action"]?.slotvals["slot\(i)"]?.description {
                 print(content[i], action)
                 if content[i] != Factor.Str(action) {
                     actionFound = false
+                } else {
+                    print("Match")
                 }
             } else {
                 actionFound = false
             }
         }
     }
-    if actionFound || model!.time >= model!.scenario.nextEventTime {
+    if actionFound || (model!.scenario.nextEventTime != nil && model!.time >= model!.scenario.nextEventTime) {
         model!.scenario.nextEventTime = nil
         return (nil, true, false)
     } else {
@@ -318,5 +336,28 @@ func length(content: [Factor], model: Model?) throws -> (result: Factor?, done: 
     }
 }
 
+/** 
+Set one of the input variables to a value, so that it will show up in the
+output file
+*/
+func setDataFileField(content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool, cont:Bool) {
+    guard content.endIndex == 2 else { throw RunTimeError.invalidNumberOfArguments }
+    guard content[0].type() == "integer" else { throw RunTimeError.nonNumberArgument }
+    model!.scenario.currentInput["?\(content[0].intValue()!)"] = content[1].description
+    return (nil, true, true)
+}
 
-
+/**
+Return array with the last action
+*/
+func lastAction(content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool, cont:Bool) {
+    var result: [Expression] = []
+    if let action = model!.formerBuffers["action"] {
+        var i = 1
+        while (action.slotvals["slot\(i)"] != nil) {
+            result.append(Expression(preop: "", firstTerm: Term(factor: Factor.Str(action.slotvals["slot\(i)"]!.description), op: "", term: nil), op: "", secondTerm: nil))
+            i++
+        }
+    }
+    return(Factor.Arr(ScriptArray(elements: result)), true, true)
+}

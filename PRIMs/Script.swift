@@ -49,13 +49,13 @@ class Funcall: CustomStringConvertible {
         }
         return s + ")"
     }
-    func eval(env: Environment) throws -> Factor {
+    func eval(env: Environment, model: Model) throws -> Factor {
         if let f = scriptFunctions[name] {
             var args: [Factor] = []
             for arg in arglist {
-                args.append(try arg.eval(env))
+                args.append(try arg.eval(env, model: model))
             }
-            let (result, _, _) = try f(args, nil)
+            let (result, _, _) = try f(args, model)
             guard result != nil else {throw RunTimeError.errorInFunction("Function does not produce a result") }
             return result!
         } else {
@@ -107,8 +107,8 @@ class Expression: CustomStringConvertible {
         let second = secondTerm == nil ? "" : "\(secondTerm!)"
         return "\(preop)\(firstTerm)\(op)\(second)"
     }
-    func eval(env: Environment) throws -> Factor {
-        var term1 = try firstTerm.eval(env)
+    func eval(env: Environment, model: Model) throws -> Factor {
+        var term1 = try firstTerm.eval(env, model: model)
         if preop == "-" {
             switch term1 {
             case .IntNumber(let number):
@@ -122,7 +122,7 @@ class Expression: CustomStringConvertible {
             return term1
         }
         guard secondTerm != nil else { throw RunTimeError.missingSecondArgument }
-        var term2 = try secondTerm!.eval(env)
+        var term2 = try secondTerm!.eval(env, model: model)
         // If one of the numbers is an Int and the other a Real, covert Int to Real
         switch (term1, term2) {
         case (.IntNumber(let num1), .RealNumber(_)):
@@ -159,13 +159,13 @@ class Term: CustomStringConvertible {
         let second = term == nil ? "" : "\(term!)"
         return "\(factor)\(op)\(second)"
     }
-    func eval(env: Environment) throws -> Factor {
-        var factor1 = try factor.eval(env)
+    func eval(env: Environment, model: Model) throws -> Factor {
+        var factor1 = try factor.eval(env, model: model)
         if op == "" {
             return factor1
         }
         guard term != nil else { throw RunTimeError.missingSecondArgument }
-        var factor2 = try term!.eval(env)
+        var factor2 = try term!.eval(env, model: model)
         switch (factor1, factor2) {
         case (.IntNumber(let num1), .RealNumber(_)):
             factor1 = Factor.RealNumber(Double(num1))
@@ -204,10 +204,10 @@ class ScriptArray: CustomStringConvertible {
         s += "]"
         return s
     }
-    func eval(env: Environment) throws -> Factor {
+    func eval(env: Environment, model: Model) throws -> Factor {
         var newElements: [Expression] = []
         for elem in elements {
-            let value = try elem.eval(env)
+            let value = try elem.eval(env, model: model)
             newElements.append(Expression(preop: "", firstTerm: Term(factor: value, op: "", term: nil), op: "", secondTerm: nil))
         }
         return Factor.Arr(ScriptArray(elements: newElements))
@@ -223,8 +223,8 @@ class Comparison {
         self.op = op
         self.rhs = rhs
     }
-    func eval(env: Environment) throws -> Bool {
-        var leftArg = try lhs.eval(env)
+    func eval(env: Environment, model: Model) throws -> Bool {
+        var leftArg = try lhs.eval(env, model: model)
         if op == "" || op == "!" {
             switch leftArg {
             case .IntNumber(let num):
@@ -238,7 +238,7 @@ class Comparison {
             }
         }
         guard rhs != nil else { throw RunTimeError.missingSecondArgument }
-        var rightArg = try rhs!.eval(env)
+        var rightArg = try rhs!.eval(env, model: model)
         switch (leftArg, rightArg) {
         case (.IntNumber(let num1), .RealNumber(_)):
             leftArg = Factor.RealNumber(Double(num1))
@@ -279,22 +279,40 @@ enum Factor: CustomStringConvertible  {
         case .ArrayElem(let arr): return "\(arr)"
         }
     }
-    func eval(env: Environment) throws -> Factor {
+    func eval(env: Environment, model: Model) throws -> Factor {
         switch self {
         case .Func(let funcall):
-            return try funcall.eval(env)
+            return try funcall.eval(env, model: model)
 //        case .Arr(let arr):
 //            return try arr.eval(env)
         case .ArrayElem(let arr):
-            return try arr.eval(env)
+            return try arr.eval(env, model: model)
         case .Expr(let expr):
-            return try expr.eval(env)
+            return try expr.eval(env, model: model)
         case .Symbol(let sym):
             return try env.lookup(sym)
         case .Arr(let arr):
-            return try arr.eval(env)
+            return try arr.eval(env, model: model)
         default:
             return self
+        }
+    }
+    func type() -> String {
+        switch self {
+        case .Func(_): return "function"
+        case .IntNumber(_): return "integer"
+        case .RealNumber(_): return "real"
+        case .Str(_): return "string"
+        case .Symbol(_): return "symbol"
+        case .Arr(_): return "array"
+        case .ArrayElem(_): return "indexed-array"
+        case .Expr(_): return "expression"
+        }
+    }
+    func intValue() -> Int? {
+        switch self {
+        case .IntNumber(let num): return num
+        default: return nil
         }
     }
 }
@@ -351,13 +369,14 @@ class IndexedArray {
         self.name = name
         self.index = index
     }
-    func eval(env: Environment) throws -> Factor {
-        let ind = try index.eval(env)
+    func eval(env: Environment, model: Model) throws -> Factor {
+        let ind = try index.eval(env, model: model)
         let arr = try env.lookup(name)
         switch (ind, arr) {
         case (Factor.IntNumber(let i),Factor.Arr(let a)):
+            guard i < a.elements.count else { throw RunTimeError.arrayOutOfBounds }
             let expr = a.elements[i]
-            return try expr.eval(env)
+            return try expr.eval(env, model: model)
         default: throw RunTimeError.indexingNonArray
         }
     }
@@ -379,6 +398,7 @@ enum RunTimeError: ErrorType {
     case invalidNumberOfArguments
     case errorInFunction(String)
     case undefinedFunction(String)
+    case arrayOutOfBounds
 }
 
 class Environment {
@@ -837,7 +857,7 @@ class Script {
                 while env.pc >= env.statements.endIndex {
                     if env.loopCondition != nil {
                         let condition = env.loopCondition!
-                        let loopNotEnded = try condition.eval(env)
+                        let loopNotEnded = try condition.eval(env, model: model)
                         if loopNotEnded {
                             env.pc = 0
                         } else {
@@ -858,12 +878,12 @@ class Script {
                 let cur = env.statements[env.pc++]
                 switch cur {
                 case .Assign(let assign):
-                    let value = try assign.rhs.eval(env)
+                    let value = try assign.rhs.eval(env, model: model)
                     switch assign.lhs {
                     case .Symbol(let symbol):
                          env.simpleAssign(symbol, value: value, orgEnv: env)
                     case .ArrayElem(let arr):
-                        let index = try arr.index.eval(env)
+                        let index = try arr.index.eval(env, model: model)
                         switch index {
                         case .IntNumber(let i):
                         try env.arrayAssign(arr.name , index: i, value: value)
@@ -872,7 +892,7 @@ class Script {
                     default: break // cannot happen, checked during parse
                     }
                 case .IfCl(let ifClause):
-                    let result = try ifClause.test.eval(env)
+                    let result = try ifClause.test.eval(env, model: model)
                     env = Environment(outer: env)
                     if result {
                         env.statements = ifClause.thenStatements
@@ -880,7 +900,7 @@ class Script {
                         env.statements = ifClause.elseStatements
                     }
                 case .WhileCl(let whileCl):
-                    if try whileCl.test.eval(env) {
+                    if try whileCl.test.eval(env, model: model) {
                         env = Environment(outer: env)
                         env.statements = whileCl.statements
                         env.loopCondition = whileCl.test
@@ -890,7 +910,7 @@ class Script {
                         var args: [Factor] = []
                         let argL = fn.arglist
                         for arg in argL {
-                            args.append(try arg.eval(env))
+                            args.append(try arg.eval(env, model: model))
                         }
                         let (_, done, cont) = try f(args, model)
                         if !done {
@@ -919,9 +939,12 @@ class Script {
             model.addToTraceField("Runtime error: error in function (\(fn)) in \(env.statements[env.pc - 1])")
         } catch RunTimeError.undefinedFunction(let fn) {
             model.addToTraceField("Runtime error: undefined function \(fn) in \(env.statements[env.pc - 1])")
+        } catch RunTimeError.arrayOutOfBounds {
+            model.addToTraceField("Runtime error: Array index out of bounds in \(env.statements[env.pc - 1])")
         } catch {
             model.addToTraceField("Unknown runtime error in \(env.statements[env.pc - 1])")
         }
+        
 
     }
     

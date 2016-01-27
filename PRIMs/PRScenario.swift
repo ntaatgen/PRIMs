@@ -30,9 +30,11 @@ class PRScenario {
     var inputMappingForTrace: [String] {
         get {
             var mapping: [String] = ["Void","Void","Void","Void","Void"]
-            for i in 0..<min(5,currentInput.count) {
+            for i in 0..<5 {
                 let index = "?\(i)"
-                mapping[i] = self.currentInput[index]!
+                if let value = self.currentInput[index] {
+                    mapping[i] = value
+                }
             }
             return mapping
         }

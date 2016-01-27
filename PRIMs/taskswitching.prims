@@ -10,7 +10,7 @@ define task taskswitching {
     egs: 0.05
     rt: 0.0
     input-activation: 0.0
-    default-activation: 1.0
+    default-activation: 2.0
     alpha: 0.05
     goal-operator-learning: t
     beta: 0.05
@@ -34,7 +34,8 @@ define goal taskswitching {
         WM1 = foodtask
         RT1 = nil
         ==>
-        food -> AC1
+        attend -> AC1
+        food -> AC2
     }
 
     operator get-size-property {
@@ -43,7 +44,8 @@ define goal taskswitching {
         WM1 = sizetask
         RT1 = nil
         ==>
-        size -> AC1
+        attend -> AC1
+        size -> AC2
     }
 
     operator get-mapping {
@@ -137,160 +139,34 @@ define facts {
 }
 
 
-define screen taskswitchstart {
-(fixation)
+define script {
+    i = 0
+    foods = ["vegetable","fruit"]
+    sizes = ["large","small"]
+    while (i < 8) {
+        screen("fixation")
+        run-relative-time(1.0)
+        screen("stimulus")
+        run-until-action("attend")
+        action = last-action()
+        choice = random(2)
+        if (action[1] == "food") {
+            print("Looking at food")
+            cat = foods[choice]
+            screen("stimulus",cat)
+            i = i + 1
+        }
+        if (action[1] == "size") {
+            print("Looking at size")
+            cat = sizes[choice]
+            screen("stimulus",cat)
+            i = i + 1
+        }
+        run-until-action("press")
+    }
+    screen("end")
+    run-until-action("say")
+    issue-reward()
+    trial-end()
 }
 
-define screen stimulus-1 {
-(stimulus)
-}
-
-define screen food-property-1 {
-(stimulus fruit)
-}
-
-define screen size-property-1 {
-(stimulus small)
-}
-
-define screen next-1 {
-(fixation)
-}
-
-define screen stimulus-2 {
-(stimulus)
-}
-
-define screen food-property-2 {
-(stimulus vegetable)
-}
-
-define screen size-property-2 {
-(stimulus small)
-}
-
-define screen next-2 {
-(fixation)
-}
-
-
-define screen stimulus-3 {
-(stimulus)
-}
-
-define screen food-property-3 {
-(stimulus fruit)
-}
-
-define screen size-property-3 {
-(stimulus large)
-}
-
-define screen next-3 {
-(fixation)
-}
-
-define screen stimulus-4 {
-(stimulus)
-}
-
-define screen food-property-4 {
-(stimulus vegetable)
-}
-
-define screen size-property-4 {
-(stimulus small)
-}
-
-define screen next-4 {
-(fixation)
-}
-
-define screen stimulus-5 {
-(stimulus)
-}
-
-define screen food-property-5 {
-(stimulus fruit)
-}
-
-define screen size-property-5 {
-(stimulus small)
-}
-
-define screen next-5 {
-(fixation)
-}
-
-define screen stimulus-6 {
-(stimulus)
-}
-
-define screen food-property-6 {
-(stimulus vegetable)
-}
-
-define screen size-property-6 {
-(stimulus large)
-}
-
-define screen next-6 {
-(fixation)
-}
-
-define screen stimulus-7 {
-(stimulus)
-}
-
-define screen food-property-7 {
-(stimulus vegetable)
-}
-
-define screen size-property-7 {
-(stimulus small)
-}
-
-define screen next-7 {
-(end)
-}
-
-transition(taskswitchstart, stimulus-1) = relative-time(1.0)
-transition(stimulus-1, food-property-1) = action(food)
-transition(stimulus-1, size-property-1) = action(size)
-transition(food-property-1, next-1) = action(press)
-transition(size-property-1, next-1) = action(press)
-transition(next-1, stimulus-2) = relative-time(1.0)
-transition(stimulus-2, food-property-2) = action(food)
-transition(stimulus-2, size-property-2) = action(size)
-transition(food-property-2, next-2) = action(press)
-transition(size-property-2, next-2) = action(press)
-transition(next-2, stimulus-3) = relative-time(1.0)
-transition(stimulus-3, food-property-3) = action(food)
-transition(stimulus-3, size-property-3) = action(size)
-transition(food-property-3, next-3) = action(press)
-transition(size-property-3, next-3) = action(press)
-transition(next-3, stimulus-4) = relative-time(1.0)
-transition(stimulus-4, food-property-4) = action(food)
-transition(stimulus-4, size-property-4) = action(size)
-transition(food-property-4, next-4) = action(press)
-transition(size-property-4, next-4) = action(press)
-transition(next-4, stimulus-5) = relative-time(1.0)
-transition(stimulus-5, food-property-5) = action(food)
-transition(stimulus-5, size-property-5) = action(size)
-transition(food-property-5, next-5) = action(press)
-transition(size-property-5, next-5) = action(press)
-transition(next-5, stimulus-6) = relative-time(1.0)
-transition(stimulus-6, food-property-6) = action(food)
-transition(stimulus-6, size-property-6) = action(size)
-transition(food-property-6, next-6) = action(press)
-transition(size-property-6, next-6) = action(press)
-transition(next-6, stimulus-7) = relative-time(1.0)
-transition(stimulus-7, food-property-7) = action(food)
-transition(stimulus-7, size-property-7) = action(size)
-transition(food-property-7, next-7) = action(press)
-transition(size-property-7, next-7) = action(press)
-
-
-define goal-action {
-(say stop)
-}
