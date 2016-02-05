@@ -67,10 +67,10 @@ class Funcall: CustomStringConvertible {
 }
 
 class IfClause: CustomStringConvertible {
-    let test: Comparison
+    let test: Expression
     let thenStatements: [Statement]
     let elseStatements: [Statement]
-    init(test: Comparison, thenStatements: [Statement], elseStatements: [Statement]) {
+    init(test: Expression, thenStatements: [Statement], elseStatements: [Statement]) {
         self.test = test
         self.thenStatements = thenStatements
         self.elseStatements = elseStatements
@@ -81,9 +81,9 @@ class IfClause: CustomStringConvertible {
 }
 
 class WhileClause: CustomStringConvertible {
-    let test: Comparison
+    let test: Expression
     let statements: [Statement]
-    init(test: Comparison, statements: [Statement]) {
+    init(test: Expression, statements: [Statement]) {
         self.test = test
         self.statements = statements
     }
@@ -134,6 +134,8 @@ class Expression: CustomStringConvertible {
         switch (term1, term2, op) {
         case (.IntNumber(let num1),.IntNumber(let num2),"+"):
             return .IntNumber(num1 + num2)
+        case (.IntNumber(let num1),.IntNumber(let num2),"||"):
+            return .IntNumber(num1 + num2)
         case (.IntNumber(let num1),.IntNumber(let num2),"-"):
             return .IntNumber(num1 - num2)
         case (.RealNumber(let num1), .RealNumber(let num2),"+"):
@@ -175,6 +177,8 @@ class Term: CustomStringConvertible {
         }
         switch (factor1, factor2, op) {
         case (.IntNumber(let num1),.IntNumber(let num2),"*"):
+            return .IntNumber(num1 * num2)
+        case (.IntNumber(let num1),.IntNumber(let num2),"&&"):
             return .IntNumber(num1 * num2)
         case (.IntNumber(let num1),.IntNumber(let num2),"/"):
             guard num2 != 0 else { throw RunTimeError.divisionByZero }
@@ -223,20 +227,21 @@ class Comparison {
         self.op = op
         self.rhs = rhs
     }
-    func eval(env: Environment, model: Model) throws -> Bool {
+    func eval(env: Environment, model: Model) throws -> Factor {
         var leftArg = try lhs.eval(env, model: model)
+        var result: Bool
         if op == "" || op == "!" {
             switch leftArg {
             case .IntNumber(let num):
-                return op == "" ? num != 0 : num == 0
+                result = op == "" ? num != 0 : num == 0
             case .RealNumber(let num):
-                return op == "" ? num != 0 : num == 0
+                result = op == "" ? num != 0 : num == 0
             case .Str(let str):
-                return op == "" ? str != "" : str == ""
+                result = op == "" ? str != "" : str == ""
             default:
                 throw RunTimeError.nonNumberArgument
             }
-        }
+        } else {
         guard rhs != nil else { throw RunTimeError.missingSecondArgument }
         var rightArg = try rhs!.eval(env, model: model)
         switch (leftArg, rightArg) {
@@ -247,14 +252,17 @@ class Comparison {
         default: break
         }
         switch  op {
-            case "==": return leftArg == rightArg
-            case "!=", "<>": return leftArg != rightArg
-            case ">": return leftArg > rightArg
-            case "<": return leftArg < rightArg
-            case ">=", "=>": return leftArg >= rightArg
-            case "<=", "=<": return leftArg <= rightArg
+            case "==": result = leftArg == rightArg
+            case "!=", "<>": result = leftArg != rightArg
+            case ">": result = leftArg > rightArg
+            case "<": result = leftArg < rightArg
+            case ">=", "=>": result = leftArg >= rightArg
+            case "<=", "=<": result = leftArg <= rightArg
         default: throw RunTimeError.unDeclaratedIdentifier(op) // shouldn't happen
         }
+        }
+        return Factor.IntNumber(result ? 1 : 0)
+
     }
 }
 
@@ -267,6 +275,7 @@ enum Factor: CustomStringConvertible  {
     case Symbol(String)
     case Expr(Expression)
     case ArrayElem(IndexedArray)
+    case Test(Comparison)
     var description: String {
         switch self {
         case .IntNumber(let num): return String(num)
@@ -277,14 +286,13 @@ enum Factor: CustomStringConvertible  {
         case .Arr(let arr): return "\(arr)"
         case .Expr(let ex): return "\(ex)"
         case .ArrayElem(let arr): return "\(arr)"
+        case .Test(let cp): return "\(cp)"
         }
     }
     func eval(env: Environment, model: Model) throws -> Factor {
         switch self {
         case .Func(let funcall):
             return try funcall.eval(env, model: model)
-//        case .Arr(let arr):
-//            return try arr.eval(env)
         case .ArrayElem(let arr):
             return try arr.eval(env, model: model)
         case .Expr(let expr):
@@ -293,6 +301,8 @@ enum Factor: CustomStringConvertible  {
             return try env.lookup(sym)
         case .Arr(let arr):
             return try arr.eval(env, model: model)
+        case .Test(let cp):
+            return try cp.eval(env, model: model)
         default:
             return self
         }
@@ -307,6 +317,7 @@ enum Factor: CustomStringConvertible  {
         case .Arr(_): return "array"
         case .ArrayElem(_): return "indexed-array"
         case .Expr(_): return "expression"
+        case .Test(_): return "comparison"
         }
     }
     func intValue() -> Int? {
@@ -406,7 +417,7 @@ class Environment {
     var vars: [String : Factor] = [:]
     var pc: Int = 0 // Program Counter
     var statements: [Statement] = []
-    var loopCondition: Comparison?  // In the case of a while loop, keep the test here
+    var loopCondition: Expression?  // In the case of a while loop, keep the test here
     init(outer: Environment?) { self.outer = outer }
     func add(symbol: String, value: Factor) { vars[symbol] = value }
     func lookup(symbol: String) throws -> Factor {
@@ -487,7 +498,7 @@ class Script {
         switch nextChar {
         case "(", ")", "+", "*", "-", "/", "%", "\\", "{", "}", "[", "]",",":
             return (nextChar, nextIndex.advancedBy(1))
-        case "!", "<", ">", "=":
+        case "!", "<", ">", "=", "|", "&":
             return readOperator(input, startIndex: nextIndex)
         case "1", "2", "3", "4", "5", "6", "7", "8", "9", "0":
             return readNumber(input, startIndex: nextIndex)
@@ -520,7 +531,7 @@ class Script {
         while nextIndex != input.endIndex {
             let nextChar = getNextChar(input, nextIndex: nextIndex)
             switch nextChar {
-            case "!", ">", "<", "=":
+            case "!", ">", "<", "=", "|", "&":
                 value += nextChar
             default:
                 return (value, nextIndex)
@@ -623,7 +634,7 @@ class Script {
     
     func parseIf(tokens: [String], startIndex: Int, endIndex: Int) throws -> (ifelse: IfClause, lastIndex: Int) {
         print("Parsing If at \(tokens[startIndex])")
-        let test = try parseComparison(tokens, startIndex: startIndex, endIndex: endIndex)
+        let test = try parseExpression(tokens, startIndex: startIndex, endIndex: endIndex)
         guard tokens[test.lastIndex] == "{" else {
             throw ParsingError.Expected("{",constructPrior(tokens, index: test.lastIndex))
         }
@@ -647,12 +658,12 @@ class Script {
             }
             index = try nextToken(index, endIndex: endIndex)
         }
-        return (IfClause(test: test.testRes, thenStatements: thenPart, elseStatements: elsePart), index)
+        return (IfClause(test: test.expression, thenStatements: thenPart, elseStatements: elsePart), index)
     }
     
     func parseWhile(tokens: [String], startIndex: Int, endIndex: Int) throws -> (whileRes: WhileClause, lastIndex: Int) {
         print("Parsing While at \(tokens[startIndex])")
-        let test = try parseComparison(tokens, startIndex: startIndex, endIndex: endIndex)
+        let test = try parseExpression(tokens, startIndex: startIndex, endIndex: endIndex)
         guard tokens[test.lastIndex] == "{" else {
             throw ParsingError.Expected("{",constructPrior(tokens, index: test.lastIndex))
         }
@@ -664,13 +675,12 @@ class Script {
             index = nextStatement.lastIndex
         }
         index = try nextToken(index, endIndex: endIndex)
-        return (WhileClause(test: test.testRes, statements: loop), index)
+        return (WhileClause(test: test.expression, statements: loop), index)
     }
     
     func parseComparison(tokens: [String], startIndex: Int, endIndex: Int) throws -> (testRes: Comparison, lastIndex: Int) {
         print("Parsing Comparison at \(tokens[startIndex])")
-        guard tokens[startIndex] == "(" else { throw ParsingError.Expected("(",constructPrior(tokens, index: startIndex)) }
-        var index = try nextToken(startIndex, endIndex: endIndex)
+        var index = startIndex
         var op: String = ""
         if tokens[index] == "!" {
             op = "!"
@@ -706,7 +716,7 @@ class Script {
         index = term.lastIndex
         var op = ""
         var secondTerm: (expression: Expression, lastIndex: Int)? = nil
-        if (tokens[index] == "+") || (tokens[index] == "-") {
+        if (tokens[index] == "+") || (tokens[index] == "-") || (tokens[index] == "||") {
             op = tokens[index]
             index = try nextToken(index, endIndex: endIndex)
             secondTerm = try parseExpression(tokens, startIndex: index, endIndex: endIndex)
@@ -724,7 +734,7 @@ class Script {
         index = factor.lastIndex
         var op = ""
         var secondFactor: (term: Term, lastIndex: Int)? = nil
-        if (tokens[index] == "*") || (tokens[index] == "/") {
+        if (tokens[index] == "*") || (tokens[index] == "/") || (tokens[index] == "&&")  {
             op = tokens[index]
             index = try nextToken(index, endIndex: endIndex)
             secondFactor = try parseTerm(tokens, startIndex: index, endIndex: endIndex)
@@ -741,13 +751,22 @@ class Script {
             let funcResult = try parseFunc(tokens, startIndex: index, endIndex: endIndex)
             return (Factor.Func(funcResult.funcRes), funcResult.lastIndex)
         }
-        if tokens[index] == "(" { // expression
+        if tokens[index] == "(" { // expression or comparison
             index = try nextToken(index, endIndex: endIndex)
-            let expression = try parseExpression(tokens, startIndex: index, endIndex: endIndex)
-            index = expression.lastIndex
-            guard tokens[index] == ")" else { throw ParsingError.Expected(")",constructPrior(tokens, index: index)) }
-            index = try nextToken(index, endIndex: endIndex)
-            return (Factor.Expr(expression.expression), index)
+            // It is a comparison if the next token is a "!", or the lookahead is one of the comparison operators
+            let la = lookAhead(tokens, index: index)
+            if tokens[index] == "!" || la == "==" || la == "!=" || la == "<>" || la == ">" || la == "<" || la == ">=" || la == "<=" || la == "=>" || la == "=<" {
+                let comparison = try parseComparison(tokens, startIndex: index, endIndex: endIndex)
+                index = comparison.lastIndex
+                return (Factor.Test(comparison.testRes), index)
+                
+            } else {
+                let expression = try parseExpression(tokens, startIndex: index, endIndex: endIndex)
+                index = expression.lastIndex
+                guard tokens[index] == ")" else { throw ParsingError.Expected(")",constructPrior(tokens, index: index)) }
+                index = try nextToken(index, endIndex: endIndex)
+                return (Factor.Expr(expression.expression), index)
+            }
         }
         if tokens[index].hasPrefix("\"") { // String
             let str = String(tokens[index].characters.dropFirst().dropLast())
@@ -857,8 +876,8 @@ class Script {
                 while env.pc >= env.statements.endIndex {
                     if env.loopCondition != nil {
                         let condition = env.loopCondition!
-                        let loopNotEnded = try condition.eval(env, model: model)
-                        if loopNotEnded {
+                        let loopNotEnded = try condition.eval(env, model: model).intValue()
+                        if loopNotEnded == 1 {
                             env.pc = 0
                         } else {
                             if env.outer != nil {
@@ -894,13 +913,13 @@ class Script {
                 case .IfCl(let ifClause):
                     let result = try ifClause.test.eval(env, model: model)
                     env = Environment(outer: env)
-                    if result {
+                    if result.intValue() == 1 {
                         env.statements = ifClause.thenStatements
                     } else {
                         env.statements = ifClause.elseStatements
                     }
                 case .WhileCl(let whileCl):
-                    if try whileCl.test.eval(env, model: model) {
+                    if try whileCl.test.eval(env, model: model).intValue() == 1 {
                         env = Environment(outer: env)
                         env.statements = whileCl.statements
                         env.loopCondition = whileCl.test
