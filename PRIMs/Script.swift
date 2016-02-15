@@ -326,6 +326,13 @@ enum Factor: CustomStringConvertible  {
         default: return nil
         }
     }
+    func doubleValue() -> Double? {
+        switch self {
+        case .IntNumber(let num): return Double(num)
+        case .RealNumber(let num): return num
+        default: return nil
+        }
+    }
 }
 
 func == (left: Factor, right: Factor) -> Bool {

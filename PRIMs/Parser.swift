@@ -72,7 +72,8 @@ class Parser  {
                 case "goal-action": if !parseGoalAction() { return false }
                 case "sji": if !parseSjis() { return false }
                 case "action": if !parseAction() { return false }
-                case "script": if !parseScript() { return false }
+                case "script": if !parseScript(false) { return false }
+                case "init-script": if !parseScript(true) { return false }
                 default: m.addToTraceField("Don't know how to define \(definedItem!)")
                     return false
                 }
@@ -209,6 +210,7 @@ class Parser  {
                 m.addToTraceField("Invalid value after default-activation:")
                 return false
             }
+            m.parameters.append(("default-activation:",String(defaultActivation)))
         default:
             let parValue = scanner.scanUpToCharactersFromSet(whitespaceNewLine)
             if parValue == nil {
@@ -746,7 +748,7 @@ class Parser  {
         return true
     }
 
-    func parseScript() -> Bool {
+    func parseScript(initScript: Bool) -> Bool {
         if !scanner.scanString("{", intoString: nil) {
             m.addToTraceField("Missing '{' in Sji definition.")
             return false
@@ -786,7 +788,14 @@ class Parser  {
             m.addToTraceField("Unknown error thrown in script parsing")
             return false
         }
-        m.scenario.script = sc
+        if initScript {
+            m.scenario.initScript = sc
+        } else {
+            m.scenario.script = sc
+        }
         return true
     }
+    
+
+    
 }

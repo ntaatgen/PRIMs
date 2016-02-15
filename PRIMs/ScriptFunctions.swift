@@ -27,7 +27,10 @@ let scriptFunctions: [String:([Factor], Model?) throws -> (result: Factor?, done
     "length": length,
     "sleep": sleepPrims,
     "set-data-file-field": setDataFileField,
-    "last-action": lastAction
+    "last-action": lastAction,
+    "add-dm": addDM,
+    "set-activation": setActivation,
+    "random-string": randomString
     ]
 
 
@@ -361,3 +364,50 @@ func lastAction(content: [Factor], model: Model?) throws -> (result: Factor?, do
     }
     return(Factor.Arr(ScriptArray(elements: result)), true, true)
 }
+
+/**
+Add a fact chunk to DM. Assume first argument is chunkname, rest are slots
+*/
+func addDM(content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool, cont:Bool) {
+    guard content.count >= 2 else { throw RunTimeError.invalidNumberOfArguments }
+    let name = content[0].description
+    let chunk = Chunk(s: name, m: model!)
+    chunk.setSlot("isa", value: "fact")
+    for i in 1..<content.count {
+        let slotval = content[i].description
+        if model!.dm.chunks[slotval] == nil {
+            let extraChunk = Chunk(s: slotval, m: model!)
+            extraChunk.setSlot("isa", value: "fact")
+            extraChunk.setSlot("slot1", value: slotval)
+            extraChunk.fixedActivation = model!.dm.defaultActivation
+            model!.dm.addToDM(extraChunk)
+        }
+        chunk.setSlot("slot\(i)", value: slotval)
+    }
+    chunk.fixedActivation = model!.dm.defaultActivation
+    model!.dm.addToDM(chunk)
+    return (nil, true, true)
+}
+
+/** 
+Set the fixed activation of a chunk. First argument in chunk name, second is activation value
+*/
+func setActivation(content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool, cont:Bool) {
+    guard content.count == 2 else { throw RunTimeError.invalidNumberOfArguments }
+    let chunk = model!.dm.chunks[content[0].description]
+    guard chunk != nil else { throw RunTimeError.errorInFunction("Chunk does not exist") }
+    let value = content[1].doubleValue()
+    guard value != nil else { throw RunTimeError.nonNumberArgument }
+    chunk!.fixedActivation = value!
+    return (nil, true, true)
+}
+
+/** 
+Generate a random string with optional starting string
+*/
+func randomString(content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool, cont:Bool) {
+    let prefix = content.count == 0 ? "fact" : content[0].description
+    let result = Factor.Str(model!.generateName(prefix))
+    return (result, true, true)
+}
+

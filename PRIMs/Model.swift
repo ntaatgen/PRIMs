@@ -124,6 +124,7 @@ class Model {
                 reset(nil)
                 return false
             }
+            
         } else {
             return false
         }
@@ -237,6 +238,11 @@ class Model {
         if result {
             modelText = modelCode
             newResult()
+            if scenario.initScript != nil {
+                scenario.initScript!.reset()
+                scenario.initScript!.step(self)
+                print("Running init script")
+            }
         }
         return result
     }
@@ -356,6 +362,8 @@ class Model {
                 procedural.proceduralReward = numVal!
             case "explore-exploit:":
                 dm.explorationExploitationFactor = numVal!
+            case "default-activation:":
+                dm.defaultActivation = numVal!
             default: return false
             }
         }

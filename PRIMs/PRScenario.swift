@@ -27,6 +27,8 @@ class PRScenario {
     var goalAction: [String] = []
     /// A script that runs the experiment. Replaces most of the above.
     var script: Script?
+    /// A script that has to be run as initialization of the model
+    var initScript: Script?
     var inputMappingForTrace: [String] {
         get {
             var mapping: [String] = ["Void","Void","Void","Void","Void"]

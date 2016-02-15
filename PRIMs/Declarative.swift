@@ -30,6 +30,7 @@ class Declarative  {
     static let explorationExploitationFactorDefault = 0.0
     static let declarativeBufferStuffingDefault = false
     static let retrievalReinforcesDefault = false
+    static let defaultActivationDefault: Double? = nil
     /// Baseleveldecay parameter (d in ACT-R)
     var baseLevelDecay: Double = baseLevelDecayDefault
     /// Optimized learning on or off
@@ -70,6 +71,8 @@ class Declarative  {
     var declarativeBufferStuffing = declarativeBufferStuffingDefault
     /// Parameter that determines whether a retrieval alone increase baselevel activation
     var retrievalReinforces = retrievalReinforcesDefault
+    /// default Activation for chunks
+    var defaultActivation = defaultActivationDefault
     /// Dictionary with all the chunks in DM, maps name onto Chunk
     var chunks = [String:Chunk]()
     /// List of all the chunks that partipated in the last retrieval. Tuple has Chunk and activation value
@@ -111,6 +114,7 @@ class Declarative  {
         explorationExploitationFactor = Declarative.explorationExploitationFactorDefault
         declarativeBufferStuffing = Declarative.declarativeBufferStuffingDefault
         retrievalReinforces = Declarative.retrievalReinforcesDefault
+        defaultActivation = Declarative.defaultActivationDefault
     }
     
     func duplicateChunk(chunk: Chunk) -> Chunk? {
