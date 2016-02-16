@@ -13,12 +13,14 @@ enum Statement: CustomStringConvertible {
     case Func(Funcall)
     case IfCl(IfClause)
     case WhileCl(WhileClause)
+    case ForCl(ForClause)
     var description: String {
         switch self {
         case .Assign(let ass): return "Assignment: \(ass)"
         case .Func(let funcall): return "Function call: \(funcall)"
         case .IfCl(let ifc): return "If clause: \(ifc)"
         case .WhileCl(let whcl): return "While clause \(whcl)"
+        case .ForCl(let fcl): return "For clause \(fcl)"
         }
     }
 }
@@ -89,6 +91,22 @@ class WhileClause: CustomStringConvertible {
     }
     var description: String {
         return "while \(test)"
+    }
+}
+
+class ForClause: CustomStringConvertible {
+    let loopVar: Factor
+    let statements: [Statement]
+    let startExpression: Expression
+    let endExpression: Expression?
+    init(loopVar: Factor, statements: [Statement], startExpression: Expression, endExpression: Expression?) {
+        self.loopVar = loopVar
+        self.statements = statements
+        self.startExpression = startExpression
+        self.endExpression = endExpression
+    }
+    var description: String {
+        return "for \(loopVar) in \(startExpression) to \(endExpression)"
     }
 }
 
@@ -380,6 +398,10 @@ func <= (left: Factor, right: Factor) -> Bool {
     return left < right || left == right
 }
 
+func generateFactorExpression(f: Factor) -> Expression {
+    return Expression(preop: "", firstTerm: Term(factor: f, op: "", term: nil), op: "", secondTerm: nil)
+}
+
 class IndexedArray {
     let name: String
     let index: Expression
@@ -620,6 +642,9 @@ class Script {
         case "while":
             let whileResult = try parseWhile(tokens, startIndex: try nextToken(startIndex, endIndex: endIndex), endIndex: endIndex)
             return (Statement.WhileCl(whileResult.whileRes), whileResult.lastIndex)
+        case "for":
+            let forResult = try parseFor(tokens, startIndex: try nextToken(startIndex, endIndex: endIndex), endIndex: endIndex)
+            return (Statement.ForCl(forResult.forRes), forResult.lastIndex)
         default:
             if lookAhead(tokens, index: startIndex) == "(" {
                 let funcResult = try parseFunc(tokens, startIndex: startIndex, endIndex: endIndex)
@@ -683,6 +708,41 @@ class Script {
         }
         index = try nextToken(index, endIndex: endIndex)
         return (WhileClause(test: test.expression, statements: loop), index)
+    }
+    
+    // for i in 1 to n { statements* }
+    // for x in array
+    
+    func parseFor(tokens: [String], startIndex: Int, endIndex: Int) throws -> (forRes: ForClause, lastIndex: Int) {
+        print("Parsing For at \(tokens[startIndex])")
+        let loopVariable = tokens[startIndex]
+        print("Loop variable is \(loopVariable)")
+        var index = try nextToken(startIndex, endIndex: endIndex)
+        guard tokens[index] == "in" else { throw ParsingError.Expected("in", constructPrior(tokens, index: index)) }
+        index = try nextToken(index, endIndex: endIndex)
+        let arg1 = try parseExpression(tokens, startIndex: index, endIndex: endIndex)
+        index = arg1.lastIndex
+        var arg2: Expression? = nil
+        if tokens[index] != "to" {
+            guard arg1.expression.firstTerm.factor.type() == "symbol" else { throw ParsingError.Expected("a symbol", constructPrior(tokens, index: index)) }
+        } else {
+            index = try nextToken(index, endIndex: endIndex)
+            let arg = try parseExpression(tokens, startIndex: index, endIndex: endIndex)
+            index = arg.lastIndex
+            arg2 = arg.expression
+        }
+        guard tokens[index] == "{" else {
+            throw ParsingError.Expected("{",constructPrior(tokens, index: index))
+        }
+        var loop: [Statement] = []
+        index = try nextToken(index, endIndex: endIndex)
+        while tokens[index] != "}" {
+            let nextStatement = try parseStatement(tokens, startIndex: index, endIndex: endIndex)
+            loop.append(nextStatement.statement)
+            index = nextStatement.lastIndex
+        }
+        index = try nextToken(index, endIndex: endIndex)
+        return (ForClause(loopVar: Factor.Symbol(loopVariable), statements: loop, startExpression: arg1.expression, endExpression: arg2),index)
     }
     
     func parseComparison(tokens: [String], startIndex: Int, endIndex: Int) throws -> (testRes: Comparison, lastIndex: Int) {
@@ -930,6 +990,43 @@ class Script {
                         env = Environment(outer: env)
                         env.statements = whileCl.statements
                         env.loopCondition = whileCl.test
+                    }
+                case .ForCl(let forCl):
+                    env = Environment(outer: env)
+                    if forCl.endExpression == nil { // loop over an array
+                        let theArray = try forCl.startExpression.eval(env, model: model)
+                        guard theArray.type() == "array" else { throw RunTimeError.indexingNonArray }
+                        var count: Int
+                        switch theArray {
+                        case .Arr(let ar): count = ar.elements.count
+                        default: count = 0 // cannot happen
+                        }
+                        let loopArrayName = "loopArrayName943"
+                        let loopArrayIndex = "loopArrayIndex724"
+                        let loopArrayIndexFactor = Factor.Symbol(loopArrayIndex)
+                        env.simpleAssign(loopArrayName, value: theArray, orgEnv: env)
+                        env.simpleAssign(loopArrayIndex, value: Factor.IntNumber(0), orgEnv: env)
+                        let assign = Statement.Assign(Assignment(lhs: forCl.loopVar, rhs: generateFactorExpression(Factor.ArrayElem(IndexedArray(name: loopArrayName, index: generateFactorExpression(loopArrayIndexFactor))))))
+                        let increment = Statement.Assign(Assignment(lhs: loopArrayIndexFactor, rhs: Expression(preop: "", firstTerm: Term(factor: loopArrayIndexFactor, op: "", term: nil), op: "+", secondTerm: generateFactorExpression(Factor.IntNumber(1)))))
+                        env.statements = forCl.statements
+                        env.statements.append(increment)
+                        env.statements.insert(assign, atIndex: 0)
+                        let loopTest = Comparison(lhs: generateFactorExpression(loopArrayIndexFactor), op: "<", rhs: generateFactorExpression(Factor.IntNumber(count)))
+                        env.loopCondition = generateFactorExpression(Factor.Test(loopTest))
+                        if try env.loopCondition!.eval(env, model: model).intValue() == 0 {
+                            env = env.outer!  /// empty loop
+                        }
+                    } else {
+                        let value = try forCl.startExpression.eval(env, model: model)
+                        env.simpleAssign(forCl.loopVar.description, value: value, orgEnv: env)
+                        env.statements = forCl.statements
+                        let increment = Statement.Assign(Assignment(lhs: forCl.loopVar, rhs: Expression(preop: "", firstTerm: Term(factor: forCl.loopVar, op: "", term: nil), op: "+", secondTerm: generateFactorExpression(Factor.IntNumber(1)))))
+                        env.statements.append(increment)
+                        let loopTest = Comparison(lhs: generateFactorExpression(forCl.loopVar), op: "<=", rhs: forCl.endExpression!)
+                        env.loopCondition = generateFactorExpression(Factor.Test(loopTest))
+                        if try env.loopCondition!.eval(env, model: model).intValue() == 0 {
+                            env = env.outer!  /// empty loop
+                        }
                     }
                 case .Func(let fn):
                     if let f = scriptFunctions[fn.name] {

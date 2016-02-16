@@ -61,12 +61,13 @@ define init-script {
     print("Init script: Adding count-facts to memory")
     digits = ["one","two","three","four","five","six","seven",
     "eight","nine","ten"]
-    i = 0
-    while (i < 9) {
+    for i in 0 to 8 {
         name = random-string("count-fact")
         add-dm(name, "count-fact", digits[i], digits[i + 1])
         set-activation(name, 1.0)
-        i = i + 1
+    }
+    for x in digits {
+        print(x)
     }
 }
 
