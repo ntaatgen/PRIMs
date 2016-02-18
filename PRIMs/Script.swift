@@ -106,7 +106,7 @@ class ForClause: CustomStringConvertible {
         self.endExpression = endExpression
     }
     var description: String {
-        return "for \(loopVar) in \(startExpression) to \(endExpression)"
+        return "for \(loopVar) in \(startExpression) to \(endExpression) do \n\(statements)"
     }
 }
 
@@ -441,12 +441,15 @@ enum RunTimeError: ErrorType {
     case arrayOutOfBounds
 }
 
-class Environment {
+class Environment: CustomStringConvertible {
     let outer: Environment?
     var vars: [String : Factor] = [:]
     var pc: Int = 0 // Program Counter
     var statements: [Statement] = []
     var loopCondition: Expression?  // In the case of a while loop, keep the test here
+    var description: String {
+        return "Statements:\n\(statements)\nBindings:\n\(vars)\n"
+    }
     init(outer: Environment?) { self.outer = outer }
     func add(symbol: String, value: Factor) { vars[symbol] = value }
     func lookup(symbol: String) throws -> Factor {
@@ -576,7 +579,7 @@ class Script {
         while nextIndex != input.endIndex {
             let nextChar = getNextChar(input, nextIndex: nextIndex)
             switch nextChar {
-            case " ", ")", "(", "[", "]", "{", "}", ",":
+            case " ", ")", "(", "[", "]", "{", "}", ",", "\n", "\t":
                 return (token, nextIndex)
             default:
                 token += nextChar

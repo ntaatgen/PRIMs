@@ -30,6 +30,7 @@ let scriptFunctions: [String:([Factor], Model?) throws -> (result: Factor?, done
     "last-action": lastAction,
     "add-dm": addDM,
     "set-activation": setActivation,
+    "set-sji": setSji,
     "random-string": randomString
     ]
 
@@ -361,6 +362,8 @@ func lastAction(content: [Factor], model: Model?) throws -> (result: Factor?, do
             result.append(Expression(preop: "", firstTerm: Term(factor: Factor.Str(action.slotvals["slot\(i)"]!.description), op: "", term: nil), op: "", secondTerm: nil))
             i++
         }
+    } else {
+        result.append(generateFactorExpression(Factor.Str("")))
     }
     return(Factor.Arr(ScriptArray(elements: result)), true, true)
 }
@@ -402,7 +405,22 @@ func setActivation(content: [Factor], model: Model?) throws -> (result: Factor?,
     return (nil, true, true)
 }
 
-/** 
+/**
+ Set Sji between two chunks
+ */
+func setSji(content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool, cont:Bool) {
+    guard content.count == 3 else { throw RunTimeError.invalidNumberOfArguments}
+    let chunk1 = model!.dm.chunks[content[0].description]
+    guard chunk1 != nil else { throw RunTimeError.errorInFunction("Chunk 1 does not exist") }
+    let chunk2 = model!.dm.chunks[content[1].description]
+    guard chunk2 != nil else { throw RunTimeError.errorInFunction("Chunk 2 does not exist") }
+    let assoc = content[2].doubleValue()
+    guard assoc != nil else { throw RunTimeError.nonNumberArgument }
+    chunk2!.assocs[chunk1!.name] = (assoc!, 0)
+    return (nil, true, true)
+}
+
+/**
 Generate a random string with optional starting string
 */
 func randomString(content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool, cont:Bool) {

@@ -211,6 +211,7 @@ class Parser  {
                 return false
             }
             m.parameters.append(("default-activation:",String(defaultActivation)))
+            m.dm.defaultActivation = defaultActivation
         default:
             let parValue = scanner.scanUpToCharactersFromSet(whitespaceNewLine)
             if parValue == nil {

@@ -628,6 +628,11 @@ class Model {
             let parser = Parser(model: self, text: modelText, taskNumber: taskNumber!)
             setParametersToDefault()
             parser.parseModel()
+            if scenario.initScript != nil {
+                scenario.initScript!.reset()
+                scenario.initScript!.step(self)
+                print("Running init script")
+            }
             newResult()
         }
         for task in tasks {
