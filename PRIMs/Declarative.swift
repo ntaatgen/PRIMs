@@ -79,6 +79,8 @@ class Declarative  {
     var conflictSet: [(Chunk,Double)] = []
     /// Finst list for the current retrieval
     var finsts: [String] = []
+    /// Parameter that controls whether to use partial matching (true) or not (false, default)
+    var partialMatching = partialMatchingDefault
     
     
     var retrieveBusy = false
@@ -244,9 +246,22 @@ class Declarative  {
         
     }
     
-
+    /* Mismatch Functions */
     
-    func partialRetrieve(chunk: Chunk, mismatchFunction: (x: Value, y: Value) -> Double? ) -> Chunk? {
+    // Mismatch function for numbers
+    func mismatchNumbers(x: Value, y: Value) -> Double? {
+        /* Return similarity if there is one, else return -1
+        Similarity is calculated by dividing the smallest number by the largest number.*/
+        if (x.number() != nil) && (y.number() != nil) {
+            let maxValue = max(x.number()!, y.number()!)
+            let minValue = min(x.number()!, y.number()!)
+            return (minValue / maxValue - 1)
+        } else {
+            return 0
+        }
+    }
+    
+    func partialRetrieve(chunk: Chunk, mismatchFunction: (x: Value, y: Value) -> Double? ) -> (Double, Chunk?) {
         var bestMatch: Chunk? = nil
         var bestActivation: Double = retrievalThreshold
         conflictSet = []
@@ -273,7 +288,12 @@ class Declarative  {
                 bestMatch = ch1
             }        
             }
-        return bestMatch
+        if bestActivation > retrievalThreshold {
+            return (latency(bestActivation) , bestMatch)
+        } else {
+            retrieveError = true
+            return (latency(retrievalThreshold), nil)
+        }
     }
 
     func action() -> Double {
@@ -281,7 +301,13 @@ class Declarative  {
         let emptyRetrieval = Chunk(s: "emptyRetrieval", m: model)
         emptyRetrieval.setSlot("isa", value: "fact")
         let retrievalQuery = model.buffers["retrievalR"] ?? emptyRetrieval
-        let (latency, retrieveResult) = retrieve(retrievalQuery)
+        var latency: Double = 0.0
+        var retrieveResult: Chunk? = nil
+        if partialMatching {
+            (latency, retrieveResult) = partialRetrieve(retrievalQuery, mismatchFunction: mismatchNumbers)
+        } else {
+            (latency, retrieveResult) = retrieve(retrievalQuery)
+        }
         if retrieveResult != nil {
             if stuff {
                 model.addToTrace("Stuffing retrieval buffer \(retrieveResult!.name) (latency = \(latency))", level: 2)
@@ -303,3 +329,4 @@ class Declarative  {
     }
     
 }
+
