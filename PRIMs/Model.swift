@@ -301,6 +301,8 @@ class Model {
             dm.declarativeBufferStuffing = boolVal
         case "retrieval-reinforces:":
             dm.retrievalReinforces = boolVal
+        case "pm:":
+            dm.partialMatching = boolVal
         default:
             if (numVal == nil) {return false}
             switch parameter {
