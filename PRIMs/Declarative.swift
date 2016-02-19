@@ -31,6 +31,7 @@ class Declarative  {
     static let declarativeBufferStuffingDefault = false
     static let retrievalReinforcesDefault = false
     static let defaultActivationDefault: Double? = nil
+    static let partialMatchingDefault = false
     /// Baseleveldecay parameter (d in ACT-R)
     var baseLevelDecay: Double = baseLevelDecayDefault
     /// Optimized learning on or off
@@ -117,6 +118,7 @@ class Declarative  {
         declarativeBufferStuffing = Declarative.declarativeBufferStuffingDefault
         retrievalReinforces = Declarative.retrievalReinforcesDefault
         defaultActivation = Declarative.defaultActivationDefault
+        partialMatching = Declarative.partialMatchingDefault
     }
     
     func duplicateChunk(chunk: Chunk) -> Chunk? {
@@ -252,10 +254,10 @@ class Declarative  {
     func mismatchNumbers(x: Value, y: Value) -> Double? {
         /* Return similarity if there is one, else return -1
         Similarity is calculated by dividing the smallest number by the largest number.*/
-        if (x.number() != nil) && (y.number() != nil) {
+        if (x.number() != nil) && (y.number() != nil)  {
             let maxValue = max(x.number()!, y.number()!)
             let minValue = min(x.number()!, y.number()!)
-            return (minValue / maxValue - 1)
+            return maxValue == 0.0 ? 0 : (minValue / maxValue - 1)
         } else {
             return 0
         }
@@ -328,5 +330,5 @@ class Declarative  {
         return retrieveResult == nil && stuff ? 0.0 : latency
     }
     
-}
 
+}
