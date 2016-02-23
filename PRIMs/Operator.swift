@@ -20,9 +20,6 @@ class Operator {
         self.model = model
     }
 
-    deinit {
-        print("operator is deinitialized")
-    }
     
     /**
     Reset the operator object

@@ -29,10 +29,7 @@ class PRObject{
             superObject!.subObjects.append(self)
         }
     }
-    deinit {
-        print("PRobject \(name) is deinitialized")
-    }
-    
+
     /**
     Reset selfAttended state
     */

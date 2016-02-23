@@ -92,10 +92,7 @@ class Declarative  {
         self.model = model
 
     }
-    deinit {
-        print("Declarative is deinitialized")
-    }
-    
+
     func setParametersToDefault() {
         baseLevelDecay = Declarative.baseLevelDecayDefault
         optimizedLearning = Declarative.optimizedLearningDefault

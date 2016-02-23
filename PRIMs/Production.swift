@@ -71,9 +71,6 @@ class Production: CustomStringConvertible {
         self.taskID = taskID
     }
     
-    deinit {
-        print("\(name) is deinitialized")
-    }
     
     func setFullName() {
         fullName = name + "|" + newCondition! + ";" + newAction!

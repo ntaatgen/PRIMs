@@ -443,6 +443,7 @@ enum RunTimeError: ErrorType {
 
 class Environment: CustomStringConvertible {
     let outer: Environment?
+    let level: Int
     var vars: [String : Factor] = [:]
     var pc: Int = 0 // Program Counter
     var statements: [Statement] = []
@@ -450,7 +451,14 @@ class Environment: CustomStringConvertible {
     var description: String {
         return "Statements:\n\(statements)\nBindings:\n\(vars)\n"
     }
-    init(outer: Environment?) { self.outer = outer }
+    init(outer: Environment?) {
+        self.outer = outer
+        if outer == nil {
+            level = 0
+        } else {
+            level = outer!.level + 1
+        }
+    }
     func add(symbol: String, value: Factor) { vars[symbol] = value }
     func lookup(symbol: String) throws -> Factor {
         if let value = vars[symbol] {
@@ -1004,8 +1012,8 @@ class Script {
                         case .Arr(let ar): count = ar.elements.count
                         default: count = 0 // cannot happen
                         }
-                        let loopArrayName = "loopArrayName943"
-                        let loopArrayIndex = "loopArrayIndex724"
+                        let loopArrayName = "loopArrayName943" + String(env.level)
+                        let loopArrayIndex = "loopArrayIndex724" + String(env.level)
                         let loopArrayIndexFactor = Factor.Symbol(loopArrayIndex)
                         env.simpleAssign(loopArrayName, value: theArray, orgEnv: env)
                         env.simpleAssign(loopArrayIndex, value: Factor.IntNumber(0), orgEnv: env)

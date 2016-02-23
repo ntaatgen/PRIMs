@@ -52,11 +52,7 @@ class Action {
     init(model: Model) {
         self.model = model
     }
-    
-    deinit {
-        print("Action is deinitialized")
-    }
-    
+
     func setParametersToDefault() {
          defaultPerceptualActionLatency = Action.defaultPerceptionActionLatencyDefault
     }

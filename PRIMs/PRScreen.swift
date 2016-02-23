@@ -45,9 +45,7 @@ class PRScreen {
     init(name: String) {
         self.name = name
     }
-    deinit {
-    print("PRScreen \(name) is deinitialized")
-    }
+
     /**
      Reset the screen, and focus on the first element within the current screen
     */

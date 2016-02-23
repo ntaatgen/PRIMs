@@ -31,7 +31,8 @@ let scriptFunctions: [String:([Factor], Model?) throws -> (result: Factor?, done
     "add-dm": addDM,
     "set-activation": setActivation,
     "set-sji": setSji,
-    "random-string": randomString
+    "random-string": randomString,
+    "sgp": setGlobalParameter
     ]
 
 
@@ -427,5 +428,18 @@ func randomString(content: [Factor], model: Model?) throws -> (result: Factor?, 
     let prefix = content.count == 0 ? "fact" : content[0].description
     let result = Factor.Str(model!.generateName(prefix))
     return (result, true, true)
+}
+
+/**
+Set a parameter
+*/
+func setGlobalParameter(content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool, cont:Bool) {
+    guard content.count == 2 else { throw RunTimeError.invalidNumberOfArguments }
+    let parName = content[0].description
+    let parValue = content[1].description
+    if !model!.setParameter(parName, value: parValue) {
+        throw RunTimeError.errorInFunction("Parameter \(parName) does not exist or cannot take value \(parValue)")
+    }
+    return (nil, true, true)
 }
 

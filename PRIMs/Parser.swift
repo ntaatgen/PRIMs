@@ -23,9 +23,7 @@ class Parser  {
         whitespaceNewLineParentheses.formUnionWithCharacterSet(whitespaceNewLine)
         whiteSpaceNewLineParenthesesEqual.formUnionWithCharacterSet(whitespaceNewLine)
     }
-    deinit {
-        print("Parser is deinitialized")
-    }
+
     var defaultActivation: Double? = nil
     private let whitespaceNewLine = NSCharacterSet.whitespaceAndNewlineCharacterSet()
     private let whitespaceNewLineParentheses: NSMutableCharacterSet = NSMutableCharacterSet(charactersInString: "{}()")

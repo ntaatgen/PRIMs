@@ -35,10 +35,7 @@ class Procedural {
     init(model: Model) {
         self.model = model
     }
-    
-    deinit {
-        print("Procedural is deinitialized")
-    }
+
     
     func setParametersToDefault() {
         utilityNoise = Procedural.utilityNoiseDefault

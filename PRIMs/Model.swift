@@ -109,9 +109,7 @@ class Model {
         self.operators = Operator(model: self)        
     }
     
-    deinit {
-        print("\(self) is deinitialized")
-    }
+
     
     func loadModelWithString(filePath: NSURL) -> Bool {
         modelCode = try? String(contentsOfURL: filePath, encoding: NSUTF8StringEncoding)

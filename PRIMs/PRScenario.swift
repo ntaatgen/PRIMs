@@ -41,9 +41,7 @@ class PRScenario {
             return mapping
         }
     }
-    deinit {
-        print("PRScenario is deinitialized")
-    }
+
     func goStart(model: Model) {
         if !inputs.isEmpty && trials.isEmpty {
             for (name,_) in inputs {

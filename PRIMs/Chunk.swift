@@ -51,11 +51,7 @@ class Chunk: CustomStringConvertible {
         name = s
         model = m
     }
-    
-    deinit {
-        print("\(name) is deinitialized")
-    }
-    
+
     /// A string with a printout of the Chunk
     var description: String {
         get {

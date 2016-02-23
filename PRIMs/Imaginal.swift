@@ -18,9 +18,7 @@ class Imaginal {
         self.model = model
     }
     
-    deinit {
-        print("Imaginal is deinitialized")
-    }
+
     func setParametersToDefault() {
         imaginalLatency = Imaginal.imaginalLatencyDefault
     }
