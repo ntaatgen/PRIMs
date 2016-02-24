@@ -735,7 +735,7 @@ class Script {
         index = arg1.lastIndex
         var arg2: Expression? = nil
         if tokens[index] != "to" {
-            guard arg1.expression.firstTerm.factor.type() == "symbol" else { throw ParsingError.Expected("a symbol", constructPrior(tokens, index: index)) }
+            guard arg1.expression.firstTerm.factor.type() == "symbol" || arg1.expression.firstTerm.factor.type() == "array" else { throw ParsingError.Expected("a symbol or array", constructPrior(tokens, index: index)) }
         } else {
             index = try nextToken(index, endIndex: endIndex)
             let arg = try parseExpression(tokens, startIndex: index, endIndex: endIndex)
@@ -832,6 +832,17 @@ class Script {
         if tokens[index] == "(" { // expression or comparison
             index = try nextToken(index, endIndex: endIndex)
             // It is a comparison if the next token is a "!", or the lookahead is one of the comparison operators
+            // Wrong! First half can be an expression. We need to parse the Expression and the check for
+            // and operator or a closing parenthesis. Complication: unary operator !
+            // Here is the trick: we try parsing a Comparison. If it has no operator, it means it is just an
+            // Expression
+            let comparison = try parseComparison(tokens, startIndex: index, endIndex: endIndex)
+            if (comparison.testRes.op == "") {
+                return (Factor.Expr(comparison.testRes.lhs), comparison.lastIndex)
+            } else {
+                return (Factor.Test(comparison.testRes), comparison.lastIndex)
+            }
+            /*
             let la = lookAhead(tokens, index: index)
             if tokens[index] == "!" || la == "==" || la == "!=" || la == "<>" || la == ">" || la == "<" || la == ">=" || la == "<=" || la == "=>" || la == "=<" {
                 let comparison = try parseComparison(tokens, startIndex: index, endIndex: endIndex)
@@ -845,6 +856,7 @@ class Script {
                 index = try nextToken(index, endIndex: endIndex)
                 return (Factor.Expr(expression.expression), index)
             }
+            */
         }
         if tokens[index].hasPrefix("\"") { // String
             let str = String(tokens[index].characters.dropFirst().dropLast())

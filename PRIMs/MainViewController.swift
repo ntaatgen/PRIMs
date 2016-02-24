@@ -650,6 +650,8 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
         saveDialog.worksWhenModal = true
         saveDialog.allowsOtherFileTypes = false
         saveDialog.allowedFileTypes = ["dat","txt"]
+        let name = fileDialog.URL!.URLByDeletingPathExtension!.lastPathComponent!
+        saveDialog.nameFieldStringValue = name + ".dat"
         let saveResult = saveDialog.runModal()
         if saveResult != NSFileHandlingPanelOKButton { return }
         if saveDialog.URL == nil { return }
