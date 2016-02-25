@@ -133,7 +133,7 @@ class Expression: CustomStringConvertible {
                 term1 = .IntNumber(-number)
             case .RealNumber(let number):
                 term1 = .RealNumber(-number)
-            default: RunTimeError.nonNumberArgument
+            default: throw RunTimeError.nonNumberArgument
             }
         }
         if op == "" {
@@ -160,7 +160,7 @@ class Expression: CustomStringConvertible {
             return .RealNumber(num1 + num2)
         case (.RealNumber(let num1), .RealNumber(let num2), "-"):
             return .RealNumber(num1 - num2)
-        default: RunTimeError.nonNumberArgument
+        default: throw RunTimeError.nonNumberArgument
         }
         return Factor.Str("This should never happen")
     }
@@ -206,7 +206,7 @@ class Term: CustomStringConvertible {
         case (.RealNumber(let num1), .RealNumber(let num2), "/"):
             guard num2 != 0 else { throw RunTimeError.divisionByZero }
             return .RealNumber(num1 / num2)
-        default: RunTimeError.nonNumberArgument
+        default: throw RunTimeError.nonNumberArgument
         }
         return Factor.Str("This should never happen")
     }
@@ -492,7 +492,7 @@ class Environment: CustomStringConvertible {
                 }
                 arr.elements.append(Expression(preop: "", firstTerm: Term(factor: value, op: "", term: nil), op: "", secondTerm: nil))
             }
-        default: RunTimeError.indexingNonArray
+        default: throw RunTimeError.indexingNonArray
         }
     }
 }
