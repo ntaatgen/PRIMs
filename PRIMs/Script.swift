@@ -139,8 +139,15 @@ class Expression: CustomStringConvertible {
         if op == "" {
             return term1
         }
+        
         guard secondTerm != nil else { throw RunTimeError.missingSecondArgument }
         var term2 = try secondTerm!.eval(env, model: model)
+        
+        // If the first argument is a string, concatenate both arguments
+        if (term1.type() == "string" && op == "+") {
+            return .Str(term1.description + "\(term2)")
+        }
+        
         // If one of the numbers is an Int and the other a Real, covert Int to Real
         switch (term1, term2) {
         case (.IntNumber(let num1), .RealNumber(_)):
@@ -149,6 +156,7 @@ class Expression: CustomStringConvertible {
             term2 = Factor.RealNumber(Double(num2))
         default: break
         }
+        
         switch (term1, term2, op) {
         case (.IntNumber(let num1),.IntNumber(let num2),"+"):
             return .IntNumber(num1 + num2)
