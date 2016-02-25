@@ -246,9 +246,23 @@ class Declarative  {
     }
     
     /* Mismatch Functions */
+    // Mismatch function for operators
+    func mismatchOperators(x: Value, _ y: Value) -> Double {
+        /* Return similarity if there is one, else return -1*/
+        print("trudy")
+        if (x.description == "x" || x.description == "+" || x.description == "-" || x.description == "/") {
+            print("hoi")
+            if (y.description == "x" || y.description == "+" || y.description == "-" || y.description == "/") {
+                return -0.5
+            }
+            return -1
+        } else {
+            return -1
+        }
+    }
     
     // Mismatch function for numbers
-    func mismatchNumbers(x: Value, y: Value) -> Double? {
+    func mismatchNumbers(x: Value, _ y: Value) -> Double {
         /* Return similarity if there is one, else return -1
         Similarity is calculated by dividing the smallest number by the largest number.*/
         if (x.number() != nil) && (y.number() != nil)  {
@@ -256,8 +270,23 @@ class Declarative  {
             let minValue = min(x.number()!, y.number()!)
             return maxValue == 0.0 ? 0 : (minValue / maxValue - 1)
         } else {
-            return 0
+            return -1
         }
+    }
+    
+    // General Mismatch Function
+    func mismatchFunction(x: Value, y: Value) -> Double? {
+        /* Select the correct mismatch function and return similarity if there is one */
+        var mismatch: Double
+        print(x)
+        if (x.number() != nil && y.number() != nil) {
+            mismatch = mismatchNumbers(x, y)
+            print("hoi2")
+        } else {
+            print("hoi1")
+            mismatch = mismatchOperators(x, y)
+        }
+        return mismatch
     }
     
     func partialRetrieve(chunk: Chunk, mismatchFunction: (x: Value, y: Value) -> Double? ) -> (Double, Chunk?) {
