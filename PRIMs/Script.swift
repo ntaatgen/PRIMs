@@ -170,7 +170,6 @@ class Expression: CustomStringConvertible {
             return .RealNumber(num1 - num2)
         default: throw RunTimeError.nonNumberArgument
         }
-        return Factor.Str("This should never happen")
     }
 }
     
@@ -216,7 +215,6 @@ class Term: CustomStringConvertible {
             return .RealNumber(num1 / num2)
         default: throw RunTimeError.nonNumberArgument
         }
-        return Factor.Str("This should never happen")
     }
 }
 
@@ -775,6 +773,7 @@ class Script {
         let lhs = try parseExpression(tokens, startIndex: index, endIndex: endIndex)
         var rhs: (expression: Expression, lastIndex: Int)? = nil
         index = lhs.lastIndex
+        print("Parsed \(lhs.expression), now at token \(tokens[index])")
         switch tokens[index] {
         case "==", "!=", "<=", ">=", "=<", "=>", ">", "<", "<>":
             op = tokens[index]
@@ -790,7 +789,7 @@ class Script {
     }
 
     func parseExpression(tokens: [String], startIndex: Int, endIndex: Int) throws -> (expression: Expression, lastIndex: Int) {
-        print("Parsing Expession at \(tokens[startIndex])")
+        print("Parsing Expression at \(tokens[startIndex])")
         var preop = ""
         var index = startIndex
         if (tokens[index] == "+") || (tokens[index] == "-") {
@@ -833,10 +832,7 @@ class Script {
         print("Parsing Factor at \(tokens[startIndex])")
         var index = startIndex
         let la = lookAhead(tokens, index: index)
-        if la == "(" {  // function call
-            let funcResult = try parseFunc(tokens, startIndex: index, endIndex: endIndex)
-            return (Factor.Func(funcResult.funcRes), funcResult.lastIndex)
-        }
+
         if tokens[index] == "(" { // expression or comparison
             index = try nextToken(index, endIndex: endIndex)
             // It is a comparison if the next token is a "!", or the lookahead is one of the comparison operators
@@ -886,6 +882,10 @@ class Script {
         if let value = Double(tokens[index]) { // is a real?
             index = try nextToken(index, endIndex: endIndex)
             return (Factor.RealNumber(value),index)
+        }
+        if la == "(" {  // function call
+            let funcResult = try parseFunc(tokens, startIndex: index, endIndex: endIndex)
+            return (Factor.Func(funcResult.funcRes), funcResult.lastIndex)
         }
         // Otherwise, assume it is a symbol
         let symb = tokens[index]
