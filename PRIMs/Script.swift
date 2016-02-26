@@ -970,6 +970,7 @@ class Script {
     func step(model: Model) {
         do {
             var stop = false
+            var first = true
             while !stop || env.pc >= env.statements.endIndex {
                 while env.pc >= env.statements.endIndex {
                     if env.loopCondition != nil {
@@ -1060,21 +1061,27 @@ class Script {
                         }
                     }
                 case .Func(let fn):
-                    if let f = scriptFunctions[fn.name] {
-                        var args: [Factor] = []
-                        let argL = fn.arglist
-                        for arg in argL {
-                            args.append(try arg.eval(env, model: model))
-                        }
-                        let (_, done, cont) = try f(args, model)
-                        if !done {
-                            env.pc--
-                        }
-                        stop = !cont
+                    if fn.name.hasPrefix("run") && !first {
+                        env.pc--
+                        stop = true
                     } else {
-                        throw RunTimeError.undefinedFunction(fn.name)
+                        if let f = scriptFunctions[fn.name] {
+                            var args: [Factor] = []
+                            let argL = fn.arglist
+                            for arg in argL {
+                                args.append(try arg.eval(env, model: model))
+                            }
+                            let (_, done, _) = try f(args, model)
+                            if !done {
+                                env.pc--
+                                stop = true
+                            }
+                        } else {
+                            throw RunTimeError.undefinedFunction(fn.name)
+                        }
                     }
                 }
+            first = false
             }
         
         } catch RunTimeError.divisionByZero {

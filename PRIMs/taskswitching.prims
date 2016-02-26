@@ -4,7 +4,6 @@
 define task taskswitching {
     initial-goals: (taskswitching)
     goals: (prepare-next)
-    start-screen: taskswitchstart
     task-constants: (dotask prepare-next)
     lf: 0.2
     egs: 0.05
