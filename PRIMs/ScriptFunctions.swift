@@ -221,12 +221,29 @@ func runStep(content: [Factor], model: Model?) throws -> (result: Factor?, done:
 }
 
 /**
-  Run the model until it takes the action specified
-*/
+ Run the model until it takes the action specified
+ */
 func runUntilAction(var content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool, cont:Bool) {
-    print("Running until action \(content)")
-    content.insert(Factor.RealNumber(-1.0), atIndex: 0)
-    return try runRelativeTimeOrAction(content, model: model)
+    //    content.insert(Factor.RealNumber(-1.0), atIndex: 0)
+    //    return try runRelativeTimeOrAction(content, model: model)
+    model!.newStep()
+    var actionFound = true
+    for i in 0..<content.endIndex {
+        if let action = model!.formerBuffers["action"]?.slotvals["slot\(i+1)"]?.description {
+            if content[i] != Factor.Str(action) {
+                actionFound = false
+            }
+        } else {
+            actionFound = false
+        }
+    }
+    if actionFound  {
+        model!.scenario.nextEventTime = nil
+        return (nil, true, false)
+    } else {
+        return (nil, false, false)
+    }
+    
 }
 
 
