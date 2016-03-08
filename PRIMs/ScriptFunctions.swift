@@ -191,6 +191,8 @@ func shuffle(content: [Factor], model: Model?)  throws -> (result: Factor?, done
 */
  func trialStart(content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool, cont:Bool) {
     model!.startTime = model!.time
+    let dl = DataLine(eventType: "trial-start", eventParameter1: "void", eventParameter2: "void", eventParameter3: "void", inputParameters: model!.scenario.inputMappingForTrace, time:model!.startTime)
+    model!.outputData.append(dl)
     return (nil, true, false)
 }
 

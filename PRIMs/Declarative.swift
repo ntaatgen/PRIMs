@@ -249,8 +249,8 @@ class Declarative  {
     // Mismatch function for operators
     func mismatchOperators(x: Value, _ y: Value) -> Double {
         /* Return similarity if there is one, else return -1*/
-        if (x.description == "x" || x.description == "+" || x.description == "-" || x.description == "/") {
-            if (y.description == "x" || y.description == "+" || y.description == "-" || y.description == "/") {
+        if (x.description == "times" || x.description == "plus" || x.description == "-" || x.description == "/") {
+            if (y.description == "times" || y.description == "plus" || y.description == "-" || y.description == "/") {
                 return -0.5
             }
             return -1
@@ -276,7 +276,7 @@ class Declarative  {
     func mismatchFunction(x: Value, y: Value) -> Double? {
         /* Select the correct mismatch function and return similarity if there is one */
         var mismatch: Double
-        if (x.number() != nil && y.number() != nil) {
+        if (Int(x.description) != nil && Int(y.description) != nil) {
             mismatch = mismatchNumbers(x, y)
         } else {
             mismatch = mismatchOperators(x, y)
@@ -327,7 +327,7 @@ class Declarative  {
         var latency: Double = 0.0
         var retrieveResult: Chunk? = nil
         if partialMatching {
-            (latency, retrieveResult) = partialRetrieve(retrievalQuery, mismatchFunction: mismatchNumbers)
+            (latency, retrieveResult) = partialRetrieve(retrievalQuery, mismatchFunction: mismatchFunction)
         } else {
             (latency, retrieveResult) = retrieve(retrievalQuery)
         }

@@ -31,7 +31,7 @@ class PRScenario {
     var initScript: Script?
     var inputMappingForTrace: [String] {
         get {
-            var mapping: [String] = ["Void","Void","Void","Void","Void"]
+            var mapping: [String] = ["void","void","void","void","void"]
             for i in 0..<5 {
                 let index = "?\(i)"
                 if let value = self.currentInput[index] {
