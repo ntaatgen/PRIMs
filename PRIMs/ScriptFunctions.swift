@@ -22,6 +22,7 @@ let scriptFunctions: [String:([Factor], Model?) throws -> (result: Factor?, done
     "print": printArg,
     "trial-end": trialEnd,
     "trial-start": trialStart,
+    "data-line": dataLine,
     "issue-reward": issueReward,
     "shuffle": shuffle,
     "length": length,
@@ -187,11 +188,13 @@ func shuffle(content: [Factor], model: Model?)  throws -> (result: Factor?, done
 
 /** 
    Starts a trial: adds a line to the data and sets the startTime to the current model time.
+   The first three additional parameters ("content") are added as event parameters.
    Also causes model to pause when stepping
 */
  func trialStart(content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool, cont:Bool) {
     model!.startTime = model!.time
-    let dl = DataLine(eventType: "trial-start", eventParameter1: "void", eventParameter2: "void", eventParameter3: "void", inputParameters: model!.scenario.inputMappingForTrace, time:model!.startTime)
+    var eventParams = [String]()
+    let dl = DataLine(eventType: "trial-start", eventParameter1: eventParams[0], eventParameter2: eventParams[1], eventParameter3: eventParams[2], inputParameters: model!.scenario.inputMappingForTrace, time:model!.startTime)
     model!.outputData.append(dl)
     return (nil, true, false)
 }
@@ -210,6 +213,18 @@ func trialEnd(content: [Factor], model: Model?) throws -> (result: Factor?, done
     model!.outputData.append(dl)
     model!.commitToTrace(false)
     model!.initializeNextTrial()
+    return(nil, true, false)
+}
+
+/**
+ Add a Line to the Data: adds a line to the data with the first three arguments. Max of three arguments will be put in the data.*/
+func dataLine(content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool, cont:Bool) {
+    var eventParams = [String]()
+    for i in 0...2 {
+        eventParams.append(content.count > i ? content[i].description : "void")
+    }
+    let dl = DataLine(eventType: "data-line", eventParameter1: eventParams[0], eventParameter2: eventParams[1], eventParameter3: eventParams[2], inputParameters: model!.scenario.inputMappingForTrace, time: model!.time - model!.startTime)
+    model!.outputData.append(dl)
     return(nil, true, false)
 }
 
