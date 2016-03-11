@@ -108,6 +108,9 @@ func setScreenArray(content: [Factor], model: Model?) throws -> (result: Factor?
     Just pass the contents of the screen as arguments (e.g. screen("one","two").
 */
 func setScreen(content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool, cont: Bool) {
+    if content.count > 0 && content[0].type() == "array" {
+        return try setScreenArray(content, model: model)
+    }
     let screen = PRScreen(name: "run-time")
     let rootObject = PRObject(name: "card", attributes: ["card"], superObject: nil)
     screen.object = rootObject
