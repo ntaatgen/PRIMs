@@ -91,8 +91,7 @@ func setScreenArray(content: [Factor], model: Model?) throws -> (result: Factor?
     for obj in content {
         switch obj {
         case .Arr(let arr):
-            let obj = try createPRObject(arr, sup: rootObject, model: model!)
-            rootObject.subObjects.append(obj)
+            let _ = try createPRObject(arr, sup: rootObject, model: model!)
         default:
             throw RunTimeError.errorInFunction("Wrong argument in screen-array")
         }
@@ -194,10 +193,9 @@ func shuffle(content: [Factor], model: Model?)  throws -> (result: Factor?, done
    The first three additional parameters ("content") are added as event parameters.
    Also causes model to pause when stepping
 */
- func trialStart(content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool, cont:Bool) {
+func trialStart(content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool, cont:Bool) {
     model!.startTime = model!.time
-    var eventParams = [String]()
-    let dl = DataLine(eventType: "trial-start", eventParameter1: eventParams[0], eventParameter2: eventParams[1], eventParameter3: eventParams[2], inputParameters: model!.scenario.inputMappingForTrace, time:model!.startTime)
+    let dl = DataLine(eventType: "trial-start", eventParameter1: "void", eventParameter2: "void", eventParameter3: "void", inputParameters: model!.scenario.inputMappingForTrace, time:model!.startTime)
     model!.outputData.append(dl)
     return (nil, true, false)
 }
