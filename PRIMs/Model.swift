@@ -27,6 +27,7 @@ class Model {
     var buffers: [String:Chunk] = [:]
     var chunkIdCounter = 0
     var running = false
+    var fallingThrough = false
     var startTime: Double = 0.0
     var trace: [(Int,String)] {
         didSet {
@@ -255,11 +256,13 @@ class Model {
         newTask.actions = action.actions
         tasks.append(newTask)
         running = false
+        fallingThrough = false
     }
     
 
     func initializeNewTrial() {
         startTime = time
+        fallingThrough = false
         buffers = [:]
         procedural.reset()
         buffers["goal"] = currentGoals?.copy()
@@ -277,6 +280,7 @@ class Model {
 
     func initializeNextTrial() {
         startTime = time
+        fallingThrough = false
         buffers = [:]
         procedural.reset()
         buffers["goal"] = currentGoals?.copy()
@@ -475,6 +479,7 @@ class Model {
             if !operators.findOperator() {
                 if scenario.nextEventTime == nil {
                     running = false
+                    fallingThrough = true
                     //                    procedural.issueReward(0.0)
                     operators.updateOperatorSjis(0.0)
                     let dl = DataLine(eventType: "trial-end", eventParameter1: "fail", eventParameter2: "void", eventParameter3: "void", inputParameters: scenario.inputMappingForTrace, time: time - startTime)

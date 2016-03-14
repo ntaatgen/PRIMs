@@ -1061,7 +1061,7 @@ class Script {
                         }
                     }
                 case .Func(let fn):
-                    if (fn.name.hasPrefix("run") || fn.name == "trial-end") && !first {
+                    if (fn.name.hasPrefix("run") || fn.name == "trial-end") && !first && !model.fallingThrough {
                         env.pc--
                         stop = true
                     } else {

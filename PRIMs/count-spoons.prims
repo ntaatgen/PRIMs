@@ -105,17 +105,17 @@ define goal say-answer {
 
 define script {
     screen(["placemat","one",
-            ["item","fork"],
-            ["item","fork"],
-            ["item","plate"],
-            ["item","knife"],
-            ["item","spoon"]],
+                ["item","fork"],
+                ["item","fork"],
+                ["item","plate"],
+                ["item","knife"],
+                ["item","spoon"]],
             ["placemat","two",
-            ["item","fork"],
-            ["item","plate"],
-            ["item","knife"],
-            ["item","spoon"],
-            ["item","spoon"]])
+                ["item","fork"],
+                ["item","plate"],
+                ["item","knife"],
+                ["item","spoon"],
+                ["item","spoon"]])
     run-until-action("say")
     issue-reward()
     trial-end()
