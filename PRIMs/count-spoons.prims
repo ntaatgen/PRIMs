@@ -6,7 +6,6 @@ define task count-spoons {
     goals: (countgoal)
     task-constants: (item spoon placemat)
     imaginal-autoclear: nil
-    start-screen: start
     rt: -2.0
     lf: 0.3
     ans: 0.1
@@ -27,7 +26,7 @@ define goal count-all {
         WM1=nil
         V1=placemat
         ==>
-        focusdown->AC1
+        focus-down->AC1
         countgoal->G3
     }
 
@@ -35,7 +34,7 @@ define goal count-all {
         V1=item
         V2=error
         ==>
-        focusup->AC1
+        focus-up->AC1
     }
 
     operator count-all-focus-down-next-container {
@@ -43,7 +42,7 @@ define goal count-all {
         V1=placemat
         V2<>error
         ==>
-        focusdown->AC1
+        focus-down->AC1
         countgoal->G3
     }
 
@@ -77,14 +76,14 @@ define goal countgoal {
         V2=spoon
         ==>
         RT3->WM1
-        focusnext->AC1
+        focus-next->AC1
     }
 
     operator countgoal-ignore-non-targets {
         V1=item
         V2<>spoon
         ==>
-        focusnext->AC1
+        focus-next->AC1
     }
 
     operator countgoal-done {
@@ -104,22 +103,20 @@ define goal say-answer {
     }
 }
 
-define screen start {
-  ( placemat one
-   ( item fork)
-   ( item fork)
-   ( item plate)
-   ( item knife)
-   ( item spoon))
-  ( placemat two
-   ( item fork)
-   ( item plate)
-   ( item knife)
-   ( item spoon)
-   ( item spoon))
+define script {
+    screen(["placemat","one",
+                ["item","fork"],
+                ["item","fork"],
+                ["item","plate"],
+                ["item","knife"],
+                ["item","spoon"]],
+            ["placemat","two",
+                ["item","fork"],
+                ["item","plate"],
+                ["item","knife"],
+                ["item","spoon"],
+                ["item","spoon"]])
+    run-until-action("say")
+    issue-reward()
+    trial-end()
 }
-
-define goal-action {
-(say three)
-}
-

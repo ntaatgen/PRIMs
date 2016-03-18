@@ -125,7 +125,7 @@ define goal prepare-next {
 
 define facts {
 
-    (cf1 count-fact  one  two) // count-facts. They receive a fixed activation for now
+    (cf1 count-fact  one  two)
     (cf2 count-fact  two  three)
     (foodtask foodtask)
     (sizetask sizetask)

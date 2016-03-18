@@ -43,7 +43,8 @@ define goal count {
     V2 = WM1
    ==>
     say -> AC1
-    stop -> AC2
+ //   stop -> AC2
+    nil -> V2
     stop -> G1
   }
 

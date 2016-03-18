@@ -91,8 +91,7 @@ func setScreenArray(content: [Factor], model: Model?) throws -> (result: Factor?
     for obj in content {
         switch obj {
         case .Arr(let arr):
-            let obj = try createPRObject(arr, sup: rootObject, model: model!)
-            rootObject.subObjects.append(obj)
+            let _ = try createPRObject(arr, sup: rootObject, model: model!)
         default:
             throw RunTimeError.errorInFunction("Wrong argument in screen-array")
         }
@@ -109,6 +108,9 @@ func setScreenArray(content: [Factor], model: Model?) throws -> (result: Factor?
     Just pass the contents of the screen as arguments (e.g. screen("one","two").
 */
 func setScreen(content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool, cont: Bool) {
+    if content.count > 0 && content[0].type() == "array" {
+        return try setScreenArray(content, model: model)
+    }
     let screen = PRScreen(name: "run-time")
     let rootObject = PRObject(name: "card", attributes: ["card"], superObject: nil)
     screen.object = rootObject
@@ -191,7 +193,7 @@ func shuffle(content: [Factor], model: Model?)  throws -> (result: Factor?, done
    The first three additional parameters ("content") are added as event parameters.
    Also causes model to pause when stepping
 */
- func trialStart(content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool, cont:Bool) {
+func trialStart(content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool, cont:Bool) {
     model!.startTime = model!.time
     var eventParams = [String]()
     for i in 0...2 {
@@ -212,8 +214,10 @@ func trialEnd(content: [Factor], model: Model?) throws -> (result: Factor?, done
     }
 //    model!.running = false
     model!.resultAdd(model!.time - model!.startTime)
-    let dl = DataLine(eventType: "trial-end", eventParameter1: "success", eventParameter2: "void", eventParameter3: "void", inputParameters: model!.scenario.inputMappingForTrace, time: model!.time - model!.startTime)
-    model!.outputData.append(dl)
+    if model!.running {
+        let dl = DataLine(eventType: "trial-end", eventParameter1: "success", eventParameter2: "void", eventParameter3: "void", inputParameters: model!.scenario.inputMappingForTrace, time: model!.time - model!.startTime)
+        model!.outputData.append(dl)
+    }
     model!.commitToTrace(false)
     model!.initializeNextTrial()
     return(nil, true, false)
@@ -228,13 +232,14 @@ func dataLine(content: [Factor], model: Model?) throws -> (result: Factor?, done
     }
     let dl = DataLine(eventType: "data-line", eventParameter1: eventParams[0], eventParameter2: eventParams[1], eventParameter3: eventParams[2], inputParameters: model!.scenario.inputMappingForTrace, time: model!.time - model!.startTime)
     model!.outputData.append(dl)
-    return(nil, true, false)
+    return(nil, true, true)
 }
 
 /**
   Run the model a single step
 */
 func runStep(content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool, cont:Bool) {
+    if model!.fallingThrough { return(nil, true, true) }
     model!.newStep()
     print("Running a step")
     return (nil, true, false)
@@ -246,6 +251,7 @@ func runStep(content: [Factor], model: Model?) throws -> (result: Factor?, done:
 func runUntilAction(var content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool, cont:Bool) {
     //    content.insert(Factor.RealNumber(-1b.0), atIndex: 0)
     //    return try runRelativeTimeOrAction(content, model: model)
+    if model!.fallingThrough { return(nil, true, true) }
     model!.newStep()
     var actionFound = true
     for i in 0..<content.endIndex {
@@ -274,6 +280,7 @@ func runUntilAction(var content: [Factor], model: Model?) throws -> (result: Fac
 */
 func runRelativeTimeOrAction(content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool, cont:Bool) {
     guard content.endIndex >= 1 else { throw RunTimeError.invalidNumberOfArguments }
+    if model!.fallingThrough { return(nil, true, true) }
     if model!.scenario.nextEventTime == nil {
         var time: Double
         switch content[0] {
@@ -320,6 +327,7 @@ func runRelativeTimeOrAction(content: [Factor], model: Model?) throws -> (result
  */
 func runAbsoluteTimeOrAction(content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool, cont:Bool) {
     guard content.endIndex >= 1 else { throw RunTimeError.invalidNumberOfArguments }
+    if model!.fallingThrough { return(nil, true, true) }
     if model!.scenario.nextEventTime == nil {
         var time: Double
         switch content[0] {

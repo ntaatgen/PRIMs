@@ -84,25 +84,29 @@ define facts {
  (j j)
 }
 
+define action say {
+    latency: 0.3
+    noise: 0.1
+    distribution: uniform
+    output: Saying
+}
+
+
 define script {
     spans = [3, 4, 5, 6]
     letters = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"]
-    i = 0
-    while (i < 4) {
-        print("Testing span",spans[i])
+    for span in spans {
+        print("Testing span",span)
         trial-start()
-        j = 0
-        while (j < spans[i]) {
+        for i in 0 to span {
             screen("letter",letters[random(10)])
             run-relative-time(2.0)
-            j = j + 1
         }
         screen("report")
         run-until-action("say", "stop")
         issue-reward()
         trial-end()
         sleep(5)
-        i = i + 1
     }
 }
 
