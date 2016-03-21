@@ -195,11 +195,7 @@ func shuffle(content: [Factor], model: Model?)  throws -> (result: Factor?, done
 */
 func trialStart(content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool, cont:Bool) {
     model!.startTime = model!.time
-    var eventParams = [String]()
-    for i in 0...2 {
-        eventParams.append(content.count > i ? content[i].description : "void")
-    }
-    let dl = DataLine(eventType: "trial-start", eventParameter1: eventParams[0], eventParameter2: eventParams[1], eventParameter3: eventParams[2], inputParameters: model!.scenario.inputMappingForTrace, time:model!.startTime)
+    let dl = DataLine(eventType: "trial-start", eventParameter1: "void", eventParameter2: "void", eventParameter3: "void", inputParameters: model!.scenario.inputMappingForTrace, time:model!.startTime)
     model!.outputData.append(dl)
     return (nil, true, false)
 }
@@ -249,7 +245,7 @@ func runStep(content: [Factor], model: Model?) throws -> (result: Factor?, done:
  Run the model until it takes the action specified
  */
 func runUntilAction(var content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool, cont:Bool) {
-    //    content.insert(Factor.RealNumber(-1b.0), atIndex: 0)
+    //    content.insert(Factor.RealNumber(-1.0), atIndex: 0)
     //    return try runRelativeTimeOrAction(content, model: model)
     if model!.fallingThrough { return(nil, true, true) }
     model!.newStep()

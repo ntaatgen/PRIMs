@@ -249,8 +249,8 @@ class Declarative  {
     // Mismatch function for operators
     func mismatchOperators(x: Value, _ y: Value) -> Double {
         /* Return similarity if there is one, else return -1*/
-        if (x.description == "times" || x.description == "plus" || x.description == "-" || x.description == "/") {
-            if (y.description == "times" || y.description == "plus" || y.description == "-" || y.description == "/") {
+        if (x.description == "times" || x.description == "plus" || x.description == "minus" || x.description == "divided-by") {
+            if (y.description == "times" || y.description == "plus" || y.description == "minus" || y.description == "divided-by") {
                 return -0.5
             }
             return -1
