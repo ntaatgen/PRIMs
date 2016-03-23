@@ -142,24 +142,24 @@ define script {
     i = 0
     foods = ["vegetable","fruit"]
     sizes = ["large","small"]
-    while (i < 8) {
+    for i in 0 to 7 {
         screen("fixation")
         run-relative-time(1.0)
         screen("stimulus")
         run-until-action("attend")
         action = last-action()
         choice = random(2)
-        if (action[1] == "food") {
-            print("Looking at food")
-            cat = foods[choice]
-            screen("stimulus",cat)
-            i = i + 1
-        }
-        if (action[1] == "size") {
-            print("Looking at size")
-            cat = sizes[choice]
-            screen("stimulus",cat)
-            i = i + 1
+        if (action[0] == "attend") {
+            if (action[1] == "food") {
+                print("Looking at food")
+                cat = foods[choice]
+                screen("stimulus",cat)
+            }
+            if (action[1] == "size") {
+                print("Looking at size")
+                cat = sizes[choice]
+                screen("stimulus",cat)
+            }
         }
         run-until-action("press")
     }

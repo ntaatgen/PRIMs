@@ -153,7 +153,7 @@ class Declarative  {
             for (_,val) in chunk.slotvals {
                 switch val {
                 case .Symbol(let refChunk):
-                    refChunk.fan++
+                    refChunk.fan += 1
                 default: break
                 }
             }
@@ -176,7 +176,7 @@ class Declarative  {
             for (_,val) in chunk.slotvals {
                 switch val {
                 case .Symbol(let refChunk):
-                    refChunk.fan++
+                    refChunk.fan += 1
                 default: break
                 }
             }

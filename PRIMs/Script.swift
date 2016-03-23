@@ -532,7 +532,7 @@ class Script {
         var nextIndex = startIndex
         while nextIndex != input.endIndex {
             if a(input, index: nextIndex, char: " ") || a(input, index: nextIndex, char: "\n") || a(input, index: nextIndex, char: "\t") {
-                nextIndex++
+                nextIndex = nextIndex.successor()
             } else {
                 break
             }
@@ -897,7 +897,7 @@ class Script {
         print("Parsing Function call at \(tokens[startIndex])")
         var index = startIndex
         let funcName = tokens[index]
-        index++ // we already know there is "(" there from the check in the call
+        index += 1 // we already know there is "(" there from the check in the call
         index = try nextToken(index, endIndex:  endIndex) // Now we are at the first argument (or the closing parenthesis)
         var args: [Expression] = []
         while tokens[index] != ")" {
@@ -993,7 +993,8 @@ class Script {
                         return
                     }
                 }
-                let cur = env.statements[env.pc++]
+                let cur = env.statements[env.pc]
+                env.pc += 1
                 switch cur {
                 case .Assign(let assign):
                     let value = try assign.rhs.eval(env, model: model)
@@ -1062,7 +1063,7 @@ class Script {
                     }
                 case .Func(let fn):
                     if (fn.name.hasPrefix("run") || fn.name == "trial-end") && !first && !model.fallingThrough {
-                        env.pc--
+                        env.pc -= 1
                         stop = true
                     } else {
                         if let f = scriptFunctions[fn.name] {
@@ -1073,7 +1074,7 @@ class Script {
                             }
                             let (_, done, _) = try f(args, model)
                             if !done {
-                                env.pc--
+                                env.pc -= 1
                                 stop = true
                             }
                         } else {

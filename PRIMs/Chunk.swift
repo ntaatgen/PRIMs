@@ -258,7 +258,7 @@ class Chunk: CustomStringConvertible {
 //                    if valchunk.sji(self) != 0.0 {
 //                        println("Buffer \(bufferName) slot \(value.description) to \(self.name) spreading \(valchunk.sji(self))")
 //                    }
-                    totalSlots++
+                    totalSlots += 1
                 default:
                     break
                 }

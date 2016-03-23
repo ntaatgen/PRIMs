@@ -94,7 +94,7 @@ class BatchRun {
                     var j = 0
                     let startTime = self.model.time
                     while (!stopByTime && j < Int(endCriterium!)) || (stopByTime && (self.model.time - startTime) < endCriterium!) {
-                        j++
+                        j += 1
 //                    for j in 0..<numberOfTrials! {
                         print("Trial #\(j)")
                         self.model.run()

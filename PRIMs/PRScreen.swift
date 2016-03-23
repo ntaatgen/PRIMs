@@ -73,7 +73,7 @@ class PRScreen {
      */
     func focusNext() {
         if currentParentObject != nil {
-            currentParentObject!.attended++
+            currentParentObject!.attended += 1
         }
         if let obj = currentAttendedObject {
             obj.attend()
@@ -107,7 +107,7 @@ class PRScreen {
         }
         var i = 0
         while i < currentParentObject!.subObjects.count && currentParentObject!.subObjects[i].selfAttended {
-            i++
+            i += 1
         }
         currentParentObject!.attended = i
         if let obj = currentAttendedObject {
@@ -125,7 +125,7 @@ class PRScreen {
         var sum = 0  // How many unattended object are there?
         for obj in currentParentObject!.subObjects {
             if !obj.selfAttended {
-                sum++
+                sum += 1
             }
         }
         if sum == 0 {
@@ -135,11 +135,11 @@ class PRScreen {
         var randomPos = Int(arc4random_uniform(UInt32(sum))) // Pick a random object
         var i = -1
         repeat {
-            i++
+            i += 1
             while currentParentObject!.subObjects[i].selfAttended { // find the next unattended object
-                i++
+                i += 1
             }
-            randomPos--
+            randomPos -= 1
         } while randomPos > 0
         currentParentObject!.attended = i
         if let obj = currentAttendedObject {

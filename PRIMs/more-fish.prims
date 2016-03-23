@@ -6,7 +6,6 @@ define task more-fish {
     goals: (countgoal)
     task-constants: (fish red acquarium)
     imaginal-autoclear: nil
-    start-screen: start
     rt: -2.0
     lf: 0.3
     ans: 0.1
@@ -131,25 +130,21 @@ define goal say-answer {
     }
 }
 
-define screen start {
 
-   ( acquarium left
-     ( fish red)
-     ( fish blue)
-     ( fish red)
-     ( fish red)
-)
-( acquarium right
-( fish red)
-( fish blue)
-( fish green)
-( fish red)
-)
-}
-
-define goal-action {
-(say left)
-}
-
+define script {
+	screen(["acquarium","left",
+			["fish","red"],
+			["fish","blue"],
+			["fish","red"],
+			["fish","red"]],
+		   ["acquarium","right",
+			["fish","red"],
+			["fish","blue"],
+			["fish","green"],
+			["fish","red"]])
+	run-until-action("say")
+	issue-reward()
+	trial-end()
+}	
 
 

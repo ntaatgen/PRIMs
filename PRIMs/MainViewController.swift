@@ -682,9 +682,9 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
  
     override func viewDidLoad() {
         super.viewDidLoad()
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: "updatePrimGraph", name: "UpdatePrimGraph", object: nil)
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: "updateProgressBar", name: "progress", object: nil)
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: "respondToOpenFile:", name: "openFile", object: nil)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(MainViewController.updatePrimGraph), name: "UpdatePrimGraph", object: nil)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(MainViewController.updateProgressBar), name: "progress", object: nil)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(MainViewController.respondToOpenFile(_:)), name: "openFile", object: nil)
         
     }
 

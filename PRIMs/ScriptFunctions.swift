@@ -61,11 +61,11 @@ func createPRObject(f: ScriptArray, sup: PRObject?, model: Model) throws -> PROb
             attributes.append(String(num))
         case .Arr:
             done = true
-            i--
+            i -= 1
         default:
             throw RunTimeError.errorInFunction("Invalid Screen definition")
         }
-        i++
+        i += 1
     }
     let obj = PRObject(name: model.generateName(name), attributes: attributes, superObject: sup)
     while (i < f.elements.count) {
@@ -75,7 +75,7 @@ func createPRObject(f: ScriptArray, sup: PRObject?, model: Model) throws -> PROb
         default:
             throw RunTimeError.errorInFunction("Invalid Screen definition")
         }
-        i++
+        i += 1
     }
     return obj
 }
@@ -244,12 +244,15 @@ func runStep(content: [Factor], model: Model?) throws -> (result: Factor?, done:
 /**
  Run the model until it takes the action specified
  */
-func runUntilAction(var content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool, cont:Bool) {
+func runUntilAction(content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool, cont:Bool) {
     //    content.insert(Factor.RealNumber(-1.0), atIndex: 0)
     //    return try runRelativeTimeOrAction(content, model: model)
     if model!.fallingThrough { return(nil, true, true) }
     model!.newStep()
     var actionFound = true
+    if model!.formerBuffers["action"] == nil {
+        actionFound = false
+    }
     for i in 0..<content.endIndex {
         if let action = model!.formerBuffers["action"]?.slotvals["slot\(i+1)"]?.description {
             if content[i] != Factor.Str(action) {
@@ -402,7 +405,7 @@ func lastAction(content: [Factor], model: Model?) throws -> (result: Factor?, do
         var i = 1
         while (action.slotvals["slot\(i)"] != nil) {
             result.append(Expression(preop: "", firstTerm: Term(factor: Factor.Str(action.slotvals["slot\(i)"]!.description), op: "", term: nil), op: "", secondTerm: nil))
-            i++
+            i += 1
         }
     } else {
         result.append(generateFactorExpression(Factor.Str("")))

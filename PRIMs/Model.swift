@@ -423,12 +423,13 @@ class Model {
         if action == nil { return false }
         var count = 1
         for value in scenario.goalAction {
-            if let actionValue = action!.slotvals["slot\(count++)"] {
+            if let actionValue = action!.slotvals["slot\(count)"] {
                 let compareValue = scenario.currentInput[value] ?? value  // if value is a variable, make substitution
                 if actionValue.description != compareValue { return false }
             } else {
                 return false
             }
+            count += 1
         }
         return true
     }
@@ -678,7 +679,8 @@ class Model {
     }
     
     func generateName(s1: String = "chunk") -> String {
-        return s1 + "\(chunkIdCounter++)"
+        chunkIdCounter += 1
+        return s1 + "\(chunkIdCounter - 1)"
     }
     
     func generateNewChunk(s1: String = "chunk") -> Chunk {

@@ -38,7 +38,7 @@ class Operator {
             if !newList.contains(prim) {
                 return count
             }
-            count++
+            count += 1
         }
         return count
     }
@@ -117,7 +117,7 @@ class Operator {
                 operatorChunk.assocs[goalChunk!.name] = (0.0, 0)
             }
             operatorChunk.assocs[goalChunk!.name]!.0 += model.dm.beta * (opReward - operatorChunk.assocs[goalChunk!.name]!.0)
-            operatorChunk.assocs[goalChunk!.name]!.1++
+            operatorChunk.assocs[goalChunk!.name]!.1 += 1
             operatorChunk.addReference() // Also increase baselevel activation of the operator
             model.addToTrace("Updating assoc between \(goalChunk!.name) and \(operatorChunk.name) to \(operatorChunk.assocs[goalChunk!.name]!)", level: 5)
         }

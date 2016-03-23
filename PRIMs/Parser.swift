@@ -142,7 +142,8 @@ class Parser  {
                 } else {
                     m.dm.chunks[goal!]!.definedIn.append(taskNumber)
                 }
-                chunk.setSlot("slot\(slotCount++)", value: goal!)
+                chunk.setSlot("slot\(slotCount)", value: goal!)
+                slotCount += 1
                 m.addToTraceField("Task has goal \(goal!)")
                 
             }
@@ -190,7 +191,8 @@ class Parser  {
                     return false
                 }
                 globalVariableMapping[goal!] = slotCount
-                chunk.setSlot("slot\(slotCount++)", value: goal!)
+                chunk.setSlot("slot\(slotCount)", value: goal!)
+                slotCount += 1
                 m.addToTraceField("Task has constant \(goal!)")
             }
             m.currentGoalConstants = chunk
@@ -421,7 +423,8 @@ class Parser  {
                                 } else if let localIndex = localVariableMapping[component] {
                                     prim += "C\(localIndex)"
                                 } else {
-                                    localVariableMapping[component] = ++constantSlotCount
+                                    constantSlotCount += 1
+                                    localVariableMapping[component] = constantSlotCount
                                     prim += "C\(constantSlotCount)"
                                     chunk.setSlot("slot\(constantSlotCount)", value: component)
                                 }
@@ -440,7 +443,8 @@ class Parser  {
                         } else if let localIndex = localVariableMapping[component] {
                             prim += "C\(localIndex)"
                         } else {
-                            localVariableMapping[component] = ++constantSlotCount
+                            constantSlotCount += 1
+                            localVariableMapping[component] = constantSlotCount
                             prim += "C\(constantSlotCount)"
                             chunk.setSlot("slot\(constantSlotCount)", value: component)
                         }
@@ -524,12 +528,14 @@ class Parser  {
                         chunk =  Chunk(s: slotValue!, m: m)
                         chunk!.setSlot("isa", value: "fact")
                         chunk!.fixedActivation = defaultActivation
-                        slotindex++
+                        slotindex += 1
                     } else {
                         if m.dm.chunks[slotValue!] != nil {
-                            chunk!.setSlot("slot\(slotindex++)", value: slotValue!)
+                            chunk!.setSlot("slot\(slotindex)", value: slotValue!)
+                            slotindex += 1
                         } else if slotValue! == chunk!.name {
-                            chunk!.setSlot("slot\(slotindex++)", value:  chunk!)
+                            chunk!.setSlot("slot\(slotindex)", value:  chunk!)
+                            slotindex += 1
                         } else {
                             let extraChunk = Chunk(s: slotValue!, m: m)
                             extraChunk.setSlot("isa", value: "fact")
@@ -537,7 +543,8 @@ class Parser  {
                             extraChunk.fixedActivation = defaultActivation
                             m.dm.addToDM(extraChunk)
                             m.addToTraceField("Adding undefined fact \(extraChunk.name) as default chunk")
-                            chunk!.setSlot("slot\(slotindex++)", value: slotValue!)
+                            chunk!.setSlot("slot\(slotindex)", value: slotValue!)
+                            slotindex += 1
                         }
                     }
                 }
@@ -704,9 +711,11 @@ class Parser  {
                     m.addToTraceField("Unexpected end of file in input defintion")
                     return false
                 }
-                mapping["?\(slotindex++)"] = value!
+                mapping["?\(slotindex)"] = value!
+                slotindex += 1
             }
-            m.scenario.inputs["task\(inputCount++)"] = mapping
+            m.scenario.inputs["task\(inputCount)"] = mapping
+            inputCount += 1
             m.addToTraceField("Reading input \(mapping)")
         }
         return true
@@ -761,10 +770,10 @@ class Parser  {
                 script += s!
             }
             if scanner.scanString("{") != nil  {
-                braceCount++
+                braceCount += 1
                 script += "{"
             } else if scanner.scanString("}") != nil {
-                braceCount--                
+                braceCount -= 1                
                 if braceCount > 0 {
                     script += "}"
                 }

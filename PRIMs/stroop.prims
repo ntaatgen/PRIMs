@@ -150,3 +150,28 @@ define inputs {
     (conflict1 stim red-color blue-word red)
     (conflict2 stim blue-color red-word blue)
 }
+
+define script {
+	trials = [["red-color","red-word","consistent"],
+			  ["blue-color","blue-word","consistent"],
+			  ["red-color","blue-word","conflict"],
+			  ["blue-color","red-word","conflict"]]
+	for trial in trials {
+		set-data-file-field(1, trial[2])
+		screen("fixation")
+		run-relative-time(1.0)
+		screen("stim")
+		run-until-action()
+		ac = last-action()
+		if (ac[0] == "attend") {
+			screen("stim", trial[0], trial[1])
+		} else {
+			screen("stim", trial[0])
+		}
+		run-until-action("say")
+		issue-reward()
+		trial-end()
+	}
+}
+
+			  
