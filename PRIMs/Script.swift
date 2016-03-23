@@ -57,7 +57,7 @@ class Funcall: CustomStringConvertible {
             for arg in arglist {
                 args.append(try arg.eval(env, model: model))
             }
-            let (result, _, _) = try f(args, model)
+            let (result, _) = try f(args, model)
             guard result != nil else {throw RunTimeError.errorInFunction("Function does not produce a result") }
             return result!
         } else {
@@ -1072,7 +1072,7 @@ class Script {
                             for arg in argL {
                                 args.append(try arg.eval(env, model: model))
                             }
-                            let (_, done, _) = try f(args, model)
+                            let (_, done) = try f(args, model)
                             if !done {
                                 env.pc -= 1
                                 stop = true

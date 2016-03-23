@@ -55,6 +55,11 @@ class Imaginal {
                 return 0.0
             }
         }
+        for (slot,value) in newImaginal.slotvals {
+            if value.description == "nil" {
+                newImaginal.slotvals[slot] = nil
+            }
+        }
         newImaginal.setSlot("isa", value: "fact")
         model.buffers["imaginal"] = newImaginal
         model.addToTrace("New imaginal chunk \(newImaginal.name)  (latency = \(imaginalLatency))", level: 2)
