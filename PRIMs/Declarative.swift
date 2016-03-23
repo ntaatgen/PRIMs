@@ -249,8 +249,8 @@ class Declarative  {
     // Mismatch function for operators
     func mismatchOperators(x: Value, _ y: Value) -> Double {
         /* Return similarity if there is one, else return -1*/
-        if (x.description == "times" || x.description == "plus" || x.description == "-" || x.description == "/") {
-            if (y.description == "times" || y.description == "plus" || y.description == "-" || y.description == "/") {
+        if (x.description == "times" || x.description == "plus" || x.description == "minus" || x.description == "divided-by") {
+            if (y.description == "times" || y.description == "plus" || y.description == "minus" || y.description == "divided-by") {
                 return -0.5
             }
             return -1
@@ -263,10 +263,10 @@ class Declarative  {
     func mismatchNumbers(x: Value, _ y: Value) -> Double {
         /* Return similarity if there is one, else return -1
         Similarity is calculated by dividing the smallest number by the largest number.*/
-        if (x.number() != nil) && (y.number() != nil)  {
-            let maxValue = max(x.number()!, y.number()!)
-            let minValue = min(x.number()!, y.number()!)
-            return maxValue == 0.0 ? 0 : (minValue / maxValue - 1)
+        if (Int(x.description) != nil && Int(y.description) != nil)  {
+            let maxValue = max(Double(x.description)!, Double(y.description)!)
+            let minValue = min(Double(x.description)!, Double(y.description)!)
+            return maxValue == 0.0 ? (minValue / (maxValue + 0.0001)) : (minValue / maxValue - 1)
         } else {
             return -1
         }
@@ -276,7 +276,9 @@ class Declarative  {
     func mismatchFunction(x: Value, y: Value) -> Double? {
         /* Select the correct mismatch function and return similarity if there is one */
         var mismatch: Double
-        if (Int(x.description) != nil && Int(y.description) != nil) {
+        if (x.description == y.description) {
+            mismatch = 0
+        } else if (Double(x.description) != nil && Double(y.description) != nil) {
             mismatch = mismatchNumbers(x, y)
         } else {
             mismatch = mismatchOperators(x, y)
