@@ -143,12 +143,11 @@ class Operator {
             model.addToTrace("  \(chunk.name) A = \(activation)", level: 5)
         }
             var match = false
-            var candidate: Chunk
-            var activation: Double
-        
+        var candidate: Chunk = Chunk(s: "empty", m: model)
+        var activation: Double = 0.0
+        if !cfs.isEmpty {
             repeat {
                 (candidate, activation) = cfs.removeAtIndex(0)
-//                let savedBuffers = model.buffers
                 model.buffers["operator"] = candidate.copy()
                 let inst = model.procedural.findMatchingProduction()
                 match = model.procedural.fireProduction(inst, compile: false)
@@ -156,15 +155,18 @@ class Operator {
                     match = false
                     model.addToTrace("   Rejected operator \(candidate.name) because it has no associations and no production that tests all conditions", level: 2)
                 }
-//                model.buffers = savedBuffers
                 model.buffers["operator"] = nil
             } while !match && !cfs.isEmpty && cfs[0].1 > model.dm.retrievalThreshold
-            if match {
-                opRetrieved = candidate
-                latency = model.dm.latency(activation)
-            } else {
-                opRetrieved = nil
-                latency = model.dm.latency(model.dm.retrievalThreshold)
+        } else {
+            match = false
+            model.addToTrace("   No matching operator found", level: 2)
+        }
+        if match {
+            opRetrieved = candidate
+            latency = model.dm.latency(activation)
+        } else {
+            opRetrieved = nil
+            latency = model.dm.latency(model.dm.retrievalThreshold)
             }
         model.time += latency
         if opRetrieved == nil { return false }

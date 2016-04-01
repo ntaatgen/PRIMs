@@ -94,7 +94,9 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
     
     @IBAction func clearGraph(sender: NSButton) {
         model.clearResults()
-        model.newResult()
+        if model.currentTaskIndex != nil {
+            model.newResult()
+        }
         updateAllViews()
     }
     
