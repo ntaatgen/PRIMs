@@ -4,11 +4,12 @@
 
 define task addition {
     initial-goals: (countnumbers)
-    goals: (giveanswer)
-    task-constants: (addition count-fact count-fact giveanswer)
-    start-screen: add
+    goals: (give-answer)
+    task-constants: (addition count-fact give-answer)
     imaginal-autoclear: nil
     default-activation: 1.0
+	goal-operator-learning: t
+	reward: 10.0
 }
 
 
@@ -21,7 +22,7 @@ define goal countnumbers {
         V1->WM2
         zero->WM3
         V1->WM4
-        GC2->RT1
+        count-fact -> RT1
         V1->RT2
     }
 
@@ -29,7 +30,7 @@ define goal countnumbers {
         WM4=RT2
         ==>
         RT3->WM4
-        GC3->RT1
+        count-fact -> RT1
         WM3->RT2
     }
 
@@ -38,7 +39,7 @@ define goal countnumbers {
         RT3<>V2
         ==>
         RT3->WM3
-        GC2->RT1
+        count-fact -> RT1
         WM4->RT2
     }
 
@@ -47,14 +48,15 @@ define goal countnumbers {
         RT3=V2
         ==>
         RT3->WM3
-        giveanswer->G1
+        give-answer->G2
     }
 
 }
 
-define goal giveanswer {
+define goal give-answer {
     operator say-sum {
-        WM3<>nil
+    	G2=give-answer
+        WM4<>nil
     ==>
         say->AC1
         WM4->AC2
@@ -73,19 +75,16 @@ define facts {
     (cf6  count-fact  six  seven :activation 3.0)
     (cf7  count-fact  seven  eight :activation 3.0)
     (cf8  count-fact  eight  nine :activation 3.0)
+    (cf9  count-fact  nine  ten :activation 3.0)
 }
 
-define inputs {
-(two three five)
-(one two three)
-(four two six)
+define script {
+	digits = ["zero","one","two","three","four","five","six","seven","eight","nine","ten"]
+    num1 = random(4) + 1
+    num2 = random(4) + 1
+    print("Adding",digits[num1],"and",digits[num2])
+    screen(digits[num1],digits[num2])
+    run-until-action("say")
+    issue-reward()
+    trial-end()
 }
-
-define screen add {
-(?0 ?1)
-}
-
-define goal-action {
-(say ?2)
-}
-

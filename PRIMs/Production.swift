@@ -124,17 +124,17 @@ class Production: CustomStringConvertible {
         return nil        
     }
     
-    func testFire() -> Bool {
+    func testFire() -> (Bool, Prim?) {
         if op != nil {
             model.buffers["operator"] = op!.copy()
         }
         for bc in conditions {
             if !bc.fire() { // println("\(bc) does not match")
-                return false } // one of the conditions does not match
+                return (false, bc) } // one of the conditions does not match
         }
         for ac in actions {
             if !ac.testFire() {
-                return false
+                return (false, ac)
             }
         }
         if newCondition != nil {
@@ -143,7 +143,7 @@ class Production: CustomStringConvertible {
             model.buffers["operator"]!.slotvals["condition"] = nil
         }
 
-        return true
+        return (true, nil)
     }
     
     /**
@@ -151,17 +151,17 @@ class Production: CustomStringConvertible {
     
     - returns:  Whether execution was successful
     */
-    func fire() -> Bool {
+    func fire() -> (Bool, Prim?) {
 //        if op != nil {
 //            model.buffers["operator"] = op!.copy()
 //        }
         for bc in conditions {
             if !bc.fire() { // println("\(bc) does not match")
-                return false } // one of the conditions does not match
+                return (false, bc) } // one of the conditions does not match
         }
         for ac in actions {
             if !ac.fire() { // println("\(ac) does not execute")
-                return false } // an action cannot be executed because its lhs is nil
+                return (false, ac) } // an action cannot be executed because its lhs is nil
         }
         if newCondition != nil {
             model.buffers["operator"]!.setSlot("condition", value: newCondition!)
@@ -173,7 +173,7 @@ class Production: CustomStringConvertible {
         } else {
             model.buffers["operator"]!.slotvals["action"] = nil
         }
-        return true
+        return (true, nil)
     }
     
 }

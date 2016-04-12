@@ -1,5 +1,8 @@
 // First example model: counting
 // Adapted from the ACT-R tutorial by Niels Taatgen
+// This is an example of an experiment feature in PRIMs: declarative buffer stuffing
+// Whenever the retrieval buffer is empty, it will be stuffed with the most active fact in memory
+
 
 define task count {
   initial-goals: (count) // In this example the task and the goal are the same

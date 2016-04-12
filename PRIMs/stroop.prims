@@ -12,7 +12,7 @@ define task stroop {
     default-activation: 1.0
     input-activation: 1.0
     default-operator-assoc: 8.0
-    default-inter-operator-assoc: 2.0
+    default-inter-operator-assoc: 4.0
     goal-operator-learning: t
     beta: 0.05
     reward: 10.0
@@ -118,37 +118,6 @@ define sji {
     (blue-color blue-color-assoc 1.5)(blue-color red-color-assoc -1.5)
 }
 
-define screen stroop-start {
-(fixation)
-}
-
-define screen stimulus {
-(stim)
-}
-
-define screen allproperties {
-(stim ?2 ?3)
-}
-
-define screen colorproperty {
-(stim ?2)
-}
-
-transition(stroop-start,stimulus) = absolute-time(1.0)
-transition(stimulus,allproperties) = action(attend)
-transition(stimulus,colorproperty) = action(attendcolor)
-
-define goal-action {
-(say ?4)
-
-}
-
-define inputs {
-    (consistent1 stim red-color red-word red)
-    (consistent2 stim blue-color blue-word blue)
-    (conflict1 stim red-color blue-word red)
-    (conflict2 stim blue-color red-word blue)
-}
 
 define script {
 	trials = [["red-color","red-word","consistent"],
@@ -157,6 +126,7 @@ define script {
 			  ["blue-color","red-word","conflict"]]
 	for trial in trials {
 		set-data-file-field(1, trial[2])
+		print("Presenting", trial[2], "with", trial[0], "and", trial[1])
 		screen("fixation")
 		run-relative-time(1.0)
 		screen("stim")

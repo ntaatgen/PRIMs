@@ -147,14 +147,15 @@ class Operator {
             var match = false
         var candidate: Chunk = Chunk(s: "empty", m: model)
         var activation: Double = 0.0
+        var prim: Prim?
         if !cfs.isEmpty {
             repeat {
                 (candidate, activation) = cfs.removeAtIndex(0)
                 model.buffers["operator"] = candidate.copy()
                 let inst = model.procedural.findMatchingProduction()
-                match = model.procedural.fireProduction(inst, compile: false)
+                (match, prim) = model.procedural.fireProduction(inst, compile: false)
                 if !match {
-                    model.addToTrace("   Operator \(candidate.name) does not match", level: 5)
+                    model.addToTrace("   Operator \(candidate.name) does not match because of \(prim!.name)", level: 5)
                 }
                 if match && candidate.spreadingActivation() <= 0.0 && model.buffers["operator"]?.slotValue("condition") != nil {
                     match = false
@@ -205,7 +206,7 @@ class Operator {
                 pname = String(pname.characters.dropFirst())
             }
             model.addToTrace("Firing \(pname)", level: 3)
-            match = model.procedural.fireProduction(inst, compile: true)
+            (match, _) = model.procedural.fireProduction(inst, compile: true)
             if first {
                 model.time += model.procedural.productionActionLatency
                 first = false

@@ -4,7 +4,6 @@
 define task semantic-global {
 initial-goals: (semantic)
 task-constants: (property subvocalize say yes no)
-start-screen: start
 imaginal-autoclear: nil
 default-activation: 1.0
 ol: t
@@ -58,17 +57,6 @@ stop -> G1
 }
 }
 
-define facts {
-(sem1  property  lion  mammal)
-(sem2  property  mammal  animal)
-(sem3  property  animal  livingthing)
-(sem4  property  plant  livingthing)
-(sem5  property  tulip plant)
-(sem6  property  bird animal)
-(sem7  property  tweety bird)
-(sem8  property  robin bird)
-}
-
 define action subvocalize {
     latency: 0.2
     noise: 0.08
@@ -84,20 +72,29 @@ define action say {
 }
 
 
+define facts {
 
-define screen start {
-(?0 ?1)
-}
-
-define goal-action {
-(say ?2)
-}
-
-define inputs {
-(lion livingthing yes)
-(tulip animal no)
-(mammal livingthing yes)
-(lion plant no)
+    (sem1  property  lion  mammal)
+    (sem2  property  mammal  animal)
+    (sem3  property  animal living-thing)
+    (sem4  property  plant living-thing)
+    (sem5  property  tulip plant)
+    (sem6  property  bird animal)
+    (sem7  property  tweety bird)
+    (sem8  property  robin bird)
 
 }
+
+
+define script {
+    pairs = [["lion","living-thing","yes"],["tulip","animal","no"],["mammal","living-thing","yes"],["lion","plant","no"]]
+    pairno = random(length(pairs))
+    pair = pairs[pairno]
+    print("Is",pair[0],"a",pair[1],"?")
+    screen(pair[0],pair[1])
+    run-until-action("say")
+    issue-reward()
+    trial-end()
+}
+
 

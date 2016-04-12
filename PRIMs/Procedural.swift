@@ -84,7 +84,7 @@ class Procedural {
         clearRewardTrace()
     }
     
-    func fireProduction(inst: Instantiation, compile: Bool) -> Bool {
+    func fireProduction(inst: Instantiation, compile: Bool) -> (Bool, Prim?) {
 
         if compile {
             if !inst.p.name.hasPrefix("t") {

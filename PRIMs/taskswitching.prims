@@ -7,14 +7,15 @@ define task taskswitching {
     task-constants: (dotask prepare-next)
     lf: 0.2
     egs: 0.05
-    rt: 0.0
+    rt: -1.0
     input-activation: 0.0
-    default-activation: 2.0
+    default-activation: 1.0
     alpha: 0.05
     goal-operator-learning: t
     beta: 0.05
     reward: 80.0
     default-operator-assoc: 8.0
+    default-inter-operator-assoc: 4.0
     imaginal-autoclear: nil
 }
 
@@ -139,7 +140,6 @@ define facts {
 
 
 define script {
-    i = 0
     foods = ["vegetable","fruit"]
     sizes = ["large","small"]
     for i in 0 to 7 {

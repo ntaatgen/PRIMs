@@ -13,7 +13,6 @@
 		B82E31D91C4592F300C8E062 /* ScriptFunctions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B82E31D81C4592F300C8E062 /* ScriptFunctions.swift */; };
 		B8404A581C3BF9530062C231 /* Script.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8404A571C3BF9530062C231 /* Script.swift */; };
 		B84BE0781B034C190015DF1F /* PrimView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B84BE0771B034C190015DF1F /* PrimView.swift */; };
-		B8526E5A1C4C2B6B00221F3C /* count-org.prims in Resources */ = {isa = PBXBuildFile; fileRef = B8526E591C4C2B6B00221F3C /* count-org.prims */; };
 		B85FAA5C1AE10CAF00C6F57A /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B85FAA5B1AE10CAF00C6F57A /* AppDelegate.swift */; };
 		B85FAA5E1AE10CAF00C6F57A /* MainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B85FAA5D1AE10CAF00C6F57A /* MainViewController.swift */; };
 		B85FAA601AE10CAF00C6F57A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B85FAA5F1AE10CAF00C6F57A /* Images.xcassets */; };
@@ -60,7 +59,6 @@
 		B83A89211B558B4900382B3D /* GoalOperatorLearning.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GoalOperatorLearning.swift; sourceTree = "<group>"; };
 		B8404A571C3BF9530062C231 /* Script.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Script.swift; sourceTree = "<group>"; };
 		B84BE0771B034C190015DF1F /* PrimView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PrimView.swift; sourceTree = "<group>"; };
-		B8526E591C4C2B6B00221F3C /* count-org.prims */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "count-org.prims"; sourceTree = "<group>"; };
 		B85D9CB81B14C9AC0033CEA2 /* list-recall.prims */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "list-recall.prims"; sourceTree = "<group>"; };
 		B85FAA561AE10CAF00C6F57A /* PRIMs.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PRIMs.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B85FAA5A1AE10CAF00C6F57A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -214,7 +212,6 @@
 			children = (
 				B85FAAB11AE1188C00C6F57A /* count-buf-stuf.prims */,
 				B814B7811BE3BE3B00FF6E2D /* count.prims */,
-				B8526E591C4C2B6B00221F3C /* count-org.prims */,
 				B8C8DB501B5690BC00D5102F /* stroop.prims */,
 				B8C8DB4E1B568E8F00D5102F /* taskswitching.prims */,
 				B8E827561B3811B800C1E60A /* count-learn.prims */,
@@ -336,7 +333,6 @@
 			files = (
 				B85FAA601AE10CAF00C6F57A /* Images.xcassets in Resources */,
 				B85FAA631AE10CAF00C6F57A /* Main.storyboard in Resources */,
-				B8526E5A1C4C2B6B00221F3C /* count-org.prims in Resources */,
 				B8935EF11B13C93900E4C9E8 /* PrimsModelFileIcon.icns in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
