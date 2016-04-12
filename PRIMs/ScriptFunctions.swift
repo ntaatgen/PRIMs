@@ -484,3 +484,23 @@ func setGlobalParameter(content: [Factor], model: Model?) throws -> (result: Fac
     return (nil, true, true)
 }
 
+/**
+Retrieve Array containing batchParameters
+**/
+func batchParameters(content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool, cont:Bool) {
+    if model!.batchMode {
+        var scrArray: [Expression] = []
+        for param in model!.batchParameters {
+            if Double(param) != nil {
+                scrArray.append(generateFactorExpression(Factor.RealNumber(Double(param)!)))
+            } else {
+                scrArray.append(generateFactorExpression(Factor.Str(param)))
+            }
+        }
+        let result = Factor.Arr(ScriptArray(elements: scrArray))
+        return (result, true, true)
+    } else {
+        return (nil, true, true)
+    }
+}
+

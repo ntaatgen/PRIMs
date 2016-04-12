@@ -223,6 +223,7 @@ class ScriptArray: CustomStringConvertible {
     init(elements: [Expression]) {
         self.elements = elements
     }
+    
     var description: String {
         if elements.count == 0 { return "[]" }
         var s = "[\(elements[0])"

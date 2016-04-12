@@ -51,6 +51,9 @@ class Model {
     var tracing: Bool = true
     var parameters: [(String,String)] = []
     var scenario = PRScenario()
+    /// Batch Parameters
+    var batchMode: Bool
+    var batchParameters: [String] = []
     /// Maximum time to run the model
     var timeThreshold = 200.0
     var outputData: [DataLine] = []
@@ -100,9 +103,10 @@ class Model {
         currentTrial = 1.0
     }
         
-    init(silent: Bool) {
+    init(silent: Bool, batchMode: Bool = false) {
         trace = []
         self.silent = silent
+        self.batchMode = batchMode
         self.dm = Declarative(model: self)
         self.procedural = Procedural(model: self)
         self.imaginal = Imaginal(model: self)
