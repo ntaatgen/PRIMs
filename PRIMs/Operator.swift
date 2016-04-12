@@ -118,7 +118,9 @@ class Operator {
             }
             operatorChunk.assocs[goalChunk!.name]!.0 += model.dm.beta * (opReward - operatorChunk.assocs[goalChunk!.name]!.0)
             operatorChunk.assocs[goalChunk!.name]!.1 += 1
-            operatorChunk.addReference() // Also increase baselevel activation of the operator
+            if opReward > 0 {
+                operatorChunk.addReference() // Also increase baselevel activation of the operator
+            }
             model.addToTrace("Updating assoc between \(goalChunk!.name) and \(operatorChunk.name) to \(operatorChunk.assocs[goalChunk!.name]!)", level: 5)
         }
     }
@@ -151,6 +153,9 @@ class Operator {
                 model.buffers["operator"] = candidate.copy()
                 let inst = model.procedural.findMatchingProduction()
                 match = model.procedural.fireProduction(inst, compile: false)
+                if !match {
+                    model.addToTrace("   Operator \(candidate.name) does not match", level: 5)
+                }
                 if match && candidate.spreadingActivation() <= 0.0 && model.buffers["operator"]?.slotValue("condition") != nil {
                     match = false
                     model.addToTrace("   Rejected operator \(candidate.name) because it has no associations and no production that tests all conditions", level: 2)

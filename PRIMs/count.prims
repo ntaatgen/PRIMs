@@ -67,9 +67,6 @@ define init-script {
         add-dm(name, "count-fact", digits[i], digits[i + 1])
         set-activation(name, 1.0)
     }
-    for x in digits {
-        print(x)
-    }
 }
 
 
