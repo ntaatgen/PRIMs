@@ -33,7 +33,8 @@ let scriptFunctions: [String:([Factor], Model?) throws -> (result: Factor?, done
     "set-activation": setActivation,
     "set-sji": setSji,
     "random-string": randomString,
-    "sgp": setGlobalParameter
+    "sgp": setGlobalParameter,
+    "batch-parameters": batchParameters
     ]
 
 
