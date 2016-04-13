@@ -73,7 +73,7 @@ class BatchRun {
                     
                     var batchParam = scanner.scanUpToCharactersFromSet(whiteSpaceAndNL)
                     while batchParam != nil {
-                        self.mainModel.batchParameters.append(batchParam!)
+                        self.model.batchParameters.append(batchParam!)
                         batchParam = scanner.scanUpToCharactersFromSet(whiteSpaceAndNL)
                     }
                     
@@ -154,6 +154,7 @@ class BatchRun {
                     self.model.operators = nil
                     self.model.action = nil
                     self.model.imaginal = nil
+                    self.model.batchParameters = []
                     self.model = Model(silent: true, batchMode: true)
                 case "repeat":
                     scanner.scanInt()

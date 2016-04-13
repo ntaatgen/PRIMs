@@ -191,7 +191,6 @@ func shuffle(content: [Factor], model: Model?)  throws -> (result: Factor?, done
 
 /** 
    Starts a trial: adds a line to the data and sets the startTime to the current model time.
-   The first three additional parameters ("content") are added as event parameters.
    Also causes model to pause when stepping
 */
 func trialStart(content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool, cont:Bool) {
@@ -487,6 +486,7 @@ func setGlobalParameter(content: [Factor], model: Model?) throws -> (result: Fac
 
 /**
 Retrieve Array containing batchParameters
+Returns "NA" when not in batch mode
 **/
 func batchParameters(content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool, cont:Bool) {
     if model!.batchMode {
@@ -501,7 +501,7 @@ func batchParameters(content: [Factor], model: Model?) throws -> (result: Factor
         let result = Factor.Arr(ScriptArray(elements: scrArray))
         return (result, true, true)
     } else {
-        return (nil, true, true)
+        return (Factor.Str("NA"), true, true)
     }
 }
 
