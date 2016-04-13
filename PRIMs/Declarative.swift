@@ -251,7 +251,7 @@ class Declarative  {
         /* Return similarity if there is one, else return -1*/
         if (x.description == "times" || x.description == "plus" || x.description == "minus" || x.description == "divided-by") {
             if (y.description == "times" || y.description == "plus" || y.description == "minus" || y.description == "divided-by") {
-                return -0.5
+                return -0.35
             }
             return -1
         } else {
@@ -266,6 +266,9 @@ class Declarative  {
         if (Int(x.description) != nil && Int(y.description) != nil)  {
             let maxValue = max(Double(x.description)!, Double(y.description)!)
             let minValue = min(Double(x.description)!, Double(y.description)!)
+            if (maxValue == 10 * minValue) {
+                return -0.03
+            }
             return maxValue == 0.0 ? (minValue / (maxValue + 0.0001)) : (minValue / maxValue - 1)
         } else {
             return -1
