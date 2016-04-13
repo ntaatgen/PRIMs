@@ -130,7 +130,7 @@ class Prim:CustomStringConvertible {
         case "->":
             if lhsBuffer != nil && lhsVal == nil {
                 return false }
-            if lhsSlot == nil && model.buffers[rhsBuffer!] != nil {
+            if lhsSlot == nil && model.buffers[rhsBuffer!] != nil && model.buffers[rhsBuffer!]!.slotvals[rhsSlot!] != nil {
                 model.buffers[rhsBuffer!]!.slotvals[rhsSlot!] = nil
                 return true
             }
