@@ -35,7 +35,6 @@ class BatchRun {
         var scanner = NSScanner(string: self.batchScript)
         let whiteSpaceAndNL = NSMutableCharacterSet.whitespaceAndNewlineCharacterSet()
         let whiteSpace = NSMutableCharacterSet.whitespaceCharacterSet()
-        let NL = NSMutableCharacterSet.newlineCharacterSet()
         _ = scanner.scanUpToCharactersFromSet(whiteSpaceAndNL)
         let numberOfRepeats = scanner.scanInt()
         if numberOfRepeats == nil {
@@ -73,12 +72,14 @@ class BatchRun {
                         return
                     }
                     
-                    var batchParam = scanner.scanUpToCharactersFromSet(whiteSpace)
-                    while (batchParam != nil) && (batchParam!.rangeOfCharacterFromSet(NL) == nil) {
-                        self.model.batchParameters.append(batchParam!)
-                        batchParam = scanner.scanUpToCharactersFromSet(whiteSpace)
+                    if scanner.string[scanner.string.startIndex.advancedBy(scanner.scanLocation)] != "\n" {
+                        var batchParam = scanner.scanUpToCharactersFromSet(whiteSpaceAndNL)
+                        while batchParam != nil && scanner.string[scanner.string.startIndex.advancedBy(scanner.scanLocation)] == "\n" {
+                            self.model.batchParameters.append(batchParam!)
+                            batchParam = scanner.scanUpToCharactersFromSet(whiteSpace)
+                        }
                     }
-                    
+                
                     if stopByTime {
                         self.mainModel.addToTraceField("Running task \(taskname!) with label \(taskLabel!) for \(endCriterium!) seconds")
                     } else {
