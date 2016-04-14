@@ -34,6 +34,8 @@ class BatchRun {
 
         var scanner = NSScanner(string: self.batchScript)
         let whiteSpaceAndNL = NSMutableCharacterSet.whitespaceAndNewlineCharacterSet()
+        let whiteSpace = NSMutableCharacterSet.whitespaceCharacterSet()
+        let NL = NSMutableCharacterSet.newlineCharacterSet()
         _ = scanner.scanUpToCharactersFromSet(whiteSpaceAndNL)
         let numberOfRepeats = scanner.scanInt()
         if numberOfRepeats == nil {
@@ -71,10 +73,10 @@ class BatchRun {
                         return
                     }
                     
-                    var batchParam = scanner.scanUpToCharactersFromSet(whiteSpaceAndNL)
-                    while batchParam != nil {
+                    var batchParam = scanner.scanUpToCharactersFromSet(whiteSpace)
+                    while (batchParam != nil) && (batchParam!.rangeOfCharacterFromSet(NL) == nil) {
                         self.model.batchParameters.append(batchParam!)
-                        batchParam = scanner.scanUpToCharactersFromSet(whiteSpaceAndNL)
+                        batchParam = scanner.scanUpToCharactersFromSet(whiteSpace)
                     }
                     
                     if stopByTime {
