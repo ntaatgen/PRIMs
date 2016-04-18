@@ -72,12 +72,10 @@ class BatchRun {
                         return
                     }
                     
-                    if scanner.string[scanner.string.startIndex.advancedBy(scanner.scanLocation)] != "\n" {
-                        var batchParam = scanner.scanUpToCharactersFromSet(whiteSpaceAndNL)
-                        while batchParam != nil && scanner.string[scanner.string.startIndex.advancedBy(scanner.scanLocation)] == "\n" {
-                            self.model.batchParameters.append(batchParam!)
-                            batchParam = scanner.scanUpToCharactersFromSet(whiteSpace)
-                        }
+                    while scanner.string[scanner.string.startIndex.advancedBy(scanner.scanLocation)] != "\n" {
+                        let batchParam = scanner.scanUpToCharactersFromSet(whiteSpaceAndNL)
+                        self.model.batchParameters.append(batchParam!)
+                        self.mainModel.addToTraceField("Parameter: " + batchParam!)
                     }
                 
                     if stopByTime {
