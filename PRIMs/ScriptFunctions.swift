@@ -33,7 +33,8 @@ let scriptFunctions: [String:([Factor], Model?) throws -> (result: Factor?, done
     "set-activation": setActivation,
     "set-sji": setSji,
     "random-string": randomString,
-    "sgp": setGlobalParameter
+    "sgp": setGlobalParameter,
+    "batch-parameters": batchParameters
     ]
 
 
@@ -190,7 +191,6 @@ func shuffle(content: [Factor], model: Model?)  throws -> (result: Factor?, done
 
 /** 
    Starts a trial: adds a line to the data and sets the startTime to the current model time.
-   The first three additional parameters ("content") are added as event parameters.
    Also causes model to pause when stepping
 */
 func trialStart(content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool) {
@@ -485,5 +485,26 @@ func setGlobalParameter(content: [Factor], model: Model?) throws -> (result: Fac
         throw RunTimeError.errorInFunction("Parameter \(parName) does not exist or cannot take value \(parValue)")
     }
     return (nil, true)
+}
+
+/**
+Retrieve Array containing batchParameters
+Returns "NA" when not in batch mode
+**/
+func batchParameters(content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool, cont:Bool) {
+    if model!.batchMode {
+        var scrArray: [Expression] = []
+        for param in model!.batchParameters {
+            if Double(param) != nil {
+                scrArray.append(generateFactorExpression(Factor.RealNumber(Double(param)!)))
+            } else {
+                scrArray.append(generateFactorExpression(Factor.Str(param)))
+            }
+        }
+        let result = Factor.Arr(ScriptArray(elements: scrArray))
+        return (result, true, true)
+    } else {
+        return (Factor.Str("NA"), true, true)
+    }
 }
 

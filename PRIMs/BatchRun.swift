@@ -20,11 +20,13 @@ class BatchRun {
     init(script: String, mainModel: Model, outputFile: NSURL, controller: MainViewController, directory: NSURL) {
         self.batchScript = script
         self.outputFileName = outputFile
-        self.model = Model(silent: true)
+        self.model = Model(silent: true, batchMode: true)
         self.controller = controller
         self.directory = directory
         self.mainModel = mainModel
     }
+    
+
     
     func runScript() {
         mainModel.clearTrace()
@@ -68,6 +70,13 @@ class BatchRun {
                         self.mainModel.addToTraceField("Illegal number of trials or end time in run")
                         return
                     }
+                    
+                    while scanner.string[scanner.string.startIndex.advancedBy(scanner.scanLocation)] != "\n" {
+                        let batchParam = scanner.scanUpToCharactersFromSet(whiteSpaceAndNL)
+                        self.model.batchParameters.append(batchParam!)
+                        self.mainModel.addToTraceField("Parameter: \(batchParam!)")
+                    }
+                
                     if stopByTime {
                         self.mainModel.addToTraceField("Running task \(taskname!) with label \(taskLabel!) for \(endCriterium!) seconds")
                     } else {
@@ -145,9 +154,12 @@ class BatchRun {
                     self.model.operators = nil
                     self.model.action = nil
                     self.model.imaginal = nil
-                    self.model = Model(silent: true)
+                    self.model.batchParameters = []
+                    self.model = Model(silent: true, batchMode: true)
                 case "repeat":
                     scanner.scanInt()
+                case "done":
+                    print("*** Model has finished running ****")
                 default: break
                     
                 }
