@@ -490,8 +490,8 @@ func setGlobalParameter(content: [Factor], model: Model?) throws -> (result: Fac
 /**
 Retrieve Array containing batchParameters
 Returns "NA" when not in batch mode
-**/
-func batchParameters(content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool, cont:Bool) {
+*/
+func batchParameters(content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool) {
     if model!.batchMode {
         var scrArray: [Expression] = []
         for param in model!.batchParameters {
@@ -502,9 +502,9 @@ func batchParameters(content: [Factor], model: Model?) throws -> (result: Factor
             }
         }
         let result = Factor.Arr(ScriptArray(elements: scrArray))
-        return (result, true, true)
+        return (result, true)
     } else {
-        return (Factor.Str("NA"), true, true)
+        return (Factor.Str("NA"), true)
     }
 }
 
