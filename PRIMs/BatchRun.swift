@@ -74,7 +74,7 @@ class BatchRun {
                     while scanner.string[scanner.string.startIndex.advancedBy(scanner.scanLocation)] != "\n" {
                         let batchParam = scanner.scanUpToCharactersFromSet(whiteSpaceAndNL)
                         self.model.batchParameters.append(batchParam!)
-                        self.mainModel.addToTraceField("Parameter: " + batchParam!)
+                        self.mainModel.addToTraceField("Parameter: \(batchParam!)")
                     }
                 
                     if stopByTime {
