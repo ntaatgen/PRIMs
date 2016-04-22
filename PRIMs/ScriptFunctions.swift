@@ -496,7 +496,11 @@ func batchParameters(content: [Factor], model: Model?) throws -> (result: Factor
         var scrArray: [Expression] = []
         for param in model!.batchParameters {
             if Double(param) != nil {
-                scrArray.append(generateFactorExpression(Factor.RealNumber(Double(param)!)))
+                if param.rangeOfString(".") != nil {
+                    scrArray.append(generateFactorExpression(Factor.RealNumber(Double(param)!)))
+                } else {
+                    scrArray.append(generateFactorExpression(Factor.IntNumber(Int(param)!)))
+                }
             } else {
                 scrArray.append(generateFactorExpression(Factor.Str(param)))
             }
