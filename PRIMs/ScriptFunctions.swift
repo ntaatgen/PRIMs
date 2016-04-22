@@ -479,7 +479,10 @@ Set a parameter
 */
 func setGlobalParameter(content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool) {
     guard content.count == 2 else { throw RunTimeError.invalidNumberOfArguments }
-    let parName = content[0].description
+    var parName = content[0].description
+    if parName[parName.endIndex.predecessor()] != ":" {
+        parName = parName + ":"
+    }
     let parValue = content[1].description
     if !model!.setParameter(parName, value: parValue) {
         throw RunTimeError.errorInFunction("Parameter \(parName) does not exist or cannot take value \(parValue)")
