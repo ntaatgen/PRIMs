@@ -521,9 +521,6 @@ Convert String to Int
 */
 func strToInt(content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool) {
     let result = Int(content[0].description)
-    print(result)
-    print(content[0])
-    print(content[0].type())
     if content[0].type() == "string" &&  result != nil {
         return (Factor.IntNumber(result!), true)
     } else {
