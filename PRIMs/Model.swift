@@ -242,9 +242,10 @@ class Model {
             modelText = modelCode
             newResult()
             if scenario.initScript != nil {
+                print("Running init script")
                 scenario.initScript!.reset()
                 scenario.initScript!.step(self)
-                print("Running init script")
+                
             }
         }
         return result
