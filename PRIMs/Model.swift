@@ -513,7 +513,7 @@ class Model {
                 procedural.clearRewardTrace()  // Don't reward productions that didn't work
             }
         } while !found
-        procedural.issueReward(procedural.proceduralReward) // Have to make this into a setable parameter
+        procedural.issueReward(procedural.proceduralReward) 
         procedural.lastOperator = formerBuffers["operator"]
         commitToTrace(false)
         //        let op = buffers["operator"]!.name

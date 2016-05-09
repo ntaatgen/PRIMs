@@ -141,7 +141,9 @@ class Prim:CustomStringConvertible {
                 model.buffers[rhsBuffer!] = chunk
             }
             if lhsVal == nil {
-                model.buffers[rhsBuffer!]!.setSlot(rhsSlot!, value: "nil")
+                if rhsBuffer! == "imaginal" {
+                    model.buffers[rhsBuffer!]!.setSlot(rhsSlot!, value: "nil")
+                }
                 return true
             }
             model.buffers[rhsBuffer!]!.setSlot(rhsSlot!, value: lhsVal!)
