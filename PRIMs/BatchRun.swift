@@ -71,7 +71,7 @@ class BatchRun {
                         return
                     }
                     
-                    while scanner.string[scanner.string.startIndex.advancedBy(scanner.scanLocation)] != "\n" {
+                    while !scanner.atEnd && scanner.string[scanner.string.startIndex.advancedBy(scanner.scanLocation)] != "\n" {
                         let batchParam = scanner.scanUpToCharactersFromSet(whiteSpaceAndNL)
                         self.model.batchParameters.append(batchParam!)
                         self.mainModel.addToTraceField("Parameter: \(batchParam!)")
