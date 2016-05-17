@@ -164,16 +164,20 @@ class BatchRun {
                     
                 }
             }
+            self.mainModel.addToTraceField("Done")
+            dispatch_async(dispatch_get_main_queue()) {
+                self.controller.updateAllViews()
+            }
             self.progress = 100 * (Double(i) + 1) / Double(numberOfRepeats!)
             dispatch_async(dispatch_get_main_queue()) {
                 NSNotificationCenter.defaultCenter().postNotificationName("progress",object: nil)
             }
             }
-            self.mainModel.addToTraceField("Done")
             dispatch_async(dispatch_get_main_queue()) {
                 NSNotificationCenter.defaultCenter().postNotificationName("progress",object: nil)
             }
         }
+
         
     }
 
