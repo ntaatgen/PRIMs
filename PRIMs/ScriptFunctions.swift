@@ -478,6 +478,8 @@ func randomString(content: [Factor], model: Model?) throws -> (result: Factor?, 
 
 /**
 Set a parameter
+ First argument: parameter name
+ Second argument: parameter value
 */
 func setGlobalParameter(content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool) {
     guard content.count == 2 else { throw RunTimeError.invalidNumberOfArguments }

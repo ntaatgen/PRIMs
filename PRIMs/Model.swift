@@ -54,6 +54,7 @@ class Model {
     /// Batch Parameters
     var batchMode: Bool
     var batchParameters: [String] = []
+    //var batchTrace: Bool
     /// Maximum time to run the model
     var timeThreshold = 200.0
     var outputData: [DataLine] = []
@@ -316,6 +317,10 @@ class Model {
             dm.retrievalReinforces = boolVal
         case "pm:":
             dm.partialMatching = boolVal
+        //case "batch-trace":
+        //    if batchMode {
+        //        batchTrace = true
+        //    }
         default:
             if (numVal == nil) {return false}
             switch parameter {
