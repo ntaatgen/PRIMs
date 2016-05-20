@@ -16,10 +16,12 @@ class BatchRun {
     unowned let controller: MainViewController
     let directory: NSURL
     var progress: Double = 0.0
+    var traceFileName: NSURL
     
     init(script: String, mainModel: Model, outputFile: NSURL, controller: MainViewController, directory: NSURL) {
         self.batchScript = script
         self.outputFileName = outputFile
+        self.traceFileName = outputFile.URLByDeletingPathExtension!.URLByAppendingPathExtension("tracedat")
         self.model = Model(silent: true, batchMode: true)
         self.controller = controller
         self.directory = directory
@@ -115,7 +117,16 @@ class BatchRun {
                             }
                             output += "\n"
                         }
+                        // Print trace to file
+                        var traceOutput = ""
+                        if self.model.batchTrace {
+                            for (time, type, event) in self.model.batchTraceData {
+                                traceOutput += "\(i) \(taskname!) \(taskLabel!) \(j) \(time) \(type) \(event) \n"
+                            }
+                        }
+                        
                         if !newfile {
+                            // Output File
                             if NSFileManager.defaultManager().fileExistsAtPath(self.outputFileName.path!) {
                                 var err:NSError?
                                 do {
@@ -129,16 +140,36 @@ class BatchRun {
                                     self.model.addToTraceField("Can't open fileHandle \(err)")
                                 }
                             }
-                        }
-                        else {
+                            // Trace File
+                            if NSFileManager.defaultManager().fileExistsAtPath(self.traceFileName.path!) && self.model.batchTrace {
+                                var err:NSError?
+                                do {
+                                    let fileHandle = try NSFileHandle(forWritingToURL: self.traceFileName)
+                                    fileHandle.seekToEndOfFile()
+                                    let data = traceOutput.dataUsingEncoding(NSUTF8StringEncoding, allowLossyConversion: false)
+                                    fileHandle.writeData(data!)
+                                    fileHandle.closeFile()
+                                } catch let error as NSError {
+                                    err = error
+                                    self.model.addToTraceField("Can't open trace fileHandle \(err)")
+                                }
+                            }
+                        } else {
                             newfile = false
                             var err:NSError?
+                            // Output file
                             do {
                                 try output.writeToURL(self.outputFileName, atomically: false, encoding: NSUTF8StringEncoding)
                             } catch let error as NSError {
                                 err = error
                                 self.mainModel.addToTraceField("Can't write datafile \(err)")
-                                
+                            }
+                            // Trace file
+                            do {
+                                try traceOutput.writeToURL(self.traceFileName, atomically: false, encoding: NSUTF8StringEncoding)
+                            } catch let error as NSError {
+                                err = error
+                                self.mainModel.addToTraceField("Can't write tracefile \(err)")
                             }
                         }
                     }

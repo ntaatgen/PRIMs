@@ -339,8 +339,10 @@ class Declarative  {
         if retrieveResult != nil {
             if stuff {
                 model.addToTrace("Stuffing retrieval buffer \(retrieveResult!.name) (latency = \(latency))", level: 2)
+                model.addToBatchTrace(model.time - model.startTime, type: "retrieval", addToTrace: "Stuffing retrieval buffer \(retrieveResult!.name)")
             } else {
                 model.addToTrace("Retrieving \(retrieveResult!.name) (latency = \(latency))", level: 2)
+                model.addToBatchTrace(model.time - model.startTime, type: "retrieval", addToTrace: "Retrieving \(retrieveResult!.name)")
                 if retrievalReinforces {
                     retrieveResult!.addReference()
                 }
@@ -348,6 +350,7 @@ class Declarative  {
             model.buffers["retrievalH"] = retrieveResult!
         } else if !stuff  {
             model.addToTrace("Retrieval failure", level: 2)
+            model.addToBatchTrace(model.time - model.startTime, type: "retrieval", addToTrace: "Retrieval failure")
             let failChunk = Chunk(s: "RetrievalFailure", m: model)
             failChunk.setSlot("slot1", value: "error")
             model.buffers["retrievalH"] = failChunk

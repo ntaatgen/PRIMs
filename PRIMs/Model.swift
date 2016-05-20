@@ -54,10 +54,11 @@ class Model {
     /// Batch Parameters
     var batchMode: Bool
     var batchParameters: [String] = []
-    //var batchTrace: Bool
     /// Maximum time to run the model
     var timeThreshold = 200.0
     var outputData: [DataLine] = []
+    var batchTraceData: [(Double, String, String)] = []
+    var batchTrace: Bool = false
     var formerBuffers: [String:Chunk] = [:]
     var modelCode: String?
     static let rewardDefault = 0.0
@@ -199,6 +200,14 @@ class Model {
         return result
     }
     
+    /* Add to batch trace
+     * Input parameters: timestamp (double) and addToTrace (string)
+     * No return parameter
+     */
+    func addToBatchTrace(timestamp: Double, type: String, addToTrace: String) {
+        batchTraceData += [(timestamp, type, addToTrace)]
+    }
+    
 //    func buffersToText() -> String {
 //        var s: String = ""
 //        let bufferList = ["goal","operator","imaginal","retrievalR","retrievalH","input","action","constants"]
@@ -246,7 +255,6 @@ class Model {
                 print("Running init script")
                 scenario.initScript!.reset()
                 scenario.initScript!.step(self)
-                
             }
         }
         return result
@@ -317,6 +325,8 @@ class Model {
             dm.retrievalReinforces = boolVal
         case "pm:":
             dm.partialMatching = boolVal
+        case "batch-trace:":
+            batchTrace = boolVal
         //case "batch-trace":
         //    if batchMode {
         //        batchTrace = true
@@ -453,7 +463,7 @@ class Model {
             
             let dl = DataLine(eventType: "perception", eventParameter1: slot1 ?? "void", eventParameter2: slot2 ?? "void", eventParameter3: slot3 ?? "void", inputParameters: scenario.inputMappingForTrace, time: inputTime - startTime)
             outputData.append(dl)
-            
+            addToBatchTrace(inputTime - startTime, type: "input", addToTrace: "\(scenario.inputMappingForTrace)")
         }
     }
     
@@ -518,8 +528,9 @@ class Model {
                 procedural.clearRewardTrace()  // Don't reward productions that didn't work
             }
         } while !found
-        procedural.issueReward(procedural.proceduralReward) 
+        procedural.issueReward(procedural.proceduralReward)
         procedural.lastOperator = formerBuffers["operator"]
+        addToBatchTrace(time - startTime, type: "operator", addToTrace: "\(procedural.lastOperator!.name)")
         commitToTrace(false)
         //        let op = buffers["operator"]!.name
         buffers["operator"] = nil
