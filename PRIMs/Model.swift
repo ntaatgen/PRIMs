@@ -463,7 +463,6 @@ class Model {
             
             let dl = DataLine(eventType: "perception", eventParameter1: slot1 ?? "void", eventParameter2: slot2 ?? "void", eventParameter3: slot3 ?? "void", inputParameters: scenario.inputMappingForTrace, time: inputTime - startTime)
             outputData.append(dl)
-            addToBatchTrace(inputTime - startTime, type: "input", addToTrace: "\(scenario.inputMappingForTrace)")
         }
     }
     
