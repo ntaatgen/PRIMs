@@ -267,7 +267,7 @@ class Declarative  {
             let maxValue = max(Double(x.description)!, Double(y.description)!)
             let minValue = min(Double(x.description)!, Double(y.description)!)
             if (maxValue == 10 * minValue) {
-                return -0.03
+                return -0.3
             }
             return maxValue == 0.0 ? (minValue / (maxValue + 0.0001)) : (minValue / maxValue - 1)
         } else {
