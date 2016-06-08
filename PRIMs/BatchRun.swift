@@ -123,6 +123,7 @@ class BatchRun {
                             for (time, type, event) in self.model.batchTraceData {
                                 traceOutput += "\(i) \(taskname!) \(taskLabel!) \(j) \(time) \(type) \(event) \n"
                             }
+                            self.model.batchTraceData = []
                         }
                         
                         if !newfile {
