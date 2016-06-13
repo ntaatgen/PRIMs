@@ -35,7 +35,8 @@ let scriptFunctions: [String:([Factor], Model?) throws -> (result: Factor?, done
     "random-string": randomString,
     "sgp": setGlobalParameter,
     "batch-parameters": batchParameters,
-    "str-to-int": strToInt
+    "str-to-int": strToInt,
+    "open-jar": openJar,
     ]
 
 
@@ -529,4 +530,24 @@ func strToInt(content: [Factor], model: Model?) throws -> (result: Factor?, done
     } else {
         throw RunTimeError.errorInFunction("\(content[0]) cannot be converted from string to int")
     }
+}
+
+/**
+ Open jar file
+ */
+func openJar(content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool) {
+
+    let task = NSTask()
+    task.launchPath = "/usr/bin/java"
+    task.arguments = ["-jar", content[0].description]
+    
+    let pipe = NSPipe()
+    task.standardOutput = pipe
+
+    task.launch()
+    let data = pipe.fileHandleForReading.readDataToEndOfFile()
+    let output: String = NSString(data: data, encoding: NSUTF8StringEncoding)! as String
+
+    print(output)
+    return (Factor.Str(output), true)
 }
