@@ -32,6 +32,7 @@ class Declarative  {
     static let retrievalReinforcesDefault = false
     static let defaultActivationDefault: Double? = nil
     static let partialMatchingDefault = false
+    static let newPartialMatchingDefault: Double? = nil
     /// Baseleveldecay parameter (d in ACT-R)
     var baseLevelDecay: Double = baseLevelDecayDefault
     /// Optimized learning on or off
@@ -82,6 +83,7 @@ class Declarative  {
     var finsts: [String] = []
     /// Parameter that controls whether to use partial matching (true) or not (false, default)
     var partialMatching = partialMatchingDefault
+    var newPartialMatching = newPartialMatchingDefault
     
     
     var retrieveBusy = false
@@ -116,6 +118,7 @@ class Declarative  {
         retrievalReinforces = Declarative.retrievalReinforcesDefault
         defaultActivation = Declarative.defaultActivationDefault
         partialMatching = Declarative.partialMatchingDefault
+        newPartialMatching = Declarative.newPartialMatchingDefault
     }
     
     func duplicateChunk(chunk: Chunk) -> Chunk? {
@@ -309,7 +312,12 @@ class Declarative  {
                 } else { continue chunkloop }
             }
 //            println("Candidate: \(ch1) with activation \(ch1.activation() + mismatch)")
-  			let activation = ch1.activation() + mismatch * misMatchPenalty
+            var activation = retrievalThreshold
+            if (newPartialMatching != nil)  {
+                activation = ch1.activation() + mismatch * misMatchPenalty * pow(Double(ch1.references),newPartialMatching!)
+            } else {
+                activation = ch1.activation() + mismatch * misMatchPenalty
+            }
             conflictSet.append((ch1,activation))
             if activation > bestActivation {
                 bestActivation = activation
