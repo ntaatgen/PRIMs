@@ -83,7 +83,8 @@ class Declarative  {
     var finsts: [String] = []
     /// Parameter that controls whether to use partial matching (true) or not (false, default)
     var partialMatching = partialMatchingDefault
-    var newPartialMatching = newPartialMatchingDefault
+    var newPartialMatchingPow = newPartialMatchingDefault
+    var newPartialMatchingExp = newPartialMatchingDefault
     
     
     var retrieveBusy = false
@@ -118,7 +119,8 @@ class Declarative  {
         retrievalReinforces = Declarative.retrievalReinforcesDefault
         defaultActivation = Declarative.defaultActivationDefault
         partialMatching = Declarative.partialMatchingDefault
-        newPartialMatching = Declarative.newPartialMatchingDefault
+        newPartialMatchingPow = Declarative.newPartialMatchingDefault
+        newPartialMatchingExp = Declarative.newPartialMatchingDefault
     }
     
     func duplicateChunk(chunk: Chunk) -> Chunk? {
@@ -313,8 +315,10 @@ class Declarative  {
             }
 //            println("Candidate: \(ch1) with activation \(ch1.activation() + mismatch)")
             var activation = retrievalThreshold
-            if (newPartialMatching != nil)  {
-                activation = ch1.activation() + mismatch * misMatchPenalty * pow(Double(ch1.references),newPartialMatching!)
+            if (newPartialMatchingPow != nil)  {
+                activation = ch1.activation() + mismatch * misMatchPenalty * pow(newPartialMatchingPow!,Double(ch1.references))
+            } else if (newPartialMatchingExp != nil) {
+                activation = ch1.activation() + mismatch * misMatchPenalty * pow(newPartialMatchingExp!,Double(ch1.references))
             } else {
                 activation = ch1.activation() + mismatch * misMatchPenalty
             }

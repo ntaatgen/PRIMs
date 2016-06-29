@@ -388,8 +388,10 @@ class Model {
                 dm.explorationExploitationFactor = numVal!
             case "default-activation:":
                 dm.defaultActivation = numVal!
-            case "newPartialMatching:":
-                dm.newPartialMatching = numVal!
+            case "new-pm-pow:":
+                dm.newPartialMatchingPow = numVal!
+            case "new-pm-exp:":
+                dm.newPartialMatchingPow = numVal!
             default: return false
             }
         }
