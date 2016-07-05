@@ -32,6 +32,7 @@ class Declarative  {
     static let retrievalReinforcesDefault = false
     static let defaultActivationDefault: Double? = nil
     static let partialMatchingDefault = false
+    static let newPartialMatchingDefault: Double? = nil
     /// Baseleveldecay parameter (d in ACT-R)
     var baseLevelDecay: Double = baseLevelDecayDefault
     /// Optimized learning on or off
@@ -82,6 +83,8 @@ class Declarative  {
     var finsts: [String] = []
     /// Parameter that controls whether to use partial matching (true) or not (false, default)
     var partialMatching = partialMatchingDefault
+    var newPartialMatchingPow = newPartialMatchingDefault
+    var newPartialMatchingExp = newPartialMatchingDefault
     
     
     var retrieveBusy = false
@@ -116,6 +119,8 @@ class Declarative  {
         retrievalReinforces = Declarative.retrievalReinforcesDefault
         defaultActivation = Declarative.defaultActivationDefault
         partialMatching = Declarative.partialMatchingDefault
+        newPartialMatchingPow = Declarative.newPartialMatchingDefault
+        newPartialMatchingExp = Declarative.newPartialMatchingDefault
     }
     
     func duplicateChunk(chunk: Chunk) -> Chunk? {
@@ -267,7 +272,7 @@ class Declarative  {
             let maxValue = max(Double(x.description)!, Double(y.description)!)
             let minValue = min(Double(x.description)!, Double(y.description)!)
             if (maxValue == 10 * minValue) {
-                return -0.03
+                return -0.3
             }
             return maxValue == 0.0 ? (minValue / (maxValue + 0.0001)) : (minValue / maxValue - 1)
         } else {
@@ -309,7 +314,14 @@ class Declarative  {
                 } else { continue chunkloop }
             }
 //            println("Candidate: \(ch1) with activation \(ch1.activation() + mismatch)")
-  			let activation = ch1.activation() + mismatch * misMatchPenalty
+            var activation = retrievalThreshold
+            if (newPartialMatchingPow != nil)  {
+                activation = ch1.activation() + mismatch * misMatchPenalty * pow(newPartialMatchingPow!,Double(ch1.references))
+            } else if (newPartialMatchingExp != nil) {
+                activation = ch1.activation() + mismatch * misMatchPenalty * pow(newPartialMatchingExp!,Double(ch1.references))
+            } else {
+                activation = ch1.activation() + mismatch * misMatchPenalty
+            }
             conflictSet.append((ch1,activation))
             if activation > bestActivation {
                 bestActivation = activation
@@ -339,8 +351,10 @@ class Declarative  {
         if retrieveResult != nil {
             if stuff {
                 model.addToTrace("Stuffing retrieval buffer \(retrieveResult!.name) (latency = \(latency))", level: 2)
+                model.addToBatchTrace(model.time - model.startTime, type: "retrieval", addToTrace: "\(retrieveResult!.name)")
             } else {
-                model.addToTrace("Retrieving \(retrieveResult!.name) (latency = \(latency))", level: 2)
+                model.addToTrace("\(retrieveResult!.name) (latency = \(latency))", level: 2)
+                model.addToBatchTrace(model.time - model.startTime, type: "retrieval", addToTrace: "\(retrieveResult!.name)")
                 if retrievalReinforces {
                     retrieveResult!.addReference()
                 }
@@ -348,6 +362,7 @@ class Declarative  {
             model.buffers["retrievalH"] = retrieveResult!
         } else if !stuff  {
             model.addToTrace("Retrieval failure", level: 2)
+            model.addToBatchTrace(model.time - model.startTime, type: "retrieval", addToTrace: "Failure")
             let failChunk = Chunk(s: "RetrievalFailure", m: model)
             failChunk.setSlot("slot1", value: "error")
             model.buffers["retrievalH"] = failChunk
