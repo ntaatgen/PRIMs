@@ -22,7 +22,7 @@ extension Chunk {
         let assoc = self.assocs[goal!.description]
         if assoc == nil { return 1.0 } else
         {
-            println("\(name) assocs \(assoc!.1)")
+//            println("\(name) assocs \(assoc!.1)")
             return Double(assoc!.1)
         }
     }

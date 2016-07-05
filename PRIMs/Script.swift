@@ -624,9 +624,9 @@ class Script {
     func parse(input: String) throws {
         statements = []
         var tokens = tokenize(input)
-        for token in tokens {
-            print(token)
-        }
+//        for token in tokens {
+//            print(token)
+//        }
         tokens.append("EOF")
         var index = tokens.startIndex
         var nextStatement: Statement
@@ -651,7 +651,7 @@ class Script {
     
     
     func parseStatement(tokens: [String], startIndex: Int, endIndex: Int) throws -> (statement: Statement, lastIndex: Int) {
-        print("Parsing Statement at \(tokens[startIndex])")
+//        print("Parsing Statement at \(tokens[startIndex])")
         guard startIndex < endIndex else { throw ParsingError.UnExpectedEOF }
         switch tokens[startIndex] {
         case "if":
@@ -683,7 +683,7 @@ class Script {
     }
     
     func parseIf(tokens: [String], startIndex: Int, endIndex: Int) throws -> (ifelse: IfClause, lastIndex: Int) {
-        print("Parsing If at \(tokens[startIndex])")
+//        print("Parsing If at \(tokens[startIndex])")
         let test = try parseExpression(tokens, startIndex: startIndex, endIndex: endIndex)
         guard tokens[test.lastIndex] == "{" else {
             throw ParsingError.Expected("{",constructPrior(tokens, index: test.lastIndex))
@@ -712,7 +712,7 @@ class Script {
     }
     
     func parseWhile(tokens: [String], startIndex: Int, endIndex: Int) throws -> (whileRes: WhileClause, lastIndex: Int) {
-        print("Parsing While at \(tokens[startIndex])")
+//        print("Parsing While at \(tokens[startIndex])")
         let test = try parseExpression(tokens, startIndex: startIndex, endIndex: endIndex)
         guard tokens[test.lastIndex] == "{" else {
             throw ParsingError.Expected("{",constructPrior(tokens, index: test.lastIndex))
@@ -732,9 +732,9 @@ class Script {
     // for x in array
     
     func parseFor(tokens: [String], startIndex: Int, endIndex: Int) throws -> (forRes: ForClause, lastIndex: Int) {
-        print("Parsing For at \(tokens[startIndex])")
+//        print("Parsing For at \(tokens[startIndex])")
         let loopVariable = tokens[startIndex]
-        print("Loop variable is \(loopVariable)")
+//        print("Loop variable is \(loopVariable)")
         var index = try nextToken(startIndex, endIndex: endIndex)
         guard tokens[index] == "in" else { throw ParsingError.Expected("in", constructPrior(tokens, index: index)) }
         index = try nextToken(index, endIndex: endIndex)
@@ -764,7 +764,7 @@ class Script {
     }
     
     func parseComparison(tokens: [String], startIndex: Int, endIndex: Int) throws -> (testRes: Comparison, lastIndex: Int) {
-        print("Parsing Comparison at \(tokens[startIndex])")
+//        print("Parsing Comparison at \(tokens[startIndex])")
         var index = startIndex
         var op: String = ""
         if tokens[index] == "!" {
@@ -774,7 +774,7 @@ class Script {
         let lhs = try parseExpression(tokens, startIndex: index, endIndex: endIndex)
         var rhs: (expression: Expression, lastIndex: Int)? = nil
         index = lhs.lastIndex
-        print("Parsed \(lhs.expression), now at token \(tokens[index])")
+//        print("Parsed \(lhs.expression), now at token \(tokens[index])")
         switch tokens[index] {
         case "==", "!=", "<=", ">=", "=<", "=>", ">", "<", "<>":
             op = tokens[index]
@@ -790,7 +790,7 @@ class Script {
     }
 
     func parseExpression(tokens: [String], startIndex: Int, endIndex: Int) throws -> (expression: Expression, lastIndex: Int) {
-        print("Parsing Expression at \(tokens[startIndex])")
+//        print("Parsing Expression at \(tokens[startIndex])")
         var preop = ""
         var index = startIndex
         if (tokens[index] == "+") || (tokens[index] == "-") {
@@ -808,12 +808,12 @@ class Script {
             secondTerm = try parseExpression(tokens, startIndex: index, endIndex: endIndex)
             index = secondTerm!.lastIndex
         }
-        print("Next token is \(tokens[index])")
+//        print("Next token is \(tokens[index])")
         return (Expression(preop: preop, firstTerm: term.term, op: op, secondTerm: secondTerm != nil ? secondTerm!.expression : nil), index)
     }
     
     func parseTerm(tokens: [String], startIndex: Int, endIndex: Int) throws -> (term: Term, lastIndex: Int) {
-        print("Parsing Term at \(tokens[startIndex])")
+//        print("Parsing Term at \(tokens[startIndex])")
         var index = startIndex
         let factor = try parseFactor(tokens, startIndex: index, endIndex: endIndex)
 //        index = try nextToken(factor.lastIndex, endIndex: endIndex)
@@ -830,7 +830,7 @@ class Script {
     }
     
     func parseFactor(tokens: [String], startIndex: Int, endIndex: Int) throws -> (factor: Factor, lastIndex: Int) {
-        print("Parsing Factor at \(tokens[startIndex])")
+//        print("Parsing Factor at \(tokens[startIndex])")
         var index = startIndex
         let la = lookAhead(tokens, index: index)
 
@@ -895,7 +895,7 @@ class Script {
     }
     
     func parseFunc(tokens: [String], startIndex: Int, endIndex: Int) throws -> (funcRes: Funcall, lastIndex: Int) {
-        print("Parsing Function call at \(tokens[startIndex])")
+//        print("Parsing Function call at \(tokens[startIndex])")
         var index = startIndex
         let funcName = tokens[index]
         index += 1 // we already know there is "(" there from the check in the call
@@ -915,7 +915,7 @@ class Script {
     }
     
     func parseAssign(tokens: [String], startIndex: Int, endIndex: Int) throws -> (asRes: Assignment, lastIndex: Int) {
-        print("Parsing Assignment at \(tokens[startIndex])")
+//        print("Parsing Assignment at \(tokens[startIndex])")
 //        let lhs = tokens[startIndex]
         let lhs = try parseFactor(tokens, startIndex: startIndex, endIndex: endIndex)
         var index = lhs.lastIndex
@@ -930,7 +930,7 @@ class Script {
     }
     
     func parseArray(tokens: [String], startIndex: Int, endIndex: Int) throws -> (arr: ScriptArray, lastIndex: Int) {
-        print("Parsing Array at \(tokens[startIndex])")
+//        print("Parsing Array at \(tokens[startIndex])")
         var index = try nextToken(startIndex, endIndex: endIndex)
         var expres: [Expression] = []
         while tokens[index] != "]" {
@@ -947,7 +947,7 @@ class Script {
     }
     
     func parseArrayElem(tokens: [String], startIndex: Int, endIndex: Int) throws -> (arrElem: IndexedArray, lastIndex: Int) {
-        print("Parsing Indexed Array at \(tokens[startIndex])")
+//        print("Parsing Indexed Array at \(tokens[startIndex])")
         let name = tokens[startIndex]
         var index = startIndex + 1 // We already know a "[" is there
         index = try nextToken(index, endIndex: endIndex)

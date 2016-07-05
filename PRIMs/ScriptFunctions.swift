@@ -152,7 +152,7 @@ func modelTime(content: [Factor], model: Model?) throws -> (result: Factor?, don
     for arg in content {
         s += arg.description + " "
     }
-    print(s)
+//    print(s)
     model?.addToTraceField(s)
     return (nil, true)
 }
@@ -239,7 +239,7 @@ func dataLine(content: [Factor], model: Model?) throws -> (result: Factor?, done
 func runStep(content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool) {
     if model!.fallingThrough { return(nil, true) }
     model!.newStep()
-    print("Running a step")
+//    print("Running a step")
     return (nil, true)
 }
 
@@ -301,11 +301,11 @@ func runRelativeTimeOrAction(content: [Factor], model: Model?) throws -> (result
         actionFound = true
         for i in 1..<content.endIndex {
             if let action = model!.formerBuffers["action"]?.slotvals["slot\(i)"]?.description {
-                print(content[i], action)
+//                print(content[i], action)
                 if content[i] != Factor.Str(action) {
                     actionFound = false
                 } else {
-                    print("Match")
+//                    print("Match")
                 }
             } else {
                 actionFound = false

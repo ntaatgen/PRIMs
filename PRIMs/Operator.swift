@@ -142,7 +142,8 @@ class Operator {
             })
         model.addToTrace("Conflict Set", level: 5)
         for (chunk,activation) in cfs {
-            model.addToTrace("  \(chunk.name) A = \(activation)", level: 5)
+            let outputString = "  " + chunk.name + "A = " + String(format:"%.3f", activation) //+ "\(activation)"
+            model.addToTrace(outputString, level: 5)
         }
             var match = false
         var candidate: Chunk = Chunk(s: "empty", m: model)
@@ -154,12 +155,16 @@ class Operator {
                 model.buffers["operator"] = candidate.copy()
                 let inst = model.procedural.findMatchingProduction()
                 (match, prim) = model.procedural.fireProduction(inst, compile: false)
-                if !match {
-                    model.addToTrace("   Operator \(candidate.name) does not match because of \(prim!.name)", level: 5)
+                if let pr = prim {
+                    if !match {
+                        let s = "   Operator " + candidate.name + " does not match because of " + pr.name
+                        model.addToTrace(s, level: 5)
+                    }
                 }
                 if match && candidate.spreadingActivation() <= 0.0 && model.buffers["operator"]?.slotValue("condition") != nil {
                     match = false
-                    model.addToTrace("   Rejected operator \(candidate.name) because it has no associations and no production that tests all conditions", level: 2)
+                    let s = "   Rejected operator " + candidate.name + " because it has no associations and no production that tests all conditions"
+                    model.addToTrace(s, level: 2)
                 }
                 model.buffers["operator"] = nil
             } while !match && !cfs.isEmpty && cfs[0].1 > model.dm.retrievalThreshold
@@ -180,7 +185,9 @@ class Operator {
             let item = (opRetrieved!, model.time - latency)
             previousOperators.append(item)
         }
-        model.addToTrace("*** Retrieved operator \(opRetrieved!.name) with spread \(opRetrieved!.spreadingActivation())", level: 1)
+        if let opr = opRetrieved {
+            model.addToTrace("*** Retrieved operator \(opr.name) with spread \(opr.spreadingActivation())", level: 1)
+        }
         model.dm.addToFinsts(opRetrieved!)
         model.buffers["goal"]!.setSlot("last-operator", value: opRetrieved!)
         model.buffers["operator"] = opRetrieved!.copy()

@@ -170,7 +170,7 @@ class Model {
     }
     
     /**
-    Add an item to trace so that it is always visible and do not gets a timestamp. This is used when parsing a model
+    Add an item to trace so that it is always visible and does not get a timestamp. This is used when parsing a model
     - parameter s: the string to add
     */
     func addToTraceField(s: String) {
@@ -242,7 +242,7 @@ class Model {
             modelText = modelCode
             newResult()
             if scenario.initScript != nil {
-                print("Running init script")
+//                print("Running init script")
                 scenario.initScript!.reset()
                 scenario.initScript!.step(self)
                 

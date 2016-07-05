@@ -657,7 +657,7 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
         let saveResult = saveDialog.runModal()
         if saveResult != NSFileHandlingPanelOKButton { return }
         if saveDialog.URL == nil { return }
-        print("Loading script \(fileDialog.URL!) to output to \(saveDialog.URL!)")
+//        print("Loading script \(fileDialog.URL!) to output to \(saveDialog.URL!)")
         batchRunner = BatchRun(script: batchScript, mainModel: model, outputFile: saveDialog.URL!, controller: self, directory: directory!)
 //        model.tracing = false
         batchProgressBar.doubleValue = 0

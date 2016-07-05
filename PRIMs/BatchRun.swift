@@ -88,7 +88,7 @@ class BatchRun {
                     var tasknumber = self.model.findTask(taskname!)
                     if tasknumber == nil {
                         let taskPath = self.directory.URLByAppendingPathComponent(taskname! + ".prims")
-                        print("Trying to load \(taskPath)")
+//                        print("Trying to load \(taskPath)")
                         if !self.model.loadModelWithString(taskPath) {
                             self.mainModel.addToTraceField("Task \(taskname!) is not loaded nor can it be found")
                             return
@@ -105,7 +105,7 @@ class BatchRun {
                     while (!stopByTime && j < Int(endCriterium!)) || (stopByTime && (self.model.time - startTime) < endCriterium!) {
                         j += 1
 //                    for j in 0..<numberOfTrials! {
-                        print("Trial #\(j)")
+//                        print("Trial #\(j)")
                         self.model.run()
                         var output: String = ""
                         for line in self.model.outputData {
@@ -147,7 +147,7 @@ class BatchRun {
                     dispatch_async(dispatch_get_main_queue()) {
                         self.controller.updateAllViews()
                     }
-                    print("*** About to reset model ***")
+//                    print("*** About to reset model ***")
                     self.model.dm = nil
                     self.model.procedural = nil
                     self.model.action = nil
@@ -158,8 +158,8 @@ class BatchRun {
                     self.model = Model(silent: true, batchMode: true)
                 case "repeat":
                     scanner.scanInt()
-                case "done":
-                    print("*** Model has finished running ****")
+                case "done": break
+//                    print("*** Model has finished running ****")
                 default: break
                     
                 }
