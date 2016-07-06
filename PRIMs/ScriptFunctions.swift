@@ -536,21 +536,21 @@ func strToInt(content: [Factor], model: Model?) throws -> (result: Factor?, done
 }
 
 /**
- Open jar file
+ Open jar file, parameters are passed on to command line
  */
 func openJar(content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool) {
 
     let task = NSTask()
     task.launchPath = "/usr/bin/java"
-    task.arguments = ["-jar", content[0].description]
-    
+    task.arguments = ["-jar"]
+    for arg in content {
+        task.arguments?.append(arg.description)
+    }
     let pipe = NSPipe()
     task.standardOutput = pipe
-
     task.launch()
     let data = pipe.fileHandleForReading.readDataToEndOfFile()
     let output: String = NSString(data: data, encoding: NSUTF8StringEncoding)! as String
-
     print(output)
     return (Factor.Str(output), true)
 }
