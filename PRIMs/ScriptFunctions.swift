@@ -154,7 +154,9 @@ func modelTime(content: [Factor], model: Model?) throws -> (result: Factor?, don
     for arg in content {
         s += arg.description + " "
     }
-//    print(s)
+    if(!model!.batchMode) {
+        print(s)
+    }
     model?.addToTraceField(s)
     return (nil, true)
 }
