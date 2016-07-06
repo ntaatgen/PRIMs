@@ -37,6 +37,7 @@ let scriptFunctions: [String:([Factor], Model?) throws -> (result: Factor?, done
     "batch-parameters": batchParameters,
     "str-to-int": strToInt,
     "open-jar": openJar,
+    "report-memory": reportMemory,
     ]
 
 
@@ -550,4 +551,29 @@ func openJar(content: [Factor], model: Model?) throws -> (result: Factor?, done:
 
     print(output)
     return (Factor.Str(output), true)
+}
+
+
+/**
+ Memory Management
+ */
+func reportMemory(content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool) {
+    var info = task_basic_info()
+    var count = mach_msg_type_number_t(sizeofValue(info))/4
+    
+    let kerr: kern_return_t = withUnsafeMutablePointer(&info) {
+        
+        task_info(mach_task_self_,
+                  task_flavor_t(TASK_BASIC_INFO),
+                  task_info_t($0),
+                  &count)
+        
+    }
+    
+    if kerr == KERN_SUCCESS {
+        return(Factor.Str("\(info.resident_size)"), true)
+    }
+    else {
+        return(Factor.Str("Error"), true)
+    }
 }
