@@ -82,13 +82,17 @@ class Production: NSObject, NSCoding {
         let fullName = aDecoder.decodeObjectForKey("fullname") as? String?,
         let newCondition = aDecoder.decodeObjectForKey("newcondition") as? String?,
         let newAction = aDecoder.decodeObjectForKey("newaction") as? String?,
-        let goalChecks = aDecoder.decodeObjectForKey("goalchecks") as? [Chunk]
+        let goalChecks = aDecoder.decodeObjectForKey("goalchecks") as? [Chunk],
+        let conditions = aDecoder.decodeObjectForKey("conditions") as? [Prim],
+        let actions = aDecoder.decodeObjectForKey("actions") as? [Prim]
             else { return nil }
         self.init(name: name, model: model, condition: condition, action: action, op: op, parent1: parent1, parent2: parent2, taskID: -3, u: aDecoder.decodeDoubleForKey("utility"))
         self.fullName = fullName
         self.newCondition = newCondition
         self.newAction = newAction
         self.goalChecks = goalChecks
+        self.conditions = conditions
+        self.actions = actions
     }
     
     func encodeWithCoder(coder: NSCoder) {
@@ -105,6 +109,8 @@ class Production: NSObject, NSCoding {
         coder.encodeObject(self.newCondition, forKey: "newcondition")
         coder.encodeObject(self.newAction, forKey: "newaction")
         coder.encodeObject(self.goalChecks, forKey: "goalchecks")
+        coder.encodeObject(self.conditions, forKey: "conditions")
+        coder.encodeObject(self.actions, forKey: "actions")
     }
     func setFullName() {
         fullName = name + "|" + newCondition! + ";" + newAction!
