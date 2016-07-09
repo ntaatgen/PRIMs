@@ -70,6 +70,7 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
     
     func numberToColor(i: Int) -> NSColor {
         switch i {
+        case -3: return NSColor.brownColor()
         case -2: return NSColor.grayColor()
         case -1: return NSColor.whiteColor()
         case 0: return NSColor.redColor()
@@ -611,7 +612,6 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
     
     @IBAction func reset(sender: NSButton) {
         model.reset(model.currentTaskIndex)
-
         primViewCalculateGraph(primGraph)
         primGraph.needsDisplay = true
         updateAllViews()
@@ -673,6 +673,38 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
         outputText.needsDisplay = true
 //        model.tracing = true
         updateAllViews()
+    }
+    
+    @IBAction func loadImage(sender: NSButton) {
+        let fileDialog: NSOpenPanel = NSOpenPanel()
+        fileDialog.title = "Select image file for loading"
+        fileDialog.prompt = "Select"
+        fileDialog.worksWhenModal = true
+        fileDialog.allowsMultipleSelection = false
+        fileDialog.resolvesAliases = true
+        fileDialog.allowedFileTypes = ["brain"]
+        let result = fileDialog.runModal()
+        if result != NSFileHandlingPanelOKButton { return }
+        if let filePath = fileDialog.URL?.path {
+            guard let m = (NSKeyedUnarchiver.unarchiveObjectWithFile(filePath) as? Model) else { return }
+            model = m
+            model.dm.reintegrateChunks()
+        } else { return }
+        updateAllViews()
+    }
+    
+    @IBAction func saveImage(sender: NSButton) {
+        let saveDialog = NSSavePanel()
+        saveDialog.title = "Enter the name of the imagefile"
+        saveDialog.prompt = "Save"
+        saveDialog.worksWhenModal = true
+        saveDialog.allowsOtherFileTypes = false
+        saveDialog.allowedFileTypes = ["brain"]
+        saveDialog.nameFieldStringValue = "defaultbrain.brain"
+        let saveResult = saveDialog.runModal()
+        if saveResult != NSFileHandlingPanelOKButton { return }
+        if saveDialog.URL == nil { return }
+        NSKeyedArchiver.archiveRootObject(model, toFile: saveDialog.URL!.path!)
     }
     
     func updateProgressBar() {

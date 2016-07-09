@@ -12,8 +12,7 @@ import Foundation
     The Operator class contains many of the functions that deal with operators. Most of these still have to be migrated from Model.swift
 */
 class Operator {
-    /// This Array has all the operators with arrays of their conditions and actions. We use this to find the optimal ovelap when defining new operators
-    var operatorCA: [(String,[String],[String])] = []
+
     unowned let model: Model
     
     init(model: Model) {
@@ -25,7 +24,6 @@ class Operator {
     Reset the operator object
     */
     func reset() {
-        operatorCA = []
     }
     
     
@@ -75,7 +73,7 @@ class Operator {
         var bestActionMatch: [String] = []
         var bestActionNumber: Int = -1
         var bestActionActivation: Double = -1000
-        for (chunkName, chunkConditions, chunkActions) in operatorCA {
+        for (chunkName, chunkConditions, chunkActions) in model.dm.operatorCA {
             if let chunkActivation = model.dm.chunks[chunkName]?.baseLevelActivation() {
                 let conditionOverlap = determineOverlap(chunkConditions, newList: conditions)
                 if (conditionOverlap > bestConditionNumber) || (conditionOverlap == bestConditionNumber && chunkActivation > bestConditionActivation) {
@@ -95,7 +93,7 @@ class Operator {
         let (actionString, actionList) = constructList(bestActionMatch, source: actions, overlap: bestActionNumber)
         op.setSlot("condition", value: conditionString)
         op.setSlot("action", value: actionString)
-        operatorCA.append((op.name, conditionList, actionList))
+        model.dm.operatorCA.append((op.name, conditionList, actionList))
     }
     
     

@@ -17,7 +17,7 @@ struct DataLine {
     var time: Double
 }
 
-class Model {
+class Model: NSObject, NSCoding {
     var time: Double = 0
     var dm: Declarative!
     var procedural: Procedural!
@@ -105,17 +105,48 @@ class Model {
         currentTrial = 1.0
     }
         
-    init(silent: Bool, batchMode: Bool = false) {
+    init(silent: Bool, batchMode: Bool) {
         trace = []
         self.silent = silent
         self.batchMode = batchMode
+     
+    }
+    
+    required convenience init?(coder aDecoder: NSCoder) {
+        guard let dm = aDecoder.decodeObjectForKey("dm") as? Declarative,
+                let procedural = aDecoder.decodeObjectForKey("procedural") as? Procedural
+            else { return nil }
+        self.init(silent: false, batchMode: false)
+        self.dm = dm
+        self.procedural = procedural
+        self.imaginal = Imaginal(model: self)
+        self.action = Action(model: self)
+        self.operators = Operator(model: self)
+    }
+    
+    convenience init(silent: Bool) {
+        self.init(silent: silent, batchMode: false)
         self.dm = Declarative(model: self)
         self.procedural = Procedural(model: self)
         self.imaginal = Imaginal(model: self)
         self.action = Action(model: self)
-        self.operators = Operator(model: self)        
+        self.operators = Operator(model: self)
     }
     
+    convenience init(batchMode: Bool) {
+        self.init(silent: true, batchMode: batchMode)
+        self.dm = Declarative(model: self)
+        self.procedural = Procedural(model: self)
+        self.imaginal = Imaginal(model: self)
+        self.action = Action(model: self)
+        self.operators = Operator(model: self)
+    }
+    
+    func encodeWithCoder(coder: NSCoder) {
+        coder.encodeObject(self.dm, forKey: "dm")
+        coder.encodeObject(self.procedural, forKey: "procedural")
+        coder.encodeDouble(self.time, forKey: "time")
+    }
 
     
     func loadModelWithString(filePath: NSURL) -> Bool {
