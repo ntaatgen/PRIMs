@@ -289,7 +289,8 @@ class Declarative  {
         } else if (Double(x.description) != nil && Double(y.description) != nil) {
             mismatch = mismatchNumbers(x, y)
         } else {
-            mismatch = mismatchOperators(x, y)
+            //mismatch = mismatchOperators(x, y)
+            mismatch = -1
         }
         return mismatch
     }
