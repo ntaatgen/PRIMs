@@ -231,7 +231,7 @@ class Declarative  {
                     } else { continue chunkloop }
                 }
                 conflictSet.append((ch1,ch1.activation()))
-//                println("Activation of \(ch1.name) is \(ch1.activation())")
+              //  print("Activation of \(ch1.name) is \(ch1.activation())")
                 if ch1.activation() > bestActivation {
                     bestActivation = ch1.activation()
                     bestMatch = ch1
@@ -317,7 +317,7 @@ class Declarative  {
 //            println("Candidate: \(ch1) with activation \(ch1.activation() + mismatch)")
             var activation = retrievalThreshold
             if (newPartialMatchingPow != nil)  {
-                activation = ch1.activation() + mismatch * misMatchPenalty * pow(newPartialMatchingPow!,Double(ch1.references))
+                activation = ch1.activation() + mismatch * misMatchPenalty * pow(Double(ch1.references),newPartialMatchingPow!)
             } else if (newPartialMatchingExp != nil) {
                 activation = ch1.activation() + mismatch * misMatchPenalty * pow(newPartialMatchingExp!,Double(ch1.references))
             } else {
