@@ -22,7 +22,7 @@ class BatchRun {
         self.batchScript = script
         self.outputFileName = outputFile
         self.traceFileName = outputFile.URLByDeletingPathExtension!.URLByAppendingPathExtension("tracedat")
-        self.model = Model(silent: true, batchMode: true)
+        self.model = Model(batchMode: true)
         self.controller = controller
         self.directory = directory
         self.mainModel = mainModel
@@ -187,7 +187,7 @@ class BatchRun {
                     self.model.action = nil
                     self.model.imaginal = nil
                     self.model.batchParameters = []
-                    self.model = Model(silent: true, batchMode: true)
+                    self.model = Model(batchMode: true)
                 case "repeat":
                     scanner.scanInt()
                 case "done":

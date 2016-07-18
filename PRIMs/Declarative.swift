@@ -8,7 +8,7 @@
 
 import Foundation
 
-class Declarative  {
+class Declarative: NSObject, NSCoding  {
     unowned let model: Model
     static let baseLevelDecayDefault = 0.5
     static let optimizedLearningDefault = true
@@ -75,12 +75,15 @@ class Declarative  {
     var retrievalReinforces = retrievalReinforcesDefault
     /// default Activation for chunks
     var defaultActivation = defaultActivationDefault
+    
     /// Dictionary with all the chunks in DM, maps name onto Chunk
     var chunks = [String:Chunk]()
     /// List of all the chunks that partipated in the last retrieval. Tuple has Chunk and activation value
     var conflictSet: [(Chunk,Double)] = []
     /// Finst list for the current retrieval
     var finsts: [String] = []
+    /// This Array has all the operators with arrays of their conditions and actions. We use this to find the optimal ovelap when defining new operators
+    var operatorCA: [(String,[String],[String])] = []
     /// Parameter that controls whether to use partial matching (true) or not (false, default)
     var partialMatching = partialMatchingDefault
     var newPartialMatchingPow = newPartialMatchingDefault
@@ -95,7 +98,49 @@ class Declarative  {
         self.model = model
 
     }
+    
+    required convenience init?(coder aDecoder: NSCoder) {
+        guard let model = aDecoder.decodeObjectForKey("model") as? Model,
+            let chunks = aDecoder.decodeObjectForKey("chunks") as? [String:Chunk],
+            let operatorCACol1 = aDecoder.decodeObjectForKey("operatorCACol1") as? [String],
+            let operatorCACol2 = aDecoder.decodeObjectForKey("operatorCACol2") as? [[String]],
+            let operatorCACol3 = aDecoder.decodeObjectForKey("operatorCACol3") as? [[String]]
+            else { return nil }
+        self.init(model: model)
+        self.chunks = chunks
+        for i in 0..<operatorCACol1.count {
+            self.operatorCA.append((operatorCACol1[i], operatorCACol2[i], operatorCACol3[i]))
+        }
+    }
+    
+    func encodeWithCoder(coder: NSCoder) {
+        coder.encodeObject(self.model, forKey: "model")
+        coder.encodeObject(self.chunks, forKey: "chunks")
+        let operatorCACol1 = self.operatorCA.map{ $0.0 }
+        let operatorCACol2 = self.operatorCA.map{ $0.1 }
+        let operatorCACol3 = self.operatorCA.map{ $0.2 }
+        coder.encodeObject(operatorCACol1, forKey: "operatorCACol1")
+        coder.encodeObject(operatorCACol2, forKey: "operatorCACol2")
+        coder.encodeObject(operatorCACol3, forKey: "operatorCACol3")
+        
+    }
 
+    /**
+        After chunks have been loaded from a file, not all slotvalues necessarily point to chunks, but instead
+        may still be Strings. This function properly sets those values.
+    */
+    func reintegrateChunks() {
+        for (_,chunk) in chunks {
+            for (slot,value) in chunk.slotvals {
+                switch value {
+                case .Text(let s):
+                    chunk.setSlot(slot, value: s)
+                default: break
+                }
+            }
+        }
+    }
+    
     func setParametersToDefault() {
         baseLevelDecay = Declarative.baseLevelDecayDefault
         optimizedLearning = Declarative.optimizedLearningDefault
@@ -147,24 +192,6 @@ class Declarative  {
         finsts.append(c.name)
     }
     
-    func addToDMOrStrengthen(chunk: Chunk) -> Chunk {
-        if let dupChunk = duplicateChunk(chunk) {
-            dupChunk.addReference()
-            dupChunk.mergeAssocs(chunk)
-                        return dupChunk
-        } else {
-            chunk.startTime()
-            chunks[chunk.name] = chunk
-            for (_,val) in chunk.slotvals {
-                switch val {
-                case .Symbol(let refChunk):
-                    refChunk.fan += 1
-                default: break
-                }
-            }
-        return chunk
-        }
-    }
     
     func addToDM(chunk: Chunk) {
         if let dupChunk = duplicateChunk(chunk) {
@@ -174,7 +201,6 @@ class Declarative  {
             if chunk.fixedActivation != nil && dupChunk.fixedActivation != nil {
                 dupChunk.fixedActivation = max(chunk.fixedActivation!, dupChunk.fixedActivation!)
             }
-//            return dupChunk
         } else {
             chunk.startTime()
             chunks[chunk.name] = chunk
@@ -185,7 +211,6 @@ class Declarative  {
                 default: break
                 }
             }
-//            return chunk
         }
     }
     
