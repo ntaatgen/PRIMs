@@ -192,6 +192,26 @@ class BatchRun {
                     scanner.scanInt()
                 case "done": break
 //                    print("*** Model has finished running ****")
+                case "load-image":
+                    let filename = scanner.scanUpToCharactersFromSet(whiteSpaceAndNL)
+                    if filename == nil {
+                        self.mainModel.addToTraceField("Illegal task name in run")
+                        return
+                    }
+                    let taskPath = self.directory.URLByAppendingPathComponent(filename! + ".brain").path
+                    self.mainModel.addToTraceField("Loading image file \(taskPath!)")
+                    guard let m = (NSKeyedUnarchiver.unarchiveObjectWithFile(taskPath!) as? Model) else { return }
+                    self.model = m
+                    self.model.dm.reintegrateChunks()
+                case "save-image":
+                    let filename = scanner.scanUpToCharactersFromSet(whiteSpaceAndNL)
+                    if filename == nil {
+                        self.mainModel.addToTraceField("Illegal task name in run")
+                        return
+                    }
+                    let taskPath = self.directory.URLByAppendingPathComponent(filename! + ".brain").path
+                    self.mainModel.addToTraceField("Saving image to file \(taskPath!)")
+                    NSKeyedArchiver.archiveRootObject(self.model, toFile: taskPath!)
                 default: break
                     
                 }

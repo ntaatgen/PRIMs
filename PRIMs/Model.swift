@@ -122,6 +122,7 @@ class Model: NSObject, NSCoding {
         self.imaginal = Imaginal(model: self)
         self.action = Action(model: self)
         self.operators = Operator(model: self)
+        self.time = aDecoder.decodeDoubleForKey("time")
     }
     
     convenience init(silent: Bool) {
