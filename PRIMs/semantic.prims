@@ -14,13 +14,13 @@ define task semantic {
 define goal semantic {
     operator start-semantic {
     "Start semantic reasoning"
-        WM1 = nil
         V1 <> nil
+        WM1 = nil
      ==>
         V1 -> WM1
-        property -> RT1
+        fact-type -> RT1
         V1 -> RT2
-        subvocalize -> AC1
+        action -> AC1
         V1 -> AC2
     }
 
@@ -28,20 +28,20 @@ define goal semantic {
     "Move up the tree"
         RT2 = WM1
         V2 <> WM1
-        ==>
+    ==>
         RT3 -> WM1
-        property -> RT1
+        fact-type -> RT1
         RT3 -> RT2
-        subvocalize -> AC1
-        RT3 -> AC2
+        action -> AC1
+        RT3 ->AC2
     }
 
     operator say-yes {
     "Say yes when found"
         V2 = WM1
         ==>
-        say -> AC1
-        yes -> AC2
+        action -> AC1
+        success-response -> AC2
         stop -> G1
     }
 
@@ -50,8 +50,8 @@ define goal semantic {
         V2 <> WM1
         RT1 = error
         ==>
-        say -> AC1
-        no -> AC2
+        action -> AC1
+        fail-response -> AC2
         stop -> G1
     }
 }
@@ -91,6 +91,7 @@ define script {
     pairno = random(length(pairs))
     pair = pairs[pairno]
     print("Is",pair[0],"a",pair[1],"?")
+    set-goal("semantic", ["fact-type", "property"], ["action", "subvocalize"], ["success-response", "yes"],["fail-response", "no"])
     screen(pair[0],pair[1])
     run-until-action("say")
     issue-reward()

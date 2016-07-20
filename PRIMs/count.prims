@@ -20,9 +20,9 @@ define goal count {
    WM1 = nil  // Imaginal should be empty
   ==>
    V1 -> WM1 // Copy the start number to working memory
-   count-fact -> RT1 // Start retrieving the next number
+   fact-type -> RT1 // Start retrieving the next number
    V1 -> RT2
-   say -> AC1 // Say the current number
+   action -> AC1 // Say the current number
    V1 -> AC2
    }
 
@@ -32,9 +32,9 @@ define goal count {
     V2 <> WM1
    ==>
     RT3 -> WM1
-    count-fact -> RT1
+    fact-type -> RT1
     RT3 -> RT2
-    say -> AC1
+    action -> AC1
     RT3 ->AC2
   }
 
@@ -42,9 +42,7 @@ define goal count {
     "Stop when reaching final number"
     V2 = WM1
    ==>
-    say -> AC1
-    stop -> AC2
-    nil -> V2
+    final-action -> AC1
     stop -> G1
   }
 
@@ -76,8 +74,9 @@ define script {
     start = random(3)
     end = start + 1 + random(3)
     print("Counting from",digits[start],"to",digits[end])
+    set-goal("count", ["fact-type", "count-fact"], ["action", "say"], ["final-action","end"])
     screen(digits[start],digits[end])
-    run-until-action("say","stop")
+    run-until-action("stop")
     issue-reward()
     trial-end()
 }

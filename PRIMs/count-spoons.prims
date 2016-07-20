@@ -2,7 +2,7 @@
 //
 
 define task count-spoons {
-    initial-goals: (count-all say-answer)
+    initial-goals: (count-all)
     goals: (countgoal)
     task-constants: (item spoon placemat)
     imaginal-autoclear: nil
@@ -24,14 +24,14 @@ define facts {
 define goal count-all {
     operator init-count-all {
         WM1=nil
-        V1=placemat
+        V1=container
         ==>
         focus-down->AC1
-        countgoal->G3
+        countgoal->G2
     }
 
     operator count-all-next-container {
-        V1=item
+        V1=item-type
         V2=error
         ==>
         focus-up->AC1
@@ -39,18 +39,19 @@ define goal count-all {
 
     operator count-all-focus-down-next-container {
         WM1<>nil
-        V1=placemat
+        V1=container
         V2<>error
         ==>
         focus-down->AC1
-        countgoal->G3
+        count-subtask->G3
     }
 
     operator count-all-done {
-        V1=placemat
+        V1=container
         V2=error
         ==>
-        done->WM2
+        action -> AC1
+        WM1 -> AC2
         nil->G1
     }
 }
@@ -59,29 +60,29 @@ define goal countgoal {
     operator init-countgoal {
         WM1=nil
         ==>
-        zero->WM1
+        start-number->WM1
     }
 
     operator countgoal-retrieve {
-        V1=item
-        V2=spoon
+        V1=item-type
+        V2=target
         RT1=nil
         ==>
         WM1->RT2
-    count-fact->RT1
+        fact-type->RT1
     }
 
     operator countgoal-add-count {
-        V1=item
-        V2=spoon
+        V1=item-type
+        V2=target
         ==>
         RT3->WM1
         focus-next->AC1
     }
 
     operator countgoal-ignore-non-targets {
-        V1=item
-        V2<>spoon
+        V1=item-type
+        V2<>target
         ==>
         focus-next->AC1
     }
@@ -89,19 +90,10 @@ define goal countgoal {
     operator countgoal-done {
         V2=error
         ==>
-        nil->G3
+        nil->G2
     }
 }
 
-define goal say-answer {
-    operator report-answer {
-        WM2=done
-        ==>
-        say->AC1
-        WM1->AC2
-        stop->G1
-    }
-}
 
 define script {
     screen(["placemat","one",
@@ -117,6 +109,9 @@ define script {
                 ["item","spoon"],
                 ["item","spoon"]])
     run-until-action("say")
+    set-goal("count-all", ["container", "placemat"], ["item-type", "item"], ["count-subtask", "countgoal"],["action", "say"])
+    set-goal("countgoal", ["start-number","zero"],["item-type", "item"], ["target","spoon"],["fact-type","count-fact"])
+
     issue-reward()
     trial-end()
 }
