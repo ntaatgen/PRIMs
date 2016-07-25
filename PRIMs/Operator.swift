@@ -123,6 +123,43 @@ class Operator {
         }
     }
     
+    static let literalRoles = ["stop", "wait", "error", "focus-up", "focusup"] // not complete yet!!!
+    
+    /**
+    Function that checks whether the operator matches the current roles in the goal. If it also returns an operator with the appropriate substitution.
+     - parameter op: The candidate operator
+     - returns: nil if there is no match, otherwise the operator with the appropriate substitution
+    */
+    func checkOperatorGoalMatch(op: Chunk) -> Chunk? {
+        guard let goalChunk = model.buffers["goal"] else { return nil }
+        for (_,value) in goalChunk.slotvals {
+            if let chunk = value.chunk() {
+                if chunk.type == "goaltype" {
+                    let opCopy = op.copyChunk()
+                    var i = 1
+                    var match = true
+                    while match && opCopy.slotvals["slot\(i)"] != nil {
+                        let opRole = opCopy.slotvals["slot\(i)"]!.description
+                        if !Operator.literalRoles.contains(opRole) {
+                            if let substitute = chunk.slotvals[opRole] {
+                                opCopy.setSlot("slot\(i)", value: substitute)
+                                i = i + 1
+                            } else {
+                                match = false
+                            }
+                        } else {
+                            i = i + 1
+                        }
+                    }
+                    if match {
+                        return opCopy
+                    }
+                }
+            }
+        }
+        return nil
+    }
+    
     
     /**
     This function finds an applicable operator and puts it in the operator buffer.
@@ -140,41 +177,47 @@ class Operator {
             })
         model.addToTrace("Conflict Set", level: 5)
         for (chunk,activation) in cfs {
-            let outputString = "  " + chunk.name + "A = " + String(format:"%.3f", activation) //+ "\(activation)"
+            let outputString = "  " + chunk.name + " A = " + String(format:"%.3f", activation) //+ "\(activation)"
             model.addToTrace(outputString, level: 5)
         }
-            var match = false
+        var match = false
         var candidate: Chunk = Chunk(s: "empty", m: model)
+        var candidateWithSubstitution: Chunk = Chunk(s: "empty", m: model)
         var activation: Double = 0.0
         var prim: Prim?
         if !cfs.isEmpty {
             repeat {
                 (candidate, activation) = cfs.removeAtIndex(0)
-                model.buffers["operator"] = candidate.copy()
-                let inst = model.procedural.findMatchingProduction()
-                (match, prim) = model.procedural.fireProduction(inst, compile: false)
-                if let pr = prim {
-                    if !match {
-                        let s = "   Operator " + candidate.name + " does not match because of " + pr.name
-                        model.addToTrace(s, level: 5)
+                print("checking operator \(candidate.name)")
+                if let toBeCheckedOperator = checkOperatorGoalMatch(candidate) {
+                    candidateWithSubstitution = toBeCheckedOperator.copyChunk()
+                    model.buffers["operator"] = toBeCheckedOperator
+                    let inst = model.procedural.findMatchingProduction()
+                    (match, prim) = model.procedural.fireProduction(inst, compile: false)
+                    if let pr = prim {
+                        if !match {
+                            let s = "   Operator " + candidate.name + " does not match because of " + pr.name
+                            model.addToTrace(s, level: 5)
+                        }
                     }
-                }
-                if match && candidate.spreadingActivation() <= 0.0 && model.buffers["operator"]?.slotValue("condition") != nil {
-                    match = false
-                    let s = "   Rejected operator " + candidate.name + " because it has no associations and no production that tests all conditions"
+                    if match && candidate.spreadingActivation() <= 0.0 && model.buffers["operator"]?.slotValue("condition") != nil {
+                        match = false
+                        let s = "   Rejected operator " + candidate.name + " because it has no associations and no production that tests all conditions"
+                        model.addToTrace(s, level: 2)
+                    }
+                    model.buffers["operator"] = nil
+                } else {
+                    let s = "   Rejected operator " + candidate.name + " because its roles do not match any goal"
                     model.addToTrace(s, level: 2)
                 }
-                model.buffers["operator"] = nil
             } while !match && !cfs.isEmpty && cfs[0].1 > model.dm.retrievalThreshold
-        } else {
-            match = false
-            model.addToTrace("   No matching operator found", level: 2)
         }
         if match {
             opRetrieved = candidate
             latency = model.dm.latency(activation)
         } else {
             opRetrieved = nil
+            model.addToTrace("   No matching operator found", level: 2)
             latency = model.dm.latency(model.dm.retrievalThreshold)
             }
         model.time += latency
@@ -188,10 +231,9 @@ class Operator {
         }
         model.dm.addToFinsts(opRetrieved!)
         model.buffers["goal"]!.setSlot("last-operator", value: opRetrieved!)
-        model.buffers["operator"] = opRetrieved!.copy()
-        model.formerBuffers["operator"] = opRetrieved!
-        
-        
+        model.buffers["operator"] = candidateWithSubstitution
+        model.formerBuffers["operator"] = candidateWithSubstitution.copyLiteral()
+
         return true
     }
     

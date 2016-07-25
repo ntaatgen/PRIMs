@@ -149,7 +149,7 @@ class Production: NSObject, NSCoding {
                     return nil
                 }
             }
-            model.buffers["operator"] = op!.copy()
+            model.buffers["operator"] = op!.copyChunk()
             for cd in conditions {
                 if !cd.fire() {
                     model.buffers["operator"] = nil
@@ -166,7 +166,7 @@ class Production: NSObject, NSCoding {
     
     func testFire() -> (Bool, Prim?) {
         if op != nil {
-            model.buffers["operator"] = op!.copy()
+            model.buffers["operator"] = op!.copyChunk()
         }
         for bc in conditions {
             if !bc.fire() { // println("\(bc) does not match")
@@ -192,9 +192,6 @@ class Production: NSObject, NSCoding {
     - returns:  Whether execution was successful
     */
     func fire() -> (Bool, Prim?) {
-//        if op != nil {
-//            model.buffers["operator"] = op!.copy()
-//        }
         for bc in conditions {
             if !bc.fire() { // println("\(bc) does not match")
                 return (false, bc) } // one of the conditions does not match

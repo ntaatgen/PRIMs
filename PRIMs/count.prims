@@ -74,7 +74,7 @@ define script {
     start = random(3)
     end = start + 1 + random(3)
     print("Counting from",digits[start],"to",digits[end])
-    set-goal("count", ["fact-type", "count-fact"], ["action", "say"], ["final-action","end"])
+    set-goal("count", ["fact-type", "count-fact"], ["action", "say"], ["final-action","stop"])
     screen(digits[start],digits[end])
     run-until-action("stop")
     issue-reward()

@@ -39,6 +39,7 @@ let scriptFunctions: [String:([Factor], Model?) throws -> (result: Factor?, done
     "open-jar": openJar,
     "report-memory": reportMemory,
     "imaginal-to-dm": imaginalToDM,
+    "set-goal": setGoal
     ]
 
 
@@ -583,9 +584,33 @@ func reportMemory(content: [Factor], model: Model?) throws -> (result: Factor?, 
 
 /* Put the contents of the imaginal buffer in the declarative memory
  */
-func imaginalToDM(conten: [Factor], model: Model?) throws -> (result: Factor?, done: Bool) {
+func imaginalToDM(content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool) {
     if let imaginalChunk = model!.buffers["imaginal"] {
         model!.dm.addToDM(imaginalChunk)
     }
     return(nil, true)
 }
+
+/**
+ Add attributes and values to a goal chunk. The first argument is the name of the goal chunk, the remaining arguments are slot-value pairs
+ */
+func setGoal(content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool) {
+    guard content.count > 0 else { throw RunTimeError.invalidNumberOfArguments }
+    let goalChunkName = content[0].description
+    guard let chunk = model!.dm.chunks[goalChunkName] else { throw RunTimeError.errorInFunction("Goal chunk does not exists in setGoal") }
+    chunk.slotvals = [:] // Clear old attributes
+    chunk.setSlot("isa", value: "goaltype")
+    for index in 1..<content.count {
+        switch content[index] {
+        case .Arr(let pair):
+            guard pair.elements.count == 2 else { throw RunTimeError.errorInFunction("Invalid attribute-value pair in setGoal") }
+            let attribute = pair.elements[0].description
+            let value = pair.elements[1].description
+            chunk.setSlot(attribute, value: value)
+        default: throw RunTimeError.errorInFunction("setGoal should have attribute-value pairs in all but first arguments")
+        }
+    }
+    return(nil, true)
+}
+
+

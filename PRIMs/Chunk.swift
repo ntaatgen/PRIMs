@@ -119,8 +119,7 @@ class Chunk: NSObject, NSCoding {
     /**
     - returns: A copy of the chunk with a new name
     */
-    @nonobjc
-    func copy() -> Chunk {
+    func copyChunk() -> Chunk {
         let newChunk = model.generateNewChunk(self.name)
         newChunk.slotvals = self.slotvals
         newChunk.printOrder = self.printOrder

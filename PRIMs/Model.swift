@@ -311,8 +311,8 @@ class Model: NSObject, NSCoding {
         fallingThrough = false
         buffers = [:]
         procedural.reset()
-        buffers["goal"] = currentGoals?.copy()
-        buffers["constants"] = currentGoalConstants?.copy()
+        buffers["goal"] = currentGoals?.copyChunk()
+        buffers["constants"] = currentGoalConstants?.copyChunk()
         formerBuffers = [:]
         formerBuffers["goal"] = buffers["goal"]?.copyLiteral()
         formerBuffers["constants"] = buffers["constants"]?.copyLiteral()
@@ -329,8 +329,8 @@ class Model: NSObject, NSCoding {
         fallingThrough = false
         buffers = [:]
         procedural.reset()
-        buffers["goal"] = currentGoals?.copy()
-        buffers["constants"] = currentGoalConstants?.copy()
+        buffers["goal"] = currentGoals?.copyChunk()
+        buffers["constants"] = currentGoalConstants?.copyChunk()
         formerBuffers = [:]
         formerBuffers["goal"] = buffers["goal"]?.copyLiteral()
         formerBuffers["constants"] = buffers["constants"]?.copyLiteral()
