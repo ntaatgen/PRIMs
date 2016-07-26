@@ -246,6 +246,11 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
         return false
     }
     
+    func primViewEdgeColor(sender: PrimView, index: Int) -> NSColor {
+        guard primGraphData != nil else { return NSColor.blackColor() }
+        return primGraphData!.edges[index].learned ? NSColor.redColor() : NSColor.blackColor()
+    }
+    
     @IBOutlet weak var allLabelsButton: NSButton!
     
     @IBAction func allLabelsButtonPushed(sender: NSButton) {

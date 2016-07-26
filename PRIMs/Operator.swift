@@ -113,6 +113,8 @@ class Operator {
             let opReward = model.dm.defaultOperatorAssoc * (payoff - (model.time - operatorTime)) / model.reward
             if operatorChunk.assocs[goalChunk!.name] == nil {
                 operatorChunk.assocs[goalChunk!.name] = (0.0, 0)
+            } else if operatorChunk.assocs[goalChunk!.name]!.1 == 0 { // Association is defined in model
+                return
             }
             operatorChunk.assocs[goalChunk!.name]!.0 += model.dm.beta * (opReward - operatorChunk.assocs[goalChunk!.name]!.0)
             operatorChunk.assocs[goalChunk!.name]!.1 += 1
@@ -188,7 +190,6 @@ class Operator {
         if !cfs.isEmpty {
             repeat {
                 (candidate, activation) = cfs.removeAtIndex(0)
-                print("checking operator \(candidate.name)")
                 if let toBeCheckedOperator = checkOperatorGoalMatch(candidate) {
                     candidateWithSubstitution = toBeCheckedOperator.copyChunk()
                     model.buffers["operator"] = toBeCheckedOperator

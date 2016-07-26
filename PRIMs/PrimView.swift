@@ -20,6 +20,7 @@ protocol PrimViewDataSource: class {
     func primViewRescale(sender: PrimView, newW: Double, newH: Double)
     func primViewVisibleLabel(sender: PrimView, index: Int) -> String?
     func primViewVertexHalo(sender: PrimView, index: Int) -> Bool
+    func primViewEdgeColor(sender: PrimView, index: Int) -> NSColor
 }
 
 class PrimView: NSView {
@@ -49,7 +50,7 @@ class PrimView: NSView {
         path.fill()
     }
     
-    func drawEdge(start: NSPoint, end: NSPoint) {
+    func drawEdge(start: NSPoint, end: NSPoint, color: NSColor) {
         let π = CGFloat(M_PI)
         var angle: CGFloat
         if start.x != end.x {
@@ -71,7 +72,7 @@ class PrimView: NSView {
         path.moveToPoint(intersect)
         path.lineToPoint(arrowtip2)
         path.lineWidth = pathLineWidth
-        NSColor.blackColor().set()
+        color.set()
         path.stroke()
     }
     
@@ -87,7 +88,8 @@ class PrimView: NSView {
             let (destinationX,destinationY) = dataSource.primViewVertexCoordinates(self, index: destination)
             let startPoint = NSPoint(x: sourceX, y: sourceY)
             let endPoint = NSPoint(x: destinationX, y: destinationY)
-            drawEdge(startPoint, end: endPoint)
+            let color = dataSource.primViewEdgeColor(self, index: i)
+            drawEdge(startPoint, end: endPoint, color: color)
         }
         let numNodes = dataSource.primViewNumberOfVertices(self)
         for i in 0..<numNodes {

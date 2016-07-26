@@ -30,6 +30,7 @@ class Node {
 class Edge {
     let from: Node
     let to: Node
+    var learned: Bool = false
     init(from: Node, to: Node) {
         self.from = from
         self.to = to
@@ -220,20 +221,44 @@ class FruchtermanReingold {
                         operatorNode.halo = true
                     }
                     nodes[chunk.name] = operatorNode
-                    for task in chunk.definedIn {
-                        let taskName = model.tasks[task].name
-                        var taskNode: Node
-                        if nodes[taskName] == nil {
-                            taskNode = Node(name: taskName)
-                            taskNode.taskNumber = task
-                            nodes[taskName] = taskNode
-                            taskNode.taskNode = true
-                        } else {
-                            taskNode = nodes[taskName]!
+                    for (assocChunkName,(strength,assocCount)) in chunk.assocs {
+                        if let assocChunk = model.dm.chunks[assocChunkName] {
+                            if assocChunk.type == "goaltype" && strength > 0 {
+                                var taskNode: Node
+                                if nodes[assocChunkName] == nil {
+                                    taskNode = Node(name: assocChunkName)
+                                    if !assocChunk.definedIn.isEmpty {
+                                        taskNode.taskNumber = assocChunk.definedIn[0]
+                                    } else {
+                                        taskNode.taskNumber = -3
+                                    }
+                                    taskNode.taskNode = true
+                                    taskNode.labelVisible = true
+                                    nodes[assocChunkName] = taskNode
+                                } else {
+                                    taskNode = nodes[assocChunkName]!
+                                }
+                                
+                                let taskEdge = Edge(from: taskNode, to: operatorNode)
+                                taskEdge.learned = assocCount > 0
+                                edges.append(taskEdge)
+                            }
                         }
-                        let taskEdge = Edge(from: taskNode, to: operatorNode)
-                        edges.append(taskEdge)
                     }
+//                    for task in chunk.definedIn {
+//                        let taskName = model.tasks[task].name
+//                        var taskNode: Node
+//                        if nodes[taskName] == nil {
+//                            taskNode = Node(name: taskName)
+//                            taskNode.taskNumber = task
+//                            nodes[taskName] = taskNode
+//                            taskNode.taskNode = true
+//                        } else {
+//                            taskNode = nodes[taskName]!
+//                        }
+//                        let taskEdge = Edge(from: taskNode, to: operatorNode)
+//                        edges.append(taskEdge)
+//                    }
                     let operatorEdge = Edge(from: operatorNode, to: currentNode!)
                     edges.append(operatorEdge)
                     var actionList = chunk.slotvals["action"]!.description.componentsSeparatedByString(";")
