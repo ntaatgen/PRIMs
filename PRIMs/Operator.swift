@@ -111,17 +111,18 @@ class Operator {
         if goalChunk == nil { return }
         for (operatorChunk,operatorTime) in previousOperators {
             let opReward = model.dm.defaultOperatorAssoc * (payoff - (model.time - operatorTime)) / model.reward
-            if operatorChunk.assocs[goalChunk!.name] == nil {
-                operatorChunk.assocs[goalChunk!.name] = (0.0, 0)
-            } else if operatorChunk.assocs[goalChunk!.name]!.1 == 0 { // Association is defined in model
-                return
+            let opChunkAssocGoal = operatorChunk.assocs[goalChunk!.name]
+            if opChunkAssocGoal == nil || opChunkAssocGoal!.1 != 0 { // We don't update when the assoc is defined in the model
+                if operatorChunk.assocs[goalChunk!.name] == nil {
+                    operatorChunk.assocs[goalChunk!.name] = (0.0, 0)
+                }
+                operatorChunk.assocs[goalChunk!.name]!.0 += model.dm.beta * (opReward - operatorChunk.assocs[goalChunk!.name]!.0)
+                operatorChunk.assocs[goalChunk!.name]!.1 += 1
+                if opReward > 0 {
+                    operatorChunk.addReference() // Also increase baselevel activation of the operator
+                }
+                model.addToTrace("Updating assoc between \(goalChunk!.name) and \(operatorChunk.name) to \(operatorChunk.assocs[goalChunk!.name]!)", level: 5)
             }
-            operatorChunk.assocs[goalChunk!.name]!.0 += model.dm.beta * (opReward - operatorChunk.assocs[goalChunk!.name]!.0)
-            operatorChunk.assocs[goalChunk!.name]!.1 += 1
-            if opReward > 0 {
-                operatorChunk.addReference() // Also increase baselevel activation of the operator
-            }
-            model.addToTrace("Updating assoc between \(goalChunk!.name) and \(operatorChunk.name) to \(operatorChunk.assocs[goalChunk!.name]!)", level: 5)
         }
     }
     
