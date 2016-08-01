@@ -39,7 +39,8 @@ let scriptFunctions: [String:([Factor], Model?) throws -> (result: Factor?, done
     "open-jar": openJar,
     "report-memory": reportMemory,
     "imaginal-to-dm": imaginalToDM,
-    "set-goal": setGoal
+    "set-goal": setGoal,
+    "create-new-goal": createNewGoal
     ]
 
 
@@ -611,6 +612,36 @@ func setGoal(content: [Factor], model: Model?) throws -> (result: Factor?, done:
         }
     }
     return(nil, true)
+}
+
+/**
+ Create a new goal chunk and put it in G1
+ */
+func createNewGoal(content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool) {
+    guard content.count > 0 else { throw RunTimeError.invalidNumberOfArguments }
+    let goalChunkName = content[0].description
+    guard model!.dm.chunks[goalChunkName] == nil else { throw RunTimeError.errorInFunction("Goal chunk already exists in createNewGoal") }
+    let goalChunk = Chunk(s: goalChunkName, m: model!)
+    goalChunk.setSlot("isa", value: "goaltype")
+    for index in 1..<content.count {
+        switch content[index] {
+        case .Arr(let pair):
+            guard pair.elements.count == 2 else { throw RunTimeError.errorInFunction("Invalid attribute-value pair in createNewGoal") }
+            let attribute = pair.elements[0].description
+            let value = pair.elements[1].description
+            goalChunk.setSlot(attribute, value: value)
+        default: throw RunTimeError.errorInFunction("createNewGoal should have attribute-value pairs in all but first arguments")
+        }
+    }
+    let dupChunk = model!.dm.duplicateChunk(goalChunk)
+    guard let currentGoalChunk = model!.buffers["goal"] else { throw RunTimeError.errorInFunction("No chunk in goal buffer") }
+    model!.dm.addToDM(goalChunk)
+    if dupChunk == nil {
+        currentGoalChunk.setSlot("slot1", value: goalChunk)
+    } else {
+        currentGoalChunk.setSlot("slot1", value: dupChunk!)
+    }
+    return(nil,true)
 }
 
 
