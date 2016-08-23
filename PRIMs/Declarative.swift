@@ -383,7 +383,9 @@ class Declarative: NSObject, NSCoding  {
                 }
                 model.addToBatchTrace(model.time - model.startTime, type: "retrieval", addToTrace: "\(retrieveResult!.name)")
             } else {
-                model.addToTrace("Retrieving \(retrieveResult!.name) (latency = \(latency))", level: 2)
+                if !model.silent {
+                    model.addToTrace("Retrieving \(retrieveResult!.name) (latency = \(latency))", level: 2)
+                }
                 model.addToBatchTrace(model.time - model.startTime, type: "retrieval", addToTrace: "\(retrieveResult!.name)")
                 if retrievalReinforces {
                     retrieveResult!.addReference()
