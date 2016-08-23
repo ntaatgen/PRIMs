@@ -197,7 +197,9 @@ class Declarative: NSObject, NSCoding  {
         if let dupChunk = duplicateChunk(chunk) {
             dupChunk.addReference()
             dupChunk.mergeAssocs(chunk)
-            dupChunk.definedIn.appendContentsOf(chunk.definedIn)
+            if !chunk.definedIn.isEmpty && !dupChunk.definedIn.contains(chunk.definedIn[0]) {
+                dupChunk.definedIn.append(chunk.definedIn[0])
+            }
             if chunk.fixedActivation != nil && dupChunk.fixedActivation != nil {
                 dupChunk.fixedActivation = max(chunk.fixedActivation!, dupChunk.fixedActivation!)
             }

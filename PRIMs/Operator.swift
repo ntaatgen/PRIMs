@@ -126,7 +126,7 @@ class Operator {
         }
     }
     
-    static let literalRoles = ["stop", "wait", "error", "focus-up", "focusup"] // not complete yet!!!
+    static let literalRoles = ["stop", "wait", "error", "focus-up", "focusup","one","two","three","four","five","six","yes","no"] // not complete yet!!!
     
     /**
     Function that checks whether the operator matches the current roles in the goal. If it also returns an operator with the appropriate substitution.

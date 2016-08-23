@@ -64,6 +64,36 @@ class Action {
         }
     }
     
+    /**
+    Create a new goal chunk using the description in the action, and put it in the first available G slot
+    - Parameter chunk: the action chunk
+    */
+    func createNewGoal(chunk: Chunk) {
+        guard let name = chunk.slotValue("slot2")?.description else { return }
+        var newGoal = Chunk(s: name, m: model)
+        if model.dm.chunks[name] != nil {
+            newGoal = model.dm.chunks[name]!
+            newGoal.slotvals = [:]
+            newGoal.printOrder = []
+        }
+        newGoal.setSlot("isa", value: "goaltype")
+        var index = 3
+        while chunk.slotValue("slot\(index)") != nil {
+            let attribute = chunk.slotValue("slot\(index)")!.description
+            guard let value = chunk.slotValue("slot\(index + 1)")?.description else { return }
+            newGoal.setSlot(attribute, value: value)
+            index = index + 2
+        }
+        if model.dm.chunks[name] != nil {
+            model.dm.addToDM(newGoal)
+        }
+        // now put the new goal in the first available slot
+        index = 1
+        while model.buffers["goal"]?.slotValue("slot\(index)") != nil {
+            index = index + 1
+        }
+        model.buffers["goal"]!.setSlot("slot\(index)", value: newGoal)
+    }
     
     func action() -> Double {
         let actionChunk = model.buffers["action"]!
@@ -71,6 +101,10 @@ class Action {
         model.buffers["action"] = nil
         let ac = actionChunk.slotvals["slot1"]?.description
         if ac == nil { return 0.0 }
+        if ac! == "build-goal" {
+            createNewGoal(actionChunk)
+            return 0.2
+        }
         let par1 = actionChunk.slotvals["slot2"]?.description
         let par2 = actionChunk.slotvals["slot3"]?.description
         let actionInstance = actions[ac!]

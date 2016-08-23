@@ -600,6 +600,7 @@ func setGoal(content: [Factor], model: Model?) throws -> (result: Factor?, done:
     let goalChunkName = content[0].description
     guard let chunk = model!.dm.chunks[goalChunkName] else { throw RunTimeError.errorInFunction("Goal chunk does not exists in setGoal") }
     chunk.slotvals = [:] // Clear old attributes
+    chunk.printOrder = []
     chunk.setSlot("isa", value: "goaltype")
     for index in 1..<content.count {
         switch content[index] {
