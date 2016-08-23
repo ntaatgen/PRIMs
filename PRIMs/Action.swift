@@ -81,7 +81,9 @@ class Action {
             latency = defaultPerceptualActionLatency
         }
         if ac! == "wait" {
-            model.addToTrace("Waiting (latency = \(latency))",level: 2)
+            if !model.silent {
+                model.addToTrace("Waiting (latency = \(latency))",level: 2)
+            }
             latency = 0.05
             if model.scenario.nextEventTime == nil {
             } else {
@@ -89,8 +91,10 @@ class Action {
             }
         } else if actionInstance != nil {
             latency = actionInstance!.latency()
-            model.addToTrace("\(actionInstance!.outputString) \(par1 == nil ? nothing : par1!) \(par2 == nil ? nothing : par2!) (latency = \(latency))", level: 2)
-        } else {
+            if !model.silent {
+                model.addToTrace("\(actionInstance!.outputString) \(par1 == nil ? nothing : par1!) \(par2 == nil ? nothing : par2!) (latency = \(latency))", level: 2)
+            }
+        } else if !model.silent {
             model.addToTrace("\(ac!)-ing \(par1 == nil ? nothing : par1!)-\(par2 == nil ? nothing : par2!)", level: 2)
         }
         model.addToBatchTrace(model.time + latency - model.startTime, type: "action", addToTrace: "\(ac!)-\(par1 == nil ? nothing : par1!)")

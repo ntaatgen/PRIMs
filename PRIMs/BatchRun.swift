@@ -138,7 +138,7 @@ class BatchRun {
                                     fileHandle.closeFile()
                                 } catch let error as NSError {
                                     err = error
-                                    self.model.addToTraceField("Can't open fileHandle \(err)")
+                                    self.mainModel.addToTraceField("Can't open fileHandle \(err)")
                                 }
                             }
                             // Trace File
@@ -152,7 +152,7 @@ class BatchRun {
                                     fileHandle.closeFile()
                                 } catch let error as NSError {
                                     err = error
-                                    self.model.addToTraceField("Can't open trace fileHandle \(err)")
+                                    self.mainModel.addToTraceField("Can't open trace fileHandle \(err)")
                                 }
                             }
                         } else {

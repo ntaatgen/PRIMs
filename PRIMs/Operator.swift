@@ -119,7 +119,9 @@ class Operator {
             if opReward > 0 {
                 operatorChunk.addReference() // Also increase baselevel activation of the operator
             }
-            model.addToTrace("Updating assoc between \(goalChunk!.name) and \(operatorChunk.name) to \(operatorChunk.assocs[goalChunk!.name]!)", level: 5)
+            if !model.silent {
+                model.addToTrace("Updating assoc between \(goalChunk!.name) and \(operatorChunk.name) to \(operatorChunk.assocs[goalChunk!.name]!)", level: 5)
+            }
         }
     }
     
@@ -138,12 +140,14 @@ class Operator {
                 let (_,u2) = item2
                 return u1 > u2
             })
-        model.addToTrace("Conflict Set", level: 5)
-        for (chunk,activation) in cfs {
-            let outputString = "  " + chunk.name + "A = " + String(format:"%.3f", activation) //+ "\(activation)"
-            model.addToTrace(outputString, level: 5)
+        if !model.silent {
+            model.addToTrace("Conflict Set", level: 5)
+            for (chunk,activation) in cfs {
+                let outputString = "  " + chunk.name + "A = " + String(format:"%.3f", activation) //+ "\(activation)"
+                model.addToTrace(outputString, level: 5)
+            }
         }
-            var match = false
+        var match = false
         var candidate: Chunk = Chunk(s: "empty", m: model)
         var activation: Double = 0.0
         var prim: Prim?
@@ -154,21 +158,25 @@ class Operator {
                 let inst = model.procedural.findMatchingProduction()
                 (match, prim) = model.procedural.fireProduction(inst, compile: false)
                 if let pr = prim {
-                    if !match {
+                    if !match && !model.silent {
                         let s = "   Operator " + candidate.name + " does not match because of " + pr.name
                         model.addToTrace(s, level: 5)
                     }
                 }
                 if match && candidate.spreadingActivation() <= 0.0 && model.buffers["operator"]?.slotValue("condition") != nil {
                     match = false
-                    let s = "   Rejected operator " + candidate.name + " because it has no associations and no production that tests all conditions"
-                    model.addToTrace(s, level: 2)
+                    if !model.silent {
+                        let s = "   Rejected operator " + candidate.name + " because it has no associations and no production that tests all conditions"
+                        model.addToTrace(s, level: 2)
+                    }
                 }
                 model.buffers["operator"] = nil
             } while !match && !cfs.isEmpty && cfs[0].1 > model.dm.retrievalThreshold
         } else {
             match = false
-            model.addToTrace("   No matching operator found", level: 2)
+            if !model.silent {
+                model.addToTrace("   No matching operator found", level: 2)
+            }
         }
         if match {
             opRetrieved = candidate
@@ -183,8 +191,10 @@ class Operator {
             let item = (opRetrieved!, model.time - latency)
             previousOperators.append(item)
         }
-        if let opr = opRetrieved {
-            model.addToTrace("*** Retrieved operator \(opr.name) with spread \(opr.spreadingActivation())", level: 1)
+        if !model.silent {
+            if let opr = opRetrieved {
+                model.addToTrace("*** Retrieved operator \(opr.name) with spread \(opr.spreadingActivation())", level: 1)
+            }
         }
         model.dm.addToFinsts(opRetrieved!)
         model.buffers["goal"]!.setSlot("last-operator", value: opRetrieved!)
@@ -210,7 +220,9 @@ class Operator {
             if pname.hasPrefix("t") {
                 pname = String(pname.characters.dropFirst())
             }
-            model.addToTrace("Firing \(pname)", level: 3)
+            if !model.silent {
+                model.addToTrace("Firing \(pname)", level: 3)
+            }
             (match, _) = model.procedural.fireProduction(inst, compile: true)
             if first {
                 model.time += model.procedural.productionActionLatency
