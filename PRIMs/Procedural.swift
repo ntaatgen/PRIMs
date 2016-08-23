@@ -185,8 +185,10 @@ class Procedural: NSObject, NSCoding {
         }
         if let existingP = productions[newFullName] {
             existingP.u += alpha * (p1.u - existingP.u)
-            let s = "Reinforcing " + existingP.name + " new u = " + String(format:"%.3f", existingP.u)
-            model.addToTrace(s, level: 4)
+            if !model.silent {
+                let s = "Reinforcing " + existingP.name + " new u = " + String(format:"%.3f", existingP.u)
+                model.addToTrace(s, level: 4)
+            }
             
         } else {
             let newP = Production(name: newName, model: model, condition: p1.condition, action: p1.action, op: p1.op, parent1: p1, parent2: p2, taskID: model.currentTaskIndex!, u: defaultU)
@@ -198,7 +200,9 @@ class Procedural: NSObject, NSCoding {
             newP.fullName = newFullName
             productions[newP.fullName] = newP
             
-            model.addToTrace("Compiling \(newP.name)", level: 4)
+            if !model.silent {
+                model.addToTrace("Compiling \(newP.name)", level: 4)
+            }
             
         }
         

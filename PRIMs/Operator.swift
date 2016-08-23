@@ -228,8 +228,10 @@ class Operator {
             let item = (opRetrieved!, model.time - latency)
             previousOperators.append(item)
         }
-        if let opr = opRetrieved {
-            model.addToTrace("*** Retrieved operator \(opr.name) with spread \(opr.spreadingActivation())", level: 1)
+        if !model.silent {
+            if let opr = opRetrieved {
+                model.addToTrace("*** Retrieved operator \(opr.name) with spread \(opr.spreadingActivation())", level: 1)
+            }
         }
         model.dm.addToFinsts(opRetrieved!)
         model.buffers["goal"]!.setSlot("last-operator", value: opRetrieved!)
@@ -254,7 +256,9 @@ class Operator {
             if pname.hasPrefix("t") {
                 pname = String(pname.characters.dropFirst())
             }
-            model.addToTrace("Firing \(pname)", level: 3)
+            if !model.silent {
+                model.addToTrace("Firing \(pname)", level: 3)
+            }
             (match, _) = model.procedural.fireProduction(inst, compile: true)
             if first {
                 model.time += model.procedural.productionActionLatency

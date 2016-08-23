@@ -550,7 +550,9 @@ class Model: NSObject, NSCoding {
             found = operators.carryOutProductionsUntilOperatorDone()
             if !found {
                 let op = buffers["operator"]!
-                addToTrace("Operator \(op.name) failed", level: 2)
+                if !silent {
+                    addToTrace("Operator \(op.name) failed", level: 2)
+                }
                 commitToTrace(true)
                 buffers["goal"] = formerBuffers["goal"]
                 buffers["imaginal"] = formerBuffers["imaginal"]
@@ -612,7 +614,9 @@ class Model: NSObject, NSCoding {
             found = operators.carryOutProductionsUntilOperatorDone()
             if !found {
                 let op = buffers["operator"]!
-                addToTrace("Operator \(op.name) failed", level: 2)
+                if !silent {
+                    addToTrace("Operator \(op.name) failed", level: 2)
+                }
                 commitToTrace(true)
                 buffers["goal"] = formerBuffers["goal"]
                 buffers["imaginal"] = formerBuffers["imaginal"]
