@@ -22,7 +22,7 @@ class BatchRun {
         self.batchScript = script
         self.outputFileName = outputFile
         self.traceFileName = outputFile.URLByDeletingPathExtension!.URLByAppendingPathExtension("tracedat")
-        self.model = Model(silent: true, batchMode: true)
+        self.model = Model(batchMode: true)
         self.controller = controller
         self.directory = directory
         self.mainModel = mainModel
@@ -138,7 +138,7 @@ class BatchRun {
                                     fileHandle.closeFile()
                                 } catch let error as NSError {
                                     err = error
-                                    self.model.addToTraceField("Can't open fileHandle \(err)")
+                                    self.mainModel.addToTraceField("Can't open fileHandle \(err)")
                                 }
                             }
                             // Trace File
@@ -152,7 +152,7 @@ class BatchRun {
                                     fileHandle.closeFile()
                                 } catch let error as NSError {
                                     err = error
-                                    self.model.addToTraceField("Can't open trace fileHandle \(err)")
+                                    self.mainModel.addToTraceField("Can't open trace fileHandle \(err)")
                                 }
                             }
                         } else {
@@ -187,12 +187,32 @@ class BatchRun {
                     self.model.action = nil
                     self.model.imaginal = nil
                     self.model.batchParameters = []
-                    self.model = Model(silent: true, batchMode: true)
+                    self.model = Model(batchMode: true)
                 case "repeat":
                     scanner.scanInt()
-                case "done":
-                     print("*** Model has finished running ****")
-                     break
+                case "done": break
+//                    print("*** Model has finished running ****")
+                case "load-image":
+                    let filename = scanner.scanUpToCharactersFromSet(whiteSpaceAndNL)
+                    if filename == nil {
+                        self.mainModel.addToTraceField("Illegal task name in run")
+                        return
+                    }
+                    let taskPath = self.directory.URLByAppendingPathComponent(filename! + ".brain").path
+                    self.mainModel.addToTraceField("Loading image file \(taskPath!)")
+                    guard let m = (NSKeyedUnarchiver.unarchiveObjectWithFile(taskPath!) as? Model) else { return }
+                    self.model = m
+                    self.model.dm.reintegrateChunks()
+                    self.model.batchMode = true
+                case "save-image":
+                    let filename = scanner.scanUpToCharactersFromSet(whiteSpaceAndNL)
+                    if filename == nil {
+                        self.mainModel.addToTraceField("Illegal task name in run")
+                        return
+                    }
+                    let taskPath = self.directory.URLByAppendingPathComponent(filename! + ".brain").path
+                    self.mainModel.addToTraceField("Saving image to file \(taskPath!)")
+                    NSKeyedArchiver.archiveRootObject(self.model, toFile: taskPath!)
                 default: break
                     
                 }

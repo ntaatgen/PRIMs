@@ -38,6 +38,7 @@ let scriptFunctions: [String:([Factor], Model?) throws -> (result: Factor?, done
     "str-to-int": strToInt,
     "open-jar": openJar,
     "report-memory": reportMemory,
+    "imaginal-to-dm": imaginalToDM,
     ]
 
 
@@ -578,4 +579,13 @@ func reportMemory(content: [Factor], model: Model?) throws -> (result: Factor?, 
     else {
         return(Factor.Str("Error"), true)
     }
+}
+
+/* Put the contents of the imaginal buffer in the declarative memory
+ */
+func imaginalToDM(conten: [Factor], model: Model?) throws -> (result: Factor?, done: Bool) {
+    if let imaginalChunk = model!.buffers["imaginal"] {
+        model!.dm.addToDM(imaginalChunk)
+    }
+    return(nil, true)
 }

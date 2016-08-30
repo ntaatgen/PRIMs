@@ -77,7 +77,7 @@ func parseName(name: String) -> (String?,String?,String,String?,String?,String?)
     }
 }
 
-class Prim:CustomStringConvertible {
+class Prim:NSObject, NSCoding {
     let lhsBuffer: String?
     let lhsSlot: String?
     let rhsBuffer: String? // Can be nil
@@ -86,7 +86,7 @@ class Prim:CustomStringConvertible {
     let model: Model
     let name: String
     
-    var description: String {
+    override var description: String {
         get {
             return name
         }
@@ -98,7 +98,17 @@ class Prim:CustomStringConvertible {
         (lhsBuffer,lhsSlot,op,rhsBuffer,rhsSlot,_) = parseName(name)
     }
     
+    required convenience init?(coder aDecoder: NSCoder) {
+        guard let model = aDecoder.decodeObjectForKey("model") as? Model,
+            let name = aDecoder.decodeObjectForKey("name") as? String
+            else { return nil }
+        self.init(name: name, model: model)
+    }
     
+    func encodeWithCoder(coder: NSCoder) {
+        coder.encodeObject(self.model, forKey: "model")
+        coder.encodeObject(self.name, forKey: "name")
+    }
     
     /**
     Carry out the PRIM, either by checking its condition or by performing its action. 

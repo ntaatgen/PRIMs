@@ -8,7 +8,7 @@
 
 import Foundation
 
-class Production: CustomStringConvertible {
+class Production: NSObject, NSCoding {
     let name: String
     var fullName: String!
     unowned let model: Model
@@ -25,7 +25,7 @@ class Production: CustomStringConvertible {
     let parent1: Production?
     let parent2: Production?
     let taskID: Int
-    var description: String {
+    override var description: String {
         get {
             var s = "(p \(name)\n"
             s += "   Transforms condition \(condition) into \(newCondition)\n"
@@ -49,7 +49,7 @@ class Production: CustomStringConvertible {
     }
     
     
-    init(name: String, model: Model, condition: String?, action: String?, op: Chunk?, parent1: Production?, parent2: Production?, taskID: Int) {
+    init(name: String, model: Model, condition: String?, action: String?, op: Chunk?, parent1: Production?, parent2: Production?, taskID: Int, u: Double) {
         self.name = name
         self.model = model
         self.condition = condition
@@ -57,7 +57,7 @@ class Production: CustomStringConvertible {
         self.newCondition = condition
         self.newAction = action
         self.op = op
-        self.u = model.procedural.defaultU
+        self.u = u
         if parent1 == nil || parent1!.name.hasPrefix("t") {
             self.parent1 = nil
         } else {
@@ -70,8 +70,48 @@ class Production: CustomStringConvertible {
         }
         self.taskID = taskID
     }
+ 
+    required convenience init?(coder aDecoder: NSCoder) {
+        guard let model = aDecoder.decodeObjectForKey("model") as? Model,
+            let name = aDecoder.decodeObjectForKey("name") as? String,
+        let condition = aDecoder.decodeObjectForKey("condition") as? String?,
+        let action = aDecoder.decodeObjectForKey("action") as? String?,
+        let op = aDecoder.decodeObjectForKey("op") as? Chunk?,
+        let parent1 = aDecoder.decodeObjectForKey("parent1") as? Production?,
+        let parent2 = aDecoder.decodeObjectForKey("parent2") as? Production?,
+        let fullName = aDecoder.decodeObjectForKey("fullname") as? String?,
+        let newCondition = aDecoder.decodeObjectForKey("newcondition") as? String?,
+        let newAction = aDecoder.decodeObjectForKey("newaction") as? String?,
+        let goalChecks = aDecoder.decodeObjectForKey("goalchecks") as? [Chunk],
+        let conditions = aDecoder.decodeObjectForKey("conditions") as? [Prim],
+        let actions = aDecoder.decodeObjectForKey("actions") as? [Prim]
+            else { return nil }
+        self.init(name: name, model: model, condition: condition, action: action, op: op, parent1: parent1, parent2: parent2, taskID: -3, u: aDecoder.decodeDoubleForKey("utility"))
+        self.fullName = fullName
+        self.newCondition = newCondition
+        self.newAction = newAction
+        self.goalChecks = goalChecks
+        self.conditions = conditions
+        self.actions = actions
+    }
     
-    
+    func encodeWithCoder(coder: NSCoder) {
+        coder.encodeObject(self.model, forKey: "model")
+        coder.encodeObject(self.name, forKey: "name")
+        coder.encodeObject(self.condition ?? "nil", forKey: "condition")
+        coder.encodeObject(self.action ?? "nil", forKey: "action")
+        coder.encodeObject(self.op, forKey: "op")
+        coder.encodeObject(self.parent1, forKey: "parent1")
+        coder.encodeObject(self.parent2, forKey: "parent2")
+        coder.encodeInt(Int32(self.taskID), forKey: "taskID")
+        coder.encodeDouble(self.u, forKey: "utility")
+        coder.encodeObject(self.fullName, forKey: "fullname")
+        coder.encodeObject(self.newCondition, forKey: "newcondition")
+        coder.encodeObject(self.newAction, forKey: "newaction")
+        coder.encodeObject(self.goalChecks, forKey: "goalchecks")
+        coder.encodeObject(self.conditions, forKey: "conditions")
+        coder.encodeObject(self.actions, forKey: "actions")
+    }
     func setFullName() {
         fullName = name + "|" + newCondition! + ";" + newAction!
     }

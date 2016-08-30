@@ -8,7 +8,7 @@
 
 import Foundation
 
-class Chunk: CustomStringConvertible {
+class Chunk: NSObject, NSCoding {
     /// Name of the chunk
     let name: String
     /// Model in which the chunk is defined
@@ -51,9 +51,60 @@ class Chunk: CustomStringConvertible {
         name = s
         model = m
     }
+    
+    required convenience init?(coder aDecoder: NSCoder) {
+        guard let name = aDecoder.decodeObjectForKey("name") as? String,
+            let model = aDecoder.decodeObjectForKey("model") as? Model,
+            let slotvals = aDecoder.decodeObjectForKey("slotvals") as? [String:String],
+            let printOrder = aDecoder.decodeObjectForKey("printorder") as? [String],
+            let referenceList = aDecoder.decodeObjectForKey("referencelist") as? [Double],
+            let assoc1 = aDecoder.decodeObjectForKey("assoc1") as? [String: Double],
+            let assoc2 = aDecoder.decodeObjectForKey("assoc2") as? [String: Int]
+            else { return nil }
+        self.init(s: name, m: model)
+        for (slot,value) in slotvals {
+            self.slotvals[slot] = Value.Text(value)
+        }
+        self.printOrder = printOrder
+        self.fan = Int(aDecoder.decodeIntForKey("fan"))
+        self.references = Int(aDecoder.decodeIntForKey("references"))
+        let creationTime = aDecoder.decodeDoubleForKey("creationtime")
+        self.creationTime = creationTime == -1.0 ? nil : creationTime
+        let fixedActivation = aDecoder.decodeDoubleForKey("fixedactivation")
+        self.fixedActivation = fixedActivation == -1000.0 ? nil : fixedActivation
+        self.referenceList = referenceList
+        for (chunk,value) in assoc1 {
+            self.assocs[chunk] = (value, assoc2[chunk]!)
+        }
+    
+    }
 
+    func encodeWithCoder(coder: NSCoder) {
+        coder.encodeObject(self.name, forKey: "name")
+        coder.encodeObject(self.model, forKey: "model")
+        var slotvals: [String:String] = [:]
+        for (slot,value) in self.slotvals {
+            slotvals[slot] = value.description
+        }
+        coder.encodeObject(slotvals, forKey: "slotvals")
+        coder.encodeObject(printOrder, forKey: "printorder")
+        coder.encodeInt(Int32(fan), forKey: "fan")
+        coder.encodeInt(Int32(references), forKey: "references")
+        coder.encodeDouble(creationTime ?? -1.0, forKey: "creationtime")
+        coder.encodeObject(self.referenceList, forKey: "referencelist")
+        coder.encodeDouble(fixedActivation ?? -1000.0, forKey: "fixedactivation")
+        var assoc1: [String:Double] = [:]
+        var assoc2: [String:Int] = [:]
+        for (chunk, (s1, s2)) in assocs {
+            assoc1[chunk] = s1
+            assoc2[chunk] = s2
+        }
+        coder.encodeObject(assoc1, forKey: "assoc1")
+        coder.encodeObject(assoc2, forKey: "assoc2")
+    }
+    
     /// A string with a printout of the Chunk
-    var description: String {
+    override var description: String {
         get {
             var s = "\(name)\n"
             for slot in printOrder {
@@ -68,6 +119,7 @@ class Chunk: CustomStringConvertible {
     /**
     - returns: A copy of the chunk with a new name
     */
+    @nonobjc
     func copy() -> Chunk {
         let newChunk = model.generateNewChunk(self.name)
         newChunk.slotvals = self.slotvals
@@ -158,11 +210,13 @@ class Chunk: CustomStringConvertible {
         slotvals[slot] = Value.Symbol(value)
     }
     
+    @nonobjc
     func setSlot(slot: String, value: Double) {
         if slotvals[slot] == nil { printOrder.append(slot) }
         slotvals[slot] = Value.Number(value)
     }
-
+    
+    @nonobjc
     func setSlot(slot: String, value: String) {
         if slotvals[slot] == nil { printOrder.append(slot) }
         let possibleNumVal = string2Double(value) 
@@ -176,6 +230,7 @@ class Chunk: CustomStringConvertible {
         }
     }
     
+    @nonobjc
     func setSlot(slot: String, value: Value) {
         if slotvals[slot] == nil { printOrder.append(slot) }
            slotvals[slot] = value

@@ -196,13 +196,13 @@ class FruchtermanReingold {
                         currentName = currentName == "" ? lastItem : lastItem + ";" + currentName
                         if let node = nodes[currentName] {
                             currentNode = node
-                            if currentNode!.definedByTask! != chunk.definedIn[0] || chunk.definedIn.count > 1 {
+                            if !chunk.definedIn.isEmpty && (currentNode!.definedByTask! != chunk.definedIn[0] || chunk.definedIn.count > 1) {
                                 currentNode!.halo = true
                             }
                         } else {
                             let newNode = Node(name: currentName)
                             newNode.shortName = lastItem
-                            newNode.definedByTask = chunk.definedIn[0]
+                            newNode.definedByTask = chunk.definedIn.isEmpty ? -3 : chunk.definedIn[0]
                             if (chunk.definedIn.count > 1) {
                                 newNode.halo = true
                             }
@@ -215,7 +215,7 @@ class FruchtermanReingold {
                         }
                     }
                     let operatorNode = Node(name: chunk.name)
-                    operatorNode.taskNumber = chunk.definedIn[0]
+                    operatorNode.taskNumber = chunk.definedIn.isEmpty ? -3 : chunk.definedIn[0]
                     if chunk.definedIn.count > 1 {
                         operatorNode.halo = true
                     }
@@ -244,13 +244,13 @@ class FruchtermanReingold {
                         currentName = currentName == "" ? lastItem : lastItem + ";" + currentName
                         if let node = nodes[currentName] {
                             currentNode = node
-                            if currentNode!.definedByTask! != chunk.definedIn[0] || chunk.definedIn.count > 1 {
+                            if !chunk.definedIn.isEmpty && (currentNode!.definedByTask! != chunk.definedIn[0] || chunk.definedIn.count > 1) {
                                 currentNode!.halo = true
                             }
                         } else {
                             let newNode = Node(name: currentName)
                             newNode.shortName = lastItem
-                            newNode.definedByTask = chunk.definedIn[0]
+                            newNode.definedByTask = chunk.definedIn.isEmpty ? -3 : chunk.definedIn[0]
                             newNode.taskNumber = -1
                             if (chunk.definedIn.count > 1) {
                                 newNode.halo = true

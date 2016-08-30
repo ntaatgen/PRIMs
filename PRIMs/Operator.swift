@@ -12,8 +12,7 @@ import Foundation
     The Operator class contains many of the functions that deal with operators. Most of these still have to be migrated from Model.swift
 */
 class Operator {
-    /// This Array has all the operators with arrays of their conditions and actions. We use this to find the optimal ovelap when defining new operators
-    var operatorCA: [(String,[String],[String])] = []
+
     unowned let model: Model
     
     init(model: Model) {
@@ -25,7 +24,6 @@ class Operator {
     Reset the operator object
     */
     func reset() {
-        operatorCA = []
     }
     
     
@@ -75,7 +73,7 @@ class Operator {
         var bestActionMatch: [String] = []
         var bestActionNumber: Int = -1
         var bestActionActivation: Double = -1000
-        for (chunkName, chunkConditions, chunkActions) in operatorCA {
+        for (chunkName, chunkConditions, chunkActions) in model.dm.operatorCA {
             if let chunkActivation = model.dm.chunks[chunkName]?.baseLevelActivation() {
                 let conditionOverlap = determineOverlap(chunkConditions, newList: conditions)
                 if (conditionOverlap > bestConditionNumber) || (conditionOverlap == bestConditionNumber && chunkActivation > bestConditionActivation) {
@@ -95,7 +93,7 @@ class Operator {
         let (actionString, actionList) = constructList(bestActionMatch, source: actions, overlap: bestActionNumber)
         op.setSlot("condition", value: conditionString)
         op.setSlot("action", value: actionString)
-        operatorCA.append((op.name, conditionList, actionList))
+        model.dm.operatorCA.append((op.name, conditionList, actionList))
     }
     
     
@@ -121,7 +119,9 @@ class Operator {
             if opReward > 0 {
                 operatorChunk.addReference() // Also increase baselevel activation of the operator
             }
-            model.addToTrace("Updating assoc between \(goalChunk!.name) and \(operatorChunk.name) to \(operatorChunk.assocs[goalChunk!.name]!)", level: 5)
+            if !model.silent {
+                model.addToTrace("Updating assoc between \(goalChunk!.name) and \(operatorChunk.name) to \(operatorChunk.assocs[goalChunk!.name]!)", level: 5)
+            }
         }
     }
     
@@ -140,12 +140,14 @@ class Operator {
                 let (_,u2) = item2
                 return u1 > u2
             })
-        model.addToTrace("Conflict Set", level: 5)
-        for (chunk,activation) in cfs {
-            let outputString = "  " + chunk.name + "A = " + String(format:"%.3f", activation) //+ "\(activation)"
-            model.addToTrace(outputString, level: 5)
+        if !model.silent {
+            model.addToTrace("Conflict Set", level: 5)
+            for (chunk,activation) in cfs {
+                let outputString = "  " + chunk.name + "A = " + String(format:"%.3f", activation) //+ "\(activation)"
+                model.addToTrace(outputString, level: 5)
+            }
         }
-            var match = false
+        var match = false
         var candidate: Chunk = Chunk(s: "empty", m: model)
         var activation: Double = 0.0
         var prim: Prim?
@@ -156,21 +158,25 @@ class Operator {
                 let inst = model.procedural.findMatchingProduction()
                 (match, prim) = model.procedural.fireProduction(inst, compile: false)
                 if let pr = prim {
-                    if !match {
+                    if !match && !model.silent {
                         let s = "   Operator " + candidate.name + " does not match because of " + pr.name
                         model.addToTrace(s, level: 5)
                     }
                 }
                 if match && candidate.spreadingActivation() <= 0.0 && model.buffers["operator"]?.slotValue("condition") != nil {
                     match = false
-                    let s = "   Rejected operator " + candidate.name + " because it has no associations and no production that tests all conditions"
-                    model.addToTrace(s, level: 2)
+                    if !model.silent {
+                        let s = "   Rejected operator " + candidate.name + " because it has no associations and no production that tests all conditions"
+                        model.addToTrace(s, level: 2)
+                    }
                 }
                 model.buffers["operator"] = nil
             } while !match && !cfs.isEmpty && cfs[0].1 > model.dm.retrievalThreshold
         } else {
             match = false
-            model.addToTrace("   No matching operator found", level: 2)
+            if !model.silent {
+                model.addToTrace("   No matching operator found", level: 2)
+            }
         }
         if match {
             opRetrieved = candidate
@@ -185,8 +191,10 @@ class Operator {
             let item = (opRetrieved!, model.time - latency)
             previousOperators.append(item)
         }
-        if let opr = opRetrieved {
-            model.addToTrace("*** Retrieved operator \(opr.name) with spread \(opr.spreadingActivation())", level: 1)
+        if !model.silent {
+            if let opr = opRetrieved {
+                model.addToTrace("*** Retrieved operator \(opr.name) with spread \(opr.spreadingActivation())", level: 1)
+            }
         }
         model.dm.addToFinsts(opRetrieved!)
         model.buffers["goal"]!.setSlot("last-operator", value: opRetrieved!)
@@ -212,7 +220,9 @@ class Operator {
             if pname.hasPrefix("t") {
                 pname = String(pname.characters.dropFirst())
             }
-            model.addToTrace("Firing \(pname)", level: 3)
+            if !model.silent {
+                model.addToTrace("Firing \(pname)", level: 3)
+            }
             (match, _) = model.procedural.fireProduction(inst, compile: true)
             if first {
                 model.time += model.procedural.productionActionLatency

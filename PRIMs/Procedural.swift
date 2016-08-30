@@ -8,7 +8,7 @@
 
 import Foundation
 
-class Procedural {
+class Procedural: NSObject, NSCoding {
     static let utilityNoiseDefault = 0.05
     var utilityNoise = utilityNoiseDefault
     static let defaultUdefault = 0.0
@@ -35,7 +35,19 @@ class Procedural {
     init(model: Model) {
         self.model = model
     }
-
+    
+    required convenience init?(coder aDecoder: NSCoder) {
+        guard let model = aDecoder.decodeObjectForKey("model") as? Model,
+            let productions = aDecoder.decodeObjectForKey("productions") as? [String:Production]
+            else { return nil }
+        self.init(model: model)
+        self.productions = productions
+    }
+    
+    func encodeWithCoder(coder: NSCoder) {
+        coder.encodeObject(self.model, forKey: "model")
+        coder.encodeObject(self.productions, forKey: "productions")
+    }
     
     func setParametersToDefault() {
         utilityNoise = Procedural.utilityNoiseDefault
@@ -119,17 +131,15 @@ class Procedural {
         if best == nil || best!.u < primU {
             if condition != nil {
                 let (primName,_) = chopPrims(condition!.description, n: 1)
-                let p = Production(name: "t" + primName, model: model, condition: condition!.description, action: action==nil ? nil : action!.description, op: nil, parent1: nil, parent2: nil, taskID: 0)
+                let p = Production(name: "t" + primName, model: model, condition: condition!.description, action: action==nil ? nil : action!.description, op: nil, parent1: nil, parent2: nil, taskID: 0, u: primU)
                 let prim = Prim(name: primName, model: model)
                 p.addCondition(prim)
-                p.u = primU
                 return Instantiation(prod: p, time: model.time, u: primU)
             } else {
                 let (primName,_) = chopPrims(action!.description, n: 1)
-                let p = Production(name: "t" + primName, model: model, condition: nil, action: action!.description, op: nil, parent1: nil, parent2: nil, taskID: 0)
+                let p = Production(name: "t" + primName, model: model, condition: nil, action: action!.description, op: nil, parent1: nil, parent2: nil, taskID: 0, u: primU)
                 let prim = Prim(name: primName, model: model)
                 p.addAction(prim)
-                p.u = primU
                 return Instantiation(prod: p, time: model.time, u: primU)
             }
         } else {
@@ -175,11 +185,13 @@ class Procedural {
         }
         if let existingP = productions[newFullName] {
             existingP.u += alpha * (p1.u - existingP.u)
-            let s = "Reinforcing " + existingP.name + " new u = " + String(format:"%.3f", existingP.u)
-            model.addToTrace(s, level: 4)
+            if !model.silent {
+                let s = "Reinforcing " + existingP.name + " new u = " + String(format:"%.3f", existingP.u)
+                model.addToTrace(s, level: 4)
+            }
             
         } else {
-            let newP = Production(name: newName, model: model, condition: p1.condition, action: p1.action, op: p1.op, parent1: p1, parent2: p2, taskID: model.currentTaskIndex!)
+            let newP = Production(name: newName, model: model, condition: p1.condition, action: p1.action, op: p1.op, parent1: p1, parent2: p2, taskID: model.currentTaskIndex!, u: defaultU)
             newP.conditions = p1.conditions + p2.conditions
             newP.actions = p1.actions + p2.actions
             newP.newCondition = p2.newCondition
@@ -188,7 +200,9 @@ class Procedural {
             newP.fullName = newFullName
             productions[newP.fullName] = newP
             
-            model.addToTrace("Compiling \(newP.name)", level: 4)
+            if !model.silent {
+                model.addToTrace("Compiling \(newP.name)", level: 4)
+            }
             
         }
         
