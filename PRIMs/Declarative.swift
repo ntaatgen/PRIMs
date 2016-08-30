@@ -267,14 +267,12 @@ class Declarative  {
     // Mismatch function for numbers
     func mismatchNumbers(x: Value, _ y: Value) -> Double {
         /* Return similarity if there is one, else return -1
-        Similarity is calculated by dividing the smallest number by the largest number.*/
+         Similarity is calculated by dividing the smallest number by the largest number.*/
         if (Int(x.description) != nil && Int(y.description) != nil)  {
             let maxValue = max(Double(x.description)!, Double(y.description)!)
             let minValue = min(Double(x.description)!, Double(y.description)!)
-            if (maxValue == 10 * minValue) {
-                return -0.3
-            }
-            return maxValue == 0.0 ? (minValue / (maxValue + 0.0001)) : (minValue / maxValue - 1)
+            let mismatch = 0 - (maxValue - minValue) / 10
+            return mismatch >= -1 ? mismatch : -1
         } else {
             return -1
         }
@@ -289,11 +287,11 @@ class Declarative  {
         } else if (Double(x.description) != nil && Double(y.description) != nil) {
             mismatch = mismatchNumbers(x, y)
         } else {
-            //mismatch = mismatchOperators(x, y)
             mismatch = -1
         }
         return mismatch
     }
+
     
     func partialRetrieve(chunk: Chunk, mismatchFunction: (x: Value, y: Value) -> Double? ) -> (Double, Chunk?) {
         var bestMatch: Chunk? = nil
