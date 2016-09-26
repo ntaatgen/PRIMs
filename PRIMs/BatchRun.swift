@@ -8,6 +8,7 @@
 
 import Foundation
 
+
 class BatchRun {
     let batchScript: String
     let outputFileName: NSURL
@@ -73,7 +74,7 @@ class BatchRun {
                         return
                     }
                     
-                    while !scanner.atEnd && scanner.string[scanner.string.startIndex.advancedBy(scanner.scanLocation)] != "\n" {
+                    while !scanner.atEnd && (scanner.string as NSString).characterAtIndex(scanner.scanLocation) != 10 && (scanner.string as NSString).characterAtIndex(scanner.scanLocation) != 13 {
                         let batchParam = scanner.scanUpToCharactersFromSet(whiteSpaceAndNL)
                         self.model.batchParameters.append(batchParam!)
                         self.mainModel.addToTraceField("Parameter: \(batchParam!)")
