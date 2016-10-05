@@ -39,6 +39,7 @@ let scriptFunctions: [String:([Factor], Model?) throws -> (result: Factor?, done
     "open-jar": openJar,
     "report-memory": reportMemory,
     "imaginal-to-dm": imaginalToDM,
+    "set-references": setReferences,
     ]
 
 
@@ -583,9 +584,26 @@ func reportMemory(content: [Factor], model: Model?) throws -> (result: Factor?, 
 
 /* Put the contents of the imaginal buffer in the declarative memory
  */
-func imaginalToDM(conten: [Factor], model: Model?) throws -> (result: Factor?, done: Bool) {
+func imaginalToDM(content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool) {
     if let imaginalChunk = model!.buffers["imaginal"] {
         model!.dm.addToDM(imaginalChunk)
     }
+    return(nil, true)
+}
+
+/**
+ Set the number of references of a chunk
+ 1st argument: chunk name
+ 2nd argument: number of references (int)
+ */
+func setReferences(content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool) {
+    print("hoihoihoi")
+    guard content.count == 2 else { throw RunTimeError.invalidNumberOfArguments }
+    let chunk = model!.dm.chunks[content[0].description]
+    guard chunk != nil else { throw RunTimeError.errorInFunction("Chunk does not exist") }
+    let value = content[1].intValue()
+    guard value != nil else { throw RunTimeError.errorInFunction("Second argument is not an int") }
+    chunk!.references = value!
+    print("hoi")
     return(nil, true)
 }
