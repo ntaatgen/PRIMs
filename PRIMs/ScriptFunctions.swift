@@ -597,13 +597,11 @@ func imaginalToDM(content: [Factor], model: Model?) throws -> (result: Factor?, 
  2nd argument: number of references (int)
  */
 func setReferences(content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool) {
-    print("hoihoihoi")
     guard content.count == 2 else { throw RunTimeError.invalidNumberOfArguments }
     let chunk = model!.dm.chunks[content[0].description]
     guard chunk != nil else { throw RunTimeError.errorInFunction("Chunk does not exist") }
     let value = content[1].intValue()
     guard value != nil else { throw RunTimeError.errorInFunction("Second argument is not an int") }
     chunk!.references = value!
-    print("hoi")
     return(nil, true)
 }
