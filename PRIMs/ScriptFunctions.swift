@@ -550,10 +550,8 @@ func openJar(content: [Factor], model: Model?) throws -> (result: Factor?, done:
     let pipe = NSPipe()
     task.standardOutput = pipe
     task.launch()
-    print("blieb7")
     let data = pipe.fileHandleForReading.readDataToEndOfFile()
     pipe.fileHandleForReading.closeFile()
-    print("blieb8")
     let output: String = NSString(data: data, encoding: NSUTF8StringEncoding)! as String
     task.terminate()
     return (Factor.Str(output), true)
