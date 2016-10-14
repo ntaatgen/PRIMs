@@ -42,7 +42,7 @@ class PRScenario {
         }
     }
 
-    func goStart(model: Model) {
+    func goStart(_ model: Model) {
         if !inputs.isEmpty && trials.isEmpty {
             for (name,_) in inputs {
                 trials.append(name)
@@ -55,7 +55,7 @@ class PRScenario {
             }
         }
         if !inputs.isEmpty {
-            currentInput = inputs[trials.removeAtIndex(0)]!
+            currentInput = inputs[trials.remove(at: 0)]!
         } else {
             currentInput = [:]
         }
@@ -70,7 +70,7 @@ class PRScenario {
         }
     }
     
-    func makeSubstitutions(chunk: Chunk) -> Chunk {
+    func makeSubstitutions(_ chunk: Chunk) -> Chunk {
         for (slot,value) in chunk.slotvals {
             if let substitution = currentInput[value.description] {
                 chunk.setSlot(slot, value: substitution)
@@ -79,11 +79,11 @@ class PRScenario {
         return chunk
     }
     
-    func current(model: Model) -> Chunk {
+    func current(_ model: Model) -> Chunk {
         return makeSubstitutions(currentScreen!.current(model))
     }
     
-    func doAction(model: Model, action: String?, par1: String?) -> Chunk? {
+    func doAction(_ model: Model, action: String?, par1: String?) -> Chunk? {
         if action == nil { return nil }
         if let transition = currentScreen!.transitions[action!] {
             if script == nil {
@@ -125,7 +125,7 @@ class PRScenario {
         return chunk
     }
 
-    func makeTimeTransition(model: Model) {
+    func makeTimeTransition(_ model: Model) {
         repeat {
             currentScreen = currentScreen!.timeTarget!
             currentScreen!.start()

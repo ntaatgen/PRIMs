@@ -30,7 +30,7 @@ class Operator {
     /**
     Determine the amount of overlap between two lists of PRIMs
     */
-    func determineOverlap(oldList: [String], newList: [String]) -> Int {
+    func determineOverlap(_ oldList: [String], newList: [String]) -> Int {
         var count = 0
         for prim in oldList {
             if !newList.contains(prim) {
@@ -44,7 +44,7 @@ class Operator {
     /**
     Construct a string of PRIMs from the best matching operators
     */
-    func constructList(template: [String], source: [String], overlap: Int) -> (String, [String]) {
+    func constructList(_ template: [String], source: [String], overlap: Int) -> (String, [String]) {
         var primList = ""
         var primArray = [String]()
         if overlap > 0 {
@@ -66,7 +66,7 @@ class Operator {
     /**
     Add conditions and actions to an operator while trying to optimize the order of the PRIMs to maximize overlap with existing operators 
     */
-    func addOperator(op: Chunk, conditions: [String], actions: [String]) {
+    func addOperator(_ op: Chunk, conditions: [String], actions: [String]) {
         var bestConditionMatch: [String] = []
         var bestConditionNumber: Int = -1
         var bestConditionActivation: Double = -1000
@@ -105,7 +105,7 @@ class Operator {
     
     - parameter payoff: The payoff that will be distributed
     */
-    func updateOperatorSjis(payoff: Double) {
+    func updateOperatorSjis(_ payoff: Double) {
         if !model.dm.goalOperatorLearning || model.reward == 0.0 { return } // only do this when switched on
         let goalChunk = model.formerBuffers["goal"]?.slotvals["slot1"]?.chunk() // take formerBuffers goal, because goal may have been replace by stop or nil
         if goalChunk == nil { return }
@@ -135,7 +135,7 @@ class Operator {
         let retrievalRQ = Chunk(s: "operator", m: model)
         retrievalRQ.setSlot("isa", value: "operator")
         var (latency,opRetrieved) = model.dm.retrieve(retrievalRQ)
-            var cfs = model.dm.conflictSet.sort({ (item1, item2) -> Bool in
+            var cfs = model.dm.conflictSet.sorted(by: { (item1, item2) -> Bool in
                 let (_,u1) = item1
                 let (_,u2) = item2
                 return u1 > u2
@@ -153,7 +153,7 @@ class Operator {
         var prim: Prim?
         if !cfs.isEmpty {
             repeat {
-                (candidate, activation) = cfs.removeAtIndex(0)
+                (candidate, activation) = cfs.remove(at: 0)
                 model.buffers["operator"] = candidate.copy()
                 let inst = model.procedural.findMatchingProduction()
                 (match, prim) = model.procedural.fireProduction(inst, compile: false)

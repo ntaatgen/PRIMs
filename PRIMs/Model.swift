@@ -32,7 +32,7 @@ class Model: NSObject, NSCoding {
     var trace: [(Int,String)] {
         didSet {
             if !silent {
-                NSNotificationCenter.defaultCenter().postNotificationName("TraceChanged", object: nil)
+                NotificationCenter.default.post(name: Notification.Name(rawValue: "TraceChanged"), object: nil)
             }
         }
     }
@@ -40,7 +40,7 @@ class Model: NSObject, NSCoding {
         didSet {
             if waitingForAction == true {
 //                println("Posted Action notification")
-                NSNotificationCenter.defaultCenter().postNotificationName("Action", object: nil)
+                NotificationCenter.default.post(name: Notification.Name(rawValue: "Action"), object: nil)
             }
         }
     }
@@ -73,7 +73,7 @@ class Model: NSObject, NSCoding {
         var maxX = 0.0
         var maxY = 0.0
         var currentTrial = 1.0
-        func resultAdd(y:Double) {
+        func resultAdd(_ y:Double) {
             if silent { return }
             let x = currentTrial
             currentTrial += 1.0
@@ -82,7 +82,7 @@ class Model: NSObject, NSCoding {
                 maxX = max(maxX, x)
             } else {
                 let newItem: [(Double, Double)] = [(1.0,y)]
-                modelResults.insert(newItem, atIndex: currentRow)
+                modelResults.insert(newItem, at: currentRow)
                 currentTrial = 2.0
             }
             maxY = max(maxY, y)
@@ -113,8 +113,8 @@ class Model: NSObject, NSCoding {
     }
     
     required convenience init?(coder aDecoder: NSCoder) {
-        guard let dm = aDecoder.decodeObjectForKey("dm") as? Declarative,
-                let procedural = aDecoder.decodeObjectForKey("procedural") as? Procedural
+        guard let dm = aDecoder.decodeObject(forKey: "dm") as? Declarative,
+                let procedural = aDecoder.decodeObject(forKey: "procedural") as? Procedural
             else { return nil }
         self.init(silent: false, batchMode: false)
         self.dm = dm
@@ -122,7 +122,7 @@ class Model: NSObject, NSCoding {
         self.imaginal = Imaginal(model: self)
         self.action = Action(model: self)
         self.operators = Operator(model: self)
-        self.time = aDecoder.decodeDoubleForKey("time")
+        self.time = aDecoder.decodeDouble(forKey: "time")
     }
     
     convenience init(silent: Bool) {
@@ -143,15 +143,15 @@ class Model: NSObject, NSCoding {
         self.operators = Operator(model: self)
     }
     
-    func encodeWithCoder(coder: NSCoder) {
-        coder.encodeObject(self.dm, forKey: "dm")
-        coder.encodeObject(self.procedural, forKey: "procedural")
-        coder.encodeDouble(self.time, forKey: "time")
+    func encode(with coder: NSCoder) {
+        coder.encode(self.dm, forKey: "dm")
+        coder.encode(self.procedural, forKey: "procedural")
+        coder.encode(self.time, forKey: "time")
     }
 
     
-    func loadModelWithString(filePath: NSURL) -> Bool {
-        modelCode = try? String(contentsOfURL: filePath, encoding: NSUTF8StringEncoding)
+    func loadModelWithString(_ filePath: URL) -> Bool {
+        modelCode = try? String(contentsOf: filePath, encoding: String.Encoding.utf8)
         if modelCode != nil {
             scenario = PRScenario()
             parameters = []
@@ -177,7 +177,7 @@ class Model: NSObject, NSCoding {
     - parameter s: the string tot add
     - parameter level: the level of the entry
     */
-    func addToTrace(s: String, level: Int) {
+    func addToTrace(_ s: String, level: Int) {
         if !silent && tracing {
         let timeString = String(format:"%.2f", time)
         traceBuffer.append((level,"\(timeString)  " + s))
@@ -190,7 +190,7 @@ class Model: NSObject, NSCoding {
     to a part of the execution that has failed, and therefore also receive a higher level
     - parameter indented: should the added items be indented
    */
-    func commitToTrace(indented: Bool) {
+    func commitToTrace(_ indented: Bool) {
         if !silent {
             for (i,s) in traceBuffer {
                 if indented {
@@ -207,7 +207,7 @@ class Model: NSObject, NSCoding {
     Add an item to trace so that it is always visible and does not get a timestamp. This is used when parsing a model
     - parameter s: the string to add
     */
-    func addToTraceField(s: String) {
+    func addToTraceField(_ s: String) {
         if !silent {
             trace.append((0,s))
         }
@@ -222,7 +222,7 @@ class Model: NSObject, NSCoding {
      - parameter maxLevel: Maximum level to include in the trace
      - returns: the String
     */
-    func getTrace(maxLevel: Int) -> String {
+    func getTrace(_ maxLevel: Int) -> String {
         var result = ""
         for (level,s) in trace {
             if level <= maxLevel {
@@ -236,7 +236,7 @@ class Model: NSObject, NSCoding {
      * Input parameters: timestamp (double) and addToTrace (string)
      * No return parameter
      */
-    func addToBatchTrace(timestamp: Double, type: String, addToTrace: String) {
+    func addToBatchTrace(_ timestamp: Double, type: String, addToTrace: String) {
         batchTraceData += [(timestamp, type, addToTrace)]
     }
     
@@ -267,7 +267,7 @@ class Model: NSObject, NSCoding {
     var tasks: [Task] = []
     var currentTaskIndex: Int? = nil
 
-    func findTask(taskName: String) -> Int? {
+    func findTask(_ taskName: String) -> Int? {
         for i in 0..<tasks.count {
             if tasks[i].name == taskName {
                 return i
@@ -277,7 +277,7 @@ class Model: NSObject, NSCoding {
     }
     
     
-    func parseCode(modelCode: String, taskNumber: Int) -> Bool {
+    func parseCode(_ modelCode: String, taskNumber: Int) -> Bool {
         let parser = Parser(model: self, text: modelCode, taskNumber: taskNumber)
         let result = parser.parseModel()
         if result {
@@ -292,7 +292,7 @@ class Model: NSObject, NSCoding {
         return result
     }
     
-    func addTask(filePath: NSURL) {
+    func addTask(_ filePath: URL) {
         let newTask = Task(name: currentTask!, path: filePath)
         newTask.loaded = true
         newTask.goalChunk = currentGoals
@@ -339,7 +339,7 @@ class Model: NSObject, NSCoding {
         operators.previousOperators = []
     }
     
-    func setParameter(parameter: String, value: String) -> Bool {
+    func setParameter(_ parameter: String, value: String) -> Bool {
         let numVal = string2Double(value)
         let boolVal = (value != "nil")
         switch parameter {
@@ -441,7 +441,7 @@ class Model: NSObject, NSCoding {
     
     func loadParameters() {
         for (parameter,value) in parameters {
-            setParameter(parameter, value: value)
+            _ = setParameter(parameter, value: value)
         }
     }
     
@@ -490,7 +490,7 @@ class Model: NSObject, NSCoding {
         return true
     }
     
-    func logInput(inputTime: Double) {
+    func logInput(_ inputTime: Double) {
         let result = buffers["input"]
         if result != nil {
             let slot1 = result!.slotvals["slot1"]?.description
@@ -675,7 +675,7 @@ class Model: NSObject, NSCoding {
         }
         }
     
-    func reset(taskNumber: Int?) {
+    func reset(_ taskNumber: Int?) {
         dm = Declarative(model: self)
         procedural = Procedural(model: self)
         buffers = [:]
@@ -693,7 +693,7 @@ class Model: NSObject, NSCoding {
             parameters = []
             let parser = Parser(model: self, text: modelText, taskNumber: taskNumber!)
             setParametersToDefault()
-            parser.parseModel()
+            _ = parser.parseModel()
             if scenario.initScript != nil {
                 scenario.initScript!.reset()
                 scenario.initScript!.step(self)
@@ -710,15 +710,15 @@ class Model: NSObject, NSCoding {
     }
     
     
-    func loadOrReloadTask(i: Int) {
+    func loadOrReloadTask(_ i: Int) {
         if (i != currentTaskIndex) {
-            modelText = try! String(contentsOfURL: tasks[i].filename, encoding: NSUTF8StringEncoding)
+            modelText = try! String(contentsOf: tasks[i].filename as URL, encoding: String.Encoding.utf8)
             currentTaskIndex = i
             if !tasks[i].loaded {
                 scenario = PRScenario()
                 parameters = []
                 setParametersToDefault()
-                parseCode(modelText,taskNumber: i)
+                _ = parseCode(modelText,taskNumber: i)
                 tasks[i].loaded = true
             }
             currentTask = tasks[i].name
@@ -738,24 +738,24 @@ class Model: NSObject, NSCoding {
         }
     }
     
-    func generateName(s1: String = "chunk") -> String {
+    func generateName(_ s1: String = "chunk") -> String {
         chunkIdCounter += 1
         return s1 + "\(chunkIdCounter - 1)"
     }
     
-    func generateNewChunk(s1: String = "chunk") -> Chunk {
+    func generateNewChunk(_ s1: String = "chunk") -> Chunk {
         let name = generateName(s1)
         let chunk = Chunk(s: name, m: self)
         return chunk
     }
     
-    func stringToValue(s: String) -> Value {
+    func stringToValue(_ s: String) -> Value {
         let possibleNumVal = string2Double(s)
         if possibleNumVal != nil {
             return Value.Number(possibleNumVal!)
         }
         if let chunk = self.dm.chunks[s] {
-            return Value.Symbol(chunk)
+            return Value.symbol(chunk)
         } else {
             return Value.Text(s)
         }

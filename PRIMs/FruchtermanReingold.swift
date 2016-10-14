@@ -68,19 +68,19 @@ class FruchtermanReingold {
         self.H = H
     }
     
-    func attractionForce(x: Double) -> Double {
+    func attractionForce(_ x: Double) -> Double {
         return pow(x,2)/k
     }
     
-    func repulsionForce(z: Double) -> Double {
+    func repulsionForce(_ z: Double) -> Double {
         return pow(k,2) / z
     }
 
-    func vectorLength(x: Double, y: Double) -> Double {
+    func vectorLength(_ x: Double, y: Double) -> Double {
         return sqrt(pow(x,2)+pow(y,2))
     }
     
-    func rescale(newW: Double, newH: Double) {
+    func rescale(_ newW: Double, newH: Double) {
         for (_,node) in nodes {
             node.x = node.x * (newW/W)
             node.y = node.y * (newH/H)
@@ -90,7 +90,7 @@ class FruchtermanReingold {
     }
     
     func calculate() {
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0)) { () -> Void in
+        DispatchQueue.global(priority: DispatchQueue.GlobalQueuePriority.low).async { () -> Void in
         var maxRank = 0.0
         for (_,node) in self.nodes {
             node.x = Double(Int(arc4random_uniform(UInt32(self.W))))
@@ -151,8 +151,8 @@ class FruchtermanReingold {
 //                    node.y = min(midY + 0.3 * rankStep, max( midY - 0.3 * rankStep, node.y))
                 }
             }
-            dispatch_async(dispatch_get_main_queue()) {
-                NSNotificationCenter.defaultCenter().postNotificationName("UpdatePrimGraph", object: nil)
+            DispatchQueue.main.async {
+                NotificationCenter.default.post(name: Notification.Name(rawValue: "UpdatePrimGraph"), object: nil)
             }
             
             }
@@ -160,7 +160,7 @@ class FruchtermanReingold {
         }
     }
     
-    func findClosest(x: Double, y: Double) -> Node? {
+    func findClosest(_ x: Double, y: Double) -> Node? {
         var closest: Node?
         var closestDistance: Double = 1E20
         for (_,node) in nodes {
@@ -173,7 +173,7 @@ class FruchtermanReingold {
         return closest
     }
     
-    func makeVisibleClosestNodeName(x: Double, y: Double)  {
+    func makeVisibleClosestNodeName(_ x: Double, y: Double)  {
         let closest = findClosest(x, y: y)
         if closest != nil {
             closest!.labelVisible = !closest!.labelVisible
@@ -181,14 +181,14 @@ class FruchtermanReingold {
     }
     
     
-    func setUpGraph(model: Model) {
+    func setUpGraph(_ model: Model) {
         nodes = [:]
         edges = []
         constantC = 0.3
         for (_,chunk) in model.dm.chunks {
             if let type = chunk.slotvals["isa"] {
                 if type.description == "operator" {
-                    var conditionList = chunk.slotvals["condition"]!.description.componentsSeparatedByString(";")
+                    var conditionList = chunk.slotvals["condition"]!.description.components(separatedBy: ";")
                     var currentName = ""
                     var currentNode: Node? = nil
                     while !conditionList.isEmpty {
@@ -236,7 +236,7 @@ class FruchtermanReingold {
                     }
                     let operatorEdge = Edge(from: operatorNode, to: currentNode!)
                     edges.append(operatorEdge)
-                    var actionList = chunk.slotvals["action"]!.description.componentsSeparatedByString(";")
+                    var actionList = chunk.slotvals["action"]!.description.components(separatedBy: ";")
                     currentName = ""
                     currentNode = nil
                     while !actionList.isEmpty {
@@ -276,7 +276,7 @@ class FruchtermanReingold {
         }
     }
     
-    func setUpLearnGraph(model: Model) {
+    func setUpLearnGraph(_ model: Model) {
         nodes = [:]
         edges = []
         constantC = 1.0
@@ -311,7 +311,7 @@ class FruchtermanReingold {
         }
     }
     
-    func setUpDMGraph(model: Model) {
+    func setUpDMGraph(_ model: Model) {
         nodes = [:]
         edges = []
         constantC = 1.0

@@ -37,16 +37,16 @@ class Procedural: NSObject, NSCoding {
     }
     
     required convenience init?(coder aDecoder: NSCoder) {
-        guard let model = aDecoder.decodeObjectForKey("model") as? Model,
-            let productions = aDecoder.decodeObjectForKey("productions") as? [String:Production]
+        guard let model = aDecoder.decodeObject(forKey: "model") as? Model,
+            let productions = aDecoder.decodeObject(forKey: "productions") as? [String:Production]
             else { return nil }
         self.init(model: model)
         self.productions = productions
     }
     
-    func encodeWithCoder(coder: NSCoder) {
-        coder.encodeObject(self.model, forKey: "model")
-        coder.encodeObject(self.productions, forKey: "productions")
+    func encode(with coder: NSCoder) {
+        coder.encode(self.model, forKey: "model")
+        coder.encode(self.productions, forKey: "productions")
     }
     
     func setParametersToDefault() {
@@ -65,7 +65,7 @@ class Procedural: NSObject, NSCoding {
         clearRewardTrace()
     }
     
-    func addProduction(p: Production) {
+    func addProduction(_ p: Production) {
         productions[p.name] = p
     }
     
@@ -81,14 +81,14 @@ class Procedural: NSObject, NSCoding {
     /**
     Add an instantiation to the reward list
     */
-    func addToRewardTrace(i: Instantiation) {
+    func addToRewardTrace(_ i: Instantiation) {
         productionsForReward.append(i)
     }
     
     /**
     Issue a reward to all the productions that fired since the last reward, then clear the list
     */
-    func issueReward(reward: Double) {
+    func issueReward(_ reward: Double) {
         for inst in productionsForReward {
             let payoff = reward   - (model.time - inst.time) 
             inst.p.u = inst.p.u + alpha * (payoff - inst.p.u)
@@ -96,7 +96,7 @@ class Procedural: NSObject, NSCoding {
         clearRewardTrace()
     }
     
-    func fireProduction(inst: Instantiation, compile: Bool) -> (Bool, Prim?) {
+    func fireProduction(_ inst: Instantiation, compile: Bool) -> (Bool, Prim?) {
 
         if compile {
             if !inst.p.name.hasPrefix("t") {
@@ -170,10 +170,10 @@ class Procedural: NSObject, NSCoding {
     }
     
     
-    func compileProductions(p1: Production, inst2: Instantiation) {
+    func compileProductions(_ p1: Production, inst2: Instantiation) {
         let p2 = inst2.p
-        let nameP1 = p1.name.hasPrefix("t") ? p1.name.substringFromIndex(p1.name.startIndex.advancedBy(1)) : p1.name
-        let nameP2 = p2.name.hasPrefix("t") ? p2.name.substringFromIndex(p2.name.startIndex.advancedBy(1)) : p2.name
+        let nameP1 = p1.name.hasPrefix("t") ? p1.name.substring(from: p1.name.characters.index(p1.name.startIndex, offsetBy: 1)) : p1.name
+        let nameP2 = p2.name.hasPrefix("t") ? p2.name.substring(from: p2.name.characters.index(p2.name.startIndex, offsetBy: 1)) : p2.name
         let newName = nameP1 + ";" + nameP2
         var newFullName = newName
         if p2.newCondition != nil {

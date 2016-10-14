@@ -52,7 +52,7 @@ class PRObject{
 
     - returns: A chunk representing this object
     */
-    func chunk(model: Model) -> Chunk {
+    func chunk(_ model: Model) -> Chunk {
         let chunk = model.generateNewChunk("perception")
         chunk.setSlot("isa", value: "fact")
         for i in 0..<attributes.count {

@@ -9,18 +9,18 @@
 import Foundation
 
 enum Statement: CustomStringConvertible {
-    case Assign(Assignment)
-    case Func(Funcall)
-    case IfCl(IfClause)
-    case WhileCl(WhileClause)
-    case ForCl(ForClause)
+    case assign(Assignment)
+    case funcl(Funcall)
+    case ifCl(IfClause)
+    case whileCl(WhileClause)
+    case forCl(ForClause)
     var description: String {
         switch self {
-        case .Assign(let ass): return "Assignment: \(ass)"
-        case .Func(let funcall): return "Function call: \(funcall)"
-        case .IfCl(let ifc): return "If clause: \(ifc)"
-        case .WhileCl(let whcl): return "While clause \(whcl)"
-        case .ForCl(let fcl): return "For clause \(fcl)"
+        case .assign(let ass): return "Assignment: \(ass)"
+        case .funcl(let funcall): return "Function call: \(funcall)"
+        case .ifCl(let ifc): return "If clause: \(ifc)"
+        case .whileCl(let whcl): return "While clause \(whcl)"
+        case .forCl(let fcl): return "For clause \(fcl)"
         }
     }
 }
@@ -51,7 +51,7 @@ class Funcall: CustomStringConvertible {
         }
         return s + ")"
     }
-    func eval(env: Environment, model: Model) throws -> Factor {
+    func eval(_ env: Environment, model: Model) throws -> Factor {
         if let f = scriptFunctions[name] {
             var args: [Factor] = []
             for arg in arglist {
@@ -125,14 +125,14 @@ class Expression: CustomStringConvertible {
         let second = secondTerm == nil ? "" : "\(secondTerm!)"
         return "\(preop)\(firstTerm)\(op)\(second)"
     }
-    func eval(env: Environment, model: Model) throws -> Factor {
+    func eval(_ env: Environment, model: Model) throws -> Factor {
         var term1 = try firstTerm.eval(env, model: model)
         if preop == "-" {
             switch term1 {
-            case .IntNumber(let number):
-                term1 = .IntNumber(-number)
-            case .RealNumber(let number):
-                term1 = .RealNumber(-number)
+            case .intNumber(let number):
+                term1 = .intNumber(-number)
+            case .realNumber(let number):
+                term1 = .realNumber(-number)
             default: throw RunTimeError.nonNumberArgument
             }
         }
@@ -145,29 +145,29 @@ class Expression: CustomStringConvertible {
         
         // If the first argument is a string, concatenate both arguments
         if (term1.type() == "string" && op == "+") {
-            return .Str(term1.description + "\(term2)")
+            return .str(term1.description + "\(term2)")
         }
         
         // If one of the numbers is an Int and the other a Real, covert Int to Real
         switch (term1, term2) {
-        case (.IntNumber(let num1), .RealNumber(_)):
-            term1 = Factor.RealNumber(Double(num1))
-        case (.RealNumber(_), .IntNumber(let num2)):
-            term2 = Factor.RealNumber(Double(num2))
+        case (.intNumber(let num1), .realNumber(_)):
+            term1 = Factor.realNumber(Double(num1))
+        case (.realNumber(_), .intNumber(let num2)):
+            term2 = Factor.realNumber(Double(num2))
         default: break
         }
         
         switch (term1, term2, op) {
-        case (.IntNumber(let num1),.IntNumber(let num2),"+"):
-            return .IntNumber(num1 + num2)
-        case (.IntNumber(let num1),.IntNumber(let num2),"||"):
-            return .IntNumber(num1 + num2)
-        case (.IntNumber(let num1),.IntNumber(let num2),"-"):
-            return .IntNumber(num1 - num2)
-        case (.RealNumber(let num1), .RealNumber(let num2),"+"):
-            return .RealNumber(num1 + num2)
-        case (.RealNumber(let num1), .RealNumber(let num2), "-"):
-            return .RealNumber(num1 - num2)
+        case (.intNumber(let num1),.intNumber(let num2),"+"):
+            return .intNumber(num1 + num2)
+        case (.intNumber(let num1),.intNumber(let num2),"||"):
+            return .intNumber(num1 + num2)
+        case (.intNumber(let num1),.intNumber(let num2),"-"):
+            return .intNumber(num1 - num2)
+        case (.realNumber(let num1), .realNumber(let num2),"+"):
+            return .realNumber(num1 + num2)
+        case (.realNumber(let num1), .realNumber(let num2), "-"):
+            return .realNumber(num1 - num2)
         default: throw RunTimeError.nonNumberArgument
         }
     }
@@ -186,7 +186,7 @@ class Term: CustomStringConvertible {
         let second = term == nil ? "" : "\(term!)"
         return "\(factor)\(op)\(second)"
     }
-    func eval(env: Environment, model: Model) throws -> Factor {
+    func eval(_ env: Environment, model: Model) throws -> Factor {
         var factor1 = try factor.eval(env, model: model)
         if op == "" {
             return factor1
@@ -194,25 +194,25 @@ class Term: CustomStringConvertible {
         guard term != nil else { throw RunTimeError.missingSecondArgument }
         var factor2 = try term!.eval(env, model: model)
         switch (factor1, factor2) {
-        case (.IntNumber(let num1), .RealNumber(_)):
-            factor1 = Factor.RealNumber(Double(num1))
-        case (.RealNumber(_), .IntNumber(let num2)):
-            factor2 = Factor.RealNumber(Double(num2))
+        case (.intNumber(let num1), .realNumber(_)):
+            factor1 = Factor.realNumber(Double(num1))
+        case (.realNumber(_), .intNumber(let num2)):
+            factor2 = Factor.realNumber(Double(num2))
         default: break
         }
         switch (factor1, factor2, op) {
-        case (.IntNumber(let num1),.IntNumber(let num2),"*"):
-            return .IntNumber(num1 * num2)
-        case (.IntNumber(let num1),.IntNumber(let num2),"&&"):
-            return .IntNumber(num1 * num2)
-        case (.IntNumber(let num1),.IntNumber(let num2),"/"):
+        case (.intNumber(let num1),.intNumber(let num2),"*"):
+            return .intNumber(num1 * num2)
+        case (.intNumber(let num1),.intNumber(let num2),"&&"):
+            return .intNumber(num1 * num2)
+        case (.intNumber(let num1),.intNumber(let num2),"/"):
             guard num2 != 0 else { throw RunTimeError.divisionByZero }
-            return .IntNumber(num1 / num2)
-        case (.RealNumber(let num1), .RealNumber(let num2),"*"):
-            return .RealNumber(num1 * num2)
-        case (.RealNumber(let num1), .RealNumber(let num2), "/"):
+            return .intNumber(num1 / num2)
+        case (.realNumber(let num1), .realNumber(let num2),"*"):
+            return .realNumber(num1 * num2)
+        case (.realNumber(let num1), .realNumber(let num2), "/"):
             guard num2 != 0 else { throw RunTimeError.divisionByZero }
-            return .RealNumber(num1 / num2)
+            return .realNumber(num1 / num2)
         default: throw RunTimeError.nonNumberArgument
         }
     }
@@ -233,13 +233,13 @@ class ScriptArray: CustomStringConvertible {
         s += "]"
         return s
     }
-    func eval(env: Environment, model: Model) throws -> Factor {
+    func eval(_ env: Environment, model: Model) throws -> Factor {
         var newElements: [Expression] = []
         for elem in elements {
             let value = try elem.eval(env, model: model)
             newElements.append(Expression(preop: "", firstTerm: Term(factor: value, op: "", term: nil), op: "", secondTerm: nil))
         }
-        return Factor.Arr(ScriptArray(elements: newElements))
+        return Factor.arr(ScriptArray(elements: newElements))
     }
 }
 
@@ -252,16 +252,16 @@ class Comparison {
         self.op = op
         self.rhs = rhs
     }
-    func eval(env: Environment, model: Model) throws -> Factor {
+    func eval(_ env: Environment, model: Model) throws -> Factor {
         var leftArg = try lhs.eval(env, model: model)
         var result: Bool
         if op == "" || op == "!" {
             switch leftArg {
-            case .IntNumber(let num):
+            case .intNumber(let num):
                 result = op == "" ? num != 0 : num == 0
-            case .RealNumber(let num):
+            case .realNumber(let num):
                 result = op == "" ? num != 0 : num == 0
-            case .Str(let str):
+            case .str(let str):
                 result = op == "" ? str != "" : str == ""
             default:
                 throw RunTimeError.nonNumberArgument
@@ -270,10 +270,10 @@ class Comparison {
         guard rhs != nil else { throw RunTimeError.missingSecondArgument }
         var rightArg = try rhs!.eval(env, model: model)
         switch (leftArg, rightArg) {
-        case (.IntNumber(let num1), .RealNumber(_)):
-            leftArg = Factor.RealNumber(Double(num1))
-        case (.RealNumber(_), .IntNumber(let num2)):
-            rightArg = Factor.RealNumber(Double(num2))
+        case (.intNumber(let num1), .realNumber(_)):
+            leftArg = Factor.realNumber(Double(num1))
+        case (.realNumber(_), .intNumber(let num2)):
+            rightArg = Factor.realNumber(Double(num2))
         default: break
         }
         switch  op {
@@ -286,47 +286,47 @@ class Comparison {
         default: throw RunTimeError.unDeclaratedIdentifier(op) // shouldn't happen
         }
         }
-        return Factor.IntNumber(result ? 1 : 0)
+        return Factor.intNumber(result ? 1 : 0)
 
     }
 }
 
 enum Factor: CustomStringConvertible  {
-    case Func(Funcall)
-    case Arr(ScriptArray)
-    case RealNumber(Double)
-    case IntNumber(Int)
-    case Str(String)
-    case Symbol(String)
-    case Expr(Expression)
-    case ArrayElem(IndexedArray)
-    case Test(Comparison)
+    case funcl(Funcall)
+    case arr(ScriptArray)
+    case realNumber(Double)
+    case intNumber(Int)
+    case str(String)
+    case symbol(String)
+    case expr(Expression)
+    case arrayElem(IndexedArray)
+    case test(Comparison)
     var description: String {
         switch self {
-        case .IntNumber(let num): return String(num)
-        case .RealNumber(let num): return String(num)
-        case .Str(let s): return s
-        case .Symbol(let s): return s
-        case .Func(let fn): return fn.description
-        case .Arr(let arr): return "\(arr)"
-        case .Expr(let ex): return "\(ex)"
-        case .ArrayElem(let arr): return "\(arr)"
-        case .Test(let cp): return "\(cp)"
+        case .intNumber(let num): return String(num)
+        case .realNumber(let num): return String(num)
+        case .str(let s): return s
+        case .symbol(let s): return s
+        case .funcl(let fn): return fn.description
+        case .arr(let arr): return "\(arr)"
+        case .expr(let ex): return "\(ex)"
+        case .arrayElem(let arr): return "\(arr)"
+        case .test(let cp): return "\(cp)"
         }
     }
-    func eval(env: Environment, model: Model) throws -> Factor {
+    func eval(_ env: Environment, model: Model) throws -> Factor {
         switch self {
-        case .Func(let funcall):
+        case .funcl(let funcall):
             return try funcall.eval(env, model: model)
-        case .ArrayElem(let arr):
+        case .arrayElem(let arr):
             return try arr.eval(env, model: model)
-        case .Expr(let expr):
+        case .expr(let expr):
             return try expr.eval(env, model: model)
-        case .Symbol(let sym):
+        case .symbol(let sym):
             return try env.lookup(sym)
-        case .Arr(let arr):
+        case .arr(let arr):
             return try arr.eval(env, model: model)
-        case .Test(let cp):
+        case .test(let cp):
             return try cp.eval(env, model: model)
         default:
             return self
@@ -334,27 +334,27 @@ enum Factor: CustomStringConvertible  {
     }
     func type() -> String {
         switch self {
-        case .Func(_): return "function"
-        case .IntNumber(_): return "integer"
-        case .RealNumber(_): return "real"
-        case .Str(_): return "string"
-        case .Symbol(_): return "symbol"
-        case .Arr(_): return "array"
-        case .ArrayElem(_): return "indexed-array"
-        case .Expr(_): return "expression"
-        case .Test(_): return "comparison"
+        case .funcl(_): return "function"
+        case .intNumber(_): return "integer"
+        case .realNumber(_): return "real"
+        case .str(_): return "string"
+        case .symbol(_): return "symbol"
+        case .arr(_): return "array"
+        case .arrayElem(_): return "indexed-array"
+        case .expr(_): return "expression"
+        case .test(_): return "comparison"
         }
     }
     func intValue() -> Int? {
         switch self {
-        case .IntNumber(let num): return num
+        case .intNumber(let num): return num
         default: return nil
         }
     }
     func doubleValue() -> Double? {
         switch self {
-        case .IntNumber(let num): return Double(num)
-        case .RealNumber(let num): return num
+        case .intNumber(let num): return Double(num)
+        case .realNumber(let num): return num
         default: return nil
         }
     }
@@ -362,11 +362,11 @@ enum Factor: CustomStringConvertible  {
 
 func == (left: Factor, right: Factor) -> Bool {
     switch (left, right) {
-    case (.IntNumber(let num1),.IntNumber(let num2)):
+    case (.intNumber(let num1),.intNumber(let num2)):
         return num1 == num2
-    case (.RealNumber(let num1),.RealNumber(let num2)):
+    case (.realNumber(let num1),.realNumber(let num2)):
         return num1 == num2
-    case (.Str(let str1),.Str(let str2)):
+    case (.str(let str1),.str(let str2)):
         return str1 == str2
     default:
         return false
@@ -379,9 +379,9 @@ func != (left: Factor, right: Factor) -> Bool {
 
 func > (left: Factor, right: Factor) -> Bool {
     switch (left, right) {
-    case (.IntNumber(let num1),.IntNumber(let num2)):
+    case (.intNumber(let num1),.intNumber(let num2)):
             return num1 > num2
-    case (.RealNumber(let num1),.RealNumber(let num2)):
+    case (.realNumber(let num1),.realNumber(let num2)):
         return num1 > num2
     default: return false
     }
@@ -389,9 +389,9 @@ func > (left: Factor, right: Factor) -> Bool {
 
 func < (left: Factor, right: Factor) -> Bool {
     switch (left, right) {
-    case (.IntNumber(let num1),.IntNumber(let num2)):
+    case (.intNumber(let num1),.intNumber(let num2)):
         return num1 < num2
-    case (.RealNumber(let num1),.RealNumber(let num2)):
+    case (.realNumber(let num1),.realNumber(let num2)):
         return num1 < num2
     default: return false
     }
@@ -405,7 +405,7 @@ func <= (left: Factor, right: Factor) -> Bool {
     return left < right || left == right
 }
 
-func generateFactorExpression(f: Factor) -> Expression {
+func generateFactorExpression(_ f: Factor) -> Expression {
     return Expression(preop: "", firstTerm: Term(factor: f, op: "", term: nil), op: "", secondTerm: nil)
 }
 
@@ -416,11 +416,11 @@ class IndexedArray {
         self.name = name
         self.index = index
     }
-    func eval(env: Environment, model: Model) throws -> Factor {
+    func eval(_ env: Environment, model: Model) throws -> Factor {
         let ind = try index.eval(env, model: model)
         let arr = try env.lookup(name)
         switch (ind, arr) {
-        case (Factor.IntNumber(let i),Factor.Arr(let a)):
+        case (Factor.intNumber(let i),Factor.arr(let a)):
             guard i < a.elements.count else { throw RunTimeError.arrayOutOfBounds }
             let expr = a.elements[i]
             return try expr.eval(env, model: model)
@@ -429,14 +429,14 @@ class IndexedArray {
     }
 }
 
-enum ParsingError: ErrorType {
-    case UnExpectedEOF
-    case Expected(String, String)
-    case OperatorExpected(String, String)
-    case InvalidAssignmentLHS
+enum ParsingError: Error {
+    case unExpectedEOF
+    case expected(String, String)
+    case operatorExpected(String, String)
+    case invalidAssignmentLHS
 }
 
-enum RunTimeError: ErrorType {
+enum RunTimeError: Error {
     case unDeclaratedIdentifier(String)
     case nonNumberArgument
     case missingSecondArgument
@@ -466,8 +466,8 @@ class Environment: CustomStringConvertible {
             level = outer!.level + 1
         }
     }
-    func add(symbol: String, value: Factor) { vars[symbol] = value }
-    func lookup(symbol: String) throws -> Factor {
+    func add(_ symbol: String, value: Factor) { vars[symbol] = value }
+    func lookup(_ symbol: String) throws -> Factor {
         if let value = vars[symbol] {
             return value
         } else if outer != nil {
@@ -477,7 +477,7 @@ class Environment: CustomStringConvertible {
         }
     }
 
-    func simpleAssign(v: String, value: Factor, orgEnv: Environment)  {
+    func simpleAssign(_ v: String, value: Factor, orgEnv: Environment)  {
         if let _ = vars[v] {
             add(v, value:  value)
         } else if outer != nil {
@@ -487,15 +487,15 @@ class Environment: CustomStringConvertible {
         }
     }
     
-    func arrayAssign(a: String, index: Int, value: Factor) throws {
+    func arrayAssign(_ a: String, index: Int, value: Factor) throws {
         let factor = try lookup(a)
         switch factor {
-        case .Arr(let arr):
+        case .arr(let arr):
             if index < arr.elements.endIndex {
                 arr.elements[index] = Expression(preop: "", firstTerm: Term(factor: value, op: "", term: nil), op: "", secondTerm: nil)
             } else {
                 while arr.elements.endIndex < index {
-                    arr.elements.append(Expression(preop: "", firstTerm: Term(factor: Factor.IntNumber(0), op: "", term: nil), op: "", secondTerm: nil))
+                    arr.elements.append(Expression(preop: "", firstTerm: Term(factor: Factor.intNumber(0), op: "", term: nil), op: "", secondTerm: nil))
                 }
                 arr.elements.append(Expression(preop: "", firstTerm: Term(factor: value, op: "", term: nil), op: "", secondTerm: nil))
             }
@@ -508,7 +508,7 @@ class Environment: CustomStringConvertible {
 class Script {
     var statements: [Statement] = []
     
-    func tokenize(input: String) -> [String] {
+    func tokenize(_ input: String) -> [String] {
         var tokens: [String] = []
         var nextIndex = input.startIndex
         while nextIndex != input.endIndex {
@@ -522,18 +522,22 @@ class Script {
         return tokens
     }
     
-    func getNextChar(input: String, nextIndex: String.Index)
-        -> String { return input.substringWithRange(nextIndex..<nextIndex.advancedBy(1)) }
+    func getNextChar(_ input: String, nextIndex: String.Index)
+        -> String {
+        return input.substring(with: nextIndex ..< input.index(after: nextIndex))
+    }
+            
+ //           return input.substring(with: nextIndex..<<#T##String.CharacterView corresponding to `nextIndex`##String.CharacterView#>.index(nextIndex, offsetBy: 1)) }
     
-    func a(input: String, index: String.Index, char: String) -> Bool {
-        return input.substringFromIndex(index).hasPrefix(char)
+    func a(_ input: String, index: String.Index, char: String) -> Bool {
+        return input.substring(from: index).hasPrefix(char)
     }
     
-    func readNextToken(input :String, startIndex : String.Index) -> (token : String?, nextIndex : String.Index) {
+    func readNextToken(_ input :String, startIndex : String.Index) -> (token : String?, nextIndex : String.Index) {
         var nextIndex = startIndex
         while nextIndex != input.endIndex {
             if a(input, index: nextIndex, char: " ") || a(input, index: nextIndex, char: "\n") || a(input, index: nextIndex, char: "\t") {
-                nextIndex = nextIndex.successor()
+                nextIndex = input.index(after: nextIndex)
             } else {
                 break
             }
@@ -544,7 +548,7 @@ class Script {
         let nextChar = getNextChar(input, nextIndex: nextIndex)
         switch nextChar {
         case "(", ")", "+", "*", "-", "/", "%", "\\", "{", "}", "[", "]",",":
-            return (nextChar, nextIndex.advancedBy(1))
+            return (nextChar, input.index(nextIndex, offsetBy: 1))
         case "!", "<", ">", "=", "|", "&":
             return readOperator(input, startIndex: nextIndex)
         case "1", "2", "3", "4", "5", "6", "7", "8", "9", "0":
@@ -556,7 +560,7 @@ class Script {
         }
     }
     
-    func readNumber(input: String, startIndex: String.Index) -> (token: String?, nextIndex:String.Index) {
+    func readNumber(_ input: String, startIndex: String.Index) -> (token: String?, nextIndex:String.Index) {
         var value = ""
         var nextIndex = startIndex
         while nextIndex != input.endIndex {
@@ -567,12 +571,12 @@ class Script {
             default:
                 return (value, nextIndex)
             }
-            nextIndex = nextIndex.advancedBy(1)
+            nextIndex = input.index(nextIndex, offsetBy: 1)
         }
         return (value, nextIndex)
     }
     
-    func readOperator(input: String, startIndex: String.Index) -> (token: String?, nextIndex:String.Index) {
+    func readOperator(_ input: String, startIndex: String.Index) -> (token: String?, nextIndex:String.Index) {
         var value = ""
         var nextIndex = startIndex
         while nextIndex != input.endIndex {
@@ -583,12 +587,12 @@ class Script {
             default:
                 return (value, nextIndex)
             }
-            nextIndex = nextIndex.advancedBy(1)
+            nextIndex = input.index(nextIndex, offsetBy: 1)
         }
         return (value, nextIndex)
     }
     
-    func readSymbol(input: String, startIndex: String.Index) -> (token: String?, nextIndex: String.Index) {
+    func readSymbol(_ input: String, startIndex: String.Index) -> (token: String?, nextIndex: String.Index) {
         var token = ""
         var nextIndex = startIndex
         while nextIndex != input.endIndex {
@@ -599,29 +603,29 @@ class Script {
             default:
                 token += nextChar
             }
-            nextIndex = nextIndex.advancedBy(1)
+            nextIndex = input.index(nextIndex, offsetBy: 1)
         }
         return (token, nextIndex)
     }
 
-    func readString(input: String, startIndex: String.Index) -> (token: String?, nextIndex: String.Index) {
+    func readString(_ input: String, startIndex: String.Index) -> (token: String?, nextIndex: String.Index) {
         var token = "\""
-        var nextIndex = startIndex.advancedBy(1)
+        var nextIndex = input.index(startIndex, offsetBy: 1)
         while nextIndex != input.endIndex {
             let nextChar = getNextChar(input, nextIndex: nextIndex)
             switch nextChar {
             case "\"":
                 token += nextChar
-                return (token, nextIndex.advancedBy(1))
+                return (token, input.index(nextIndex, offsetBy: 1))
             default:
                 token += nextChar
             }
-            nextIndex = nextIndex.advancedBy(1)
+            nextIndex = input.index(nextIndex, offsetBy: 1)
         }
         return (token, nextIndex)
     }
 
-    func parse(input: String) throws {
+    func parse(_ input: String) throws {
         statements = []
         var tokens = tokenize(input)
 //        for token in tokens {
@@ -636,7 +640,7 @@ class Script {
         }
     }
 
-    func lookAhead(tokens: [String], index: Int) -> String {
+    func lookAhead(_ tokens: [String], index: Int) -> String {
         if (index + 1 < tokens.endIndex) {
             return tokens[index + 1]
         } else {
@@ -644,37 +648,37 @@ class Script {
         }
     }
     
-    func nextToken(index: Int, endIndex: Int) throws -> Int {
-        guard index + 1 < endIndex else { throw ParsingError.UnExpectedEOF }
+    func nextToken(_ index: Int, endIndex: Int) throws -> Int {
+        guard index + 1 < endIndex else { throw ParsingError.unExpectedEOF }
         return index + 1
     }
     
     
-    func parseStatement(tokens: [String], startIndex: Int, endIndex: Int) throws -> (statement: Statement, lastIndex: Int) {
+    func parseStatement(_ tokens: [String], startIndex: Int, endIndex: Int) throws -> (statement: Statement, lastIndex: Int) {
 //        print("Parsing Statement at \(tokens[startIndex])")
-        guard startIndex < endIndex else { throw ParsingError.UnExpectedEOF }
+        guard startIndex < endIndex else { throw ParsingError.unExpectedEOF }
         switch tokens[startIndex] {
         case "if":
             let ifResult = try parseIf(tokens, startIndex: try nextToken(startIndex, endIndex: endIndex), endIndex: endIndex)
-            return (Statement.IfCl(ifResult.ifelse), ifResult.lastIndex)
+            return (Statement.ifCl(ifResult.ifelse), ifResult.lastIndex)
         case "while":
             let whileResult = try parseWhile(tokens, startIndex: try nextToken(startIndex, endIndex: endIndex), endIndex: endIndex)
-            return (Statement.WhileCl(whileResult.whileRes), whileResult.lastIndex)
+            return (Statement.whileCl(whileResult.whileRes), whileResult.lastIndex)
         case "for":
             let forResult = try parseFor(tokens, startIndex: try nextToken(startIndex, endIndex: endIndex), endIndex: endIndex)
-            return (Statement.ForCl(forResult.forRes), forResult.lastIndex)
+            return (Statement.forCl(forResult.forRes), forResult.lastIndex)
         default:
             if lookAhead(tokens, index: startIndex) == "(" {
                 let funcResult = try parseFunc(tokens, startIndex: startIndex, endIndex: endIndex)
-                return (Statement.Func(funcResult.funcRes), funcResult.lastIndex)
+                return (Statement.funcl(funcResult.funcRes), funcResult.lastIndex)
             } else {
                 let assignResult = try parseAssign(tokens, startIndex: startIndex, endIndex: endIndex)
-                return (Statement.Assign(assignResult.asRes), assignResult.lastIndex)
+                return (Statement.assign(assignResult.asRes), assignResult.lastIndex)
             }
         }
     }
     
-    func constructPrior(tokens: [String], index: Int) -> String {
+    func constructPrior(_ tokens: [String], index: Int) -> String {
         var s: String = ""
         for i in 0...index {
             s += tokens[i] + " "
@@ -682,11 +686,11 @@ class Script {
         return s
     }
     
-    func parseIf(tokens: [String], startIndex: Int, endIndex: Int) throws -> (ifelse: IfClause, lastIndex: Int) {
+    func parseIf(_ tokens: [String], startIndex: Int, endIndex: Int) throws -> (ifelse: IfClause, lastIndex: Int) {
 //        print("Parsing If at \(tokens[startIndex])")
         let test = try parseExpression(tokens, startIndex: startIndex, endIndex: endIndex)
         guard tokens[test.lastIndex] == "{" else {
-            throw ParsingError.Expected("{",constructPrior(tokens, index: test.lastIndex))
+            throw ParsingError.expected("{",constructPrior(tokens, index: test.lastIndex))
         }
         var thenPart: [Statement] = []
         var index = try nextToken(test.lastIndex, endIndex: endIndex)
@@ -699,7 +703,7 @@ class Script {
         var elsePart: [Statement] = []
         if tokens[index] == "else" {
             index = try nextToken(index, endIndex: endIndex)
-            guard tokens[index] == "{" else { throw ParsingError.Expected("{",constructPrior(tokens, index: index)) }
+            guard tokens[index] == "{" else { throw ParsingError.expected("{",constructPrior(tokens, index: index)) }
             index = try nextToken(index, endIndex: endIndex)
             while tokens[index] != "}" {
                 let nextStatement = try parseStatement(tokens, startIndex: index, endIndex: endIndex)
@@ -711,11 +715,11 @@ class Script {
         return (IfClause(test: test.expression, thenStatements: thenPart, elseStatements: elsePart), index)
     }
     
-    func parseWhile(tokens: [String], startIndex: Int, endIndex: Int) throws -> (whileRes: WhileClause, lastIndex: Int) {
+    func parseWhile(_ tokens: [String], startIndex: Int, endIndex: Int) throws -> (whileRes: WhileClause, lastIndex: Int) {
 //        print("Parsing While at \(tokens[startIndex])")
         let test = try parseExpression(tokens, startIndex: startIndex, endIndex: endIndex)
         guard tokens[test.lastIndex] == "{" else {
-            throw ParsingError.Expected("{",constructPrior(tokens, index: test.lastIndex))
+            throw ParsingError.expected("{",constructPrior(tokens, index: test.lastIndex))
         }
         var loop: [Statement] = []
         var index = try nextToken(test.lastIndex, endIndex: endIndex)
@@ -731,18 +735,18 @@ class Script {
     // for i in 1 to n { statements* }
     // for x in array
     
-    func parseFor(tokens: [String], startIndex: Int, endIndex: Int) throws -> (forRes: ForClause, lastIndex: Int) {
+    func parseFor(_ tokens: [String], startIndex: Int, endIndex: Int) throws -> (forRes: ForClause, lastIndex: Int) {
 //        print("Parsing For at \(tokens[startIndex])")
         let loopVariable = tokens[startIndex]
 //        print("Loop variable is \(loopVariable)")
         var index = try nextToken(startIndex, endIndex: endIndex)
-        guard tokens[index] == "in" else { throw ParsingError.Expected("in", constructPrior(tokens, index: index)) }
+        guard tokens[index] == "in" else { throw ParsingError.expected("in", constructPrior(tokens, index: index)) }
         index = try nextToken(index, endIndex: endIndex)
         let arg1 = try parseExpression(tokens, startIndex: index, endIndex: endIndex)
         index = arg1.lastIndex
         var arg2: Expression? = nil
         if tokens[index] != "to" {
-            guard arg1.expression.firstTerm.factor.type() == "symbol" || arg1.expression.firstTerm.factor.type() == "array" else { throw ParsingError.Expected("a symbol or array", constructPrior(tokens, index: index)) }
+            guard arg1.expression.firstTerm.factor.type() == "symbol" || arg1.expression.firstTerm.factor.type() == "array" else { throw ParsingError.expected("a symbol or array", constructPrior(tokens, index: index)) }
         } else {
             index = try nextToken(index, endIndex: endIndex)
             let arg = try parseExpression(tokens, startIndex: index, endIndex: endIndex)
@@ -750,7 +754,7 @@ class Script {
             arg2 = arg.expression
         }
         guard tokens[index] == "{" else {
-            throw ParsingError.Expected("{",constructPrior(tokens, index: index))
+            throw ParsingError.expected("{",constructPrior(tokens, index: index))
         }
         var loop: [Statement] = []
         index = try nextToken(index, endIndex: endIndex)
@@ -760,10 +764,10 @@ class Script {
             index = nextStatement.lastIndex
         }
         index = try nextToken(index, endIndex: endIndex)
-        return (ForClause(loopVar: Factor.Symbol(loopVariable), statements: loop, startExpression: arg1.expression, endExpression: arg2),index)
+        return (ForClause(loopVar: Factor.symbol(loopVariable), statements: loop, startExpression: arg1.expression, endExpression: arg2),index)
     }
     
-    func parseComparison(tokens: [String], startIndex: Int, endIndex: Int) throws -> (testRes: Comparison, lastIndex: Int) {
+    func parseComparison(_ tokens: [String], startIndex: Int, endIndex: Int) throws -> (testRes: Comparison, lastIndex: Int) {
 //        print("Parsing Comparison at \(tokens[startIndex])")
         var index = startIndex
         var op: String = ""
@@ -784,12 +788,12 @@ class Script {
         default:
             break
         }
-        guard tokens[index] == ")" else { throw ParsingError.Expected(")",constructPrior(tokens, index: index)) }
+        guard tokens[index] == ")" else { throw ParsingError.expected(")",constructPrior(tokens, index: index)) }
         index = try nextToken(index, endIndex: endIndex)
         return (Comparison(lhs: lhs.expression, op: op, rhs: (rhs != nil ? rhs!.expression : nil)), index)
     }
 
-    func parseExpression(tokens: [String], startIndex: Int, endIndex: Int) throws -> (expression: Expression, lastIndex: Int) {
+    func parseExpression(_ tokens: [String], startIndex: Int, endIndex: Int) throws -> (expression: Expression, lastIndex: Int) {
 //        print("Parsing Expression at \(tokens[startIndex])")
         var preop = ""
         var index = startIndex
@@ -812,7 +816,7 @@ class Script {
         return (Expression(preop: preop, firstTerm: term.term, op: op, secondTerm: secondTerm != nil ? secondTerm!.expression : nil), index)
     }
     
-    func parseTerm(tokens: [String], startIndex: Int, endIndex: Int) throws -> (term: Term, lastIndex: Int) {
+    func parseTerm(_ tokens: [String], startIndex: Int, endIndex: Int) throws -> (term: Term, lastIndex: Int) {
 //        print("Parsing Term at \(tokens[startIndex])")
         var index = startIndex
         let factor = try parseFactor(tokens, startIndex: index, endIndex: endIndex)
@@ -829,7 +833,7 @@ class Script {
         return (Term(factor: factor.factor, op: op, term: secondFactor != nil ? secondFactor!.term : nil), index)
     }
     
-    func parseFactor(tokens: [String], startIndex: Int, endIndex: Int) throws -> (factor: Factor, lastIndex: Int) {
+    func parseFactor(_ tokens: [String], startIndex: Int, endIndex: Int) throws -> (factor: Factor, lastIndex: Int) {
 //        print("Parsing Factor at \(tokens[startIndex])")
         var index = startIndex
         let la = lookAhead(tokens, index: index)
@@ -843,9 +847,9 @@ class Script {
             // Expression
             let comparison = try parseComparison(tokens, startIndex: index, endIndex: endIndex)
             if (comparison.testRes.op == "") {
-                return (Factor.Expr(comparison.testRes.lhs), comparison.lastIndex)
+                return (Factor.expr(comparison.testRes.lhs), comparison.lastIndex)
             } else {
-                return (Factor.Test(comparison.testRes), comparison.lastIndex)
+                return (Factor.test(comparison.testRes), comparison.lastIndex)
             }
             /*
             let la = lookAhead(tokens, index: index)
@@ -866,35 +870,35 @@ class Script {
         if tokens[index].hasPrefix("\"") { // String
             let str = String(tokens[index].characters.dropFirst().dropLast())
             index = try nextToken(index, endIndex: endIndex)
-            return (Factor.Str(str), index)
+            return (Factor.str(str), index)
         }
         if tokens[index] == "[" { // array
             let arr = try parseArray(tokens, startIndex: index, endIndex: endIndex)
-            return (Factor.Arr(arr.arr),arr.lastIndex)
+            return (Factor.arr(arr.arr),arr.lastIndex)
         }
         if la == "[" { // array element
             let arr = try parseArrayElem(tokens, startIndex: index, endIndex: endIndex)
-            return (Factor.ArrayElem(arr.arrElem), arr.lastIndex)
+            return (Factor.arrayElem(arr.arrElem), arr.lastIndex)
         }
         if let value = Int(tokens[index]) { // is it an integer?
             index = try nextToken(index, endIndex: endIndex)
-            return (Factor.IntNumber(value),index)
+            return (Factor.intNumber(value),index)
         }
         if let value = Double(tokens[index]) { // is a real?
             index = try nextToken(index, endIndex: endIndex)
-            return (Factor.RealNumber(value),index)
+            return (Factor.realNumber(value),index)
         }
         if la == "(" {  // function call
             let funcResult = try parseFunc(tokens, startIndex: index, endIndex: endIndex)
-            return (Factor.Func(funcResult.funcRes), funcResult.lastIndex)
+            return (Factor.funcl(funcResult.funcRes), funcResult.lastIndex)
         }
         // Otherwise, assume it is a symbol
         let symb = tokens[index]
         index = try nextToken(index, endIndex: endIndex)
-        return (Factor.Symbol(symb),index)
+        return (Factor.symbol(symb),index)
     }
     
-    func parseFunc(tokens: [String], startIndex: Int, endIndex: Int) throws -> (funcRes: Funcall, lastIndex: Int) {
+    func parseFunc(_ tokens: [String], startIndex: Int, endIndex: Int) throws -> (funcRes: Funcall, lastIndex: Int) {
 //        print("Parsing Function call at \(tokens[startIndex])")
         var index = startIndex
         let funcName = tokens[index]
@@ -904,7 +908,7 @@ class Script {
         while tokens[index] != ")" {
             let nextExpression = try parseExpression(tokens, startIndex: index, endIndex: endIndex)
             index = nextExpression.lastIndex
-            guard tokens[index] == "," || tokens[index] == ")" else { throw ParsingError.Expected(",",constructPrior(tokens, index: index)) }
+            guard tokens[index] == "," || tokens[index] == ")" else { throw ParsingError.expected(",",constructPrior(tokens, index: index)) }
             args.append(nextExpression.expression)
             if tokens[index] == "," {
                 index = try nextToken(index, endIndex:  endIndex)
@@ -914,22 +918,22 @@ class Script {
         return (Funcall(name: funcName, argList: args), index)
     }
     
-    func parseAssign(tokens: [String], startIndex: Int, endIndex: Int) throws -> (asRes: Assignment, lastIndex: Int) {
+    func parseAssign(_ tokens: [String], startIndex: Int, endIndex: Int) throws -> (asRes: Assignment, lastIndex: Int) {
 //        print("Parsing Assignment at \(tokens[startIndex])")
 //        let lhs = tokens[startIndex]
         let lhs = try parseFactor(tokens, startIndex: startIndex, endIndex: endIndex)
         var index = lhs.lastIndex
         switch lhs.factor {
-        case .Symbol(_), .ArrayElem(_): break
-        default: throw ParsingError.InvalidAssignmentLHS
+        case .symbol(_), .arrayElem(_): break
+        default: throw ParsingError.invalidAssignmentLHS
         }
-        guard tokens[index] == "=" else { throw ParsingError.Expected("=",constructPrior(tokens, index: index)) }
+        guard tokens[index] == "=" else { throw ParsingError.expected("=",constructPrior(tokens, index: index)) }
         index = try nextToken(index, endIndex: endIndex)
         let rhs = try parseExpression(tokens, startIndex: index, endIndex: endIndex)
         return (Assignment(lhs: lhs.factor, rhs: rhs.expression), rhs.lastIndex)
     }
     
-    func parseArray(tokens: [String], startIndex: Int, endIndex: Int) throws -> (arr: ScriptArray, lastIndex: Int) {
+    func parseArray(_ tokens: [String], startIndex: Int, endIndex: Int) throws -> (arr: ScriptArray, lastIndex: Int) {
 //        print("Parsing Array at \(tokens[startIndex])")
         var index = try nextToken(startIndex, endIndex: endIndex)
         var expres: [Expression] = []
@@ -937,7 +941,7 @@ class Script {
             let expr = try parseExpression(tokens, startIndex: index, endIndex: endIndex)
             expres.append(expr.expression)
             index = expr.lastIndex
-            guard tokens[index] == "," || tokens[index] == "]" else { throw ParsingError.Expected(",",constructPrior(tokens, index: index)) }
+            guard tokens[index] == "," || tokens[index] == "]" else { throw ParsingError.expected(",",constructPrior(tokens, index: index)) }
             if tokens[index] == "," {
                 index = try nextToken(index, endIndex: endIndex)
             }
@@ -946,14 +950,14 @@ class Script {
         return (ScriptArray(elements: expres), index)
     }
     
-    func parseArrayElem(tokens: [String], startIndex: Int, endIndex: Int) throws -> (arrElem: IndexedArray, lastIndex: Int) {
+    func parseArrayElem(_ tokens: [String], startIndex: Int, endIndex: Int) throws -> (arrElem: IndexedArray, lastIndex: Int) {
 //        print("Parsing Indexed Array at \(tokens[startIndex])")
         let name = tokens[startIndex]
         var index = startIndex + 1 // We already know a "[" is there
         index = try nextToken(index, endIndex: endIndex)
         let expression = try parseExpression(tokens, startIndex: index, endIndex: endIndex)
         index = expression.lastIndex
-        guard tokens[index] == "]" else { throw ParsingError.Expected("]",constructPrior(tokens, index: index)) }
+        guard tokens[index] == "]" else { throw ParsingError.expected("]",constructPrior(tokens, index: index)) }
         index = try nextToken(index, endIndex: endIndex)
         return (IndexedArray(name: name, index: expression.expression), index)
     }
@@ -968,7 +972,7 @@ class Script {
         env.statements = statements
     }
 
-    func step(model: Model) {
+    func step(_ model: Model) {
         do {
             var stop = false
             var first = true
@@ -997,21 +1001,21 @@ class Script {
                 let cur = env.statements[env.pc]
                 env.pc += 1
                 switch cur {
-                case .Assign(let assign):
+                case .assign(let assign):
                     let value = try assign.rhs.eval(env, model: model)
                     switch assign.lhs {
-                    case .Symbol(let symbol):
+                    case .symbol(let symbol):
                          env.simpleAssign(symbol, value: value, orgEnv: env)
-                    case .ArrayElem(let arr):
+                    case .arrayElem(let arr):
                         let index = try arr.index.eval(env, model: model)
                         switch index {
-                        case .IntNumber(let i):
+                        case .intNumber(let i):
                         try env.arrayAssign(arr.name , index: i, value: value)
                         default: throw RunTimeError.nonNumberArgument
                         }
                     default: break // cannot happen, checked during parse
                     }
-                case .IfCl(let ifClause):
+                case .ifCl(let ifClause):
                     let result = try ifClause.test.eval(env, model: model)
                     env = Environment(outer: env)
                     if result.intValue() == 1 {
@@ -1019,34 +1023,34 @@ class Script {
                     } else {
                         env.statements = ifClause.elseStatements
                     }
-                case .WhileCl(let whileCl):
+                case .whileCl(let whileCl):
                     if try whileCl.test.eval(env, model: model).intValue() == 1 {
                         env = Environment(outer: env)
                         env.statements = whileCl.statements
                         env.loopCondition = whileCl.test
                     }
-                case .ForCl(let forCl):
+                case .forCl(let forCl):
                     env = Environment(outer: env)
                     if forCl.endExpression == nil { // loop over an array
                         let theArray = try forCl.startExpression.eval(env, model: model)
                         guard theArray.type() == "array" else { throw RunTimeError.indexingNonArray }
                         var count: Int
                         switch theArray {
-                        case .Arr(let ar): count = ar.elements.count
+                        case .arr(let ar): count = ar.elements.count
                         default: count = 0 // cannot happen
                         }
                         let loopArrayName = "loopArrayName943" + String(env.level)
                         let loopArrayIndex = "loopArrayIndex724" + String(env.level)
-                        let loopArrayIndexFactor = Factor.Symbol(loopArrayIndex)
+                        let loopArrayIndexFactor = Factor.symbol(loopArrayIndex)
                         env.simpleAssign(loopArrayName, value: theArray, orgEnv: env)
-                        env.simpleAssign(loopArrayIndex, value: Factor.IntNumber(0), orgEnv: env)
-                        let assign = Statement.Assign(Assignment(lhs: forCl.loopVar, rhs: generateFactorExpression(Factor.ArrayElem(IndexedArray(name: loopArrayName, index: generateFactorExpression(loopArrayIndexFactor))))))
-                        let increment = Statement.Assign(Assignment(lhs: loopArrayIndexFactor, rhs: Expression(preop: "", firstTerm: Term(factor: loopArrayIndexFactor, op: "", term: nil), op: "+", secondTerm: generateFactorExpression(Factor.IntNumber(1)))))
+                        env.simpleAssign(loopArrayIndex, value: Factor.intNumber(0), orgEnv: env)
+                        let assign = Statement.assign(Assignment(lhs: forCl.loopVar, rhs: generateFactorExpression(Factor.arrayElem(IndexedArray(name: loopArrayName, index: generateFactorExpression(loopArrayIndexFactor))))))
+                        let increment = Statement.assign(Assignment(lhs: loopArrayIndexFactor, rhs: Expression(preop: "", firstTerm: Term(factor: loopArrayIndexFactor, op: "", term: nil), op: "+", secondTerm: generateFactorExpression(Factor.intNumber(1)))))
                         env.statements = forCl.statements
                         env.statements.append(increment)
-                        env.statements.insert(assign, atIndex: 0)
-                        let loopTest = Comparison(lhs: generateFactorExpression(loopArrayIndexFactor), op: "<", rhs: generateFactorExpression(Factor.IntNumber(count)))
-                        env.loopCondition = generateFactorExpression(Factor.Test(loopTest))
+                        env.statements.insert(assign, at: 0)
+                        let loopTest = Comparison(lhs: generateFactorExpression(loopArrayIndexFactor), op: "<", rhs: generateFactorExpression(Factor.intNumber(count)))
+                        env.loopCondition = generateFactorExpression(Factor.test(loopTest))
                         if try env.loopCondition!.eval(env, model: model).intValue() == 0 {
                             env = env.outer!  /// empty loop
                         }
@@ -1054,15 +1058,15 @@ class Script {
                         let value = try forCl.startExpression.eval(env, model: model)
                         env.simpleAssign(forCl.loopVar.description, value: value, orgEnv: env)
                         env.statements = forCl.statements
-                        let increment = Statement.Assign(Assignment(lhs: forCl.loopVar, rhs: Expression(preop: "", firstTerm: Term(factor: forCl.loopVar, op: "", term: nil), op: "+", secondTerm: generateFactorExpression(Factor.IntNumber(1)))))
+                        let increment = Statement.assign(Assignment(lhs: forCl.loopVar, rhs: Expression(preop: "", firstTerm: Term(factor: forCl.loopVar, op: "", term: nil), op: "+", secondTerm: generateFactorExpression(Factor.intNumber(1)))))
                         env.statements.append(increment)
                         let loopTest = Comparison(lhs: generateFactorExpression(forCl.loopVar), op: "<=", rhs: forCl.endExpression!)
-                        env.loopCondition = generateFactorExpression(Factor.Test(loopTest))
+                        env.loopCondition = generateFactorExpression(Factor.test(loopTest))
                         if try env.loopCondition!.eval(env, model: model).intValue() == 0 {
                             env = env.outer!  /// empty loop
                         }
                     }
-                case .Func(let fn):
+                case .funcl(let fn):
                     if (fn.name.hasPrefix("run") || fn.name == "trial-end") && !first && !model.fallingThrough {
                         env.pc -= 1
                         stop = true

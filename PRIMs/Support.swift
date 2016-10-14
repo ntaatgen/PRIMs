@@ -10,23 +10,23 @@ import Foundation
 
 // Global stuff
 
-func actrNoise(noise: Double) -> Double {
+func actrNoise(_ noise: Double) -> Double {
     let rand = Double(Int(arc4random_uniform(100000-2)+1))/100000.0
     return noise * log((1 - rand) / rand )
 }
 
-func isVariable(s: String) -> Bool {
+func isVariable(_ s: String) -> Bool {
     return s.hasPrefix("=")
 }
 
-func isVariable(v: Value) -> Bool {
+func isVariable(_ v: Value) -> Bool {
     if let s = v.text() {
         return s.hasPrefix("=") }
     else { return false }
 }
 
-func string2Double(s: String) -> Double? {
-    let scanner = NSScanner(string: s)
+func string2Double(_ s: String) -> Double? {
+    let scanner = Scanner(string: s)
     return scanner.scanDouble()
 }
 
@@ -42,7 +42,7 @@ Chunks can have different types in their slots:
 
 */
 enum Value: CustomStringConvertible {
-    case Symbol(Chunk)
+    case symbol(Chunk)
     case Number(Double)
     case Text(String)
 
@@ -68,25 +68,25 @@ enum Value: CustomStringConvertible {
     
     func chunk() -> Chunk? {
         switch self {
-        case .Symbol(let chunk):
+        case .symbol(let chunk):
             return chunk
         default:
             return nil
         }
     }
     
-    func isEqual(v: Value) ->  Bool {
+    func isEqual(_ v: Value) ->  Bool {
         return v.description == self.description
     }
     
     var description: String {
         get {
             switch self {
-            case Symbol(let value):
+            case .symbol(let value):
                 return "\(value.name)"
-            case Number(let value):
+            case .Number(let value):
                 return "\(value)"
-            case Text(let value):
+            case .Text(let value):
                 return "\(value)"
 
             }
@@ -106,11 +106,11 @@ Chop a PRIM string into separate PRIM
 
 - returns: A tuple of two strings with the first n PRIMs and the rest
 */
-func chopPrims(s: String, n: Int) -> (String,String) {
-    let x = s.componentsSeparatedByString(";")
+func chopPrims(_ s: String, n: Int) -> (String,String) {
+    let x = s.components(separatedBy: ";")
     if x.count == n {
         return (s, "")
     } else {
-        return (x[1..<n].reduce(x[0], combine: { $0 + ";" + $1}),x[(n+1)..<x.count].reduce(x[n], combine: { $0 + ";" + $1} ))
+        return (x[1..<n].reduce(x[0], { $0 + ";" + $1}),x[(n+1)..<x.count].reduce(x[n], { $0 + ";" + $1} ))
     }
 }

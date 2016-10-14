@@ -9,17 +9,17 @@
 import Cocoa
 
 protocol PrimViewDataSource: class {
-    func primViewCalculateGraph(sender: PrimView)
-    func primViewNumberOfVertices(sender: PrimView) -> Int
-    func primViewVertexCoordinates(sender: PrimView, index: Int) -> (Double,Double)
-    func primViewVertexLabel(sender: PrimView, index: Int) -> String
-    func primViewVertexColor(sender: PrimView, index: Int) -> NSColor
-    func primViewVertexBroad(sender: PrimView, index: Int) -> Bool
-    func primViewNumbeOfEdges(sender: PrimView) -> Int
-    func primViewEdgeVertices(sender: PrimView, index: Int) -> (Int,Int)
-    func primViewRescale(sender: PrimView, newW: Double, newH: Double)
-    func primViewVisibleLabel(sender: PrimView, index: Int) -> String?
-    func primViewVertexHalo(sender: PrimView, index: Int) -> Bool
+    func primViewCalculateGraph(_ sender: PrimView)
+    func primViewNumberOfVertices(_ sender: PrimView) -> Int
+    func primViewVertexCoordinates(_ sender: PrimView, index: Int) -> (Double,Double)
+    func primViewVertexLabel(_ sender: PrimView, index: Int) -> String
+    func primViewVertexColor(_ sender: PrimView, index: Int) -> NSColor
+    func primViewVertexBroad(_ sender: PrimView, index: Int) -> Bool
+    func primViewNumbeOfEdges(_ sender: PrimView) -> Int
+    func primViewEdgeVertices(_ sender: PrimView, index: Int) -> (Int,Int)
+    func primViewRescale(_ sender: PrimView, newW: Double, newH: Double)
+    func primViewVisibleLabel(_ sender: PrimView, index: Int) -> String?
+    func primViewVertexHalo(_ sender: PrimView, index: Int) -> Bool
 }
 
 class PrimView: NSView {
@@ -32,24 +32,24 @@ class PrimView: NSView {
     var arrowSize: CGFloat = 6
     weak var dataSource: PrimViewDataSource!
     
-    func drawVertex(x: CGFloat, y: CGFloat, fillColor: NSColor, lineWidth: CGFloat, halo: Bool) {
+    func drawVertex(_ x: CGFloat, y: CGFloat, fillColor: NSColor, lineWidth: CGFloat, halo: Bool) {
         if halo {
             let rect = NSRect(x: x - haloSize, y: y - haloSize, width: haloSize * 2, height: haloSize * 2)
-            let path = NSBezierPath(ovalInRect: rect)
+            let path = NSBezierPath(ovalIn: rect)
             path.lineWidth = 0
-            NSColor.yellowColor().setFill()
+            NSColor.yellow.setFill()
             path.fill()
         }
         let rect = NSRect(x: x - vertexSize, y: y - vertexSize, width: vertexSize * 2, height: vertexSize * 2)
-        let path = NSBezierPath(ovalInRect: rect)
+        let path = NSBezierPath(ovalIn: rect)
         path.lineWidth = lineWidth
-        NSColor.blackColor().set()
+        NSColor.black.set()
         path.stroke()
         fillColor.setFill()
         path.fill()
     }
     
-    func drawEdge(start: NSPoint, end: NSPoint) {
+    func drawEdge(_ start: NSPoint, end: NSPoint) {
         let π = CGFloat(M_PI)
         var angle: CGFloat
         if start.x != end.x {
@@ -65,18 +65,18 @@ class PrimView: NSView {
         let arrowtip2 = NSPoint(x: intersect.x + arrowSize * cos(angle + 0.75 * π), y: intersect.y + arrowSize * sin(angle + 0.75 * π))
         
         let path = NSBezierPath()
-        path.moveToPoint(start)
-        path.lineToPoint(intersect)
-        path.lineToPoint(arrowtip1)
-        path.moveToPoint(intersect)
-        path.lineToPoint(arrowtip2)
+        path.move(to: start)
+        path.line(to: intersect)
+        path.line(to: arrowtip1)
+        path.move(to: intersect)
+        path.line(to: arrowtip2)
         path.lineWidth = pathLineWidth
-        NSColor.blackColor().set()
+        NSColor.black.set()
         path.stroke()
     }
     
-    override func drawRect(dirtyRect: NSRect) {
-        super.drawRect(dirtyRect)
+    override func draw(_ dirtyRect: NSRect) {
+        super.draw(dirtyRect)
         self.autoresizesSubviews = true
 //        dataSource.primViewCalculateGraph(self)
         dataSource.primViewRescale(self, newW: Double(self.bounds.width) , newH: Double(self.bounds.height))
@@ -99,8 +99,8 @@ class PrimView: NSView {
             if let nodeLabel = dataSource.primViewVisibleLabel(self, index: i) {
                 let (x,y) = dataSource.primViewVertexCoordinates(self, index: i)
                 let s = NSMutableAttributedString(string: nodeLabel)
-                s.addAttribute(NSFontAttributeName, value: NSFont.userFontOfSize(10.0)!, range: NSMakeRange(0, s.length))
-                s.drawAtPoint(NSPoint(x: x + Double(vertexSize), y: y + Double(vertexSize)))
+                s.addAttribute(NSFontAttributeName, value: NSFont.userFont(ofSize: 10.0)!, range: NSMakeRange(0, s.length))
+                s.draw(at: NSPoint(x: x + Double(vertexSize), y: y + Double(vertexSize)))
 //                s.drawInRect(NSRect(x: x, y: y, width: 100.0, height: 40.0))
 
             }
