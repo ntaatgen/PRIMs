@@ -9,18 +9,19 @@
 import Cocoa
 
 protocol PrimViewDataSource: class {
-    func primViewCalculateGraph(sender: PrimView)
-    func primViewNumberOfVertices(sender: PrimView) -> Int
-    func primViewVertexCoordinates(sender: PrimView, index: Int) -> (Double,Double)
-    func primViewVertexLabel(sender: PrimView, index: Int) -> String
-    func primViewVertexColor(sender: PrimView, index: Int) -> NSColor
-    func primViewVertexBroad(sender: PrimView, index: Int) -> Bool
-    func primViewNumbeOfEdges(sender: PrimView) -> Int
-    func primViewEdgeVertices(sender: PrimView, index: Int) -> (Int,Int)
-    func primViewRescale(sender: PrimView, newW: Double, newH: Double)
-    func primViewVisibleLabel(sender: PrimView, index: Int) -> String?
-    func primViewVertexHalo(sender: PrimView, index: Int) -> Bool
-    func primViewEdgeColor(sender: PrimView, index: Int) -> NSColor
+    func primViewCalculateGraph(_ sender: PrimView)
+    func primViewNumberOfVertices(_ sender: PrimView) -> Int
+    func primViewVertexCoordinates(_ sender: PrimView, index: Int) -> (Double,Double)
+    func primViewVertexLabel(_ sender: PrimView, index: Int) -> String
+    func primViewVertexColor(_ sender: PrimView, index: Int) -> NSColor
+    func primViewVertexBroad(_ sender: PrimView, index: Int) -> Bool
+    func primViewNumbeOfEdges(_ sender: PrimView) -> Int
+    func primViewEdgeVertices(_ sender: PrimView, index: Int) -> (Int,Int)
+    func primViewRescale(_ sender: PrimView, newW: Double, newH: Double)
+    func primViewVisibleLabel(_ sender: PrimView, index: Int) -> String?
+    func primViewVertexHalo(_ sender: PrimView, index: Int) -> Bool
+    func primViewEdgeColor(_ sender: PrimView, index: Int) -> NSColor
+
 }
 
 class PrimView: NSView {
@@ -50,7 +51,7 @@ class PrimView: NSView {
         path.fill()
     }
     
-    func drawEdge(start: NSPoint, end: NSPoint, color: NSColor) {
+    func drawEdge(_ start: NSPoint, end: NSPoint, color: NSColor) {
         let π = CGFloat(M_PI)
         var angle: CGFloat
         if start.x != end.x {

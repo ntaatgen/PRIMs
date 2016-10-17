@@ -190,7 +190,7 @@ class BatchRun {
                     self.model.batchParameters = []
                     self.model = Model(batchMode: true)
                 case "repeat":
-                    scanner.scanInt()
+                    _ = scanner.scanInt()
                 case "done": break
 //                    print("*** Model has finished running ****")
                 case "load-image":

@@ -59,6 +59,7 @@ let scriptFunctions: [String:([Factor], Model?) throws -> (result: Factor?, done
     "open-jar": openJar,
     "report-memory": reportMemory,
     "imaginal-to-dm": imaginalToDM,
+    "set-references": setReferences,
     "set-goal": setGoal,
     "create-new-goal": createNewGoal
     ]
@@ -607,7 +608,7 @@ func reportMemory(_ content: [Factor], model: Model?) throws -> (result: Factor?
 
 /* Put the contents of the imaginal buffer in the declarative memory
  */
-func imaginalToDM(content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool) {
+func imaginalToDM(_ content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool) {
     if let imaginalChunk = model!.buffers["imaginal"] {
         model!.dm.addToDM(imaginalChunk)
     }
@@ -616,6 +617,7 @@ func imaginalToDM(content: [Factor], model: Model?) throws -> (result: Factor?, 
 
 /**
  Add attributes and values to a goal chunk. The first argument is the name of the goal chunk, the remaining arguments are slot-value pairs
+
  */
 func setGoal(content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool) {
     guard content.count > 0 else { throw RunTimeError.invalidNumberOfArguments }
@@ -626,7 +628,7 @@ func setGoal(content: [Factor], model: Model?) throws -> (result: Factor?, done:
     chunk.setSlot("isa", value: "goaltype")
     for index in 1..<content.count {
         switch content[index] {
-        case .Arr(let pair):
+        case .arr(let pair):
             guard pair.elements.count == 2 else { throw RunTimeError.errorInFunction("Invalid attribute-value pair in setGoal") }
             let attribute = pair.elements[0].description
             let value = pair.elements[1].description
@@ -634,6 +636,20 @@ func setGoal(content: [Factor], model: Model?) throws -> (result: Factor?, done:
         default: throw RunTimeError.errorInFunction("setGoal should have attribute-value pairs in all but first arguments")
         }
     }
+    return(nil, true)
+}
+    /**
+     Set the number of references of a chunk
+     1st argument: chunk name
+     2nd argument: number of references (int)
+     */
+func setReferences(_ content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool) {
+    guard content.count == 2 else { throw RunTimeError.invalidNumberOfArguments }
+    let chunk = model!.dm.chunks[content[0].description]
+    guard chunk != nil else { throw RunTimeError.errorInFunction("Chunk does not exist") }
+    let value = content[1].intValue()
+    guard value != nil else { throw RunTimeError.errorInFunction("Second argument is not an int") }
+    chunk!.references = value!
     return(nil, true)
 }
 
@@ -648,7 +664,7 @@ func createNewGoal(content: [Factor], model: Model?) throws -> (result: Factor?,
     goalChunk.setSlot("isa", value: "goaltype")
     for index in 1..<content.count {
         switch content[index] {
-        case .Arr(let pair):
+        case .arr(let pair):
             guard pair.elements.count == 2 else { throw RunTimeError.errorInFunction("Invalid attribute-value pair in createNewGoal") }
             let attribute = pair.elements[0].description
             let value = pair.elements[1].description

@@ -102,7 +102,7 @@ class Action {
         let ac = actionChunk.slotvals["slot1"]?.description
         if ac == nil { return 0.0 }
         if ac! == "build-goal" {
-            createNewGoal(actionChunk)
+            createNewGoal(chunk: actionChunk)
             return 0.2
         }
         let par1 = actionChunk.slotvals["slot2"]?.description

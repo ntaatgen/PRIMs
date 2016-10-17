@@ -194,8 +194,8 @@ class Operator {
         var prim: Prim?
         if !cfs.isEmpty {
             repeat {
-                (candidate, activation) = cfs.removeAtIndex(0)
-                if let toBeCheckedOperator = checkOperatorGoalMatch(candidate) {
+                (candidate, activation) = cfs.remove(at: 0)
+                if let toBeCheckedOperator = checkOperatorGoalMatch(op: candidate) {
                     candidateWithSubstitution = toBeCheckedOperator.copyChunk()
                     model.buffers["operator"] = toBeCheckedOperator
                     let inst = model.procedural.findMatchingProduction()
