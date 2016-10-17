@@ -100,11 +100,11 @@ class Declarative: NSObject, NSCoding  {
     }
     
     required convenience init?(coder aDecoder: NSCoder) {
-        guard let model = aDecoder.decodeObjectForKey("model") as? Model,
-            let chunks = aDecoder.decodeObjectForKey("chunks") as? [String:Chunk],
-            let operatorCACol1 = aDecoder.decodeObjectForKey("operatorCACol1") as? [String],
-            let operatorCACol2 = aDecoder.decodeObjectForKey("operatorCACol2") as? [[String]],
-            let operatorCACol3 = aDecoder.decodeObjectForKey("operatorCACol3") as? [[String]]
+        guard let model = aDecoder.decodeObject(forKey: "model") as? Model,
+            let chunks = aDecoder.decodeObject(forKey: "chunks") as? [String:Chunk],
+            let operatorCACol1 = aDecoder.decodeObject(forKey: "operatorCACol1") as? [String],
+            let operatorCACol2 = aDecoder.decodeObject(forKey: "operatorCACol2") as? [[String]],
+            let operatorCACol3 = aDecoder.decodeObject(forKey: "operatorCACol3") as? [[String]]
             else { return nil }
         self.init(model: model)
         self.chunks = chunks
@@ -113,15 +113,15 @@ class Declarative: NSObject, NSCoding  {
         }
     }
     
-    func encodeWithCoder(coder: NSCoder) {
-        coder.encodeObject(self.model, forKey: "model")
-        coder.encodeObject(self.chunks, forKey: "chunks")
+    func encode(with coder: NSCoder) {
+        coder.encode(self.model, forKey: "model")
+        coder.encode(self.chunks, forKey: "chunks")
         let operatorCACol1 = self.operatorCA.map{ $0.0 }
         let operatorCACol2 = self.operatorCA.map{ $0.1 }
         let operatorCACol3 = self.operatorCA.map{ $0.2 }
-        coder.encodeObject(operatorCACol1, forKey: "operatorCACol1")
-        coder.encodeObject(operatorCACol2, forKey: "operatorCACol2")
-        coder.encodeObject(operatorCACol3, forKey: "operatorCACol3")
+        coder.encode(operatorCACol1, forKey: "operatorCACol1")
+        coder.encode(operatorCACol2, forKey: "operatorCACol2")
+        coder.encode(operatorCACol3, forKey: "operatorCACol3")
         
     }
 
@@ -168,7 +168,7 @@ class Declarative: NSObject, NSCoding  {
         newPartialMatchingExp = Declarative.newPartialMatchingDefault
     }
     
-    func duplicateChunk(chunk: Chunk) -> Chunk? {
+    func duplicateChunk(_ chunk: Chunk) -> Chunk? {
         /* Return duplicate chunk if there is one, else nil */
         for (_,c1) in chunks {
             if c1 == chunk { return c1 }
@@ -176,7 +176,7 @@ class Declarative: NSObject, NSCoding  {
         return nil
     }
     
-    func retrievalState(slot: String, value: String) -> Bool {
+    func retrievalState(_ slot: String, value: String) -> Bool {
         switch (slot,value) {
         case ("state","busy"): return retrieveBusy
         case ("state","error"): return retrieveError
@@ -188,12 +188,12 @@ class Declarative: NSObject, NSCoding  {
         finsts = []
     }
     
-    func addToFinsts(c: Chunk) {
+    func addToFinsts(_ c: Chunk) {
         finsts.append(c.name)
     }
     
     
-    func addToDM(chunk: Chunk) {
+    func addToDM(_ chunk: Chunk) {
         if let dupChunk = duplicateChunk(chunk) {
             dupChunk.addReference()
             dupChunk.mergeAssocs(chunk)
@@ -208,7 +208,7 @@ class Declarative: NSObject, NSCoding  {
             chunks[chunk.name] = chunk
             for (_,val) in chunk.slotvals {
                 switch val {
-                case .Symbol(let refChunk):
+                case .symbol(let refChunk):
                     refChunk.fan += 1
                 default: break
                 }
@@ -226,7 +226,7 @@ class Declarative: NSObject, NSCoding  {
                 switch val {
                 case .Text(let s):
                     if let altChunk = chunks[s] {
-                        chunk.slotvals[slot] = Value.Symbol(altChunk)
+                        chunk.slotvals[slot] = Value.symbol(altChunk)
 //                        print("Fixing \(altChunk.name) in \(chunk.name)")
                     }
                 default: break
@@ -240,11 +240,11 @@ class Declarative: NSObject, NSCoding  {
     - parameter activation: an activation value
     - returns: the latency
     */
-    func latency(activation: Double) -> Double {
+    func latency(_ activation: Double) -> Double {
         return latencyFactor * exp(-activation)
     }
     
-    func retrieve(chunk: Chunk) -> (Double, Chunk?) {
+    func retrieve(_ chunk: Chunk) -> (Double, Chunk?) {
         retrieveError = false
         var bestMatch: Chunk? = nil
         var bestActivation: Double = retrievalThreshold
@@ -279,7 +279,7 @@ class Declarative: NSObject, NSCoding  {
     
     /* Mismatch Functions */
     // Mismatch function for operators
-    func mismatchOperators(x: Value, _ y: Value) -> Double {
+    func mismatchOperators(_ x: Value, _ y: Value) -> Double {
         /* Return similarity if there is one, else return -1*/
         if (x.description == "times" || x.description == "plus" || x.description == "minus" || x.description == "divided-by") {
             if (y.description == "times" || y.description == "plus" || y.description == "minus" || y.description == "divided-by") {
@@ -292,23 +292,21 @@ class Declarative: NSObject, NSCoding  {
     }
     
     // Mismatch function for numbers
-    func mismatchNumbers(x: Value, _ y: Value) -> Double {
+    func mismatchNumbers(_ x: Value, _ y: Value) -> Double {
         /* Return similarity if there is one, else return -1
-        Similarity is calculated by dividing the smallest number by the largest number.*/
+         Similarity is calculated by dividing the smallest number by the largest number.*/
         if (Int(x.description) != nil && Int(y.description) != nil)  {
             let maxValue = max(Double(x.description)!, Double(y.description)!)
             let minValue = min(Double(x.description)!, Double(y.description)!)
-            if (maxValue == 10 * minValue) {
-                return -0.3
-            }
-            return maxValue == 0.0 ? (minValue / (maxValue + 0.0001)) : (minValue / maxValue - 1)
+            let mismatch = 0 - (maxValue - minValue) / 10
+            return mismatch >= -1 ? mismatch : -1
         } else {
             return -1
         }
     }
     
     // General Mismatch Function
-    func mismatchFunction(x: Value, y: Value) -> Double? {
+    func mismatchFunction(_ x: Value, y: Value) -> Double? {
         /* Select the correct mismatch function and return similarity if there is one */
         var mismatch: Double
         if (x.description == y.description) {
@@ -316,13 +314,13 @@ class Declarative: NSObject, NSCoding  {
         } else if (Double(x.description) != nil && Double(y.description) != nil) {
             mismatch = mismatchNumbers(x, y)
         } else {
-            //mismatch = mismatchOperators(x, y)
             mismatch = -1
         }
         return mismatch
     }
+
     
-    func partialRetrieve(chunk: Chunk, mismatchFunction: (x: Value, y: Value) -> Double? ) -> (Double, Chunk?) {
+    func partialRetrieve(_ chunk: Chunk, mismatchFunction: (_ x: Value, _ y: Value) -> Double? ) -> (Double, Chunk?) {
         var bestMatch: Chunk? = nil
         var bestActivation: Double = retrievalThreshold
         conflictSet = []
@@ -331,7 +329,7 @@ class Declarative: NSObject, NSCoding  {
             for (slot,value) in chunk.slotvals {
                 if let val1 = ch1.slotvals[slot] {
                     if !val1.isEqual(value) {
-                        let slotmismatch = mismatchFunction(x: val1, y: value)
+                        let slotmismatch = mismatchFunction(val1, value)
                         if slotmismatch != nil {
                             mismatch += slotmismatch!
                         } else

@@ -178,7 +178,7 @@ class PRScreen {
     
     - returns: A chunk
     */
-    func current(model: Model) -> Chunk {
+    func current(_ model: Model) -> Chunk {
         if currentAttendedObject == nil && (currentParentObject == nil || currentParentObject!.subObjects.count == 0) {
             let result = model.generateNewChunk("perception")
             result.setSlot("isa", value: "fact")

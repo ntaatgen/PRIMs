@@ -10,16 +10,16 @@ import Foundation
 
 
 enum NoiseType {
-    case None
-    case Uniform
-    case Logistic
+    case none
+    case uniform
+    case logistic
 }
 
 struct ActionInstance {
     var name: String
     var outputString: String
     var meanLatency: Double
-    var noiseType: NoiseType = .None
+    var noiseType: NoiseType = .none
     var noiseValue: Double = 0.0
     init(name: String, meanLatency: Double) {
         self.name = name
@@ -28,11 +28,11 @@ struct ActionInstance {
     }
     func latency() -> Double {
         switch noiseType {
-        case .None:
+        case .none:
             return meanLatency
-        case .Logistic:
+        case .logistic:
             return max(0.0, meanLatency + actrNoise(noiseValue))
-        case .Uniform:
+        case .uniform:
             let rand = Double(Int(arc4random_uniform(100000-2)+1))/100000.0  // value between 0 and 1
             return max(0.0, meanLatency - noiseValue + 2 * noiseValue * rand)
         }

@@ -53,24 +53,24 @@ class Chunk: NSObject, NSCoding {
     }
     
     required convenience init?(coder aDecoder: NSCoder) {
-        guard let name = aDecoder.decodeObjectForKey("name") as? String,
-            let model = aDecoder.decodeObjectForKey("model") as? Model,
-            let slotvals = aDecoder.decodeObjectForKey("slotvals") as? [String:String],
-            let printOrder = aDecoder.decodeObjectForKey("printorder") as? [String],
-            let referenceList = aDecoder.decodeObjectForKey("referencelist") as? [Double],
-            let assoc1 = aDecoder.decodeObjectForKey("assoc1") as? [String: Double],
-            let assoc2 = aDecoder.decodeObjectForKey("assoc2") as? [String: Int]
+        guard let name = aDecoder.decodeObject(forKey: "name") as? String,
+            let model = aDecoder.decodeObject(forKey: "model") as? Model,
+            let slotvals = aDecoder.decodeObject(forKey: "slotvals") as? [String:String],
+            let printOrder = aDecoder.decodeObject(forKey: "printorder") as? [String],
+            let referenceList = aDecoder.decodeObject(forKey: "referencelist") as? [Double],
+            let assoc1 = aDecoder.decodeObject(forKey: "assoc1") as? [String: Double],
+            let assoc2 = aDecoder.decodeObject(forKey: "assoc2") as? [String: Int]
             else { return nil }
         self.init(s: name, m: model)
         for (slot,value) in slotvals {
             self.slotvals[slot] = Value.Text(value)
         }
         self.printOrder = printOrder
-        self.fan = Int(aDecoder.decodeIntForKey("fan"))
-        self.references = Int(aDecoder.decodeIntForKey("references"))
-        let creationTime = aDecoder.decodeDoubleForKey("creationtime")
+        self.fan = Int(aDecoder.decodeCInt(forKey: "fan"))
+        self.references = Int(aDecoder.decodeCInt(forKey: "references"))
+        let creationTime = aDecoder.decodeDouble(forKey: "creationtime")
         self.creationTime = creationTime == -1.0 ? nil : creationTime
-        let fixedActivation = aDecoder.decodeDoubleForKey("fixedactivation")
+        let fixedActivation = aDecoder.decodeDouble(forKey: "fixedactivation")
         self.fixedActivation = fixedActivation == -1000.0 ? nil : fixedActivation
         self.referenceList = referenceList
         for (chunk,value) in assoc1 {
@@ -79,28 +79,28 @@ class Chunk: NSObject, NSCoding {
     
     }
 
-    func encodeWithCoder(coder: NSCoder) {
-        coder.encodeObject(self.name, forKey: "name")
-        coder.encodeObject(self.model, forKey: "model")
+    func encode(with coder: NSCoder) {
+        coder.encode(self.name, forKey: "name")
+        coder.encode(self.model, forKey: "model")
         var slotvals: [String:String] = [:]
         for (slot,value) in self.slotvals {
             slotvals[slot] = value.description
         }
-        coder.encodeObject(slotvals, forKey: "slotvals")
-        coder.encodeObject(printOrder, forKey: "printorder")
-        coder.encodeInt(Int32(fan), forKey: "fan")
-        coder.encodeInt(Int32(references), forKey: "references")
-        coder.encodeDouble(creationTime ?? -1.0, forKey: "creationtime")
-        coder.encodeObject(self.referenceList, forKey: "referencelist")
-        coder.encodeDouble(fixedActivation ?? -1000.0, forKey: "fixedactivation")
+        coder.encode(slotvals, forKey: "slotvals")
+        coder.encode(printOrder, forKey: "printorder")
+        coder.encodeCInt(Int32(fan), forKey: "fan")
+        coder.encodeCInt(Int32(references), forKey: "references")
+        coder.encode(creationTime ?? -1.0, forKey: "creationtime")
+        coder.encode(self.referenceList, forKey: "referencelist")
+        coder.encode(fixedActivation ?? -1000.0, forKey: "fixedactivation")
         var assoc1: [String:Double] = [:]
         var assoc2: [String:Int] = [:]
         for (chunk, (s1, s2)) in assocs {
             assoc1[chunk] = s1
             assoc2[chunk] = s2
         }
-        coder.encodeObject(assoc1, forKey: "assoc1")
-        coder.encodeObject(assoc2, forKey: "assoc2")
+        coder.encode(assoc1, forKey: "assoc1")
+        coder.encode(assoc2, forKey: "assoc2")
     }
     
     /// A string with a printout of the Chunk
@@ -141,7 +141,7 @@ class Chunk: NSObject, NSCoding {
 
     - returns: Whether the chunk in the parameter is in one of the slots of the chunk
     */
-    func inSlot(ch: Chunk) -> Bool {
+    func inSlot(_ ch: Chunk) -> Bool {
         for (_,value) in ch.slotvals {
             if value.chunk() === self {
                 return true
@@ -160,7 +160,7 @@ class Chunk: NSObject, NSCoding {
         }
     }
     
-    func setBaseLevel(timeDiff: Double, references: Int) {
+    func setBaseLevel(_ timeDiff: Double, references: Int) {
         creationTime = model.time + timeDiff
         if model.dm.optimizedLearning {
             self.references = references
@@ -186,7 +186,7 @@ class Chunk: NSObject, NSCoding {
 //            let y = model.dm.baseLevelDecay * log(model.time - creationTime!)
 //            return x - y
         } else {
-            return log(fixedComponent + self.referenceList.map{ pow((self.model.time - $0 + 0.05),(-self.model.dm.baseLevelDecay))}.reduce(0.0, combine: + )) // Wew! almost lisp! This is the standard baselevel equation
+            return log(fixedComponent + self.referenceList.map{ pow((self.model.time - $0 + 0.05),(-self.model.dm.baseLevelDecay))}.reduce(0.0, + )) // Wew! almost lisp! This is the standard baselevel equation
         }
     }
     
@@ -204,40 +204,40 @@ class Chunk: NSObject, NSCoding {
         }
     }
     
-    func setSlot(slot: String, value: Chunk) {
+    func setSlot(_ slot: String, value: Chunk) {
         if slotvals[slot] == nil { printOrder.append(slot) }
-        slotvals[slot] = Value.Symbol(value)
+        slotvals[slot] = Value.symbol(value)
     }
     
     @nonobjc
-    func setSlot(slot: String, value: Double) {
+    func setSlot(_ slot: String, value: Double) {
         if slotvals[slot] == nil { printOrder.append(slot) }
         slotvals[slot] = Value.Number(value)
     }
     
     @nonobjc
-    func setSlot(slot: String, value: String) {
+    func setSlot(_ slot: String, value: String) {
         if slotvals[slot] == nil { printOrder.append(slot) }
         let possibleNumVal = string2Double(value) 
         if possibleNumVal != nil {
             slotvals[slot] = Value.Number(possibleNumVal!)
         }
         if let chunk = model.dm.chunks[value] {
-            slotvals[slot] = Value.Symbol(chunk)
+            slotvals[slot] = Value.symbol(chunk)
         } else {
             slotvals[slot] = Value.Text(value)
         }
     }
     
     @nonobjc
-    func setSlot(slot: String, value: Value) {
+    func setSlot(_ slot: String, value: Value) {
         if slotvals[slot] == nil { printOrder.append(slot) }
            slotvals[slot] = value
     }
     
-    func slotValue(slot: String) -> Value? {
+    func slotValue(_ slot: String) -> Value? {
         if slot == "slot0" {
-            return slotvals[slot] ?? .Symbol(self)
+            return slotvals[slot] ?? .symbol(self)
         } else {
             return slotvals[slot]
         }
@@ -249,10 +249,10 @@ class Chunk: NSObject, NSCoding {
 //    else return model.declarative.maximumAssociativeStrength - Math.log(cj.fan);
 //    }
     
-    func appearsInSlotOf(chunk: Chunk) -> Bool {
+    func appearsInSlotOf(_ chunk: Chunk) -> Bool {
         for (_,value) in chunk.slotvals {
             switch value {
-            case .Symbol(let valChunk):
+            case .symbol(let valChunk):
                 if valChunk.name==self.name { return true }
             default: break
             }
@@ -267,7 +267,7 @@ class Chunk: NSObject, NSCoding {
     - returns: An Sji value with noise included
     */
     
-    func calculateSji(sji: (Double,Int)) -> Double {
+    func calculateSji(_ sji: (Double,Int)) -> Double {
         let (base, references) = sji
         if references == 0 {
             return base
@@ -284,7 +284,7 @@ class Chunk: NSObject, NSCoding {
     
     - returns: the Sji value
     */
-    func sji(chunk: Chunk) -> Double {
+    func sji(_ chunk: Chunk) -> Double {
         if let value = chunk.assocs[self.name] {
             return calculateSji(value)
         } else if self.appearsInSlotOf(chunk) {
@@ -300,14 +300,14 @@ class Chunk: NSObject, NSCoding {
     - parameter spreadingParameterValue: The amount of spreading from that particular buffer
     - returns: The amound of spreading activation from this buffer
     */
-    func spreadingFromBuffer(bufferName: String, spreadingParameterValue: Double) -> Double {
+    func spreadingFromBuffer(_ bufferName: String, spreadingParameterValue: Double) -> Double {
         if spreadingParameterValue == 0 { return 0 }
         var totalSji = 0.0
         if  let bufferChunk = model.buffers[bufferName] {
             var totalSlots: Int = 0
             for (_,value) in bufferChunk.slotvals {
                 switch value {
-                case .Symbol(let valchunk):
+                case .symbol(let valchunk):
                     totalSji += valchunk.sji(self)
 //                    if valchunk.sji(self) != 0.0 {
 //                        println("Buffer \(bufferName) slot \(value.description) to \(self.name) spreading \(valchunk.sji(self))")
@@ -337,7 +337,7 @@ class Chunk: NSObject, NSCoding {
             if let goal=model.buffers["goal"] {
                 for (_,value) in goal.slotvals {
                     switch value {
-                    case .Symbol(let valchunk):
+                    case .symbol(let valchunk):
                         totalSpreading += valchunk.sji(self) * max(0,valchunk.baseLevelActivation())
                     default:
                         break
@@ -369,7 +369,7 @@ class Chunk: NSObject, NSCoding {
             + self.spreadingActivation() + calculateNoise()
     }
     
-    func mergeAssocs(newchunk: Chunk) {
+    func mergeAssocs(_ newchunk: Chunk) {
         for (name,value) in newchunk.assocs {
             if assocs[name] == nil {
                 assocs[name] = value

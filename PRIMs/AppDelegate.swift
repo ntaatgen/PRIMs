@@ -11,18 +11,18 @@ import Cocoa
 @NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate {
 
-    func applicationDidFinishLaunching(aNotification: NSNotification) {
+    func applicationDidFinishLaunching(_ aNotification: Notification) {
         // Insert code here to initialize your application
     }
 
-    func applicationWillTerminate(aNotification: NSNotification) {
+    func applicationWillTerminate(_ aNotification: Notification) {
         // Insert code here to tear down your application
     }
 
-    func application(sender: NSApplication, openFile filename: String) -> Bool {
-        let url = NSURL(fileURLWithPath: filename)
+    func application(_ sender: NSApplication, openFile filename: String) -> Bool {
+        let url = URL(fileURLWithPath: filename)
 //        if u÷rl != nil {
-        NSNotificationCenter.defaultCenter().postNotificationName("openFile", object: url)
+        NotificationCenter.default.post(name: Notification.Name(rawValue: "openFile"), object: url)
             return true
 //        }
 

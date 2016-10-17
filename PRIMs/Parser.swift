@@ -11,26 +11,26 @@ import Foundation
 class Parser  {
     unowned let m: Model
     let taskNumber: Int
-    var scanner: NSScanner
+    var scanner: Scanner
     var startScreenName: String? = nil
     /// Everything after this string on a line will be ignored
     static let commentString = "//"
     init(model: Model, text: String, taskNumber: Int) {
         m = model
-        scanner = NSScanner(string: text)
+        scanner = Scanner(string: text)
         model.modelText = text
         self.taskNumber = taskNumber
-        whitespaceNewLineParentheses.formUnionWithCharacterSet(whitespaceNewLine)
-        whiteSpaceNewLineParenthesesEqual.formUnionWithCharacterSet(whitespaceNewLine)
+        whitespaceNewLineParentheses.formUnion(whitespaceNewLine)
+        whiteSpaceNewLineParenthesesEqual.formUnion(whitespaceNewLine)
     }
 
     var defaultActivation: Double? = nil
-    private let whitespaceNewLine = NSCharacterSet.whitespaceAndNewlineCharacterSet()
-    private let whitespaceNewLineParentheses: NSMutableCharacterSet = NSMutableCharacterSet(charactersInString: "{}()")
-    private let whiteSpaceNewLineParenthesesEqual: NSMutableCharacterSet = NSMutableCharacterSet(charactersInString: "{}()=,")
+    fileprivate let whitespaceNewLine = CharacterSet.whitespacesAndNewlines
+    var whitespaceNewLineParentheses: CharacterSet = CharacterSet(charactersIn: "{}()")
+    var whiteSpaceNewLineParenthesesEqual: CharacterSet = CharacterSet(charactersIn: "{}()=,")
     var globalVariableMapping: [String:Int] = [:]
     
-    /** 
+    /**
     Parse a model file. Takes the String that is entered at the creation of the class instance, and sets
     the necessary variables in the model.
     
@@ -40,17 +40,17 @@ class Parser  {
         // First we filter out comments that are marked by the commentString
         var newstring = ""
         scanner.charactersToBeSkipped = nil
-        while !scanner.atEnd {
+        while !scanner.isAtEnd {
             let stringBeforeComment = scanner.scanUpToString(Parser.commentString)
             if stringBeforeComment != nil {
                 newstring += stringBeforeComment!
             }
-            scanner.scanUpToString("\n")
-            scanner.scanString("\n")
+            _ = scanner.scanUpToString("\n")
+            _ = scanner.scanString("\n")
         }
-        scanner = NSScanner(string: newstring)
+        scanner = Scanner(string: newstring)
         m.clearTrace()
-        while !scanner.atEnd {
+        while !scanner.isAtEnd {
             let token = scanner.scanUpToCharactersFromSet(whitespaceNewLineParentheses)
             if token == nil { return false }
 //            println("Reading \(token!)")
@@ -109,7 +109,7 @@ class Parser  {
             return false
         }
         var setting: String?
-        while !scanner.scanString("}", intoString: nil) {
+        while !scanner.scanString("}", into: nil) {
             setting = scanner.scanUpToCharactersFromSet(whitespaceNewLineParentheses)
             if setting == nil {
                 m.addToTraceField("Unexpected end of file in goal definition")
@@ -126,7 +126,7 @@ class Parser  {
             let chunk = Chunk(s: "currentGoalChunk", m: m)
             chunk.setSlot("isa", value: "goal")
             var slotCount = 1
-            while !scanner.scanString(")", intoString: nil) {
+            while !scanner.scanString(")", into: nil) {
                 goal = scanner.scanUpToCharactersFromSet(whitespaceNewLineParentheses)
                 if goal == nil {
                     m.addToTraceField("Unexpected end of file in initial-goals:")
@@ -155,7 +155,7 @@ class Parser  {
                 return false
             }
             var goal: String?
-            while !scanner.scanString(")", intoString: nil) {
+            while !scanner.scanString(")", into: nil) {
                 goal = scanner.scanUpToCharactersFromSet(whitespaceNewLineParentheses)
                 if goal == nil {
                     m.addToTraceField("Unexpected end of file in goals:")
@@ -184,7 +184,7 @@ class Parser  {
             let chunk = Chunk(s: "constants", m: m)
             chunk.setSlot("isa", value: "fact")
             var slotCount = 1
-            while !scanner.scanString(")", intoString: nil) {
+            while !scanner.scanString(")", into: nil) {
                 goal = scanner.scanUpToCharactersFromSet(whitespaceNewLineParentheses)
                 if goal == nil {
                     m.addToTraceField("Unexpected end of file in initial-constants:")
@@ -210,7 +210,7 @@ class Parser  {
                 m.addToTraceField("Invalid value after default-activation:")
                 return false
             }
-            m.parameters.append(("default-activation:",String(defaultActivation)))
+            m.parameters.append(("default-activation:",String(describing: defaultActivation)))
             m.dm.defaultActivation = defaultActivation
         default:
             let parValue = scanner.scanUpToCharactersFromSet(whitespaceNewLine)
@@ -248,7 +248,7 @@ class Parser  {
             return false
         }
         var setting: String?
-        while !scanner.scanString("}", intoString: nil) {
+        while !scanner.scanString("}", into: nil) {
             setting = scanner.scanUpToCharactersFromSet(whitespaceNewLineParentheses)
             if setting == nil {
                 m.addToTraceField("Unexpected end of file in action definition")
@@ -284,9 +284,9 @@ class Parser  {
                     return false
                 }
                 switch distribution! {
-                case "none": action.noiseType = .None
-                case "uniform": action.noiseType = .Uniform
-                case "logistic": action.noiseType = .Logistic
+                case "none": action.noiseType = .none
+                case "uniform": action.noiseType = .uniform
+                case "logistic": action.noiseType = .logistic
                 default: m.addToTraceField("Unknown noise distrubution \(distribution!)")
                     return false
                 }
@@ -323,7 +323,7 @@ class Parser  {
             return false
         }
         var op: String?
-        while !scanner.scanString("}", intoString: nil) {
+        while !scanner.scanString("}", into: nil) {
             op = scanner.scanUpToCharactersFromSet(whitespaceNewLineParentheses)
             if op == nil || op! != "operator" {
                 m.addToTraceField("Can only handle operator declarations within a goal definition, but found \(op)")
@@ -334,7 +334,7 @@ class Parser  {
         return true
     }
     
-    func parseOperator(goalName: String) -> Bool {
+    func parseOperator(_ goalName: String) -> Bool {
         let operatorName = scanner.scanUpToCharactersFromSet(whitespaceNewLineParentheses)
         if operatorName == nil {
             m.addToTraceField("Unexpected end of file in operator definition")
@@ -352,10 +352,10 @@ class Parser  {
         chunk.setSlot("isa", value: "operator")
         var constantSlotCount = 0
         var localVariableMapping: [String:Int] = [:]
-        if scanner.scanString("(", intoString: nil) {
-            while !scanner.scanString(")", intoString: nil) {
+        if scanner.scanString("(", into: nil) {
+            while !scanner.scanString(")", into: nil) {
                 let parameter = scanner.scanUpToCharactersFromSet(whiteSpaceNewLineParenthesesEqual)
-                let equalsign = scanner.scanString("=", intoString: nil)
+                let equalsign = scanner.scanString("=", into: nil)
                 if parameter == nil || !equalsign {
                     m.addToTraceField("Illegal parameter declaration in \(operatorName!)")
                     return false
@@ -373,17 +373,17 @@ class Parser  {
                     m.addToTraceField("Unknown parameter \(parameter!)")
                     return false
                 }
-                scanner.scanString(",", intoString: nil)
+                scanner.scanString(",", into: nil)
             }
         }
-        if !scanner.scanString("{", intoString: nil) {
+        if !scanner.scanString("{", into: nil) {
             m.addToTraceField("Missing '{'")
             return false
         }
         var conditions = [String]()
         var actions = [String]()
         var scanningActions = false
-        while !scanner.scanString("}", intoString: nil) {
+        while !scanner.scanString("}", into: nil) {
             var item = scanner.scanUpToCharactersFromSet(whitespaceNewLineParentheses)
 //            println("\(item)")
             if item == nil {
@@ -391,8 +391,8 @@ class Parser  {
                 return false
             }
             if item!.hasPrefix("\"") {
-                scanner.scanUpToString("\"")
-                scanner.scanString("\"")
+                 _ = scanner.scanUpToString("\"")
+                 _ = scanner.scanString("\"")
             } else if item! == "==>" {
                 scanningActions = true
             } else {
@@ -406,7 +406,7 @@ class Parser  {
                     var done = false
                     while !done {
                         let ch = item![index]
-                        let lookahead = item![index.advancedBy(1)]
+                        let lookahead = item![item!.index(index, offsetBy: 1)]
                         switch ch {
                         case "A"..."Z","a"..."z","_",".": component += String(ch)
                         case "-": if lookahead == ">" {
@@ -432,7 +432,7 @@ class Parser  {
                             }
                             prim += String(ch)
                         }
-                        index = index.advancedBy(1)
+                        index = item!.index(index, offsetBy: 1)
                         if item![index] == "§" { done = true }
                     }
                     if component != "" {
@@ -465,9 +465,9 @@ class Parser  {
                     prim = newPrim!
                 }
                 if scanningActions {
-                    actions.insert(prim, atIndex: 0)
+                    actions.insert(prim, at: 0)
                 } else {
-                    conditions.insert(prim, atIndex: 0)
+                    conditions.insert(prim, at: 0)
                 }
             }
         }
@@ -492,18 +492,18 @@ class Parser  {
     }
     
     func parseFacts() -> Bool {
-        if !scanner.scanString("{", intoString: nil) {
+        if !scanner.scanString("{", into: nil) {
             m.addToTraceField("Missing '{' in fact definition.")
             return false
         }
-        while !scanner.scanString("}", intoString: nil) {
-            if !scanner.scanString("(", intoString: nil) {
+        while !scanner.scanString("}", into: nil) {
+            if !scanner.scanString("(", into: nil) {
                 m.addToTraceField("Missing '(' in fact definition.")
                 return false
             }
             var slotindex = 0
             var chunk: Chunk? = nil
-            while !scanner.scanString(")", intoString: nil) {
+            while !scanner.scanString(")", into: nil) {
                 let slotValue = scanner.scanUpToCharactersFromSet(whitespaceNewLineParentheses)
                 if slotValue == nil {
                     m.addToTraceField("Unexpected end of file in fact defintion")
@@ -566,16 +566,16 @@ class Parser  {
     }
     
     func parseGoalAction() -> Bool {
-        if !scanner.scanString("{", intoString: nil) {
+        if !scanner.scanString("{", into: nil) {
             m.addToTraceField("Missing '{' in goal-action definition.")
             return false
         }
         m.scenario.goalAction = []
-        if !scanner.scanString("(", intoString: nil) {
+        if !scanner.scanString("(", into: nil) {
             m.addToTraceField("Missing '(' in goal-action definition")
             return false
         }
-        while !scanner.scanString(")", intoString: nil) {
+        while !scanner.scanString(")", into: nil) {
             let name = scanner.scanUpToCharactersFromSet(whitespaceNewLineParentheses)
             if name == nil {
                 m.addToTraceField("Unexpected end of file in goal-action definition")
@@ -583,7 +583,7 @@ class Parser  {
             }
             m.scenario.goalAction.append(name!)
         }
-        if !scanner.scanString("}", intoString: nil) {
+        if !scanner.scanString("}", into: nil) {
             m.addToTraceField("Missing '}' in goal-action definition.")
             return false
         }
@@ -597,15 +597,15 @@ class Parser  {
             m.addToTraceField("Missing name in screen definition")
             return false
         }
-        if !scanner.scanString("{", intoString: nil) {
+        if !scanner.scanString("{", into: nil) {
             m.addToTraceField("Missing '{' in screen \(name!) definition.")
             return false
         }
         let screen = PRScreen(name: name!)
         let topObject = PRObject(name: "card", attributes: ["card"], superObject: nil)
         screen.object = topObject
-        while !scanner.scanString("}", intoString: nil) {
-            if !scanner.scanString("(", intoString: nil) {
+        while !scanner.scanString("}", into: nil) {
+            if !scanner.scanString("(", into: nil) {
                 m.addToTraceField("Missing '(' in object definition below \(name!)")
                 return false
             }
@@ -616,7 +616,7 @@ class Parser  {
         return true
     }
     
-    func parseObject(superObject: PRObject) -> Bool {
+    func parseObject(_ superObject: PRObject) -> Bool {
         let name = scanner.scanUpToCharactersFromSet(whitespaceNewLineParentheses)
         if name == nil {
             m.addToTraceField("Missing name in object definition")
@@ -628,10 +628,10 @@ class Parser  {
         }
         let object = PRObject(name: m.generateName(name!), attributes: attributes, superObject: superObject)
         m.addToTraceField("Adding object \(object.name) with attributes \(object.attributes)")
-        while scanner.scanString("(", intoString: nil) {
-            parseObject(object)
+        while scanner.scanString("(", into: nil) {
+            _ = parseObject(object)
         }
-        if !scanner.scanString(")", intoString: nil) {
+        if !scanner.scanString(")", into: nil) {
             m.addToTraceField("Missing ')' in object definition \(name!)")
             return false
         }
@@ -639,14 +639,14 @@ class Parser  {
     }
     
     func parseTransition() -> Bool {
-        let parenthesis1 = scanner.scanString("(", intoString: nil)
+        let parenthesis1 = scanner.scanString("(", into: nil)
         let screen1 = scanner.scanUpToCharactersFromSet(whiteSpaceNewLineParenthesesEqual)
-        let comma = scanner.scanString(",", intoString: nil)
+        let comma = scanner.scanString(",", into: nil)
         let screen2 = scanner.scanUpToCharactersFromSet(whiteSpaceNewLineParenthesesEqual)
-        let parenthesis2 = scanner.scanString(")", intoString: nil)
-        let equalSign = scanner.scanString("=", intoString: nil)
+        let parenthesis2 = scanner.scanString(")", into: nil)
+        let equalSign = scanner.scanString("=", into: nil)
         let transType = scanner.scanUpToCharactersFromSet(whitespaceNewLineParentheses)
-        let parenthesis3 = scanner.scanString("(", intoString: nil)
+        let parenthesis3 = scanner.scanString("(", into: nil)
         if !parenthesis1 || !parenthesis2 || !comma || !parenthesis3 || !equalSign || screen1 == nil || screen2 == nil || transType == nil {
             m.addToTraceField("Illegal transition syntax")
             return false
@@ -687,25 +687,25 @@ class Parser  {
             m.addToTraceField("Unknown transition type \(transType!)")
             return false
         }
-        scanner.scanString(")", intoString: nil)
+        scanner.scanString(")", into: nil)
         m.addToTraceField("Defining transition between \(screen1!) and \(screen2!)")
         return true
     }
 
     func parseInputs() -> Bool {
-        if !scanner.scanString("{", intoString: nil) {
+        if !scanner.scanString("{", into: nil) {
             m.addToTraceField("Missing '{' in inputs definition.")
             return false
         }
         var inputCount = 0
-        while !scanner.scanString("}", intoString: nil) {
-            if !scanner.scanString("(", intoString: nil) {
+        while !scanner.scanString("}", into: nil) {
+            if !scanner.scanString("(", into: nil) {
                 m.addToTraceField("Missing '(' in input definition.")
                 return false
             }
             var slotindex = 0
             var mapping: [String:String] = [:]
-            while !scanner.scanString(")", intoString: nil) {
+            while !scanner.scanString(")", into: nil) {
                 let value = scanner.scanUpToCharactersFromSet(whitespaceNewLineParentheses)
                 if value == nil {
                     m.addToTraceField("Unexpected end of file in input defintion")
@@ -723,12 +723,12 @@ class Parser  {
     }
 
     func parseSjis() -> Bool {
-        if !scanner.scanString("{", intoString: nil) {
+        if !scanner.scanString("{", into: nil) {
             m.addToTraceField("Missing '{' in Sji definition.")
             return false
         }
-        while !scanner.scanString("}", intoString: nil) {
-            if !scanner.scanString("(", intoString: nil) {
+        while !scanner.scanString("}", into: nil) {
+            if !scanner.scanString("(", into: nil) {
                 m.addToTraceField("Missing '(' in Sji definition.")
                 return false
             }
@@ -748,7 +748,7 @@ class Parser  {
                 return false
             }
             m.dm.chunks[iChunkName!]!.assocs[jChunkName!] = (assocValue!, 0)
-            if !scanner.scanString(")", intoString: nil) {
+            if !scanner.scanString(")", into: nil) {
                 m.addToTraceField("Missing ')' in Sji definition.")
             }
             m.addToTraceField("Adding association between \(jChunkName!) and \(iChunkName!)")
@@ -756,12 +756,12 @@ class Parser  {
         return true
     }
 
-    func parseScript(initScript: Bool) -> Bool {
-        if !scanner.scanString("{", intoString: nil) {
+    func parseScript(_ initScript: Bool) -> Bool {
+        if !scanner.scanString("{", into: nil) {
             m.addToTraceField("Missing '{' in Sji definition.")
             return false
         }
-        let braceSet = NSMutableCharacterSet(charactersInString: "{}")
+        let braceSet = CharacterSet(charactersIn: "{}")
         var script: String = ""
         var braceCount = 1
         while braceCount > 0 {
@@ -783,13 +783,13 @@ class Parser  {
         do {
             try sc.parse(script)
             m.addToTraceField("Defined the following script:\n\(script)")
-        } catch ParsingError.UnExpectedEOF {
+        } catch ParsingError.unExpectedEOF {
             m.addToTraceField("Unexpected end of file while parsing script")
             return false
-        } catch ParsingError.Expected(let expectedString, let priorString) {
+        } catch ParsingError.expected(let expectedString, let priorString) {
             m.addToTraceField("Script:\n\(priorString)\nExpected \"\(expectedString)\"")
             return false
-        } catch ParsingError.OperatorExpected(let expectedString, let priorString) {
+        } catch ParsingError.operatorExpected(let expectedString, let priorString) {
             m.addToTraceField("Script:\n\(priorString)\nExpected an operator but found \"\(expectedString)\"")
             return false
         } catch {

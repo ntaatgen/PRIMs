@@ -42,7 +42,7 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
     @IBOutlet weak var chunkSplit: NSSplitView!
     
     
-    func splitView(splitView: NSSplitView, canCollapseSubview subview: NSView) -> Bool {
+    func splitView(_ splitView: NSSplitView, canCollapseSubview subview: NSView) -> Bool {
         if subview === middleSplit as NSView || subview === middleSplit.subviews[0] {
             return false
         }
@@ -50,38 +50,38 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
     }
     
     
-    func splitView(splitView: NSSplitView, constrainMaxCoordinate proposedMaximumPosition: CGFloat, ofSubviewAt dividerIndex: Int) -> CGFloat {
+    func splitView(_ splitView: NSSplitView, constrainMaxCoordinate proposedMaximumPosition: CGFloat, ofSubviewAt dividerIndex: Int) -> CGFloat {
         if splitView === chunkSplit {
         return proposedMaximumPosition - 100
         }
         return proposedMaximumPosition - 200
     }
     
-    func splitView(splitView: NSSplitView, constrainMinCoordinate proposedMinimumPosition: CGFloat, ofSubviewAt dividerIndex: Int) -> CGFloat {
+    func splitView(_ splitView: NSSplitView, constrainMinCoordinate proposedMinimumPosition: CGFloat, ofSubviewAt dividerIndex: Int) -> CGFloat {
         if splitView === chunkSplit {
         return proposedMinimumPosition + 100
         }
         return proposedMinimumPosition + 200
     }
     
-    func splitView(splitView: NSSplitView, shouldCollapseSubview subview: NSView, forDoubleClickOnDividerAtIndex dividerIndex: Int) -> Bool {
+    func splitView(_ splitView: NSSplitView, shouldCollapseSubview subview: NSView, forDoubleClickOnDividerAt dividerIndex: Int) -> Bool {
         return  splitView !== chunkSplit
     }
     
-    func numberToColor(i: Int) -> NSColor {
+    func numberToColor(_ i: Int) -> NSColor {
         switch i {
-        case -3: return NSColor.brownColor()
-        case -2: return NSColor.grayColor()
-        case -1: return NSColor.whiteColor()
-        case 0: return NSColor.redColor()
-        case 1: return NSColor.blueColor()
-        case 2: return NSColor.greenColor()
-        case 3: return NSColor.purpleColor()
-        case 4: return NSColor.cyanColor()
-        case 5: return NSColor.magentaColor()
-        case 6: return NSColor.orangeColor()
-        case 7: return NSColor.yellowColor()
-        default: return NSColor.blackColor()
+        case -3: return NSColor.brown
+        case -2: return NSColor.gray
+        case -1: return NSColor.white
+        case 0: return NSColor.red
+        case 1: return NSColor.blue
+        case 2: return NSColor.green
+        case 3: return NSColor.purple
+        case 4: return NSColor.cyan
+        case 5: return NSColor.magenta
+        case 6: return NSColor.orange
+        case 7: return NSColor.yellow
+        default: return NSColor.black
         }
     }
     
@@ -93,7 +93,7 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
     @IBOutlet weak var graph: GraphView! {
         didSet { graph.dataSource = self }}
     
-    @IBAction func clearGraph(sender: NSButton) {
+    @IBAction func clearGraph(_ sender: NSButton) {
         model.clearResults()
         if model.currentTaskIndex != nil {
             model.newResult()
@@ -102,35 +102,35 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
     }
     
     
-    func graphXMin(sender: GraphView) -> Double? {
+    func graphXMin(_ sender: GraphView) -> Double? {
         return 0.0
     }
     
-    func graphXMax(sender: GraphView) -> Double? {
+    func graphXMax(_ sender: GraphView) -> Double? {
         let maxX =  max(1.0, model.maxX)
         return trunc((maxX - 1)/5) * 5 + 5
 
     }
     
-    func graphYMin(sender: GraphView) -> Double? {
+    func graphYMin(_ sender: GraphView) -> Double? {
         return 0.0
     }
     
-    func graphYMax(sender: GraphView) -> Double? {
+    func graphYMax(_ sender: GraphView) -> Double? {
         return trunc(model.maxY/5) * 5 + 5
     }
     
-    func graphNumberOfGraphs(sender: GraphView) -> Int {
+    func graphNumberOfGraphs(_ sender: GraphView) -> Int {
         return model.modelResults.count
     }
     
-    func graphColorOfGraph(sender: GraphView, graph: Int) -> NSColor? {
+    func graphColorOfGraph(_ sender: GraphView, graph: Int) -> NSColor? {
         if graph >= model.modelResults.count { return nil } else {
         return numberToColor(model.resultTaskNumber[graph])
         }
     }
     
-    func graphPointsForGraph(sender: GraphView, graph: Int) -> [(Double, Double)] {
+    func graphPointsForGraph(_ sender: GraphView, graph: Int) -> [(Double, Double)] {
         return model.modelResults[graph]
     }
     
@@ -144,21 +144,21 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
         didSet { primGraph.dataSource = self }
     }
     
-    @IBAction func redisplayPrimGraph(sender: NSButton) {
+    @IBAction func redisplayPrimGraph(_ sender: NSButton) {
         primViewCalculateGraph(primGraph)
         primGraph.needsDisplay = true
     }
     
     @IBOutlet weak var popUpMenu: NSPopUpButton!
     
-    @IBAction func popUpMenuSelected(sender: NSPopUpButton) {
+    @IBAction func popUpMenuSelected(_ sender: NSPopUpButton) {
         primViewCalculateGraph(primGraph)
         primGraph.needsDisplay = true
     }
     
     let border = 10.0
 
-    func primViewCalculateGraph(sender: PrimView) {
+    func primViewCalculateGraph(_ sender: PrimView) {
         primGraphData = FruchtermanReingold(W: Double(sender.bounds.width) - 3 * border, H: Double(sender.bounds.height) - 3 * border)
         let graphType = popUpMenu.selectedItem!.title
         switch graphType {
@@ -170,7 +170,7 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
         primGraphData!.calculate()
     }
     
-    func primViewNumberOfVertices(sender: PrimView) -> Int {
+    func primViewNumberOfVertices(_ sender: PrimView) -> Int {
         if primGraphData == nil {
             return 0
         } else {
@@ -178,7 +178,7 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
         }
     }
 
-    func primViewNumbeOfEdges(sender: PrimView) -> Int {
+    func primViewNumbeOfEdges(_ sender: PrimView) -> Int {
         if primGraphData == nil {
             return 0
         } else {
@@ -186,7 +186,7 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
         }
     }
 
-    func primViewVertexCoordinates(sender: PrimView, index: Int) -> (Double, Double) {
+    func primViewVertexCoordinates(_ sender: PrimView, index: Int) -> (Double, Double) {
         if primGraphData == nil {
             return (0,0)
         } else {
@@ -195,7 +195,7 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
         }
     }
     
-    func primViewEdgeVertices(sender: PrimView, index: Int) -> (Int, Int) {
+    func primViewEdgeVertices(_ sender: PrimView, index: Int) -> (Int, Int) {
         if primGraphData == nil {
             return (0,0)
         } else {
@@ -205,9 +205,9 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
         }
     }
     
-    func primViewVertexColor(sender: PrimView, index: Int) -> NSColor {
+    func primViewVertexColor(_ sender: PrimView, index: Int) -> NSColor {
         if primGraphData == nil {
-            return NSColor.whiteColor()
+            return NSColor.white
         } else {
             let key = primGraphData!.keys[index]
             let taskNumber = primGraphData!.nodes[key]!.taskNumber
@@ -215,7 +215,7 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
         }
     }
     
-    func primViewVertexLabel(sender: PrimView, index: Int) -> String {
+    func primViewVertexLabel(_ sender: PrimView, index: Int) -> String {
         if primGraphData == nil {
             return ""
         } else {
@@ -224,13 +224,13 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
         }
     }
     
-    func primViewRescale(sender: PrimView, newW: Double, newH: Double) {
+    func primViewRescale(_ sender: PrimView, newW: Double, newH: Double) {
         if primGraphData != nil {
             primGraphData!.rescale(newW - 3 * border, newH: newH - 3 * border)
         }
     }
 
-    func primViewVertexBroad(sender: PrimView, index: Int) -> Bool {
+    func primViewVertexBroad(_ sender: PrimView, index: Int) -> Bool {
         if primGraphData != nil {
             let key = primGraphData!.keys[index]
             return primGraphData!.nodes[key]!.taskNode
@@ -238,7 +238,7 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
         return false
     }
     
-    func primViewVertexHalo(sender: PrimView, index: Int) -> Bool {
+    func primViewVertexHalo(_ sender: PrimView, index: Int) -> Bool {
         if primGraphData != nil {
             let key = primGraphData!.keys[index]
             return primGraphData!.nodes[key]!.halo
@@ -253,11 +253,11 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
     
     @IBOutlet weak var allLabelsButton: NSButton!
     
-    @IBAction func allLabelsButtonPushed(sender: NSButton) {
+    @IBAction func allLabelsButtonPushed(_ sender: NSButton) {
         primGraph.needsDisplay = true
     }
     
-    func primViewVisibleLabel(sender: PrimView, index: Int) -> String? {
+    func primViewVisibleLabel(_ sender: PrimView, index: Int) -> String? {
         if primGraphData != nil {
             let key = primGraphData!.keys[index]
             if primGraphData!.nodes[key]!.labelVisible || allLabelsButton.state == NSOnState {
@@ -274,8 +274,8 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
     @IBOutlet weak var primViewView: PrimView!
     
     
-    @IBAction func clickInPrimView(sender: NSClickGestureRecognizer) {
-        let location = sender.locationInView(primViewView)
+    @IBAction func clickInPrimView(_ sender: NSClickGestureRecognizer) {
+        let location = sender.location(in: primViewView)
         if primGraphData == nil { return }
         primGraphData!.makeVisibleClosestNodeName(Double(location.x) - border,y: Double(location.y) - border)
         primGraph.needsDisplay = true
@@ -284,12 +284,12 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
     
     var nodeToBeMoved: Node?
     
-    @IBAction func dragInPrimView(sender: NSPanGestureRecognizer) {
-        let location: NSPoint = sender.locationInView(primViewView)
+    @IBAction func dragInPrimView(_ sender: NSPanGestureRecognizer) {
+        let location: NSPoint = sender.location(in: primViewView)
         switch sender.state {
-        case .Began:
+        case .began:
             nodeToBeMoved = primGraphData!.findClosest(Double(location.x) - border, y: Double(location.y) - border)
-        case .Ended:
+        case .ended:
             nodeToBeMoved = nil
         default: break
         }
@@ -307,7 +307,7 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
     @IBOutlet weak var traceSelectionMenu: NSPopUpButton!
     
     
-    @IBAction func traceMenuSelected(sender: NSPopUpButton) {
+    @IBAction func traceMenuSelected(_ sender: NSPopUpButton) {
         updateTrace()
     }
     
@@ -348,7 +348,7 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
     /// Code to load models
     
     
-    @IBAction func loadModel(sender: NSButton) {
+    @IBAction func loadModel(_ sender: NSButton) {
         let fileDialog: NSOpenPanel = NSOpenPanel()
         fileDialog.prompt = "Select model file"
         fileDialog.worksWhenModal = true
@@ -357,7 +357,7 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
         fileDialog.allowedFileTypes = ["prims"]
         let result = fileDialog.runModal()
         if result != NSFileHandlingPanelOKButton { return }
-        let URLs = fileDialog.URLs // as? [NSURL]
+        let URLs = fileDialog.urls // as? [NSURL]
 //        if URLs == nil { return }
         for filePath in URLs {
             if !model.loadModelWithString(filePath) {
@@ -367,7 +367,7 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
             primViewCalculateGraph(primGraph)
             primGraph.needsDisplay = true
             updateAllViews()
-            NSDocumentController.sharedDocumentController().noteNewRecentDocumentURL(filePath)
+            NSDocumentController.shared().noteNewRecentDocumentURL(filePath)
         }
     }
     
@@ -384,10 +384,10 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
 //primGraph.needsDisplay = true
 //updateAllViews()
 
-    func respondToOpenFile(notification: NSNotification) {
-        let url = notification.object as? NSURL
+    func respondToOpenFile(_ notification: Notification) {
+        let url = notification.object as? URL
         if url != nil {
-            model.loadModelWithString(url!)
+            _ = model.loadModelWithString(url!)
             primViewCalculateGraph(primGraph)
             primGraph.needsDisplay = true
             updateAllViews()
@@ -411,7 +411,7 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
 //        graph.setNeedsDisplayInRect(graph.frame)
     }
     
-    func numberOfRowsInTableView(tableView: NSTableView) -> Int {
+    func numberOfRows(in tableView: NSTableView) -> Int {
         switch tableView {
         case productionTable: return pTable.count
         case taskTable: return model.tasks.count
@@ -420,17 +420,17 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
         }
     }
     
-    func tableView(tableView: NSTableView, objectValueForTableColumn tableColumn: NSTableColumn?, row: Int) -> AnyObject? {
+    func tableView(_ tableView: NSTableView, objectValueFor tableColumn: NSTableColumn?, row: Int) -> Any? {
         switch tableView {
         case productionTable:
-            switch String(tableColumn!.identifier) {
+            switch String(tableColumn!.identifier)! {
             case "Name": return pTable[row].name
             case "Utility": return String(format:"%.2f", pTable[row].u)
             default:
                 return nil
             }
         case taskTable:
-            switch String(tableColumn!.identifier) {
+            switch String(tableColumn!.identifier)! {
             case "Name": return row == model.currentTaskIndex ? "** " + model.tasks[row].name : model.tasks[row].name
             case "Loaded": let text = NSMutableAttributedString(string: model.tasks[row].loaded ? "▶︎" : "")
             text.addAttribute(NSForegroundColorAttributeName, value: numberToColor(row), range: NSMakeRange(0, text.length))
@@ -447,14 +447,14 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
     }
     
     
-    @IBAction func clickInTaskTable(sender: NSTableView) {
+    @IBAction func clickInTaskTable(_ sender: NSTableView) {
         if sender === taskTable && sender.selectedRow != -1 {
             model.loadOrReloadTask(sender.selectedRow)
 //            modelCode = model.modelText
             updateAllViews()
         } else if sender == chunkTable && sender.selectedRow != -1 {
             let chunk = model.dm.chunks[dmTable[sender.selectedRow].0]!
-            chunkTextField.stringValue = "\(chunk)\nBaselevel = \(chunk.baseLevelActivation())\nActivation = \(chunk.activation())\n"
+            chunkTextField.stringValue = "\(chunk)\nBaselevel = \(chunk.baseLevelActivation())\nActivation = \(chunk.activation())\nReferences = \(chunk.references)\n"
             if !chunk.assocs.isEmpty {
                 chunkTextField.stringValue += "Associations:\n"
                 for (chunkName, assoc) in chunk.assocs {
@@ -471,13 +471,13 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
         for (_,p) in model.procedural.productions {
             result.append(p)
         }
-        result.sortInPlace({$0.u > $1.u})
+        result.sort(by: {$0.u > $1.u})
         return result
     }
     
     var dmTable: [(String,String,Double)] = []
     
-    func compareChunks (x: (String, String, Double), y: (String, String, Double)) -> Bool {
+    func compareChunks (_ x: (String, String, Double), y: (String, String, Double)) -> Bool {
         let (_,s1,a1) = x
         let (_,s2,a2) = y
         if s2 != s1 { return s2 > s1 }
@@ -491,7 +491,7 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
             let chunkType = chunkTp == nil ? "No Type" : chunkTp!.description
             result.append((chunk.name,chunkType,chunk.activation()))
         }
-        result = result.sort(compareChunks)
+        result = result.sorted(by: compareChunks)
         return result
     }
     
@@ -519,8 +519,8 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
     
     @IBOutlet weak var bufferViewFormerInput: NSTextField!
     
-    func formatBuffer(bufferName: String, bufferChunk: Chunk?, bufferAbbreviation: String, showSlot0: Bool = true) -> NSAttributedString {
-        let s = NSMutableAttributedString(string: bufferName, attributes: [NSFontAttributeName : NSFont.boldSystemFontOfSize(12)])
+    func formatBuffer(_ bufferName: String, bufferChunk: Chunk?, bufferAbbreviation: String, showSlot0: Bool = true) -> NSAttributedString {
+        let s = NSMutableAttributedString(string: bufferName, attributes: [NSFontAttributeName : NSFont.boldSystemFont(ofSize: 12)])
         var rest: String = ""
         if bufferChunk != nil {
             if showSlot0 {
@@ -535,17 +535,17 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
             }
 
         }
-        s.appendAttributedString(NSAttributedString(string: rest))
+        s.append(NSAttributedString(string: rest))
         return s
         
     }
     
-    func formatOperator(chunk: Chunk?) -> NSAttributedString {
+    func formatOperator(_ chunk: Chunk?) -> NSAttributedString {
         let operatorName = chunk == nil ? "" : chunk!.name
-        let s = NSMutableAttributedString(string: "Operator \(operatorName)\n", attributes: [NSFontAttributeName : NSFont.boldSystemFontOfSize(12)])
+        let s = NSMutableAttributedString(string: "Operator \(operatorName)\n", attributes: [NSFontAttributeName : NSFont.boldSystemFont(ofSize: 12)])
         var rest = ""
         if let condition = chunk?.slotvals["condition"] {
-            let conditions = condition.description.componentsSeparatedByString(";")
+            let conditions = condition.description.components(separatedBy: ";")
             rest += "Conditions:"
             for element in conditions {
                 rest += " \(element)"
@@ -553,15 +553,15 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
             rest += "\n"
         }
         if let action = chunk?.slotvals["action"] {
-            let actions = action.description.componentsSeparatedByString(";")
+            let actions = action.description.components(separatedBy: ";")
             rest += "Actions:"
             for element in actions {
                 rest += " \(element)"
             }
             rest += "\nConstants:\n"
         }
-        s.appendAttributedString(NSAttributedString(string: rest))
-        s.appendAttributedString(formatBuffer("", bufferChunk: model.formerBuffers["operator"], bufferAbbreviation: "C", showSlot0: false))
+        s.append(NSAttributedString(string: rest))
+        s.append(formatBuffer("", bufferChunk: model.formerBuffers["operator"], bufferAbbreviation: "C", showSlot0: false))
         return s
     }
     
@@ -573,7 +573,7 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
         }
         bufferViewRetrievalH.attributedStringValue = formatBuffer("Retrieval Hv\n", bufferChunk: model.formerBuffers["retrievalH"], bufferAbbreviation: "RT")
         let s = NSMutableAttributedString(attributedString: formatBuffer("Goal\n", bufferChunk: model.formerBuffers["goal"], bufferAbbreviation: "G"))
-        s.appendAttributedString(formatBuffer("", bufferChunk: model.buffers["constants"], bufferAbbreviation: "GC", showSlot0: false))
+        s.append(formatBuffer("", bufferChunk: model.buffers["constants"], bufferAbbreviation: "GC", showSlot0: false))
         bufferViewFormerGoal.attributedStringValue = s
         bufferViewRetrievalR.attributedStringValue = formatBuffer("Retrieval Rq\n", bufferChunk: model.formerBuffers["retrievalR"], bufferAbbreviation: "RT")
         bufferViewAction.attributedStringValue = formatBuffer("Action\n", bufferChunk: model.formerBuffers["action"], bufferAbbreviation: "AC", showSlot0: false)
@@ -597,32 +597,32 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
     }
     
     
-    @IBAction func run(sender: NSButton) {
+    @IBAction func run(_ sender: NSButton) {
         model.run()
         updateAllViews()
         
     }
     
-    @IBAction func run10(sender: NSButton) {
+    @IBAction func run10(_ sender: NSButton) {
         model.tracing = false
         for _ in 0..<10 { run(sender) }
         model.tracing = true
     }
     
-    @IBAction func step(sender: NSButton) {
+    @IBAction func step(_ sender: NSButton) {
         model.step()
         updateAllViews()
         
     }
     
-    @IBAction func reset(sender: NSButton) {
+    @IBAction func reset(_ sender: NSButton) {
         model.reset(model.currentTaskIndex)
         primViewCalculateGraph(primGraph)
         primGraph.needsDisplay = true
         updateAllViews()
     }
     
-    @IBAction func clearAll(sender: NSButton) {
+    @IBAction func clearAll(_ sender: NSButton) {
         model = Model(silent: false)
 //        modelCode = nil
         primViewCalculateGraph(primGraph)
@@ -633,7 +633,7 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
     
     var batchRunner: BatchRun? = nil
     
-    @IBAction func runBatch(sender: NSButton) {
+    @IBAction func runBatch(_ sender: NSButton) {
         let fileDialog: NSOpenPanel = NSOpenPanel()
         fileDialog.title = "Select batch script file"
         fileDialog.prompt = "Select"
@@ -644,10 +644,10 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
         let result = fileDialog.runModal()
         if result != NSFileHandlingPanelOKButton { return }
         var batchScript: String
-        var directory: NSURL?
-        if let filePath = fileDialog.URL {
-            let tmp = try? String(contentsOfURL: filePath, encoding: NSUTF8StringEncoding)
-            directory = filePath.URLByDeletingLastPathComponent
+        var directory: URL?
+        if let filePath = fileDialog.url {
+            let tmp = try? String(contentsOf: filePath, encoding: String.Encoding.utf8)
+            directory = filePath.deletingLastPathComponent()
             if tmp == nil { return }
             batchScript = tmp!
         } else { return }
@@ -657,30 +657,30 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
         saveDialog.worksWhenModal = true
         saveDialog.allowsOtherFileTypes = false
         saveDialog.allowedFileTypes = ["dat","txt"]
-        let name = fileDialog.URL!.URLByDeletingPathExtension!.lastPathComponent!
+        let name = fileDialog.url!.deletingPathExtension().lastPathComponent
         saveDialog.nameFieldStringValue = name + ".dat"
         let saveResult = saveDialog.runModal()
         if saveResult != NSFileHandlingPanelOKButton { return }
-        if saveDialog.URL == nil { return }
+        if saveDialog.url == nil { return }
 //        print("Loading script \(fileDialog.URL!) to output to \(saveDialog.URL!)")
-        batchRunner = BatchRun(script: batchScript, mainModel: model, outputFile: saveDialog.URL!, controller: self, directory: directory!)
+        batchRunner = BatchRun(script: batchScript, mainModel: model, outputFile: saveDialog.url!, controller: self, directory: directory!)
 //        model.tracing = false
         batchProgressBar.doubleValue = 0
-        batchProgressBar.hidden = false
-        outputText.hidden = true
+        batchProgressBar.isHidden = false
+        outputText.isHidden = true
         outputText.needsDisplay = true
         batchProgressBar.needsDisplay = true
         batchProgressBar.displayIfNeeded()
 //        model.tracing = false
         batchRunner!.runScript()
-        batchProgressBar.hidden = true
-        outputText.hidden = false
+        batchProgressBar.isHidden = true
+        outputText.isHidden = false
         outputText.needsDisplay = true
 //        model.tracing = true
         updateAllViews()
     }
     
-    @IBAction func loadImage(sender: NSButton) {
+    @IBAction func loadImage(_ sender: NSButton) {
         let fileDialog: NSOpenPanel = NSOpenPanel()
         fileDialog.title = "Select image file for loading"
         fileDialog.prompt = "Select"
@@ -690,15 +690,15 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
         fileDialog.allowedFileTypes = ["brain"]
         let result = fileDialog.runModal()
         if result != NSFileHandlingPanelOKButton { return }
-        if let filePath = fileDialog.URL?.path {
-            guard let m = (NSKeyedUnarchiver.unarchiveObjectWithFile(filePath) as? Model) else { return }
+        if let filePath = fileDialog.url?.path {
+            guard let m = (NSKeyedUnarchiver.unarchiveObject(withFile: filePath) as? Model) else { return }
             model = m
             model.dm.reintegrateChunks()
         } else { return }
         updateAllViews()
     }
     
-    @IBAction func saveImage(sender: NSButton) {
+    @IBAction func saveImage(_ sender: NSButton) {
         let saveDialog = NSSavePanel()
         saveDialog.title = "Enter the name of the imagefile"
         saveDialog.prompt = "Save"
@@ -708,8 +708,8 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
         saveDialog.nameFieldStringValue = "defaultbrain.brain"
         let saveResult = saveDialog.runModal()
         if saveResult != NSFileHandlingPanelOKButton { return }
-        if saveDialog.URL == nil { return }
-        NSKeyedArchiver.archiveRootObject(model, toFile: saveDialog.URL!.path!)
+        if saveDialog.url == nil { return }
+        NSKeyedArchiver.archiveRootObject(model, toFile: saveDialog.url!.path)
     }
     
     func updateProgressBar() {
@@ -721,13 +721,13 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
  
     override func viewDidLoad() {
         super.viewDidLoad()
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(MainViewController.updatePrimGraph), name: "UpdatePrimGraph", object: nil)
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(MainViewController.updateProgressBar), name: "progress", object: nil)
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(MainViewController.respondToOpenFile(_:)), name: "openFile", object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(MainViewController.updatePrimGraph), name: NSNotification.Name(rawValue: "UpdatePrimGraph"), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(MainViewController.updateProgressBar), name: NSNotification.Name(rawValue: "progress"), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(MainViewController.respondToOpenFile(_:)), name: NSNotification.Name(rawValue: "openFile"), object: nil)
         
     }
 
-    override var representedObject: AnyObject? {
+    override var representedObject: Any? {
         didSet {
         // Update the view, if already loaded.
         }

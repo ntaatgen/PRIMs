@@ -7,6 +7,26 @@
 //
 
 import Foundation
+fileprivate func < <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
+  switch (lhs, rhs) {
+  case let (l?, r?):
+    return l < r
+  case (nil, _?):
+    return true
+  default:
+    return false
+  }
+}
+
+fileprivate func > <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
+  switch (lhs, rhs) {
+  case let (l?, r?):
+    return l > r
+  default:
+    return rhs < lhs
+  }
+}
+
 
 /// Buffer mappings for buffers that can be used as source (in condition or lhs of action)
 let bufferMappingC = ["V":"input","WM":"imaginal","G":"goal","C":"operator","AC":"action","RT":"retrievalH","GC":"constants"]
@@ -20,7 +40,7 @@ This function takes a string that represents a PRIM, and translates it into its 
 
 - returns: is a five-tuple with left-buffer-name left-buffer-slot, operator, right-buffer-name, right-buffer-slot, PRIM with reversed lhs and rhs if necessary
 */
-func parseName(name: String) -> (String?,String?,String,String?,String?,String?) {
+func parseName(_ name: String) -> (String?,String?,String,String?,String?,String?) {
     var components: [String] = []
     var component = ""
     var prevComponentCat = 1
@@ -99,15 +119,15 @@ class Prim:NSObject, NSCoding {
     }
     
     required convenience init?(coder aDecoder: NSCoder) {
-        guard let model = aDecoder.decodeObjectForKey("model") as? Model,
-            let name = aDecoder.decodeObjectForKey("name") as? String
+        guard let model = aDecoder.decodeObject(forKey: "model") as? Model,
+            let name = aDecoder.decodeObject(forKey: "name") as? String
             else { return nil }
         self.init(name: name, model: model)
     }
     
-    func encodeWithCoder(coder: NSCoder) {
-        coder.encodeObject(self.model, forKey: "model")
-        coder.encodeObject(self.name, forKey: "name")
+    func encode(with coder: NSCoder) {
+        coder.encode(self.model, forKey: "model")
+        coder.encode(self.name, forKey: "name")
     }
     
     /**
