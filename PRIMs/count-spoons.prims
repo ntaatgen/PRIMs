@@ -4,12 +4,12 @@
 define task count-spoons {
     initial-goals: (count-all)
     goals: (countgoal)
-    task-constants: (item spoon placemat)
     imaginal-autoclear: nil
     rt: -2.0
     lf: 0.3
     ans: 0.1
     default-activation: 1.0
+    references: (container item-type count-subtask action target fact-type)
 }
 
 define facts {
@@ -27,7 +27,7 @@ define goal count-all {
         V1=container
         ==>
         focus-down->AC1
-        countgoal->G2
+        count-subtask->G2
     }
 
     operator count-all-next-container {
@@ -60,7 +60,7 @@ define goal countgoal {
     operator init-countgoal {
         WM1=nil
         ==>
-        start-number->WM1
+        zero->WM1
     }
 
     operator countgoal-retrieve {
@@ -108,10 +108,9 @@ define script {
                 ["item","knife"],
                 ["item","spoon"],
                 ["item","spoon"]])
-    run-until-action("say")
     set-goal("count-all", ["container", "placemat"], ["item-type", "item"], ["count-subtask", "countgoal"],["action", "say"])
-    set-goal("countgoal", ["start-number","zero"],["item-type", "item"], ["target","spoon"],["fact-type","count-fact"])
-
+    set-goal("countgoal", ["target","spoon"],["fact-type","count-fact"])
+    run-until-action("say")
     issue-reward()
     trial-end()
 }

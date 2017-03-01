@@ -3,7 +3,8 @@
 
 define task count {
   initial-goals: (count) // In this example the task and the goal are the same
-  imaginal-autoclear: nil 
+  references: (fact-type action)
+  imaginal-autoclear: nil
   default-activation: 1.0 // All chunks defined in this model receive a fixed baselevel activation of 1.0
   ol: t
   rt: -2.0
@@ -42,8 +43,8 @@ define goal count {
     "Stop when reaching final number"
     V2 = WM1
    ==>
-    final-action -> AC1
-    stop -> G1
+    stop -> AC1
+    nil -> G1
   }
 
 }
@@ -74,7 +75,7 @@ define script {
     start = random(3)
     end = start + 1 + random(3)
     print("Counting from",digits[start],"to",digits[end])
-    set-goal("count", ["fact-type", "count-fact"], ["action", "say"], ["final-action","stop"])
+    set-goal("count", ["fact-type", "count-fact"], ["action", "say"])
     screen(digits[start],digits[end])
     run-until-action("stop")
     issue-reward()

@@ -174,6 +174,32 @@ class Parser  {
                 m.addToTraceField("Task has goal \(goal!)")
                 
             }
+        case "references:":
+            let parenthesis = scanner.scanString("(")
+            if parenthesis == nil {
+                m.addToTraceField("Missing '(' after references:")
+                return false
+            }
+            var reference: String?
+            while !scanner.scanString(")", into: nil) {
+                reference = scanner.scanUpToCharactersFromSet(whitespaceNewLineParentheses)
+                if reference == nil {
+                    m.addToTraceField("Unexpected end of file in references:")
+                    return false
+                }
+                if m.dm.chunks[reference!] == nil {
+                    let newchunk = Chunk(s: reference!, m: m)
+                    newchunk.setSlot("isa", value: "reference")
+                    newchunk.setSlot("slot1", value: reference!)
+                    newchunk.fixedActivation = 1.0 // should change this later
+                    newchunk.definedIn = [taskNumber]
+                    m.dm.addToDM(newchunk)
+                } else {
+                    m.dm.chunks[reference!]!.definedIn.append(taskNumber)
+                }
+                m.addToTraceField("Task has reference \(reference!)")
+                
+            }
         case "task-constants:":
             let parenthesis = scanner.scanString("(")
             if parenthesis == nil {
