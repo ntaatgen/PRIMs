@@ -10,6 +10,7 @@ define task count-spoons {
     lf: 0.3
     ans: 0.1
     default-activation: 1.0
+    references: (container item-type count-subtask action target fact-type)
 }
 
 define facts {

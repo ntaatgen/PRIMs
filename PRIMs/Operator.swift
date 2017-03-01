@@ -128,41 +128,40 @@ class Operator {
         }
     }
     
-    static let literalRoles = ["stop", "wait", "error", "focus-up", "focusup","one","two","three","four","five","six","yes","no"] // not complete yet!!!
+    //static let literalRoles = ["stop", "wait", "error", "focus-up", "focusup","one","two","three","four","five","six","yes","no"] // not complete yet!!!
     
     /**
-    Function that checks whether the operator matches the current roles in the goal. If it also returns an operator with the appropriate substitution.
+    Function that checks whether the operator matches the current roles in the goals. If it does, it also returns an operator with the appropriate substitution.
      - parameter op: The candidate operator
      - returns: nil if there is no match, otherwise the operator with the appropriate substitution
     */
     func checkOperatorGoalMatch(op: Chunk) -> Chunk? {
         guard let goalChunk = model.buffers["goal"] else { return nil }
-        for (_,value) in goalChunk.slotvals {
-            if let chunk = value.chunk() {
-                if chunk.type == "goaltype" {
-                    let opCopy = op.copyChunk()
+        let opCopy = op.copyChunk()
+        for (_,value) in goalChunk.slotvals {  // Go through all the goals in the goal buffer
+            if let chunk = value.chunk() {   // if it is a chunk
+                if chunk.type == "goaltype" {  // and it is a goal
                     var i = 1
-                    var match = true
-                    while match && opCopy.slotvals["slot\(i)"] != nil {
-                        let opRole = opCopy.slotvals["slot\(i)"]!.description
-                        if !Operator.literalRoles.contains(opRole) {
-                            if let substitute = chunk.slotvals[opRole] {
+                    while let opSlotValue = opCopy.slotvals["slot\(i)"]  {
+                        if opSlotValue.chunk() != nil && opSlotValue.chunk()!.type == "reference" {
+                            if let substitute = chunk.slotvals[opSlotValue.description] {
                                 opCopy.setSlot("slot\(i)", value: substitute)
-                                i = i + 1
-                            } else {
-                                match = false
                             }
-                        } else {
-                            i = i + 1
                         }
-                    }
-                    if match {
-                        return opCopy
+                        i += 1
                     }
                 }
             }
         }
-        return nil
+        // Check whether there are any references left
+        var i = 1
+        while let opSlotValue = opCopy.slotvals["slot\(i)"] {
+            if opSlotValue.chunk() != nil && opSlotValue.chunk()!.type == "reference" {
+                return nil
+            }
+            i += 1
+        }
+        return opCopy
     }
     
     
@@ -206,14 +205,15 @@ class Operator {
                             model.addToTrace(s, level: 5)
                         }
                     }
-                }
-                if match && candidate.spreadingActivation() <= 0.0 && model.buffers["operator"]?.slotValue("condition") != nil {
-                    match = false
-                    if !model.silent {
-                        let s = "   Rejected operator " + candidate.name + " because it has no associations and no production that tests all conditions"
-                        model.addToTrace(s, level: 2)
+                    
+                    if match && candidate.spreadingActivation() <= 0.0 && model.buffers["operator"]?.slotValue("condition") != nil {
+                        match = false
+                        if !model.silent {
+                            let s = "   Rejected operator " + candidate.name + " because it has no associations and no production that tests all conditions"
+                            model.addToTrace(s, level: 2)
+                        }
+                        model.buffers["operator"] = nil
                     }
-                    model.buffers["operator"] = nil
                 } else {
                     if !model.silent {
                         let s = "   Rejected operator " + candidate.name + " because its roles do not match any goal"
