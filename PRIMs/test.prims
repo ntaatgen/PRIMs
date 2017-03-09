@@ -1,0 +1,43 @@
+define task test {
+initial-goals: (test)
+rt: -2.0
+lf: 0.3
+ans: 0.1
+default-activation: 1.0
+references: (fact-type)
+}
+
+define goal test {
+
+operator first-step {
+    WM1 = nil
+==>
+    fact-type -> WM1
+    >>WM2
+    one -> WM1
+}
+
+operator second-step {
+    WM1 = one
+==>
+    WM<<
+    two -> WM3
+}
+
+operator last {
+    WM3 = two
+==>
+    nil -> G1
+    say -> AC1
+    stop -> AC2
+}
+
+}
+
+define script {
+    set-goal("test", ["fact-type", "count-fact"])
+    screen("go")
+    run-until-action("say")
+    issue-reward()
+    trial-end()
+}

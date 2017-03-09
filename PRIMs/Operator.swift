@@ -63,9 +63,11 @@ class Operator {
     }
     
     
+    
     /**
     Add conditions and actions to an operator while trying to optimize the order of the PRIMs to maximize overlap with existing operators 
     */
+    /*
     func addOperator(_ op: Chunk, conditions: [String], actions: [String]) {
         var bestConditionMatch: [String] = []
         var bestConditionNumber: Int = -1
@@ -95,7 +97,7 @@ class Operator {
         op.setSlot("action", value: actionString)
         model.dm.operatorCA.append((op.name, conditionList, actionList))
     }
-    
+    */
     
     /// List of chosen operators with time
     var previousOperators: [(Chunk,Double)] = []

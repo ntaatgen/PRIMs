@@ -87,6 +87,7 @@
 		B8B15FA51B46864300892AAE /* taskswitchstrooptransfer.bprims */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = taskswitchstrooptransfer.bprims; sourceTree = "<group>"; };
 		B8B23CDB1AED499C00307F90 /* GraphView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GraphView.swift; sourceTree = "<group>"; };
 		B8B3E4971B0F9310005E3601 /* spoons-fish.bprims */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "spoons-fish.bprims"; sourceTree = "<group>"; };
+		B8B5DDC51E71486E00DDF322 /* test.prims */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = test.prims; sourceTree = "<group>"; };
 		B8BEEE691AE79C9F00FF1FBC /* semantic.prims */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = semantic.prims; sourceTree = "<group>"; };
 		B8C76AC01B286C4800826141 /* addition.prims */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = addition.prims; sourceTree = "<group>"; };
 		B8C8DB4E1B568E8F00D5102F /* taskswitching.prims */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = taskswitching.prims; sourceTree = "<group>"; };
@@ -226,6 +227,7 @@
 				B8A971C71B455C6F00C3ABBF /* taskswitch.bprims */,
 				B8E0DCE81B3C4FE30097D90F /* stroop.bprims */,
 				B8B15FA51B46864300892AAE /* taskswitchstrooptransfer.bprims */,
+				B8B5DDC51E71486E00DDF322 /* test.prims */,
 			);
 			name = Models;
 			sourceTree = "<group>";

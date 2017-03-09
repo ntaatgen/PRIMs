@@ -4,7 +4,6 @@
 define task count-spoons {
     initial-goals: (add-all)
     goals: (count-goal determine-attribute)
-//    task-constants: (item spoon placemat)
     imaginal-autoclear: nil
     rt: -2.0
     lf: 0.3
@@ -34,17 +33,19 @@ define goal add-all {
         WM1=nil
         V1=screen
         ==>
-        V>>V3  // shift to the first container (placemat)
+        >>V3  // shift to the first container (placemat)
         overall-total -> WM1
         zero -> WM3 // that is the current total
-        WM>>WM4 // this should create a new chunk that is placed in WM4, and shifts focus to that chunk
+        >>WM4 // this should create a new chunk that is placed in WM4, and shifts focus to that chunk
         total-count -> WM1
+        push-goal -> AC1
+        subtask -> AC2
     }
 
     operator add-result-to-total-retrieve {
         WM1 = overall-total
-        WM>>WM4
-        WM>>WM2
+        >>WM4
+        >>WM2
         WM1 = number-fact  /// this checks whether there is a number in the result slot (not strictly necessary in this model)
         WM<<
     ==>
@@ -61,10 +62,12 @@ define goal add-all {
         V3 <> nil // There are still more containers
     ==>
         RT4 -> WM3
-        V>>V3
+        >>V3
         overall-total -> WM1
         zero -> WM3 // that is the current total
-        WM>>WM4 // this should create a new chunk that is placed in WM4, and shifts focus to that chunk
+        >>WM4 // this should create a new chunk that is placed in WM4, and shifts focus to that chunk
+        push-goal -> AC1
+        subtask -> AC2
     }
 
     operator add-result-to-total-move-on {
@@ -80,7 +83,7 @@ define goal add-all {
         ==>
         action -> AC1
         WM2 -> AC2
-        nil->G1
+        nil->G1  // We want to replace this with nil->G eventually
     }
 }
 
@@ -91,27 +94,27 @@ define goal countgoal {
         V1 = container
         ==>
         zero -> WM3
-        V>>V4 // shift to first item
-        WM>>WM4 // Determine whether this is something that we need to count
+        >>V4 // shift to first item
+        >>WM4 // Determine whether this is something that we need to count
         member -> WM1
     }
 
     operator move-one-if-not-countable-and-not-last {
         WM1 = total-count
-        WM>>WM4
+        >>WM4
         WM2 = no
         WM<<
         V3 <> nil
         ==>
-        V>>V3 // shift to next item
+        >>V3 // shift to next item
         nil -> WM4
-        WM>>WM4
+        >>WM4
         member -> WM1
     }
 
     operator move-one-if-not-countable-and-last {
         WM1 = total-count
-        WM>>WM4
+        >>WM4
         WM2 = no
         WM<<
         V3 = nil
@@ -119,11 +122,12 @@ define goal countgoal {
         WM3 -> WM2
         WM<<  // Shift up back to whoever wanted to count
         V<<  // Shift up back to container
+        remove-goal -> AC1
     }
 
     operator retrieve-count-fact-for-countable-item {
         WM1 = total-count
-        WM>>WM4
+        >>WM4
         WM2 = yes
         WM<<
     ==>
@@ -137,7 +141,7 @@ define goal countgoal {
         V3 <> nil
     ==>
         RT3 -> WM3
-        WM>>WM4
+        >>WM4
         member -> WM1
     }
 
@@ -148,6 +152,7 @@ define goal countgoal {
         RT3 -> WM2
         WM<<
         V<<
+        remove-goal -> AC1
     }
 }
 
@@ -160,6 +165,7 @@ define goal determine-attribute {
     ==>
         yes -> WM2
         WM<<
+        remove-goal -> AC1
     }
 
     operator answer-yes {
@@ -169,6 +175,7 @@ define goal determine-attribute {
         ==>
         no -> WM2
         WM<<
+        remove-goal -> AC1
     }
 
 }
@@ -188,8 +195,8 @@ define script {
                 ["item","spoon"],
                 ["item","spoon"]])
     run-until-action("say")
-    set-goal("add-all", ["container", "placemat"], ["item-type", "item"], ["count-subtask", "countgoal"],["action", "say"])
-    set-goal("countgoal", ["start-number","zero"],["item-type", "item"], ["target","spoon"],["fact-type","count-fact"])
+    set-goal("add-all", ["container", "placemat"], ["item-type", "item"], ["subtask", "countgoal"],["action", "say"])
+    set-goal("countgoal", ["start-number","zero"], ["target","spoon"],["fact-type","count-fact"])
 
     issue-reward()
     trial-end()

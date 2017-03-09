@@ -138,7 +138,7 @@ class Parser  {
                     newchunk.setSlot("slot1", value: goal!)
                     newchunk.fixedActivation = 1.0 // should change this later
                     newchunk.definedIn = [taskNumber]
-                    m.dm.addToDM(newchunk)
+                    _ = m.dm.addToDM(chunk: newchunk)
                 } else {
                     m.dm.chunks[goal!]!.definedIn.append(taskNumber)
                 }
@@ -167,7 +167,7 @@ class Parser  {
                     newchunk.setSlot("slot1", value: goal!)
                     newchunk.fixedActivation = 1.0 // should change this later
                     newchunk.definedIn = [taskNumber]
-                    m.dm.addToDM(newchunk)
+                    _ = m.dm.addToDM(chunk: newchunk)
                 } else {
                     m.dm.chunks[goal!]!.definedIn.append(taskNumber)
                 }
@@ -193,7 +193,7 @@ class Parser  {
                     newchunk.setSlot("slot1", value: reference!)
                     newchunk.fixedActivation = 1.0 // should change this later
                     newchunk.definedIn = [taskNumber]
-                    m.dm.addToDM(newchunk)
+                    _ = m.dm.addToDM(chunk: newchunk)
                 } else {
                     m.dm.chunks[reference!]!.definedIn.append(taskNumber)
                 }
@@ -424,7 +424,7 @@ class Parser  {
             } else {
                 var prim = ""
                 var component = ""
-                var complete = false
+                var complete = false // item can be a complete PRIM, or just a part of it, so we need to add stuff until it is complete
                 while !complete {
 //                    println(item! + " " + component)
                     item! += "§"
@@ -435,7 +435,7 @@ class Parser  {
                         let lookahead = item![item!.index(index, offsetBy: 1)]
                         switch ch {
                         case "A"..."Z","a"..."z","_",".": component += String(ch)
-                        case "-": if lookahead == ">" {
+                        case "-": if lookahead == ">" {  // a hyphen can be part of an identifier, or part of the action ->
                             fallthrough
                         } else {
                             component += String(ch)
@@ -497,8 +497,11 @@ class Parser  {
                 }
             }
         }
-        m.operators.addOperator(chunk, conditions: conditions, actions: actions)
-
+//        The following line reorders conditions and actions to optimize overlap. We don't want this anymore because order is now important
+//        m.operators.addOperator(chunk, conditions: conditions, actions: actions)
+        
+        chunk.setSlot("condition",value: primsListToString(prims: conditions))
+        chunk.setSlot("action",value: primsListToString(prims: actions))
 //        if !m.dm.goalOperatorLearning  {
             chunk.assocs[goalName] = (m.dm.defaultOperatorAssoc, 0)
 //        }
@@ -510,12 +513,22 @@ class Parser  {
             }
         }
         chunk.definedIn = [taskNumber]
-        m.dm.addToDM(chunk)
+        _ = m.dm.addToDM(chunk: chunk)
         m.addToTraceField("Adding operator:\n\(chunk)")
 //        println("Adding operator\n\(chunk)")
         
         return true
     }
+    
+    func primsListToString(prims: [String]) -> String {
+        if prims.count == 0 { return "" }
+        var result = prims[prims.count - 1]
+        for i in stride(from: prims.count - 2, through: 0, by: -1) {
+            result += ";" + prims[i]
+        }
+        return result
+    }
+    
     
     func parseFacts() -> Bool {
         if !scanner.scanString("{", into: nil) {
@@ -567,7 +580,7 @@ class Parser  {
                             extraChunk.setSlot("isa", value: "fact")
                             extraChunk.setSlot("slot1", value: slotValue!)
                             extraChunk.fixedActivation = defaultActivation
-                            m.dm.addToDM(extraChunk)
+                            _ = m.dm.addToDM(chunk: extraChunk)
                             m.addToTraceField("Adding undefined fact \(extraChunk.name) as default chunk")
                             chunk!.setSlot("slot\(slotindex)", value: slotValue!)
                             slotindex += 1
@@ -583,7 +596,7 @@ class Parser  {
                     m.addToTraceField("Fact \(chunk!.name) has already been defined elsewhere with same slot values, overwriting it.")
                 }
             }
-            m.dm.addToDM(chunk!)
+            _ = m.dm.addToDM(chunk: chunk!)
             
             m.addToTraceField("Reading fact \(chunk!.name)")
             chunk!.definedIn = [taskNumber]

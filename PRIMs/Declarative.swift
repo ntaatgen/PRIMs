@@ -176,6 +176,18 @@ class Declarative: NSObject, NSCoding  {
         return nil
     }
     
+    func eliminateDuplicateChunkAlreadyInDM(chunk: Chunk) -> Chunk {
+        for (_,c1) in chunks {
+            if c1.name != chunk.name && c1 == chunk { // they are the same but not identical
+                chunks[chunk.name] = nil // kick it out
+                c1.mergeAssocs(chunk)
+                c1.addReference()
+                return c1 // and return the "original"
+            }
+        }
+        return chunk // otherwise we're good
+    }
+    
     func retrievalState(_ slot: String, value: String) -> Bool {
         switch (slot,value) {
         case ("state","busy"): return retrieveBusy
@@ -193,7 +205,7 @@ class Declarative: NSObject, NSCoding  {
     }
     
     
-    func addToDM(_ chunk: Chunk) {
+    func addToDM(chunk: Chunk) -> Chunk {
         if let dupChunk = duplicateChunk(chunk) {
             dupChunk.addReference()
             dupChunk.mergeAssocs(chunk)
@@ -203,6 +215,7 @@ class Declarative: NSObject, NSCoding  {
             if chunk.fixedActivation != nil && dupChunk.fixedActivation != nil {
                 dupChunk.fixedActivation = max(chunk.fixedActivation!, dupChunk.fixedActivation!)
             }
+            return dupChunk
         } else {
             chunk.startTime()
             chunks[chunk.name] = chunk
@@ -213,8 +226,18 @@ class Declarative: NSObject, NSCoding  {
                 default: break
                 }
             }
+            return chunk
         }
     }
+    
+    func addOrUpdate(chunk: Chunk) -> Chunk {
+        if let existingChunk = chunks[chunk.name] {
+            return existingChunk
+        } else {
+            return addToDM(chunk: chunk)
+        }
+    }
+    
     
     /**
     Checks all chunks in DM to make sure threre are no Strings in slots that are the same as the name

@@ -31,10 +31,18 @@ fileprivate func > <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
 /// Buffer mappings for buffers that can be used as source (in condition or lhs of action)
 let bufferMappingC = ["V":"input","WM":"imaginal","G":"goal","C":"operator","AC":"action","RT":"retrievalH","GC":"constants"]
 /// Buffer mappings for buffer that are used in the rhs of an action
-let bufferMappingA = ["V":"input","WM":"imaginalN","G":"goal","C":"operator","AC":"action","RT":"retrievalR","GC":"constants"]
+let bufferMappingA = ["V":"input","WM":"imaginal","G":"goal","C":"operator","AC":"action","RT":"retrievalR","GC":"constants"]
+/// Buffer mappings for push and pop
+let bufferMappingPP = ["V":"input", "WM":"imaginal","G":"goal","RT":"retrievalH"]
 /// Buffer Order determines which buffer is preferred on the left side of a PRIM (lower is left)
 let bufferOrder = ["input":1,"goal":2,"imaginal":3,"retrievalH":4,"constants":5,"operator":6]
 
+
+// New PRIMs to implement
+// >>bufferslot
+// buffer<<
+// something->G
+// nil->G
 /** 
 This function takes a string that represents a PRIM, and translates it into its components
 
@@ -43,7 +51,7 @@ This function takes a string that represents a PRIM, and translates it into its 
 func parseName(_ name: String) -> (String?,String?,String,String?,String?,String?) {
     var components: [String] = []
     var component = ""
-    var prevComponentCat = 1
+    var prevComponentCat: Int? = nil
     for ch in name.characters {
         var componentCat: Int
         switch ch {
@@ -53,7 +61,10 @@ func parseName(_ name: String) -> (String?,String?,String,String?,String?,String
         case "<",">","=","-":  componentCat = 3
         default:  componentCat = -1
         }
-        if prevComponentCat == componentCat {
+        if prevComponentCat == nil {
+            prevComponentCat = componentCat
+        }
+        if prevComponentCat! == componentCat {
             component += String(ch)
         } else {
             components.append(component)
@@ -62,6 +73,22 @@ func parseName(_ name: String) -> (String?,String?,String,String?,String?,String
         prevComponentCat = componentCat
     }
     components.append(component)
+    // First handle the new special cases
+    if components.count > 0 && components[0] == ">>" {
+        if components.count == 3 {
+            return (nil, nil, components[0], bufferMappingPP[components[1]], "slot" + components[2], nil)  /// Need to check this!
+        } else {
+            return ("", "", "", nil, nil, nil)
+        }
+    }
+    if components.count > 1 && components[1] == "<<" {
+        if components.count == 2 {
+            return(bufferMappingPP[components[0]], nil, components[1], nil, nil, nil)
+        } else {
+            return ("", "", "", nil, nil, nil)
+        }
+    }
+    
     let compareError = components.count < 4
     let parseError = compareError || (components[0] != "nil" && components[3] != "nil" && (components.count == 4 || bufferMappingC[components[3]] == "nil"))
     if  parseError || components[0] == "nil" && components[1] != "->" {
@@ -103,7 +130,7 @@ class Prim:NSObject, NSCoding {
     let rhsBuffer: String? // Can be nil
     let rhsSlot: String?
     let op: String
-    let model: Model
+    unowned let model: Model
     let name: String
     
     override var description: String {
@@ -137,7 +164,7 @@ class Prim:NSObject, NSCoding {
     - returns: a Bool to indicate success
     */
     func fire() -> Bool {
-        let lhsVal = lhsBuffer == nil ? nil :
+        let lhsVal = (lhsBuffer == nil) || (lhsSlot == nil) ? nil :
         lhsBuffer! == "operator" ? model.buffers[lhsBuffer!]?.slotValue(lhsSlot!) : model.formerBuffers[lhsBuffer!]?.slotValue(lhsSlot!)
 
         switch op {
@@ -178,6 +205,30 @@ class Prim:NSObject, NSCoding {
             }
             model.buffers[rhsBuffer!]!.setSlot(rhsSlot!, value: lhsVal!)
             return true
+        case ">>":
+            switch rhsBuffer! {
+                case "imaginal":
+                    return model.imaginal.push(slot: rhsSlot!)
+//                case "goal":
+//                    return model.goalPush(slot: rhsSlot!)
+//                case "retrievalH":
+//                    return model.dm.push(slot: rhsSlot!)
+//                case "input":
+//                    return model.scenario.push(slot: rhsSlot!)
+            default: return false
+            }
+        case "<<":
+            switch lhsBuffer! {
+            case "imaginal":
+                return model.imaginal.pop()
+//            case "goal":
+//                return model.goalPop()
+//            case "retrievalH":
+//                return model.dm.pop()
+//            case "input":
+//                return model.scenario.pop()
+            default: return false
+            }
         default: return false
         }
         
@@ -188,6 +239,7 @@ class Prim:NSObject, NSCoding {
     This is the case if the lhs part doesn't resolve to nil
     */
     func testFire() -> Bool {
+        if op == ">>" || op == "<<" { return true }
         if lhsSlot == nil { return true } else {
             let lhsVal = model.buffers[lhsBuffer!]?.slotValue(lhsSlot!)
             return lhsVal != nil

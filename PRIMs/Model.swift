@@ -25,6 +25,7 @@ class Model: NSObject, NSCoding {
     var action: Action!
     var operators: Operator!
     var buffers: [String:Chunk] = [:]
+//    var bufferStack: [String:[Chunk]] = [:]
     var chunkIdCounter = 0
     var running = false
     var fallingThrough = false
@@ -310,6 +311,7 @@ class Model: NSObject, NSCoding {
         startTime = time
         fallingThrough = false
         buffers = [:]
+//        bufferStack = [:]
         procedural.reset()
         buffers["goal"] = currentGoals?.copyChunk()
         buffers["constants"] = currentGoalConstants?.copyChunk()
@@ -328,6 +330,7 @@ class Model: NSObject, NSCoding {
         startTime = time
         fallingThrough = false
         buffers = [:]
+//        bufferStack = [:]
         procedural.reset()
         buffers["goal"] = currentGoals?.copyChunk()
         buffers["constants"] = currentGoalConstants?.copyChunk()
@@ -445,12 +448,11 @@ class Model: NSObject, NSCoding {
         }
     }
     
-    // The next section of code handles operators. This should be migrated to a separate class eventually
-    
     func doAllModuleActions() {
         var latency = 0.0
         formerBuffers["retrievalH"] = buffers["retrievalH"]
         buffers["retrievalH"] = nil
+//        bufferStack["retrievalH"] = nil
         if buffers["retrievalR"] != nil || dm.declarativeBufferStuffing {
             formerBuffers["retrievalR"] = buffers["retrievalR"]
             let retrievalLatency = dm.action()
@@ -504,9 +506,9 @@ class Model: NSObject, NSCoding {
     
     
     func step() {
-        if scenario.script == nil {
-            oldStep()
-        } else {
+//        if scenario.script == nil {
+//            oldStep()
+//        } else {
             if scenario.script!.scriptHasEnded()  {
                 scenario.script!.reset()
             }
@@ -514,15 +516,17 @@ class Model: NSObject, NSCoding {
                 initializeNewTrial()
             }
             scenario.script!.step(self)
-        }
+//        }
     }
     
     /**
-        Run the current script and execute a single operator when there is a script
+        Run the current script and execute a single operator when there is a script.
+        This function is called from the scenario
     */
     func newStep() {
         dm.clearFinsts()
         var found: Bool = false
+//        var bufferStackCopy = bufferStack
         formerBuffers = [:]
         formerBuffers["goal"] = buffers["goal"]?.copyLiteral()
         formerBuffers["imaginal"] = buffers["imaginal"]?.copyLiteral()
@@ -559,6 +563,7 @@ class Model: NSObject, NSCoding {
                 buffers["input"] = formerBuffers["input"]
                 buffers["retrievalH"] = formerBuffers["retrievalH"]
                 buffers["constants"] = formerBuffers["constants"]
+//                bufferStack = bufferStackCopy  // This is not perfect because other Chunks may have been modified
                 if dm.goalOperatorLearning {
                     operators.previousOperators.removeLast()
                 }
@@ -579,6 +584,7 @@ class Model: NSObject, NSCoding {
     Execute a single operator by first finding one that matches, and then firing the necessary
     productions to execute it. This version is used when there is no script
     */
+    /*
     func oldStep() {
         if currentTask == nil { return }
         if !running {
@@ -665,7 +671,7 @@ class Model: NSObject, NSCoding {
         }
         
     }
-    
+    */
     
     func run() {
         if currentTask == nil { return }

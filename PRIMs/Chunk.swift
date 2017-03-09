@@ -35,7 +35,8 @@ class Chunk: NSObject, NSCoding {
     var assocs: [String:(Double,Int)] = [:] // Sji table
     /// Task number that refers to the file that the chunk was defined in
     var definedIn: [Int] = []
-    
+    /// Is used to represent chunk trees in buffers: what is the parent Chunk?
+    var parent: String? = nil
     /**
     - returns: the type of the chunk, or empty string if there isn't one defined
     */
@@ -383,17 +384,19 @@ class Chunk: NSObject, NSCoding {
 
 func == (left: Chunk, right: Chunk) -> Bool {
     // Are two chunks equal? They are if they have the same slots and values
-    if left.slotvals.count != right.slotvals.count { return false }
+    if left.slotvals.count != right.slotvals.count {   return false }
     for (slot1,value1) in left.slotvals {
         if let rightVal = right.slotvals[slot1] {
-            if value1.description != rightVal.description { return false }
+            if value1.description != rightVal.description {
+                return false }
 //            switch (rightVal,value1) {
 //            case (.Number(let val1),.Number(let val2)): if val1 != val2 { return false }
 //            case (.Text(let s1), .Text(let s2)): if s1 != s2 { return false }
 //            case (.Symbol(let c1), .Symbol(let c2)): if c1 !== c2 { return false }
 //            default: return false
 //            }
-        } else { return false }
+        } else {
+            return false }
     }
     return true
 }

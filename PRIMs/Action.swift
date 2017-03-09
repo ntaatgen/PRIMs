@@ -85,7 +85,7 @@ class Action {
             index = index + 2
         }
         if model.dm.chunks[name] != nil {
-            model.dm.addToDM(newGoal)
+            _ = model.dm.addToDM(chunk: newGoal)
         }
         // now put the new goal in the first available slot
         index = 1

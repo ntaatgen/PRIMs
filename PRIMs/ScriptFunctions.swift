@@ -236,7 +236,11 @@ func trialStart(_ content: [Factor], model: Model?) throws -> (result: Factor?, 
 */
 func trialEnd(_ content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool) {
     if let imaginalChunk = model!.buffers["imaginal"] {
-        model!.dm.addToDM(imaginalChunk)
+        if let existingChunk = model?.dm.chunks[imaginalChunk.name] {
+            _ = model!.dm.eliminateDuplicateChunkAlreadyInDM(chunk: existingChunk)
+        } else {
+            _ = model!.dm.addToDM(chunk: imaginalChunk)
+        }
     }
 //    model!.running = false
     model!.resultAdd(model!.time - model!.startTime)
@@ -458,12 +462,12 @@ func addDM(_ content: [Factor], model: Model?) throws -> (result: Factor?, done:
             extraChunk.setSlot("isa", value: "fact")
             extraChunk.setSlot("slot1", value: slotval)
             extraChunk.fixedActivation = model!.dm.defaultActivation
-            model!.dm.addToDM(extraChunk)
+            _ = model!.dm.addToDM(chunk: extraChunk)
         }
         chunk.setSlot("slot\(i)", value: slotval)
     }
     chunk.fixedActivation = model!.dm.defaultActivation
-    model!.dm.addToDM(chunk)
+    _ = model!.dm.addToDM(chunk: chunk)
     return (nil, true)
 }
 
@@ -610,7 +614,7 @@ func reportMemory(_ content: [Factor], model: Model?) throws -> (result: Factor?
  */
 func imaginalToDM(_ content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool) {
     if let imaginalChunk = model!.buffers["imaginal"] {
-        model!.dm.addToDM(imaginalChunk)
+        _ = model!.dm.addToDM(chunk: imaginalChunk)
     }
     return(nil, true)
 }
@@ -674,7 +678,7 @@ func createNewGoal(content: [Factor], model: Model?) throws -> (result: Factor?,
     }
     let dupChunk = model!.dm.duplicateChunk(goalChunk)
     guard let currentGoalChunk = model!.buffers["goal"] else { throw RunTimeError.errorInFunction("No chunk in goal buffer") }
-    model!.dm.addToDM(goalChunk)
+    _ = model!.dm.addToDM(chunk: goalChunk)
     if dupChunk == nil {
         currentGoalChunk.setSlot("slot1", value: goalChunk)
     } else {
