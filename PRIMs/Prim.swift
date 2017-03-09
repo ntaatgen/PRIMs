@@ -165,8 +165,8 @@ class Prim:NSObject, NSCoding {
     */
     func fire() -> Bool {
         let lhsVal = (lhsBuffer == nil) || (lhsSlot == nil) ? nil :
-        lhsBuffer! == "operator" ? model.buffers[lhsBuffer!]?.slotValue(lhsSlot!) : model.formerBuffers[lhsBuffer!]?.slotValue(lhsSlot!)
-
+//        lhsBuffer! == "operator" ? model.buffers[lhsBuffer!]?.slotValue(lhsSlot!) : model.formerBuffers[lhsBuffer!]?.slotValue(lhsSlot!)
+        model.buffers[lhsBuffer!]?.slotValue(lhsSlot!)
         switch op {
         case "=":
             if rhsBuffer == nil {
@@ -211,8 +211,8 @@ class Prim:NSObject, NSCoding {
                     return model.imaginal.push(slot: rhsSlot!)
 //                case "goal":
 //                    return model.goalPush(slot: rhsSlot!)
-//                case "retrievalH":
-//                    return model.dm.push(slot: rhsSlot!)
+                case "retrievalH":
+                    return model.dm.push(slot: rhsSlot!)
 //                case "input":
 //                    return model.scenario.push(slot: rhsSlot!)
             default: return false
@@ -223,8 +223,8 @@ class Prim:NSObject, NSCoding {
                 return model.imaginal.pop()
 //            case "goal":
 //                return model.goalPop()
-//            case "retrievalH":
-//                return model.dm.pop()
+            case "retrievalH":
+                return model.dm.pop()
 //            case "input":
 //                return model.scenario.pop()
             default: return false

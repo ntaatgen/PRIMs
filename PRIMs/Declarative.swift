@@ -426,5 +426,41 @@ class Declarative: NSObject, NSCoding  {
         return retrieveResult == nil && stuff ? 0.0 : latency
     }
     
+    /**
+        Do a push on one of the slots in the retrieval (harvest) buffer. One of the chunks in the slots of the retrieval is put into the retrieval buffer, while a parent link is left behind to recover the parent on a pop
+        - parameter slot: The slotname of the to be pushed chunk
+        - returns: Whether the push was successful
+    */
+    func push(slot: String) -> Bool {
+        if model.buffers["retrievalH"] == nil {
+            return false
+        }
+        let oldRetrieval = model.buffers["retrievalH"]!
+        if let value = oldRetrieval.slotvals[slot] {
+            if let chunk = value.chunk() {
+                chunk.parent = oldRetrieval.name
+                model.buffers["retrievalH"] = chunk
+                return true
+            } else {
+                return false // there is a String or a number in that slot
+            }
+        } else {
+            return false
+        }
+    }
+    
+    /** Carry out a "pop" action on the Retrieval harbest buffer: restore the previous element in the tree, assuming it exists.
+     - returns: Whether the pop was successful
+     */
+    func pop() -> Bool {
+        if let parent = model.buffers["retrievalH"]?.parent {
+            model.buffers["retrievalH"] = model.dm.chunks[parent]!
+            return true
+        } else {
+            return false
+        }
+    }
+
+    
 
 }

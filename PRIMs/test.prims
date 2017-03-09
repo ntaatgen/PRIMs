@@ -7,6 +7,13 @@ default-activation: 1.0
 references: (fact-type)
 }
 
+define facts {
+    (one number 1)
+    (two number 2)
+    (fact1+1 addition-fact one one two)
+}
+
+
 define goal test {
 
 operator first-step {
@@ -24,18 +31,43 @@ operator second-step {
     two -> WM3
 }
 
-operator last {
+operator test-retrieve {
     WM3 = two
+    RT1 = nil
+==>
+    fact-type -> RT1
+    one -> RT2
+}
+
+operator dig-in-retrieve-that-fails {
+    WM3 = two
+    RT1 = fact-type
+    >>RT2
+    RT1 = ghost
+    RT<<
+    ==>
+    nil -> G1
+    say -> AC1
+    RT4 -> AC2
+}
+
+
+operator dig-in-retrieve {
+    WM3 = two
+    RT1 = fact-type
+    >>RT2
+    RT1 = number
+    RT<<
 ==>
     nil -> G1
     say -> AC1
-    stop -> AC2
+    RT4 -> AC2
 }
 
 }
 
 define script {
-    set-goal("test", ["fact-type", "count-fact"])
+    set-goal("test", ["fact-type", "addition-fact"])
     screen("go")
     run-until-action("say")
     issue-reward()
