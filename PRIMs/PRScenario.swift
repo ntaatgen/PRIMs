@@ -10,7 +10,7 @@ import Foundation
 
 class PRScenario {
     /// What are the possible screens in the scenario?
-    var screens: [String:PRScreen] = [:]
+/*    var screens: [String:PRScreen] = [:]
     /// What are the different inputs (variable bindings for objects)
     var inputs: [String:[String:String]] = [:]
     /// What is the current queue of inputs
@@ -19,16 +19,21 @@ class PRScenario {
     var currentScreen: PRScreen? = nil
     /// What is the start screen at the beginning of the scenario?
     var startScreen: PRScreen! = nil
+*/    
     /// When is the next event due?
     var nextEventTime: Double? = nil
+
     /// Current inputs
     var currentInput: [String:String] = [:]
+/*
     /// The action that finalized the scenario
     var goalAction: [String] = []
+ */
     /// A script that runs the experiment. Replaces most of the above.
     var script: Script?
     /// A script that has to be run as initialization of the model
     var initScript: Script?
+
     var inputMappingForTrace: [String] {
         get {
             var mapping: [String] = ["void","void","void","void","void"]
@@ -41,7 +46,7 @@ class PRScenario {
             return mapping
         }
     }
-
+/*
     func goStart(_ model: Model) {
         if !inputs.isEmpty && trials.isEmpty {
             for (name,_) in inputs {
@@ -145,5 +150,8 @@ class PRScenario {
         model.addToTrace("Switching to screen \(currentScreen!.name), next switch is \(nextEventTime)", level: 2)
         
     }
+    */
     
+    
+
 }

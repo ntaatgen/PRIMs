@@ -124,6 +124,7 @@ class Chunk: NSObject, NSCoding {
         let newChunk = model.generateNewChunk(self.name)
         newChunk.slotvals = self.slotvals
         newChunk.printOrder = self.printOrder
+        newChunk.parent = self.parent
         return newChunk
     }
     
@@ -134,6 +135,7 @@ class Chunk: NSObject, NSCoding {
         let newChunk = Chunk(s: self.name, m: self.model)
         newChunk.slotvals = self.slotvals
         newChunk.printOrder = self.printOrder
+        newChunk.parent = self.parent
         return newChunk
     }
     

@@ -58,10 +58,10 @@ class Action {
     }
 
     func initTask() {
-        if model.scenario.script == nil {
-            model.scenario.goStart(model)
-            model.buffers["input"] = model.scenario.current(model)
-        }
+//        if model.scenario.script == nil {
+//            model.scenario.goStart(model)
+//            model.buffers["input"] = model.scenario.current(model)
+//        }
     }
     
     /**
@@ -108,12 +108,12 @@ class Action {
         let par1 = actionChunk.slotvals["slot2"]?.description
         let par2 = actionChunk.slotvals["slot3"]?.description
         let actionInstance = actions[ac!]
-        let result = model.scenario.doAction(model,action: ac,par1: par1)
+//        let result = model.scenario.doAction(model,action: ac,par1: par1)
         let nothing = ""
-        if result != nil {
-            model.buffers["input"] = result!
-            latency = defaultPerceptualActionLatency
-        }
+//        if result != nil {
+//            model.buffers["input"] = result!
+//            latency = defaultPerceptualActionLatency
+//        }
         if ac! == "wait" {
             if !model.silent {
                 model.addToTrace("Waiting (latency = \(latency))",level: 2)
@@ -135,16 +135,56 @@ class Action {
             let dl = DataLine(eventType: "action", eventParameter1: ac!, eventParameter2: par1 ?? "void", eventParameter3: par2 ?? "void", inputParameters: model.scenario.inputMappingForTrace,time: model.time + latency - model.startTime)
             model.outputData.append(dl)
         
-        if result != nil {
-            let slot1 = result!.slotvals["slot1"]?.description
-            let slot2 = result!.slotvals["slot2"]?.description
-            let slot3 = result!.slotvals["slot3"]?.description
-            
-            let dl = DataLine(eventType: "perception", eventParameter1: slot1 ?? "void", eventParameter2: slot2 ?? "void", eventParameter3: slot3 ?? "void", inputParameters: model.scenario.inputMappingForTrace, time: model.time + latency - model.startTime)
-            model.outputData.append(dl)
-        }
+//        if result != nil {
+//            let slot1 = result!.slotvals["slot1"]?.description
+//            let slot2 = result!.slotvals["slot2"]?.description
+//            let slot3 = result!.slotvals["slot3"]?.description
+//            
+//            let dl = DataLine(eventType: "perception", eventParameter1: slot1 ?? "void", eventParameter2: slot2 ?? "void", eventParameter3: slot3 ?? "void", inputParameters: model.scenario.inputMappingForTrace, time: model.time + latency - model.startTime)
+//            model.outputData.append(dl)
+//        }
         return latency
     }
+    
+    /**
+     Do a push on one of the slots in the retrieval (harvest) buffer. One of the chunks in the slots of the retrieval is put into the retrieval buffer, while a parent link is left behind to recover the parent on a pop
+     - parameter slot: The slotname of the to be pushed chunk
+     - returns: Whether the push was successful
+     */
+    func push(slot: String) -> Bool {
+        if model.buffers["input"] == nil {
+            return false
+        }
+        let oldInput = model.buffers["input"]!
+        if let value = oldInput.slotvals[slot] {
+            if let chunk = value.chunk() {
+                if slot == "slot2" {
+                    chunk.parent = oldInput.parent // Slot2 is "special": it refers to the next item on the same level, so we copy the parent information
+                } else {
+                    chunk.parent = oldInput.name
+                }
+                model.buffers["input"] = chunk
+                return true
+            } else {
+                return false // there is a String or a number in that slot
+            }
+        } else {
+            return false
+        }
+    }
+    
+    /** Carry out a "pop" action on the Retrieval harbest buffer: restore the previous element in the tree, assuming it exists.
+     - returns: Whether the pop was successful
+     */
+    func pop() -> Bool {
+        if let parent = model.buffers["input"]?.parent {
+            model.buffers["input"] = model.dm.chunks[parent]!
+            return true
+        } else {
+            return false
+        }
+    }
+
     
     
 }

@@ -59,17 +59,58 @@ operator dig-in-retrieve {
     RT1 = number
     RT<<
 ==>
-    nil -> G1
     say -> AC1
     RT4 -> AC2
+    >>RT4
+    RT1 -> WM3
 }
 
+operator visual-one {
+    WM3 = number
+    V1 = screen
+==>
+    >>V3
+    >>V3
+    say -> AC1
+    V4 -> AC2
 }
+
+operator back-up {
+    V1 = item
+    V<<
+==>
+    say -> AC1
+    V1 -> AC2
+    V1 -> WM3
+}
+
+operator all-done {
+    WM3 = placemat
+==>
+    done -> AC1
+}
+}
+
+define facts {
+    (item7 item nil nil fork)
+    (item6 item item7 nil spoon)
+    (item5 item item6 nil knife)
+    (item4 item item5 nil spoon)
+    (placemat2 placemat nil item4)
+    (item3 item nil nil spoon)
+    (item2 item item3 nil knife)
+    (item1 item item2 nil fork)
+    (placemat1 placemat placemat2 item1)
+    (screen1 screen nil placemat1)
+}
+
+
+
 
 define script {
     set-goal("test", ["fact-type", "addition-fact"])
-    screen("go")
-    run-until-action("say")
+    screen("screen1")
+    run-until-action("done")
     issue-reward()
     trial-end()
 }

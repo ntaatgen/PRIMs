@@ -29,8 +29,9 @@ fileprivate func >= <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
 
 
 let scriptFunctions: [String:([Factor], Model?) throws -> (result: Factor?, done: Bool)] =
-["screen": setScreen,
-    "nested-screen": setScreenArray,
+[   "screen": newSetScreen,
+    //"screen": setScreen,
+    //"nested-screen": setScreenArray,
     "random": randIntNumber,
     "time": modelTime,
     "run-step": runStep,
@@ -73,6 +74,7 @@ let scriptFunctions: [String:([Factor], Model?) throws -> (result: Factor?, done
 /**
     Helper function for setScreenArray
 */
+/*
 func createPRObject(_ f: ScriptArray, sup: PRObject?, model: Model) throws -> PRObject {
     guard f.elements.count > 0 else { throw RunTimeError.errorInFunction("Invalid Screen definition") }
     let name = f.elements[0].firstTerm.factor.description
@@ -107,11 +109,12 @@ func createPRObject(_ f: ScriptArray, sup: PRObject?, model: Model) throws -> PR
     }
     return obj
 }
-
+*/
 /**
  Set the screen to a particular context.
  Pass a set of (possibly nested) Arrays (e.g. screen(["acquarium", "one", ["fish", "red"], ["fish", "green"]])).
  */
+/*
 func setScreenArray(_ content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool) {
     let screen = PRScreen(name: "run-time")
     let rootObject = PRObject(name: "card", attributes: ["card"], superObject: nil)
@@ -129,12 +132,13 @@ func setScreenArray(_ content: [Factor], model: Model?) throws -> (result: Facto
     model!.buffers["input"] = model!.scenario.current(model!)
     return (nil, true)
 }
-
+*/
 
 /**
     Set the screen to a particular context. Can be called in two different ways.
     Just pass the contents of the screen as arguments (e.g. screen("one","two").
 */
+/*
 func setScreen(_ content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool) {
     if content.count > 0 && content[0].type() == "array" {
         return try setScreenArray(content, model: model)
@@ -161,6 +165,19 @@ func setScreen(_ content: [Factor], model: Model?) throws -> (result: Factor?, d
     screen.start()
     model!.buffers["input"] = model!.scenario.current(model!)
     return (nil, true)
+}
+*/
+
+func newSetScreen(_ content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool) {
+    guard content.count == 1 else { throw RunTimeError.invalidNumberOfArguments }
+    guard content[0].type() == "string" else { throw RunTimeError.errorInFunction("newSetScreen takes a String as argument") }
+    if let screen = model?.dm.chunks[content[0].description] {
+        model?.buffers["input"] = screen
+        return(nil, true)
+    } else {
+        throw RunTimeError.errorInFunction("Argument tot newSetScreen does not exist")
+    }
+        
 }
 
 /**
@@ -225,7 +242,7 @@ func shuffle(_ content: [Factor], model: Model?)  throws -> (result: Factor?, do
 */
 func trialStart(_ content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool) {
     model!.startTime = model!.time
-    let dl = DataLine(eventType: "trial-start", eventParameter1: "void", eventParameter2: "void", eventParameter3: "void", inputParameters: model!.scenario.inputMappingForTrace, time:model!.startTime)
+    let dl = DataLine(eventType: "trial-start", eventParameter1: "void", eventParameter2: "void", eventParameter3: "void", inputParameters: [], time:model!.startTime)
     model!.outputData.append(dl)
     return (nil, true)
 }
@@ -236,16 +253,17 @@ func trialStart(_ content: [Factor], model: Model?) throws -> (result: Factor?, 
 */
 func trialEnd(_ content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool) {
     if let imaginalChunk = model!.buffers["imaginal"] {
-        if let existingChunk = model?.dm.chunks[imaginalChunk.name] {
-            _ = model!.dm.eliminateDuplicateChunkAlreadyInDM(chunk: existingChunk)
-        } else {
-            _ = model!.dm.addToDM(chunk: imaginalChunk)
-        }
+        model?.imaginal.moveWMtoDM()
+//        if let existingChunk = model?.dm.chunks[imaginalChunk.name] {
+//            _ = model!.dm.eliminateDuplicateChunkAlreadyInDM(chunk: existingChunk)
+//        } else {
+//            _ = model!.dm.addToDM(chunk: imaginalChunk)
+//        }
     }
 //    model!.running = false
     model!.resultAdd(model!.time - model!.startTime)
     if model!.running {
-        let dl = DataLine(eventType: "trial-end", eventParameter1: "success", eventParameter2: "void", eventParameter3: "void", inputParameters: model!.scenario.inputMappingForTrace, time: model!.time - model!.startTime)
+        let dl = DataLine(eventType: "trial-end", eventParameter1: "success", eventParameter2: "void", eventParameter3: "void", inputParameters: [], time: model!.time - model!.startTime)
         model!.outputData.append(dl)
     }
     model!.commitToTrace(false)
@@ -260,7 +278,7 @@ func dataLine(_ content: [Factor], model: Model?) throws -> (result: Factor?, do
     for i in 0...2 {
         eventParams.append(content.count > i ? content[i].description : "void")
     }
-    let dl = DataLine(eventType: "data-line", eventParameter1: eventParams[0], eventParameter2: eventParams[1], eventParameter3: eventParams[2], inputParameters: model!.scenario.inputMappingForTrace, time: model!.time - model!.startTime)
+    let dl = DataLine(eventType: "data-line", eventParameter1: eventParams[0], eventParameter2: eventParams[1], eventParameter3: eventParams[2], inputParameters: [], time: model!.time - model!.startTime)
     model!.outputData.append(dl)
     return(nil, true)
 }
@@ -614,7 +632,8 @@ func reportMemory(_ content: [Factor], model: Model?) throws -> (result: Factor?
  */
 func imaginalToDM(_ content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool) {
     if let imaginalChunk = model!.buffers["imaginal"] {
-        _ = model!.dm.addToDM(chunk: imaginalChunk)
+        model?.imaginal.moveWMtoDM()
+//        _ = model!.dm.addToDM(chunk: imaginalChunk)
     }
     return(nil, true)
 }

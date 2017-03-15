@@ -24,7 +24,18 @@ class Model: NSObject, NSCoding {
     var imaginal: Imaginal!
     var action: Action!
     var operators: Operator!
-    var buffers: [String:Chunk] = [:]
+    var buffers: [String:Chunk] = [:] {
+        didSet {
+            if buffers["imaginal"] != oldValue["imaginal"] {
+                let s = buffers["imaginal"]
+                print("***Imaginal buffer changed to \(s)")
+                if s != nil {
+                    print("parent is: \(s!.parent)")
+                }
+            }
+        }
+        
+    }
 //    var bufferStack: [String:[Chunk]] = [:]
     var chunkIdCounter = 0
     var running = false
@@ -475,8 +486,8 @@ class Model: NSObject, NSCoding {
     
     - returns: True if goal is reached
     */
-    func testGoalAction() -> Bool {
-        if scenario.goalAction.isEmpty { return false }
+/*    func testGoalAction() -> Bool {
+//        if scenario.goalAction.isEmpty { return false }
         let action = formerBuffers["action"]
         if action == nil { return false }
         var count = 1
@@ -491,7 +502,7 @@ class Model: NSObject, NSCoding {
         }
         return true
     }
-    
+*/
     func logInput(_ inputTime: Double) {
         let result = buffers["input"]
         if result != nil {
@@ -499,7 +510,7 @@ class Model: NSObject, NSCoding {
             let slot2 = result!.slotvals["slot2"]?.description
             let slot3 = result!.slotvals["slot3"]?.description
             
-            let dl = DataLine(eventType: "perception", eventParameter1: slot1 ?? "void", eventParameter2: slot2 ?? "void", eventParameter3: slot3 ?? "void", inputParameters: scenario.inputMappingForTrace, time: inputTime - startTime)
+            let dl = DataLine(eventType: "perception", eventParameter1: slot1 ?? "void", eventParameter2: slot2 ?? "void", eventParameter3: slot3 ?? "void", inputParameters: [], time: inputTime - startTime)
             outputData.append(dl)
         }
     }
@@ -529,8 +540,8 @@ class Model: NSObject, NSCoding {
 //        var bufferStackCopy = bufferStack
         formerBuffers = [:]
         formerBuffers["goal"] = buffers["goal"]?.copyLiteral()
-        formerBuffers["imaginal"] = buffers["imaginal"]?.copyLiteral()
-        formerBuffers["input"] = buffers["input"]?.copyLiteral()
+        formerBuffers["imaginal"] = buffers["imaginal"]
+        formerBuffers["input"] = buffers["input"]
         formerBuffers["retrievalH"] = buffers["retrievalH"]?.copyLiteral()
         formerBuffers["constants"] = buffers["constants"]?.copyLiteral()
         commitToTrace(false)
@@ -542,7 +553,7 @@ class Model: NSObject, NSCoding {
                     fallingThrough = true
                     //                    procedural.issueReward(0.0)
                     operators.updateOperatorSjis(0.0)
-                    let dl = DataLine(eventType: "trial-end", eventParameter1: "fail", eventParameter2: "void", eventParameter3: "void", inputParameters: scenario.inputMappingForTrace, time: time - startTime)
+                    let dl = DataLine(eventType: "trial-end", eventParameter1: "fail", eventParameter2: "void", eventParameter3: "void", inputParameters: [], time: time - startTime)
                     outputData.append(dl)
                     return
                 } else {

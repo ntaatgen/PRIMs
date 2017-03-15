@@ -160,10 +160,10 @@ class Prim:NSObject, NSCoding {
     /**
     Carry out the PRIM, either by checking its condition or by performing its action. 
     In the case of an action to an empty buffer, an empty fact chunk is created in that buffer.
-
+    - parameter condition: Is this a condition or action Prim? Relevant for push actions
     - returns: a Bool to indicate success
     */
-    func fire() -> Bool {
+    func fire(condition: Bool) -> Bool {
         let lhsVal = (lhsBuffer == nil) || (lhsSlot == nil) ? nil :
 //        lhsBuffer! == "operator" ? model.buffers[lhsBuffer!]?.slotValue(lhsSlot!) : model.formerBuffers[lhsBuffer!]?.slotValue(lhsSlot!)
         model.buffers[lhsBuffer!]?.slotValue(lhsSlot!)
@@ -208,13 +208,13 @@ class Prim:NSObject, NSCoding {
         case ">>":
             switch rhsBuffer! {
                 case "imaginal":
-                    return model.imaginal.push(slot: rhsSlot!)
+                    return model.imaginal.push(slot: rhsSlot!, condition: condition)
 //                case "goal":
 //                    return model.goalPush(slot: rhsSlot!)
                 case "retrievalH":
                     return model.dm.push(slot: rhsSlot!)
-//                case "input":
-//                    return model.scenario.push(slot: rhsSlot!)
+                case "input":
+                    return model.action.push(slot: rhsSlot!)
             default: return false
             }
         case "<<":
@@ -225,8 +225,8 @@ class Prim:NSObject, NSCoding {
 //                return model.goalPop()
             case "retrievalH":
                 return model.dm.pop()
-//            case "input":
-//                return model.scenario.pop()
+            case "input":
+                return model.action.pop()
             default: return false
             }
         default: return false

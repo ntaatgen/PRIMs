@@ -76,6 +76,7 @@ enum Value: CustomStringConvertible {
     }
     
     func isEqual(_ v: Value) ->  Bool {
+        print("Equality of \(v.description) and \(self.description) is \(v.description == self.description)")
         return v.description == self.description
     }
     

@@ -86,13 +86,13 @@ class Parser  {
             m.addToTraceField("No start screen or script has been defined")
             return false
         }
-        if startScreenName != nil && m.scenario.screens[startScreenName!] == nil {
-            m.addToTraceField("Start-screen \(startScreenName!) is not defined")
-            return false
-        }
-        if startScreenName != nil {
-            m.scenario.startScreen = m.scenario.screens[startScreenName!]!
-        }
+//        if startScreenName != nil && m.scenario.screens[startScreenName!] == nil {
+//            m.addToTraceField("Start-screen \(startScreenName!) is not defined")
+//            return false
+//        }
+//        if startScreenName != nil {
+//            m.scenario.startScreen = m.scenario.screens[startScreenName!]!
+//        }
         return true
     }
     
@@ -569,7 +569,9 @@ class Parser  {
                         chunk!.fixedActivation = defaultActivation
                         slotindex += 1
                     } else {
-                        if m.dm.chunks[slotValue!] != nil {
+                        if  slotValue! == "nil" {
+                            slotindex += 1
+                        } else if m.dm.chunks[slotValue!] != nil {
                             chunk!.setSlot("slot\(slotindex)", value: slotValue!)
                             slotindex += 1
                         } else if slotValue! == chunk!.name {
@@ -605,160 +607,160 @@ class Parser  {
     }
     
     func parseGoalAction() -> Bool {
-        if !scanner.scanString("{", into: nil) {
-            m.addToTraceField("Missing '{' in goal-action definition.")
-            return false
-        }
-        m.scenario.goalAction = []
-        if !scanner.scanString("(", into: nil) {
-            m.addToTraceField("Missing '(' in goal-action definition")
-            return false
-        }
-        while !scanner.scanString(")", into: nil) {
-            let name = scanner.scanUpToCharactersFromSet(whitespaceNewLineParentheses)
-            if name == nil {
-                m.addToTraceField("Unexpected end of file in goal-action definition")
-                return false
-            }
-            m.scenario.goalAction.append(name!)
-        }
-        if !scanner.scanString("}", into: nil) {
-            m.addToTraceField("Missing '}' in goal-action definition.")
-            return false
-        }
-        m.addToTraceField("Defining goal-action \(m.scenario.goalAction)")
+//        if !scanner.scanString("{", into: nil) {
+//            m.addToTraceField("Missing '{' in goal-action definition.")
+//            return false
+//        }
+//        m.scenario.goalAction = []
+//        if !scanner.scanString("(", into: nil) {
+//            m.addToTraceField("Missing '(' in goal-action definition")
+//            return false
+//        }
+//        while !scanner.scanString(")", into: nil) {
+//            let name = scanner.scanUpToCharactersFromSet(whitespaceNewLineParentheses)
+//            if name == nil {
+//                m.addToTraceField("Unexpected end of file in goal-action definition")
+//                return false
+//            }
+//            m.scenario.goalAction.append(name!)
+//        }
+//        if !scanner.scanString("}", into: nil) {
+//            m.addToTraceField("Missing '}' in goal-action definition.")
+//            return false
+//        }
+//        m.addToTraceField("Defining goal-action \(m.scenario.goalAction)")
         return true
     }
     
     func parseScreen() -> Bool {
-        let name = scanner.scanUpToCharactersFromSet(whitespaceNewLineParentheses)
-        if name == nil {
-            m.addToTraceField("Missing name in screen definition")
-            return false
-        }
-        if !scanner.scanString("{", into: nil) {
-            m.addToTraceField("Missing '{' in screen \(name!) definition.")
-            return false
-        }
-        let screen = PRScreen(name: name!)
-        let topObject = PRObject(name: "card", attributes: ["card"], superObject: nil)
-        screen.object = topObject
-        while !scanner.scanString("}", into: nil) {
-            if !scanner.scanString("(", into: nil) {
-                m.addToTraceField("Missing '(' in object definition below \(name!)")
-                return false
-            }
-            if !parseObject(topObject) { return false }
-        }
-        m.scenario.screens[screen.name] = screen
-        m.addToTraceField("Adding screen \(screen.name)")
-        return true
-    }
-    
-    func parseObject(_ superObject: PRObject) -> Bool {
-        let name = scanner.scanUpToCharactersFromSet(whitespaceNewLineParentheses)
-        if name == nil {
-            m.addToTraceField("Missing name in object definition")
-            return false
-        }
-        var attributes: [String] = [name!]
-        while let attribute = scanner.scanUpToCharactersFromSet(whitespaceNewLineParentheses) {
-            attributes.append(attribute)
-        }
-        let object = PRObject(name: m.generateName(name!), attributes: attributes, superObject: superObject)
-        m.addToTraceField("Adding object \(object.name) with attributes \(object.attributes)")
-        while scanner.scanString("(", into: nil) {
-            _ = parseObject(object)
-        }
-        if !scanner.scanString(")", into: nil) {
-            m.addToTraceField("Missing ')' in object definition \(name!)")
-            return false
-        }
+//        let name = scanner.scanUpToCharactersFromSet(whitespaceNewLineParentheses)
+//        if name == nil {
+//            m.addToTraceField("Missing name in screen definition")
+//            return false
+//        }
+//        if !scanner.scanString("{", into: nil) {
+//            m.addToTraceField("Missing '{' in screen \(name!) definition.")
+//            return false
+//        }
+//        let screen = PRScreen(name: name!)
+//        let topObject = PRObject(name: "card", attributes: ["card"], superObject: nil)
+//        screen.object = topObject
+//        while !scanner.scanString("}", into: nil) {
+//            if !scanner.scanString("(", into: nil) {
+//                m.addToTraceField("Missing '(' in object definition below \(name!)")
+//                return false
+//            }
+//            if !parseObject(topObject) { return false }
+//        }
+//        m.scenario.screens[screen.name] = screen
+//        m.addToTraceField("Adding screen \(screen.name)")
+//        return true
+//    }
+//    
+//    func parseObject(_ superObject: PRObject) -> Bool {
+//        let name = scanner.scanUpToCharactersFromSet(whitespaceNewLineParentheses)
+//        if name == nil {
+//            m.addToTraceField("Missing name in object definition")
+//            return false
+//        }
+//        var attributes: [String] = [name!]
+//        while let attribute = scanner.scanUpToCharactersFromSet(whitespaceNewLineParentheses) {
+//            attributes.append(attribute)
+//        }
+//        let object = PRObject(name: m.generateName(name!), attributes: attributes, superObject: superObject)
+//        m.addToTraceField("Adding object \(object.name) with attributes \(object.attributes)")
+//        while scanner.scanString("(", into: nil) {
+//            _ = parseObject(object)
+//        }
+//        if !scanner.scanString(")", into: nil) {
+//            m.addToTraceField("Missing ')' in object definition \(name!)")
+//            return false
+//        }
         return true
     }
     
     func parseTransition() -> Bool {
-        let parenthesis1 = scanner.scanString("(", into: nil)
-        let screen1 = scanner.scanUpToCharactersFromSet(whiteSpaceNewLineParenthesesEqual)
-        let comma = scanner.scanString(",", into: nil)
-        let screen2 = scanner.scanUpToCharactersFromSet(whiteSpaceNewLineParenthesesEqual)
-        let parenthesis2 = scanner.scanString(")", into: nil)
-        let equalSign = scanner.scanString("=", into: nil)
-        let transType = scanner.scanUpToCharactersFromSet(whitespaceNewLineParentheses)
-        let parenthesis3 = scanner.scanString("(", into: nil)
-        if !parenthesis1 || !parenthesis2 || !comma || !parenthesis3 || !equalSign || screen1 == nil || screen2 == nil || transType == nil {
-            m.addToTraceField("Illegal transition syntax")
-            return false
-        }
-        let sourceScreen = m.scenario.screens[screen1!]
-        let destinationScreen = m.scenario.screens[screen2!]
-        if sourceScreen == nil || destinationScreen == nil {
-            m.addToTraceField("Either \(screen1!) or \(screen2!) is undeclared")
-            return false
-        }
-        switch transType! {
-            case "absolute-time":
-            let time = scanner.scanDouble()
-            if time == nil {
-                m.addToTraceField("Missing Double after absolute-time")
-                return false
-            }
-            sourceScreen!.timeTransition = time!
-            sourceScreen!.timeTarget = destinationScreen!
-            sourceScreen!.timeAbsolute = true
-            case "relative-time":
-                let time = scanner.scanDouble()
-                if time == nil {
-                    m.addToTraceField("Missing Double after relative-time")
-                    return false
-                }
-                sourceScreen!.timeTransition = time!
-                sourceScreen!.timeTarget = destinationScreen!
-                sourceScreen!.timeAbsolute = false
-            case "action":
-            let action = scanner.scanUpToCharactersFromSet(whiteSpaceNewLineParenthesesEqual)
-            if action == nil {
-                m.addToTraceField("Missing action in transition")
-                return false
-            }
-            sourceScreen!.transitions[action!] = destinationScreen!
-        default:
-            m.addToTraceField("Unknown transition type \(transType!)")
-            return false
-        }
-        scanner.scanString(")", into: nil)
-        m.addToTraceField("Defining transition between \(screen1!) and \(screen2!)")
+//        let parenthesis1 = scanner.scanString("(", into: nil)
+//        let screen1 = scanner.scanUpToCharactersFromSet(whiteSpaceNewLineParenthesesEqual)
+//        let comma = scanner.scanString(",", into: nil)
+//        let screen2 = scanner.scanUpToCharactersFromSet(whiteSpaceNewLineParenthesesEqual)
+//        let parenthesis2 = scanner.scanString(")", into: nil)
+//        let equalSign = scanner.scanString("=", into: nil)
+//        let transType = scanner.scanUpToCharactersFromSet(whitespaceNewLineParentheses)
+//        let parenthesis3 = scanner.scanString("(", into: nil)
+//        if !parenthesis1 || !parenthesis2 || !comma || !parenthesis3 || !equalSign || screen1 == nil || screen2 == nil || transType == nil {
+//            m.addToTraceField("Illegal transition syntax")
+//            return false
+//        }
+//        let sourceScreen = m.scenario.screens[screen1!]
+//        let destinationScreen = m.scenario.screens[screen2!]
+//        if sourceScreen == nil || destinationScreen == nil {
+//            m.addToTraceField("Either \(screen1!) or \(screen2!) is undeclared")
+//            return false
+//        }
+//        switch transType! {
+//            case "absolute-time":
+//            let time = scanner.scanDouble()
+//            if time == nil {
+//                m.addToTraceField("Missing Double after absolute-time")
+//                return false
+//            }
+//            sourceScreen!.timeTransition = time!
+//            sourceScreen!.timeTarget = destinationScreen!
+//            sourceScreen!.timeAbsolute = true
+//            case "relative-time":
+//                let time = scanner.scanDouble()
+//                if time == nil {
+//                    m.addToTraceField("Missing Double after relative-time")
+//                    return false
+//                }
+//                sourceScreen!.timeTransition = time!
+//                sourceScreen!.timeTarget = destinationScreen!
+//                sourceScreen!.timeAbsolute = false
+//            case "action":
+//            let action = scanner.scanUpToCharactersFromSet(whiteSpaceNewLineParenthesesEqual)
+//            if action == nil {
+//                m.addToTraceField("Missing action in transition")
+//                return false
+//            }
+//            sourceScreen!.transitions[action!] = destinationScreen!
+//        default:
+//            m.addToTraceField("Unknown transition type \(transType!)")
+//            return false
+//        }
+//        scanner.scanString(")", into: nil)
+//        m.addToTraceField("Defining transition between \(screen1!) and \(screen2!)")
         return true
     }
 
     func parseInputs() -> Bool {
-        if !scanner.scanString("{", into: nil) {
-            m.addToTraceField("Missing '{' in inputs definition.")
-            return false
-        }
-        var inputCount = 0
-        while !scanner.scanString("}", into: nil) {
-            if !scanner.scanString("(", into: nil) {
-                m.addToTraceField("Missing '(' in input definition.")
-                return false
-            }
-            var slotindex = 0
-            var mapping: [String:String] = [:]
-            while !scanner.scanString(")", into: nil) {
-                let value = scanner.scanUpToCharactersFromSet(whitespaceNewLineParentheses)
-                if value == nil {
-                    m.addToTraceField("Unexpected end of file in input defintion")
-                    return false
-                }
-                mapping["?\(slotindex)"] = value!
-                slotindex += 1
-            }
-            m.scenario.inputs["task\(inputCount)"] = mapping
-            inputCount += 1
-            m.addToTraceField("Reading input \(mapping)")
-        }
+//        if !scanner.scanString("{", into: nil) {
+//            m.addToTraceField("Missing '{' in inputs definition.")
+//            return false
+//        }
+//        var inputCount = 0
+//        while !scanner.scanString("}", into: nil) {
+//            if !scanner.scanString("(", into: nil) {
+//                m.addToTraceField("Missing '(' in input definition.")
+//                return false
+//            }
+//            var slotindex = 0
+//            var mapping: [String:String] = [:]
+//            while !scanner.scanString(")", into: nil) {
+//                let value = scanner.scanUpToCharactersFromSet(whitespaceNewLineParentheses)
+//                if value == nil {
+//                    m.addToTraceField("Unexpected end of file in input defintion")
+//                    return false
+//                }
+//                mapping["?\(slotindex)"] = value!
+//                slotindex += 1
+//            }
+//            m.scenario.inputs["task\(inputCount)"] = mapping
+//            inputCount += 1
+//            m.addToTraceField("Reading input \(mapping)")
+//        }
         return true
-
+//
     }
 
     func parseSjis() -> Bool {
