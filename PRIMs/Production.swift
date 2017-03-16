@@ -142,25 +142,26 @@ class Production: NSObject, NSCoding {
                 let inst = Instantiation(prod: self, time: model.time, u: utility)
                         return inst
             }
-        } else if op != nil {
-            for chunk in goalChecks {
-                if !chunk.inSlot(model.buffers["goal"]!) {
-//                    println("Chunk \(chunk) is not in goal")
-                    return nil
-                }
-            }
-            model.buffers["operator"] = op!.copyChunk()
-            for cd in conditions {
-                if !cd.fire(condition: true) {
-                    model.buffers["operator"] = nil
-
-                    return nil }
-            }
-            model.buffers["operator"] = nil
-            let utility = u + actrNoise(model.procedural.utilityNoise)
-            let inst = Instantiation(prod: self, time: model.time, u: utility)
-            return inst
         }
+//        else if op != nil {
+//            for chunk in goalChecks {
+//                if !chunk.inSlot(model.buffers["goal"]!) {
+////                    println("Chunk \(chunk) is not in goal")
+//                    return nil
+//                }
+//            }
+//            model.buffers["operator"] = op!.copyChunk()
+//            for cd in conditions {
+//                if !cd.fire(condition: true) {
+//                    model.buffers["operator"] = nil
+//
+//                    return nil }
+//            }
+//            model.buffers["operator"] = nil
+//            let utility = u + actrNoise(model.procedural.utilityNoise)
+//            let inst = Instantiation(prod: self, time: model.time, u: utility)
+//            return inst
+//        }
         return nil        
     }
     
@@ -172,11 +173,11 @@ class Production: NSObject, NSCoding {
             if !bc.fire(condition: true) { // println("\(bc) does not match")
                 return (false, bc) } // one of the conditions does not match
         }
-        for ac in actions {
-            if !ac.testFire() {
-                return (false, ac)
-            }
-        }
+//        for ac in actions {
+//            if !ac.testFire() {
+//                return (false, ac)
+//            }
+//        }
         if newCondition != nil {
             model.buffers["operator"]!.setSlot("condition", value: newCondition!)
         } else {

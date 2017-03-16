@@ -330,7 +330,7 @@ class Model: NSObject, NSCoding {
         formerBuffers["goal"] = buffers["goal"]?.copyLiteral()
         formerBuffers["constants"] = buffers["constants"]?.copyLiteral()
         action.initTask()
-        formerBuffers["input"] = buffers["input"]?.copyLiteral()
+        formerBuffers["input"] = buffers["input"]
         running = true
         clearTrace()
         outputData = []
@@ -348,7 +348,7 @@ class Model: NSObject, NSCoding {
         formerBuffers = [:]
         formerBuffers["goal"] = buffers["goal"]?.copyLiteral()
         formerBuffers["constants"] = buffers["constants"]?.copyLiteral()
-        formerBuffers["input"] = buffers["input"]?.copyLiteral()
+        formerBuffers["input"] = buffers["input"]
 //        outputData = []
         operators.previousOperators = []
     }

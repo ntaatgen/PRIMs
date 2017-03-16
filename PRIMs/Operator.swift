@@ -201,6 +201,7 @@ class Operator {
                     model.buffers["operator"] = toBeCheckedOperator
                     let inst = model.procedural.findMatchingProduction()
                     (match, prim) = model.procedural.fireProduction(inst, compile: false)
+                    model.buffers["imaginal"] = model.formerBuffers["imaginal"]
                     if let pr = prim {
                         if !match && !model.silent {
                             let s = "   Operator " + candidate.name + " does not match because of " + pr.name
@@ -248,6 +249,7 @@ class Operator {
         if !model.silent {
             if let opr = opRetrieved {
                 model.addToTrace("*** Retrieved operator \(opr.name) with spread \(opr.spreadingActivation())", level: 1)
+                print("*** Retrieved operator \(opr.name) with spread \(opr.spreadingActivation())")
             }
         }
         model.dm.addToFinsts(opRetrieved!)

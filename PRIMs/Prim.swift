@@ -164,6 +164,7 @@ class Prim:NSObject, NSCoding {
     - returns: a Bool to indicate success
     */
     func fire(condition: Bool) -> Bool {
+        print("Checking PRIM \(name)")
         let lhsVal = (lhsBuffer == nil) || (lhsSlot == nil) ? nil :
 //        lhsBuffer! == "operator" ? model.buffers[lhsBuffer!]?.slotValue(lhsSlot!) : model.formerBuffers[lhsBuffer!]?.slotValue(lhsSlot!)
         model.buffers[lhsBuffer!]?.slotValue(lhsSlot!)
