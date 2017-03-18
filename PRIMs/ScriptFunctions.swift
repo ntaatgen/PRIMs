@@ -30,6 +30,7 @@ fileprivate func >= <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
 
 let scriptFunctions: [String:([Factor], Model?) throws -> (result: Factor?, done: Bool)] =
 [   "screen": newSetScreen,
+    "add-visual": addVisual,
     //"screen": setScreen,
     //"nested-screen": setScreenArray,
     "random": randIntNumber,
@@ -167,17 +168,44 @@ func setScreen(_ content: [Factor], model: Model?) throws -> (result: Factor?, d
     return (nil, true)
 }
 */
+/**
+ Add a visual chunk. Assume first argument is chunkname, rest are slots
+ */
+func addVisual(_ content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool) {
+    guard content.count >= 2 else { throw RunTimeError.invalidNumberOfArguments }
+    let name = content[0].description
+    let chunk = Chunk(s: name, m: model!)
+    chunk.setSlot("isa", value: "fact")
+    for i in 1..<content.count {
+        let slotval = content[i].description
+        if slotval != "nil" {
+            chunk.setSlot("slot\(i)", value: slotval)
+        }
+    }
+    model!.action.visicon[chunk.name] = chunk
+    return (nil, true)
+}
+
+func setScreenMultiple(_ content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool) {
+    let screenName = model!.generateName("visual")
+    let screenNameFactor = Factor.str(screenName)
+    var newContent = content
+    newContent.insert(screenNameFactor, at: 0)
+    try _ = addVisual(newContent, model: model)
+    model?.buffers["input"] = model?.action.visicon[screenName]
+    return(nil, true)
+}
 
 func newSetScreen(_ content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool) {
+    if content.count > 1 { return try setScreenMultiple(content, model: model) }
     guard content.count == 1 else { throw RunTimeError.invalidNumberOfArguments }
     guard content[0].type() == "string" else { throw RunTimeError.errorInFunction("newSetScreen takes a String as argument") }
-    if let screen = model?.dm.chunks[content[0].description] {
+    if let screen = model?.action.visicon[content[0].description] {
         model?.buffers["input"] = screen
         return(nil, true)
     } else {
-        throw RunTimeError.errorInFunction("Argument tot newSetScreen does not exist")
+        throw RunTimeError.errorInFunction("Argument to newSetScreen does not exist")
     }
-        
 }
 
 /**

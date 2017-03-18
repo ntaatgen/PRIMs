@@ -47,6 +47,8 @@ class Action {
     var defaultPerceptualActionLatency = defaultPerceptionActionLatencyDefault
     /// Dictionary with actions that have a specified latency and possibly noise on that latency
     var actions: [String:ActionInstance] = [:]
+    /// Representation of the current visual screen using chunks as a representation
+    var visicon = [String:Chunk]()
     
     
     init(model: Model) {
@@ -157,7 +159,7 @@ class Action {
         }
         let oldInput = model.buffers["input"]!
         if let value = oldInput.slotvals[slot] {
-            if let chunk = value.chunk() {
+            if let chunk = visicon[value.description] {
                 if slot == "slot2" {
                     chunk.parent = oldInput.parent // Slot2 is "special": it refers to the next item on the same level, so we copy the parent information
                 } else {
@@ -178,7 +180,7 @@ class Action {
      */
     func pop() -> Bool {
         if let parent = model.buffers["input"]?.parent {
-            model.buffers["input"] = model.dm.chunks[parent]!
+            model.buffers["input"] = visicon[parent]!
             return true
         } else {
             return false

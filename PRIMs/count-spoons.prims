@@ -186,7 +186,7 @@ define goal determine-attribute {
 
 }
 
-define facts {
+define visual {
     (item7 item nil nil fork)
     (item6 item item7 nil spoon)
     (item5 item item6 nil knife)
@@ -202,7 +202,7 @@ define facts {
 
 define script {
     screen("screen1")
-    set-goal("add-all",["subtask","countgoal"],["action","say"],["container","placemat"])
+    set-goal("add-all",["subtask","count-goal"],["action","say"],["container","placemat"])
     set-goal("count-goal",["item-type","item"])
     set-goal("determine-attribute",["target","spoon"])
 //    set-goal("do-task",["task","add-all"],["action","say"])

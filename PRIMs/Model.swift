@@ -704,6 +704,7 @@ class Model: NSObject, NSCoding {
         waitingForAction = false
         currentTaskIndex = nil
         operators.reset()
+        imaginal.reset()
         if taskNumber != nil {
             currentTaskIndex = taskNumber!
             scenario = PRScenario()

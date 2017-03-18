@@ -65,6 +65,7 @@ class Parser  {
                 case "task": if !parseTask() { return false}
                 case "goal": if !parseGoal() { return false }
                 case "facts": if !parseFacts() { return false }
+                case "visual": if !parseVisual() { return false }
                 case "screen": if !parseScreen() { return false }
                 case "inputs": if !parseInputs() { return false }
                 case "goal-action": if !parseGoalAction() { return false }
@@ -606,6 +607,46 @@ class Parser  {
         return true
     }
     
+    func parseVisual() -> Bool {
+        if !scanner.scanString("{", into: nil) {
+            m.addToTraceField("Missing '{' in visual definition.")
+            return false
+        }
+        while !scanner.scanString("}", into: nil) {
+            if !scanner.scanString("(", into: nil) {
+                m.addToTraceField("Missing '(' in visual definition.")
+                return false
+            }
+            var slotindex = 0
+            var chunk: Chunk? = nil
+            while !scanner.scanString(")", into: nil) {
+                let slotValue = scanner.scanUpToCharactersFromSet(whitespaceNewLineParentheses)
+                if slotValue == nil {
+                    m.addToTraceField("Unexpected end of file in visual definition")
+                    return false
+                }
+                if slotindex == 0 {
+                    chunk =  Chunk(s: slotValue!, m: m)
+                    chunk!.setSlot("isa", value: "fact")
+                    slotindex += 1
+                } else if  slotValue! == "nil" {
+                    slotindex += 1
+                } else  {
+                    chunk!.setSlot("slot\(slotindex)", value: slotValue!)
+                    slotindex += 1
+                }
+            }
+            if let _ = m.dm.chunks[chunk!.name] {
+                m.addToTraceField("Visual chunk \(chunk!.name) has already been defined in declarative memory, consider renaming it.")
+            }
+            m.action.visicon[chunk!.name] = chunk!
+            
+            m.addToTraceField("Defining visual chunk \(chunk!.name)")
+            chunk!.definedIn = [taskNumber]
+            }
+        return true
+    }
+
     func parseGoalAction() -> Bool {
 //        if !scanner.scanString("{", into: nil) {
 //            m.addToTraceField("Missing '{' in goal-action definition.")
