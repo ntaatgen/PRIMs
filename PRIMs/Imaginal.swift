@@ -97,7 +97,7 @@ class Imaginal {
             return false
         }
         let c = model.buffers["imaginal"]!
-        print("Imaginal push on \(c) is called with \(slot)")
+//        print("Imaginal push on \(c) is called with \(slot)")
 
         let oldImaginal = model.buffers["imaginal"]!
         if let value = oldImaginal.slotvals[slot] {
@@ -125,7 +125,7 @@ class Imaginal {
 //                print("Changed chunk \(oldImaginal.name) into \(oldWMchunk.name)")
 //            }
             newImaginal.parent = oldImaginal.name
-            print("Setting parent of \(newImaginal.name) to \(oldImaginal.name)")
+//            print("Setting parent of \(newImaginal.name) to \(oldImaginal.name)")
             model.buffers["imaginal"] = newImaginal
             return true
         }
@@ -155,7 +155,7 @@ class Imaginal {
             model.buffers["imaginal"] = parentChunk
             return true
         } else {
-            print("Parent slot is empty")
+//            print("Parent slot is empty")
             return false
         }
     }

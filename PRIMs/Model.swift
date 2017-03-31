@@ -28,7 +28,7 @@ class Model: NSObject, NSCoding {
         didSet {
             if buffers["imaginal"] != oldValue["imaginal"] {
                 let s = buffers["imaginal"]
-                print("***Imaginal buffer changed to \(s)")
+//                print("***Imaginal buffer changed to \(s)")
                 if s != nil {
                     print("parent is: \(s!.parent)")
                 }

@@ -249,7 +249,7 @@ class Operator {
         if !model.silent {
             if let opr = opRetrieved {
                 model.addToTrace("*** Retrieved operator \(opr.name) with spread \(opr.spreadingActivation())", level: 1)
-                print("*** Retrieved operator \(opr.name) with spread \(opr.spreadingActivation())")
+//                print("*** Retrieved operator \(opr.name) with spread \(opr.spreadingActivation())")
             }
         }
         model.dm.addToFinsts(opRetrieved!)

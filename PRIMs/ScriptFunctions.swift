@@ -204,7 +204,7 @@ func newSetScreen(_ content: [Factor], model: Model?) throws -> (result: Factor?
         model?.buffers["input"] = screen
         return(nil, true)
     } else {
-        throw RunTimeError.errorInFunction("Argument to newSetScreen does not exist")
+        return try setScreenMultiple(content, model: model) 
     }
 }
 
