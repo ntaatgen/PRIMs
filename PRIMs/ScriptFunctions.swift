@@ -270,7 +270,7 @@ func shuffle(_ content: [Factor], model: Model?)  throws -> (result: Factor?, do
 */
 func trialStart(_ content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool) {
     model!.startTime = model!.time
-    let dl = DataLine(eventType: "trial-start", eventParameter1: "void", eventParameter2: "void", eventParameter3: "void", inputParameters: [], time:model!.startTime)
+    let dl = DataLine(eventType: "trial-start", eventParameter1: "void", eventParameter2: "void", eventParameter3: "void", inputParameters: model!.scenario.inputMappingForTrace, time:model!.startTime)
     model!.outputData.append(dl)
     return (nil, true)
 }
@@ -291,7 +291,7 @@ func trialEnd(_ content: [Factor], model: Model?) throws -> (result: Factor?, do
 //    model!.running = false
     model!.resultAdd(model!.time - model!.startTime)
     if model!.running {
-        let dl = DataLine(eventType: "trial-end", eventParameter1: "success", eventParameter2: "void", eventParameter3: "void", inputParameters: [], time: model!.time - model!.startTime)
+        let dl = DataLine(eventType: "trial-end", eventParameter1: "success", eventParameter2: "void", eventParameter3: "void", inputParameters: model!.scenario.inputMappingForTrace, time: model!.time - model!.startTime)
         model!.outputData.append(dl)
     }
     model!.commitToTrace(false)
@@ -306,7 +306,7 @@ func dataLine(_ content: [Factor], model: Model?) throws -> (result: Factor?, do
     for i in 0...2 {
         eventParams.append(content.count > i ? content[i].description : "void")
     }
-    let dl = DataLine(eventType: "data-line", eventParameter1: eventParams[0], eventParameter2: eventParams[1], eventParameter3: eventParams[2], inputParameters: [], time: model!.time - model!.startTime)
+    let dl = DataLine(eventType: "data-line", eventParameter1: eventParams[0], eventParameter2: eventParams[1], eventParameter3: eventParams[2], inputParameters: model!.scenario.inputMappingForTrace, time: model!.time - model!.startTime)
     model!.outputData.append(dl)
     return(nil, true)
 }

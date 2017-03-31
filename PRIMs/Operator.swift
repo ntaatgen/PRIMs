@@ -100,8 +100,7 @@ class Operator {
     */
     
     /// List of chosen operators with time
-    var previousOperators: [(Chunk,Double)] = []
-    
+    var previousOperators: [(Chunk,Double)] = []     
     /**
     Update the Sji's between the current goal(s?) and the operators that have fired. Restrict to updating the goal in G1 for now.
     
@@ -120,6 +119,7 @@ class Operator {
                 }
                 operatorChunk.assocs[goalChunk!.name]!.0 += model.dm.beta * (opReward - operatorChunk.assocs[goalChunk!.name]!.0)
                 operatorChunk.assocs[goalChunk!.name]!.1 += 1
+                print("Operator \(operatorChunk.name) receives reward \(opReward)")
                 if opReward > 0 {
                     operatorChunk.addReference() // Also increase baselevel activation of the operator
                 }

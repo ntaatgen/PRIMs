@@ -9,12 +9,21 @@
 import Foundation
 
 struct DataLine {
-    var eventType: String
-    var eventParameter1: String
+    var eventType: String = "void"
+    var eventParameter1: String = "void"
     var eventParameter2: String = "void"
     var eventParameter3: String = "void"
     var inputParameters: [String] = ["void","void","void","void","void"]
     var time: Double
+
+    init(eventType: String, eventParameter1: String, eventParameter2: String, eventParameter3: String, inputParameters: [String], time: Double) {
+        self.eventType = eventType != "" ? eventType : "void"
+        self.eventParameter1 = eventParameter1 != "" ? eventParameter1 : "void"
+        self.eventParameter2 = eventParameter2 != "" ? eventParameter2 : "void"
+        self.eventParameter3 = eventParameter3 != "" ? eventParameter3 : "void"
+        self.time = time
+        self.inputParameters = inputParameters != [] ? inputParameters : ["void","void","void","void","void"]
+    }
 }
 
 class Model: NSObject, NSCoding {
@@ -30,7 +39,7 @@ class Model: NSObject, NSCoding {
                 let s = buffers["imaginal"]
 //                print("***Imaginal buffer changed to \(s)")
                 if s != nil {
-                    print("parent is: \(s!.parent)")
+//                    print("parent is: \(s!.parent)")
                 }
             }
         }
@@ -510,7 +519,7 @@ class Model: NSObject, NSCoding {
             let slot2 = result!.slotvals["slot2"]?.description
             let slot3 = result!.slotvals["slot3"]?.description
             
-            let dl = DataLine(eventType: "perception", eventParameter1: slot1 ?? "void", eventParameter2: slot2 ?? "void", eventParameter3: slot3 ?? "void", inputParameters: [], time: inputTime - startTime)
+            let dl = DataLine(eventType: "perception", eventParameter1: slot1 ?? "void", eventParameter2: slot2 ?? "void", eventParameter3: slot3 ?? "void", inputParameters: scenario.inputMappingForTrace, time: inputTime - startTime)
             outputData.append(dl)
         }
     }
@@ -553,7 +562,7 @@ class Model: NSObject, NSCoding {
                     fallingThrough = true
                     //                    procedural.issueReward(0.0)
                     operators.updateOperatorSjis(0.0)
-                    let dl = DataLine(eventType: "trial-end", eventParameter1: "fail", eventParameter2: "void", eventParameter3: "void", inputParameters: [], time: time - startTime)
+                    let dl = DataLine(eventType: "trial-end", eventParameter1: "fail", eventParameter2: "void", eventParameter3: "void", inputParameters: scenario.inputMappingForTrace, time: time - startTime)
                     outputData.append(dl)
                     return
                 } else {

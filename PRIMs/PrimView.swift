@@ -52,7 +52,7 @@ class PrimView: NSView {
     }
     
     func drawEdge(_ start: NSPoint, end: NSPoint, color: NSColor) {
-        let π = CGFloat(M_PI)
+        let π = CGFloat(Double.pi)
         var angle: CGFloat
         if start.x != end.x {
             angle = atan((end.y - start.y) / (end.x - start.x))
