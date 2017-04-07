@@ -118,6 +118,7 @@ class Imaginal {
         } else if !condition { // Create a new Chunk in the slot and then move to it
             let newImaginal = Chunk(s: model.generateName("wm"), m: model)
             newImaginal.setSlot("isa", value: "fact")
+            addChunk(chunk: newImaginal)
             oldImaginal.setSlot(slot, value: newImaginal)
             chunks[oldImaginal.name] = oldImaginal
 //            let oldWMchunk = model.dm.addOrUpdate(chunk: oldImaginal)

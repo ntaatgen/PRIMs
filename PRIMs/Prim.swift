@@ -165,9 +165,9 @@ class Prim:NSObject, NSCoding {
     */
     func fire(condition: Bool) -> Bool {
 //        print("Checking PRIM \(name)")
-        let lhsVal = (lhsBuffer == nil) || (lhsSlot == nil) ? nil :
+        let lhsVal = (lhsBuffer == nil) || (lhsSlot == nil) ? nil : model.buffers[lhsBuffer!]?.slotValue(lhsSlot!)
 //        lhsBuffer! == "operator" ? model.buffers[lhsBuffer!]?.slotValue(lhsSlot!) : model.formerBuffers[lhsBuffer!]?.slotValue(lhsSlot!)
-        model.buffers[lhsBuffer!]?.slotValue(lhsSlot!)
+        
         switch op {
         case "=":
             if rhsBuffer == nil {
@@ -186,9 +186,15 @@ class Prim:NSObject, NSCoding {
             let rhsVal = model.buffers[rhsBuffer!]?.slotValue(rhsSlot!)
             return rhsVal == nil ? false : !lhsVal!.isEqual(rhsVal!)
         case "->":
-            if lhsBuffer != nil && lhsVal == nil {
+            if lhsBuffer != nil && lhsVal == nil { // We cannot transfer nil from one slot to another
                 return false }
-            if lhsSlot == nil && model.buffers[rhsBuffer!] != nil && model.buffers[rhsBuffer!]!.slotvals[rhsSlot!] != nil {
+            if lhsSlot == nil && rhsSlot == "slot0" && rhsBuffer != nil { // Clearing a Buffer
+                model.buffers[rhsBuffer!] = nil
+                if rhsBuffer! == "imaginal" {
+                    model.imaginal.moveWMtoDM() // If the imaginal buffer is cleared we move all of WM to DM
+                }
+            }
+            if lhsSlot == nil && model.buffers[rhsBuffer!] != nil && model.buffers[rhsBuffer!]!.slotvals[rhsSlot!] != nil { // We want to put nil to replace an existing slot value
                 model.buffers[rhsBuffer!]!.slotvals[rhsSlot!] = nil
                 return true
             }
@@ -197,6 +203,9 @@ class Prim:NSObject, NSCoding {
                 let chunk = model.generateNewChunk(rhsBuffer!)
                 chunk.setSlot("isa",value: "fact")
                 model.buffers[rhsBuffer!] = chunk
+                if rhsBuffer! == "imaginal" {
+                    model.imaginal.addChunk(chunk: chunk)
+                }
             }
             if lhsVal == nil {
                 if rhsBuffer! == "imaginalN" {

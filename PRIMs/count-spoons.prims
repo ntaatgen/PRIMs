@@ -9,7 +9,7 @@ define task count-spoons {
     lf: 0.3
     ans: 0.1
     default-activation: 1.0
-    references: (container item-type count-subtask iterator-subtask action target fact-type)
+    references: (container item-type subtask subsubtask action target)
 }
 
 define facts {
@@ -38,7 +38,7 @@ define goal add-all {
         >>V3  // shift to the first container (placemat)
         overall-total -> WM1
         zero -> WM3 // that is the current total
-        >>WM4 // this should create a new chunk that is placed in WM4, and shifts focus to that chunk
+        >>WM4 // this creates a new chunk that is placed in WM4, and shifts focus to that chunk
         total-count -> WM1
         push-goal -> AC1
         subtask -> AC2
@@ -48,9 +48,6 @@ define goal add-all {
         WM1 = overall-total
         >>WM4
         WM2 <> nil
-//        >>WM2
-//        WM1 = number-fact  /// this checks whether there is a number in the result slot (not strictly necessary in this model)
-//        WM<<
     ==>
         addition-fact -> RT1
         WM2 -> RT2
@@ -102,6 +99,8 @@ define goal count-goal {
         >>V3 // shift to first item
         >>WM4 // Determine whether this is something that we need to count
         member -> WM1
+        push-goal -> AC1
+        subsubtask -> AC2
     }
 
     operator move-one-if-not-countable-and-not-last {
@@ -115,6 +114,8 @@ define goal count-goal {
         nil -> WM4
         >>WM4
         member -> WM1
+        push-goal -> AC1
+        subsubtask -> AC2
     }
 
     operator move-one-if-not-countable-and-last {
@@ -149,6 +150,8 @@ define goal count-goal {
         RT3 -> WM3
         >>WM4
         member -> WM1
+        push-goal -> AC1
+        subsubtask -> AC2
     }
 
     operator add-count-last {
@@ -187,29 +190,25 @@ define goal determine-attribute {
 }
 
 define visual {
-    (item7 item nil nil fork)
-    (item6 item item7 nil spoon)
-    (item5 item item6 nil knife)
-    (item4 item item5 nil spoon)
-    (placemat2 placemat nil item4)
-    (item3 item nil nil spoon)
-    (item2 item item3 nil knife)
-    (item1 item item2 nil fork)
-    (placemat1 placemat placemat2 item1)
     (screen1 screen nil placemat1)
+    (placemat1 placemat placemat2 item1)
+    (placemat2 placemat nil item5)
+    (item1 utensil item2 nil fork)
+    (item2 utensil item3 nil fork)
+    (item3 utensil item4 nil knife)
+    (item4 utensil nil nil spoon)
+    (item5 utensil item6 nil fork)
+    (item6 utensil item7 nil knife)
+    (item7 utensil item8 nil spoon)
+    (item8 utensil nil nil spoon)
 }
 
 
 define script {
     screen("screen1")
     set-goal("add-all",["subtask","count-goal"],["action","say"],["container","placemat"])
-    set-goal("count-goal",["item-type","item"])
+    set-goal("count-goal",["item-type","utensil"],["subsubtask","determine-attribute"])
     set-goal("determine-attribute",["target","spoon"])
-//    set-goal("do-task",["task","add-all"],["action","say"])
-//    set-goal("add-all",["subtask","countgoal"],["iterator","focus-through"])
-//    set-goal("focus-through",["item-type","placemat"])
-//    set-goal("countgoal",["iterator","focus-through-with-property"])
-//    set-goal("focus-through-with-property",["item-type","item"],["target","spoon"])
     run-until-action("say")
     issue-reward()
     trial-end()
