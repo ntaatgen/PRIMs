@@ -13,8 +13,10 @@ class Imaginal {
     var imaginalLatency = imaginalLatencyDefault
     unowned let model: Model
     /// Do we automatically move the Chunk to DM if an existing slot is modified? No more in this new version!
-    var autoClear = false
+    var autoClear = false // Now obsolete
     var chunks: [String:Chunk] = [:]
+    /// Variable that records whether an imaginal action is needed
+    var hasToDoAction: Bool = false
     init(model: Model) {
         self.model = model
     }
@@ -38,6 +40,15 @@ class Imaginal {
         imaginalLatency = Imaginal.imaginalLatencyDefault
     }
     
+    func action() -> Double {
+        hasToDoAction = false
+        if !model.silent {
+            model.addToTrace("New imaginal chunk (latency = \(imaginalLatency))", level: 2)
+        }
+        return imaginalLatency
+    }
+    
+    /*
     func action() -> Double {
         let newImaginal = model.buffers["imaginalN"]!
         model.buffers["imaginalN"] = nil
@@ -84,6 +95,7 @@ class Imaginal {
         }
         return imaginalLatency
     }
+    */
     
     /**
         Carry out a "push" action on a chunk in the Imaginal buffer. If the content of the slot is nil, a new chunk is created and place into the slot. The existing chunk is added to DM.
@@ -128,6 +140,7 @@ class Imaginal {
             newImaginal.parent = oldImaginal.name
 //            print("Setting parent of \(newImaginal.name) to \(oldImaginal.name)")
             model.buffers["imaginal"] = newImaginal
+            hasToDoAction = true
             return true
         }
         else { return false }

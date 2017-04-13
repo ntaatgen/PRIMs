@@ -478,7 +478,7 @@ class Model: NSObject, NSCoding {
             let retrievalLatency = dm.action()
             latency = max(latency, retrievalLatency)
         }
-        if buffers["imaginalN"] != nil {
+        if imaginal.hasToDoAction {
             let actionLatency = imaginal.action()
             latency = max(latency, actionLatency)
         }

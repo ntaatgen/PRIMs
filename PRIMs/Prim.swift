@@ -192,6 +192,7 @@ class Prim:NSObject, NSCoding {
                 model.buffers[rhsBuffer!] = nil
                 if rhsBuffer! == "imaginal" {
                     model.imaginal.moveWMtoDM() // If the imaginal buffer is cleared we move all of WM to DM
+                    model.imaginal.hasToDoAction = true // We have to set time aside for an imaginal action
                 }
             }
             if lhsSlot == nil && model.buffers[rhsBuffer!] != nil && model.buffers[rhsBuffer!]!.slotvals[rhsSlot!] != nil { // We want to put nil to replace an existing slot value
