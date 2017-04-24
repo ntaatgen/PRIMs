@@ -826,7 +826,7 @@
                                                         <constraints>
                                                             <constraint firstAttribute="width" constant="85" id="H5b-2v-JHK"/>
                                                         </constraints>
-                                                        <buttonCell key="cell" type="inline" title="Redisplay" bezelStyle="inline" alignment="center" borderStyle="border" inset="2" id="kQu-fb-Q4V">
+                                                        <buttonCell key="cell" type="inline" title="Reload" bezelStyle="inline" alignment="center" borderStyle="border" inset="2" id="kQu-fb-Q4V">
                                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                                             <font key="font" metaFont="smallSystemBold"/>
                                                         </buttonCell>
@@ -844,18 +844,32 @@
                                                             <action selector="allLabelsButtonPushed:" target="6hi-wd-EyU" id="Ocv-JC-iVs"/>
                                                         </connections>
                                                     </button>
+                                                    <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="FIC-Or-N3k">
+                                                        <rect key="frame" x="301" y="411" width="67" height="19"/>
+                                                        <buttonCell key="cell" type="inline" title="Redisplay" bezelStyle="inline" alignment="center" borderStyle="border" inset="2" id="8SB-n2-Nql">
+                                                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                                            <font key="font" metaFont="smallSystemBold"/>
+                                                            <connections>
+                                                                <action selector="primViewReCalculateGraph:" target="6hi-wd-EyU" id="uup-jX-49D"/>
+                                                            </connections>
+                                                        </buttonCell>
+                                                    </button>
                                                 </subviews>
                                                 <constraints>
                                                     <constraint firstItem="L2P-NB-IAd" firstAttribute="top" secondItem="Cm3-XC-3T4" secondAttribute="top" constant="20.5" id="6yI-AO-dWZ"/>
+                                                    <constraint firstItem="FIC-Or-N3k" firstAttribute="bottom" secondItem="bsY-vi-SBJ" secondAttribute="bottom" id="8IA-Ad-v4s"/>
                                                     <constraint firstItem="L2P-NB-IAd" firstAttribute="height" secondItem="bsY-vi-SBJ" secondAttribute="height" id="BDK-Tk-61D"/>
                                                     <constraint firstItem="L2P-NB-IAd" firstAttribute="bottom" secondItem="bsY-vi-SBJ" secondAttribute="bottom" id="C4h-ls-LRm"/>
                                                     <constraint firstItem="bsY-vi-SBJ" firstAttribute="leading" secondItem="L2P-NB-IAd" secondAttribute="trailing" constant="8" id="KHJ-Qu-DZR"/>
                                                     <constraint firstItem="8Ak-KY-6mN" firstAttribute="leading" secondItem="Cm3-XC-3T4" secondAttribute="leading" constant="20" symbolic="YES" id="LY3-hp-8wU"/>
                                                     <constraint firstItem="8Ak-KY-6mN" firstAttribute="top" secondItem="Cm3-XC-3T4" secondAttribute="top" constant="20" symbolic="YES" id="Ycj-rV-XO3"/>
                                                     <constraint firstItem="6gp-bu-1N3" firstAttribute="top" secondItem="8Ak-KY-6mN" secondAttribute="bottom" constant="6" id="Yom-wz-N8f"/>
+                                                    <constraint firstItem="FIC-Or-N3k" firstAttribute="leading" secondItem="bsY-vi-SBJ" secondAttribute="trailing" constant="8" id="cZ0-0K-PLo"/>
+                                                    <constraint firstItem="FIC-Or-N3k" firstAttribute="top" secondItem="bsY-vi-SBJ" secondAttribute="top" id="cqK-So-mtT"/>
                                                     <constraint firstItem="6gp-bu-1N3" firstAttribute="top" secondItem="L2P-NB-IAd" secondAttribute="bottom" constant="9" id="dQg-Uq-5CB"/>
                                                     <constraint firstAttribute="bottom" secondItem="6gp-bu-1N3" secondAttribute="bottom" id="ge7-Kd-XxC"/>
                                                     <constraint firstItem="L2P-NB-IAd" firstAttribute="leading" secondItem="8Ak-KY-6mN" secondAttribute="trailing" constant="8" symbolic="YES" id="kTO-Vh-Id5"/>
+                                                    <constraint firstItem="FIC-Or-N3k" firstAttribute="width" secondItem="bsY-vi-SBJ" secondAttribute="width" id="uaO-nB-eDs"/>
                                                     <constraint firstItem="L2P-NB-IAd" firstAttribute="top" secondItem="bsY-vi-SBJ" secondAttribute="top" id="uop-ha-TJ2"/>
                                                     <constraint firstItem="6gp-bu-1N3" firstAttribute="leading" secondItem="Cm3-XC-3T4" secondAttribute="leading" id="y8q-iG-9pF"/>
                                                     <constraint firstAttribute="trailing" secondItem="6gp-bu-1N3" secondAttribute="trailing" id="yv0-w5-MzC"/>

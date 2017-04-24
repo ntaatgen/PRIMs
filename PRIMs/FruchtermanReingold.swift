@@ -22,6 +22,7 @@ class Node {
     var shortName: String
     var definedByTask: Int? = nil
     var halo = false
+    var fixed = false
     init(name: String) {
         self.name = name
         self.shortName = name
@@ -91,72 +92,75 @@ class FruchtermanReingold {
         H = newH
     }
     
-    func calculate() {
+    func calculate(randomInit: Bool) {
         DispatchQueue.global(priority: DispatchQueue.GlobalQueuePriority.low).async { () -> Void in
-        var maxRank = 0.0
-        for (_,node) in self.nodes {
-            node.x = Double(Int(arc4random_uniform(UInt32(self.W))))
-            node.y = Double(Int(arc4random_uniform(UInt32(self.H))))
-            maxRank = max(maxRank,node.rank)
-            
-        }
-        let rankStep = (self.H - 30) / (maxRank - 1)
-        for i in 0..<self.iterations {
-            let temperature = 0.1 * max(self.W,self.H) * Double(self.iterations - i)/Double(self.iterations)
-            // Calculate repulsive forces
-            for (_,node) in self.nodes {
-                node.dx = 0
-                node.dy = 0
-                for (_,node2) in self.nodes {
-                    if node !== node2 {
-                        let deltaX = node.x - node2.x
-                        let deltaY = node.y - node2.y
-                        let deltaLength = self.vectorLength(deltaX, y: deltaY)
-                        node.dx += (deltaX / deltaLength) * self.repulsionForce(deltaLength)
-                        node.dy += (deltaY / deltaLength) * self.repulsionForce(deltaLength)
+            var maxRank = 0.0
+            if randomInit {
+                for (_,node) in self.nodes {
+                    node.x = Double(Int(arc4random_uniform(UInt32(self.W))))
+                    node.y = Double(Int(arc4random_uniform(UInt32(self.H))))
+                    maxRank = max(maxRank,node.rank)
+                    
+                }
+            }
+            let rankStep = (self.H - 30) / (maxRank - 1)
+            for i in 0..<self.iterations {
+                let temperature = 0.1 * max(self.W,self.H) * Double(self.iterations - i)/Double(self.iterations)
+                // Calculate repulsive forces
+                for (_,node) in self.nodes {
+                    node.dx = 0
+                    node.dy = 0
+                    for (_,node2) in self.nodes {
+                        if node !== node2 {
+                            let deltaX = node.x - node2.x
+                            let deltaY = node.y - node2.y
+                            let deltaLength = self.vectorLength(deltaX, y: deltaY)
+                            node.dx += (deltaX / deltaLength) * self.repulsionForce(deltaLength)
+                            node.dy += (deltaY / deltaLength) * self.repulsionForce(deltaLength)
+                        }
+                    }
+                    // repulsion of walls
+                    node.dx += self.wallRepulsionMultiplier * self.repulsionForce(node.x + 1)
+                    node.dx -= self.wallRepulsionMultiplier * self.repulsionForce(self.W + 1 - node.x)
+                    node.dy += self.wallRepulsionMultiplier * self.repulsionForce(node.y + 1)
+                    
+                    node.dy -= self.wallRepulsionMultiplier * self.repulsionForce(self.H + 1 - node.y)
+                    
+                }
+                // calculate attractive forces
+                
+                for edge in self.edges {
+                    let deltaX = edge.from.x - edge.to.x
+                    let deltaY = edge.from.y - edge.to.y
+                    let deltaLength = self.vectorLength(deltaX, y: deltaY)
+                    edge.from.dx -= (deltaX / deltaLength) * self.attractionForce(deltaLength)
+                    edge.from.dy -= (deltaY / deltaLength) * self.attractionForce(deltaLength)
+                    edge.to.dx += (deltaX / deltaLength) * self.attractionForce(deltaLength)
+                    edge.to.dy += (deltaY / deltaLength) * self.attractionForce(deltaLength)
+                }
+                
+                // move the nodes
+                
+                for (_,node) in self.nodes {
+                    //                                println("\(node.name) at (\(node.x),\(node.y))")
+                    //                println("\(node.name) delta (\(node.dx),\(node.dy))")
+                    if !node.fixed {
+                        node.x += (node.dx / self.vectorLength(node.dx, y: node.dy)) * min(abs(node.dx), temperature)
+                        node.y += (node.dy / self.vectorLength(node.dx, y: node.dy)) * min(abs(node.dy), temperature)
+                        node.x = min(self.W, max(0, node.x))
+                        node.y = min(self.H, max(0, node.y))
+                        //                println("\(node.name) at (\(node.x),\(node.y))")
+                        if node.rank > 0.1 {
+                            node.y = rankStep * (node.rank - 1)
+                            //                    let midY = rankStep * (node.rank - 1)
+                            //                    node.y = min(midY + 0.3 * rankStep, max( midY - 0.3 * rankStep, node.y))
+                        }
                     }
                 }
-                // repulsion of walls
-                node.dx += self.wallRepulsionMultiplier * self.repulsionForce(node.x + 1)
-                node.dx -= self.wallRepulsionMultiplier * self.repulsionForce(self.W + 1 - node.x)
-                node.dy += self.wallRepulsionMultiplier * self.repulsionForce(node.y + 1)
-
-                node.dy -= self.wallRepulsionMultiplier * self.repulsionForce(self.H + 1 - node.y)
-                
-            }
-            // calculate attractive forces
-            
-            for edge in self.edges {
-                let deltaX = edge.from.x - edge.to.x
-                let deltaY = edge.from.y - edge.to.y
-                let deltaLength = self.vectorLength(deltaX, y: deltaY)
-                edge.from.dx -= (deltaX / deltaLength) * self.attractionForce(deltaLength)
-                edge.from.dy -= (deltaY / deltaLength) * self.attractionForce(deltaLength)
-                edge.to.dx += (deltaX / deltaLength) * self.attractionForce(deltaLength)
-                edge.to.dy += (deltaY / deltaLength) * self.attractionForce(deltaLength)
-            }
-            
-            // move the nodes
-            
-            for (_,node) in self.nodes {
-//                                println("\(node.name) at (\(node.x),\(node.y))")
-//                println("\(node.name) delta (\(node.dx),\(node.dy))")
-
-                node.x += (node.dx / self.vectorLength(node.dx, y: node.dy)) * min(abs(node.dx), temperature)
-                node.y += (node.dy / self.vectorLength(node.dx, y: node.dy)) * min(abs(node.dy), temperature)
-                node.x = min(self.W, max(0, node.x))
-                node.y = min(self.H, max(0, node.y))
-//                println("\(node.name) at (\(node.x),\(node.y))")
-                if node.rank > 0.1 {
-                    node.y = rankStep * (node.rank - 1)
-//                    let midY = rankStep * (node.rank - 1)
-//                    node.y = min(midY + 0.3 * rankStep, max( midY - 0.3 * rankStep, node.y))
+                DispatchQueue.main.async {
+                    NotificationCenter.default.post(name: Notification.Name(rawValue: "UpdatePrimGraph"), object: nil)
                 }
-            }
-            DispatchQueue.main.async {
-                NotificationCenter.default.post(name: Notification.Name(rawValue: "UpdatePrimGraph"), object: nil)
-            }
-            
+                
             }
             
         }

@@ -168,8 +168,15 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
             case "Declarative": primGraphData!.setUpDMGraph(model)
         default: break // Shouldn't happen
         }
-        primGraphData!.calculate()
+        primGraphData!.calculate(randomInit: true)
     }
+    
+    @IBAction func primViewReCalculateGraph(_ sender: NSButtonCell) {
+        guard primGraphData != nil else { return }
+        primGraphData!.calculate(randomInit: false)
+        primGraph.needsDisplay = true
+    }
+    
     
     func primViewNumberOfVertices(_ sender: PrimView) -> Int {
         if primGraphData == nil {
@@ -296,6 +303,9 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
         switch sender.state {
         case .began:
             nodeToBeMoved = primGraphData!.findClosest(Double(location.x) - border, y: Double(location.y) - border)
+            if nodeToBeMoved != nil {
+                nodeToBeMoved!.fixed = true
+            }
         case .ended:
             nodeToBeMoved = nil
         default: break
