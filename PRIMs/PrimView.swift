@@ -34,7 +34,7 @@ class PrimView: NSView {
     var arrowSize: CGFloat = 6
     weak var dataSource: PrimViewDataSource!
     
-    func drawVertex(_ x: CGFloat, y: CGFloat, fillColor: NSColor, lineWidth: CGFloat, halo: Bool, rectangle: Bool) {
+    func drawVertex(_ x: CGFloat, y: CGFloat, fillColor: NSColor, lineWidth: CGFloat, halo: Bool, rectangle: Bool, triangle: Bool) {
         if halo {
             let rect = NSRect(x: x - haloSize, y: y - haloSize, width: haloSize * 2, height: haloSize * 2)
             let path = NSBezierPath(ovalIn: rect)
@@ -43,7 +43,23 @@ class PrimView: NSView {
             path.fill()
         }
         let rect = NSRect(x: x - vertexSize, y: y - vertexSize, width: vertexSize * 2, height: vertexSize * 2)
-        let path =  rectangle ? NSBezierPath(rect: rect) : NSBezierPath(ovalIn: rect)
+        var path: NSBezierPath
+        if rectangle {
+            path = NSBezierPath(rect: rect)
+        } else if triangle {
+            path = NSBezierPath()
+            let sin30 = CGFloat(sin(Double.pi/6) * Double(vertexSize))
+            let cos30 = CGFloat(cos(Double.pi/6) * Double(vertexSize))
+            path.move(to: NSPoint(x: x, y: y + vertexSize))
+            path.line(to: NSPoint(x: x + cos30, y: y + sin30))
+            path.line(to: NSPoint(x: x + sin30, y: y - cos30))
+            path.line(to: NSPoint(x: x - sin30, y: y - cos30))
+            path.line(to: NSPoint(x: x - cos30, y: y + sin30))
+
+            path.close()
+        } else {
+            path =  NSBezierPath(ovalIn: rect)
+        }
         path.lineWidth = lineWidth
         NSColor.black.set()
         path.stroke()
@@ -96,7 +112,7 @@ class PrimView: NSView {
         for i in 0..<numNodes {
             let (x,y) = dataSource.primViewVertexCoordinates(self, index: i)
             let lw = dataSource.primViewVertexBroad(self, index: i) ? broadLineWidth : lineWidth
-            drawVertex(CGFloat(x), y: CGFloat(y), fillColor: dataSource.primViewVertexColor(self, index: i),lineWidth: lw, halo: dataSource.primViewVertexHalo(self, index: i), rectangle: dataSource.primViewVertextIsRectangle(self, index: i))
+            drawVertex(CGFloat(x), y: CGFloat(y), fillColor: dataSource.primViewVertexColor(self, index: i),lineWidth: lw, halo: dataSource.primViewVertexHalo(self, index: i), rectangle: dataSource.primViewVertextIsRectangle(self, index: i), triangle: dataSource.primViewVertexBroad(self, index: i))
         }
         for i in 0..<numNodes {
             if let nodeLabel = dataSource.primViewVisibleLabel(self, index: i) {
