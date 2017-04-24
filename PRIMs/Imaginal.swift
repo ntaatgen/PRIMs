@@ -108,8 +108,6 @@ class Imaginal {
         if model.buffers["imaginal"] == nil {
             return false
         }
-        let c = model.buffers["imaginal"]!
-//        print("Imaginal push on \(c) is called with \(slot)")
 
         let oldImaginal = model.buffers["imaginal"]!
         if let value = oldImaginal.slotvals[slot] {

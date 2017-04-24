@@ -353,7 +353,8 @@ class Parser  {
         while !scanner.scanString("}", into: nil) {
             op = scanner.scanUpToCharactersFromSet(whitespaceNewLineParentheses)
             if op == nil || op! != "operator" {
-                m.addToTraceField("Can only handle operator declarations within a goal definition, but found \(op)")
+                let eof = "eof"
+                m.addToTraceField("Can only handle operator declarations within a goal definition, but found \(op ?? eof)")
                 return false
             }
             if !parseOperator(goalName!) { return false }

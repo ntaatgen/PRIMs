@@ -106,7 +106,8 @@ class ForClause: CustomStringConvertible {
         self.endExpression = endExpression
     }
     var description: String {
-        return "for \(loopVar) in \(startExpression) to \(endExpression) do \n\(statements)"
+        let empty = "empty"
+        return "for \(loopVar) in \(startExpression) to \(endExpression != nil ? endExpression!.description : empty) do \n\(statements)"
     }
 }
 

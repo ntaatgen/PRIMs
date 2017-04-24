@@ -280,7 +280,7 @@ func trialStart(_ content: [Factor], model: Model?) throws -> (result: Factor?, 
     initialized the model for a new trial
 */
 func trialEnd(_ content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool) {
-    if let imaginalChunk = model!.buffers["imaginal"] {
+    if model!.buffers["imaginal"] != nil {
         model?.imaginal.moveWMtoDM()
 //        if let existingChunk = model?.dm.chunks[imaginalChunk.name] {
 //            _ = model!.dm.eliminateDuplicateChunkAlreadyInDM(chunk: existingChunk)
@@ -659,7 +659,7 @@ func reportMemory(_ content: [Factor], model: Model?) throws -> (result: Factor?
 /* Put the contents of the imaginal buffer in the declarative memory
  */
 func imaginalToDM(_ content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool) {
-    if let imaginalChunk = model!.buffers["imaginal"] {
+    if model!.buffers["imaginal"] != nil {
         model?.imaginal.moveWMtoDM()
 //        _ = model!.dm.addToDM(chunk: imaginalChunk)
     }

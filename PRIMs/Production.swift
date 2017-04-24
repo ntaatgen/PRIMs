@@ -15,7 +15,6 @@ class Production: NSObject, NSCoding {
 //    weak var model: Model!
     let condition: String?
     let action: String?
-    let op: Chunk?
     var newCondition: String?
     var newAction: String?
     var conditions: [Prim] = []
@@ -28,11 +27,10 @@ class Production: NSObject, NSCoding {
     override var description: String {
         get {
             var s = "(p \(name)\n"
-            s += "   Transforms condition \(condition) into \(newCondition)\n"
-            s += "   Transforms action \(action) into \(newAction)\n"
-            if op != nil {
-                s += "   Includes operator \(op!.name)\n"
-            }
+            let empty = "empty"
+            s += "   Transforms condition \(condition ?? empty) into \(newCondition ?? empty)\n"
+            s += "   Transforms action \(action ?? empty) into \(newAction ?? empty)\n"
+
             for gc in goalChecks {
                 s += "   Checks for \(gc.name) in the goal\n"
             }
@@ -49,14 +47,13 @@ class Production: NSObject, NSCoding {
     }
     
     
-    init(name: String, model: Model, condition: String?, action: String?, op: Chunk?, parent1: Production?, parent2: Production?, taskID: Int, u: Double) {
+    init(name: String, model: Model, condition: String?, action: String?, parent1: Production?, parent2: Production?, taskID: Int, u: Double) {
         self.name = name
         self.model = model
         self.condition = condition
         self.action = action
         self.newCondition = condition
         self.newAction = action
-        self.op = op
         self.u = u
         if parent1 == nil || parent1!.name.hasPrefix("t") {
             self.parent1 = nil
@@ -76,7 +73,6 @@ class Production: NSObject, NSCoding {
             let name = aDecoder.decodeObject(forKey: "name") as? String,
         let condition = aDecoder.decodeObject(forKey: "condition") as? String?,
         let action = aDecoder.decodeObject(forKey: "action") as? String?,
-        let op = aDecoder.decodeObject(forKey: "op") as? Chunk?,
         let parent1 = aDecoder.decodeObject(forKey: "parent1") as? Production?,
         let parent2 = aDecoder.decodeObject(forKey: "parent2") as? Production?,
         let fullName = aDecoder.decodeObject(forKey: "fullname") as? String?,
@@ -86,7 +82,7 @@ class Production: NSObject, NSCoding {
         let conditions = aDecoder.decodeObject(forKey: "conditions") as? [Prim],
         let actions = aDecoder.decodeObject(forKey: "actions") as? [Prim]
             else { return nil }
-        self.init(name: name, model: model, condition: condition, action: action, op: op, parent1: parent1, parent2: parent2, taskID: -3, u: aDecoder.decodeDouble(forKey: "utility"))
+        self.init(name: name, model: model, condition: condition, action: action, parent1: parent1, parent2: parent2, taskID: -3, u: aDecoder.decodeDouble(forKey: "utility"))
         self.fullName = fullName
         self.newCondition = newCondition
         self.newAction = newAction
@@ -100,7 +96,6 @@ class Production: NSObject, NSCoding {
         coder.encode(self.name, forKey: "name")
         coder.encode(self.condition ?? "nil", forKey: "condition")
         coder.encode(self.action ?? "nil", forKey: "action")
-        coder.encode(self.op, forKey: "op")
         coder.encode(self.parent1, forKey: "parent1")
         coder.encode(self.parent2, forKey: "parent2")
         coder.encodeCInt(Int32(self.taskID), forKey: "taskID")
@@ -166,9 +161,7 @@ class Production: NSObject, NSCoding {
     }
     
     func testFire() -> (Bool, Prim?) {
-        if op != nil {
-            model.buffers["operator"] = op!.copyChunk()
-        }
+
         for bc in conditions {
             if !bc.fire(condition: true) { // println("\(bc) does not match")
                 return (false, bc) } // one of the conditions does not match
