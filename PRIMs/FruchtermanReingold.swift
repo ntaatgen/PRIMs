@@ -93,7 +93,7 @@ class FruchtermanReingold {
     }
     
     func calculate(randomInit: Bool) {
-        DispatchQueue.global(priority: DispatchQueue.GlobalQueuePriority.low).async { () -> Void in
+        DispatchQueue.global().async { () -> Void in
             var maxRank = 0.0
             if randomInit {
                 for (_,node) in self.nodes {

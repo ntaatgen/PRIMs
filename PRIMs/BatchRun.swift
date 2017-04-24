@@ -32,7 +32,7 @@ class BatchRun {
     
     func runScript() {
         mainModel.clearTrace()
-        DispatchQueue.global(priority: DispatchQueue.GlobalQueuePriority.low).async { () -> Void in
+        DispatchQueue.global().async { () -> Void in
 
         var scanner = Scanner(string: self.batchScript)
         let whiteSpaceAndNL = CharacterSet.whitespacesAndNewlines
@@ -138,7 +138,7 @@ class BatchRun {
                                     fileHandle.closeFile()
                                 } catch let error as NSError {
                                     err = error
-                                    self.mainModel.addToTraceField("Can't open fileHandle \(err)")
+                                    self.mainModel.addToTraceField("Can't open fileHandle \(err!)")
                                 }
                             }
                             // Trace File
@@ -152,7 +152,7 @@ class BatchRun {
                                     fileHandle.closeFile()
                                 } catch let error as NSError {
                                     err = error
-                                    self.mainModel.addToTraceField("Can't open trace fileHandle \(err)")
+                                    self.mainModel.addToTraceField("Can't open trace fileHandle \(err!)")
                                 }
                             }
                         } else {
@@ -163,14 +163,14 @@ class BatchRun {
                                 try output.write(to: self.outputFileName, atomically: false, encoding: String.Encoding.utf8)
                             } catch let error as NSError {
                                 err = error
-                                self.mainModel.addToTraceField("Can't write datafile \(err)")
+                                self.mainModel.addToTraceField("Can't write datafile \(err!)")
                             }
                             // Trace file
                             do {
                                 try traceOutput.write(to: self.traceFileName, atomically: false, encoding: String.Encoding.utf8)
                             } catch let error as NSError {
                                 err = error
-                                self.mainModel.addToTraceField("Can't write tracefile \(err)")
+                                self.mainModel.addToTraceField("Can't write tracefile \(err!)")
                             }
                         }
                     }
