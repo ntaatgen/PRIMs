@@ -162,7 +162,8 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
         primGraphData = FruchtermanReingold(W: Double(sender.bounds.width) - 3 * border, H: Double(sender.bounds.height) - 3 * border)
         let graphType = popUpMenu.selectedItem!.title
         switch graphType {
-            case "PRIMs": primGraphData!.setUpGraph(model)
+            case "Tasks": primGraphData!.setUpGraph(model, level: 1)
+            case "PRIMs": primGraphData!.setUpGraph(model, level: 2)
             case "Productions": primGraphData!.setUpLearnGraph(model)
             case "Declarative": primGraphData!.setUpDMGraph(model)
         default: break // Shouldn't happen
@@ -249,6 +250,12 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
     func primViewEdgeColor(_ sender: PrimView, index: Int) -> NSColor {
         guard primGraphData != nil else { return NSColor.black }
         return primGraphData!.edges[index].learned ? NSColor.red : NSColor.black
+    }
+    
+    func primViewVertextIsRectangle(_ sender: PrimView, index: Int) -> Bool {
+        guard primGraphData != nil else { return false }
+        let key = primGraphData!.keys[index]
+        return primGraphData!.nodes[key]!.mainTaskNode
     }
     
     @IBOutlet weak var allLabelsButton: NSButton!
@@ -629,7 +636,6 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
         primGraph.needsDisplay = true
         updateAllViews()
     }
-    @IBOutlet weak var batchProgressBar: NSProgressIndicator!
     
     var batchRunner: BatchRun? = nil
     
@@ -665,15 +671,10 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
 //        print("Loading script \(fileDialog.URL!) to output to \(saveDialog.URL!)")
         batchRunner = BatchRun(script: batchScript, mainModel: model, outputFile: saveDialog.url!, controller: self, directory: directory!)
 //        model.tracing = false
-        batchProgressBar.doubleValue = 0
-        batchProgressBar.isHidden = false
         outputText.isHidden = true
         outputText.needsDisplay = true
-        batchProgressBar.needsDisplay = true
-        batchProgressBar.displayIfNeeded()
 //        model.tracing = false
         batchRunner!.runScript()
-        batchProgressBar.isHidden = true
         outputText.isHidden = false
         outputText.needsDisplay = true
 //        model.tracing = true
@@ -712,17 +713,10 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
         NSKeyedArchiver.archiveRootObject(model, toFile: saveDialog.url!.path)
     }
     
-    func updateProgressBar() {
-        batchProgressBar.doubleValue = batchRunner!.progress
-        batchProgressBar.needsDisplay = true
-        batchProgressBar.displayIfNeeded()
-
-    }
  
     override func viewDidLoad() {
         super.viewDidLoad()
         NotificationCenter.default.addObserver(self, selector: #selector(MainViewController.updatePrimGraph), name: NSNotification.Name(rawValue: "UpdatePrimGraph"), object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(MainViewController.updateProgressBar), name: NSNotification.Name(rawValue: "progress"), object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(MainViewController.respondToOpenFile(_:)), name: NSNotification.Name(rawValue: "openFile"), object: nil)
         
     }

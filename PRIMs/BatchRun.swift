@@ -16,7 +16,6 @@ class BatchRun {
     unowned let mainModel: Model
     unowned let controller: MainViewController
     let directory: URL
-    var progress: Double = 0.0
     var traceFileName: URL
     
     init(script: String, mainModel: Model, outputFile: URL, controller: MainViewController, directory: URL) {
@@ -222,13 +221,6 @@ class BatchRun {
             DispatchQueue.main.async {
                 self.controller.updateAllViews()
             }
-            self.progress = 100 * (Double(i) + 1) / Double(numberOfRepeats!)
-            DispatchQueue.main.async {
-                NotificationCenter.default.post(name: Notification.Name(rawValue: "progress"),object: nil)
-            }
-            }
-            DispatchQueue.main.async {
-                NotificationCenter.default.post(name: Notification.Name(rawValue: "progress"),object: nil)
             }
         }
 

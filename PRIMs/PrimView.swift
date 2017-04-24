@@ -21,7 +21,7 @@ protocol PrimViewDataSource: class {
     func primViewVisibleLabel(_ sender: PrimView, index: Int) -> String?
     func primViewVertexHalo(_ sender: PrimView, index: Int) -> Bool
     func primViewEdgeColor(_ sender: PrimView, index: Int) -> NSColor
-
+    func primViewVertextIsRectangle(_ sender: PrimView, index: Int) -> Bool
 }
 
 class PrimView: NSView {
@@ -34,7 +34,7 @@ class PrimView: NSView {
     var arrowSize: CGFloat = 6
     weak var dataSource: PrimViewDataSource!
     
-    func drawVertex(_ x: CGFloat, y: CGFloat, fillColor: NSColor, lineWidth: CGFloat, halo: Bool) {
+    func drawVertex(_ x: CGFloat, y: CGFloat, fillColor: NSColor, lineWidth: CGFloat, halo: Bool, rectangle: Bool) {
         if halo {
             let rect = NSRect(x: x - haloSize, y: y - haloSize, width: haloSize * 2, height: haloSize * 2)
             let path = NSBezierPath(ovalIn: rect)
@@ -43,7 +43,7 @@ class PrimView: NSView {
             path.fill()
         }
         let rect = NSRect(x: x - vertexSize, y: y - vertexSize, width: vertexSize * 2, height: vertexSize * 2)
-        let path = NSBezierPath(ovalIn: rect)
+        let path =  rectangle ? NSBezierPath(rect: rect) : NSBezierPath(ovalIn: rect)
         path.lineWidth = lineWidth
         NSColor.black.set()
         path.stroke()
@@ -96,7 +96,7 @@ class PrimView: NSView {
         for i in 0..<numNodes {
             let (x,y) = dataSource.primViewVertexCoordinates(self, index: i)
             let lw = dataSource.primViewVertexBroad(self, index: i) ? broadLineWidth : lineWidth
-            drawVertex(CGFloat(x), y: CGFloat(y), fillColor: dataSource.primViewVertexColor(self, index: i),lineWidth: lw, halo: dataSource.primViewVertexHalo(self, index: i))
+            drawVertex(CGFloat(x), y: CGFloat(y), fillColor: dataSource.primViewVertexColor(self, index: i),lineWidth: lw, halo: dataSource.primViewVertexHalo(self, index: i), rectangle: dataSource.primViewVertextIsRectangle(self, index: i))
         }
         for i in 0..<numNodes {
             if let nodeLabel = dataSource.primViewVisibleLabel(self, index: i) {

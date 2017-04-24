@@ -17,6 +17,7 @@ class Node {
     var taskNumber: Int = -2 // White node
     var rank = 0.0
     var taskNode = false
+    var mainTaskNode = false
     var labelVisible = false
     var shortName: String
     var definedByTask: Int? = nil
@@ -182,17 +183,50 @@ class FruchtermanReingold {
     }
     
     
-    func setUpGraph(_ model: Model) {
+    func setUpGraph(_ model: Model, level: Int) {
         nodes = [:]
         edges = []
         constantC = 0.3
+        if level < 2 {
+            for i in 0..<model.tasks.count {
+                let task = model.tasks[i]
+                if task.loaded {
+                    let newNode = Node(name: task.name + "T")
+                    newNode.shortName = task.name
+                    newNode.definedByTask = i
+                    newNode.taskNumber = i
+                    newNode.labelVisible = true
+                    newNode.taskNode = true
+                    newNode.mainTaskNode = true
+                    nodes[task.name + "T"] = newNode
+                }
+            }
+        }
+        for (_,chunk) in model.dm.chunks {
+            if let type = chunk.slotvals["isa"], type.description  == "goaltype" {
+                let newNode = Node(name: chunk.name)
+                newNode.shortName = chunk.name
+                newNode.definedByTask = chunk.definedIn[0]
+                newNode.labelVisible = true
+                newNode.taskNode = true
+                newNode.taskNumber = chunk.definedIn[0]
+                nodes[chunk.name] = newNode
+                if level < 2 {
+                    for task in chunk.definedIn {
+                        let newEdge = Edge(from: nodes[model.tasks[task].name + "T"]!, to: newNode)
+                        edges.append(newEdge)
+                    }
+                }
+            }
+        }
+        if level == 0 { return }
         for (_,chunk) in model.dm.chunks {
             if let type = chunk.slotvals["isa"] {
                 if type.description == "operator" {
                     var conditionList = chunk.slotvals["condition"]!.description.components(separatedBy: ";")
                     var currentName = ""
                     var currentNode: Node? = nil
-                    while !conditionList.isEmpty {
+                    while level > 1 && !conditionList.isEmpty {
                         let lastItem = conditionList.removeLast()
                         currentName = currentName == "" ? lastItem : lastItem + ";" + currentName
                         if let node = nodes[currentName] {
@@ -259,38 +293,41 @@ class FruchtermanReingold {
 //                        let taskEdge = Edge(from: taskNode, to: operatorNode)
 //                        edges.append(taskEdge)
 //                    }
-                    let operatorEdge = Edge(from: operatorNode, to: currentNode!)
-                    edges.append(operatorEdge)
-                    var actionList = chunk.slotvals["action"]!.description.components(separatedBy: ";")
-                    currentName = ""
-                    currentNode = nil
-                    while !actionList.isEmpty {
-                        let lastItem = actionList.removeLast()
-                        currentName = currentName == "" ? lastItem : lastItem + ";" + currentName
-                        if let node = nodes[currentName] {
-                            currentNode = node
-                            if !chunk.definedIn.isEmpty && (currentNode!.definedByTask! != chunk.definedIn[0] || chunk.definedIn.count > 1) {
-                                currentNode!.halo = true
-                            }
-                        } else {
-                            let newNode = Node(name: currentName)
-                            newNode.shortName = lastItem
-                            newNode.definedByTask = chunk.definedIn.isEmpty ? -3 : chunk.definedIn[0]
-                            newNode.taskNumber = -1
-                            if (chunk.definedIn.count > 1) {
-                                newNode.halo = true
-                            }
-                            nodes[currentName] = newNode
-                            if currentNode != nil {
-                                let newEdge = Edge(from: newNode, to: currentNode!)
-                                edges.append(newEdge)
-                            }
-                            currentNode = newNode
-                        }
+                    if currentNode != nil {
+                        let operatorEdge = Edge(from: operatorNode, to: currentNode!)
+                        edges.append(operatorEdge)
                     }
-                    let operatorActionEdge = Edge(from: operatorNode, to: currentNode!)
-                    edges.append(operatorActionEdge)
-                   
+                    if level > 1 {
+                        var actionList = chunk.slotvals["action"]!.description.components(separatedBy: ";")
+                        currentName = ""
+                        currentNode = nil
+                        while !actionList.isEmpty {
+                            let lastItem = actionList.removeLast()
+                            currentName = currentName == "" ? lastItem : lastItem + ";" + currentName
+                            if let node = nodes[currentName] {
+                                currentNode = node
+                                if !chunk.definedIn.isEmpty && (currentNode!.definedByTask! != chunk.definedIn[0] || chunk.definedIn.count > 1) {
+                                    currentNode!.halo = true
+                                }
+                            } else {
+                                let newNode = Node(name: currentName)
+                                newNode.shortName = lastItem
+                                newNode.definedByTask = chunk.definedIn.isEmpty ? -3 : chunk.definedIn[0]
+                                newNode.taskNumber = -1
+                                if (chunk.definedIn.count > 1) {
+                                    newNode.halo = true
+                                }
+                                nodes[currentName] = newNode
+                                if currentNode != nil {
+                                    let newEdge = Edge(from: newNode, to: currentNode!)
+                                    edges.append(newEdge)
+                                }
+                                currentNode = newNode
+                            }
+                        }
+                        let operatorActionEdge = Edge(from: operatorNode, to: currentNode!)
+                        edges.append(operatorActionEdge)
+                    }
                 }
             }
         }
