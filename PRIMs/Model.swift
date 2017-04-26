@@ -524,11 +524,10 @@ class Model: NSObject, NSCoding {
         }
     }
     
-    
+    /**
+        Perform a single step (one operator). This function handles control through the script, which in turn calls the newStep function.
+    */
     func step() {
-//        if scenario.script == nil {
-//            oldStep()
-//        } else {
             if scenario.script!.scriptHasEnded()  {
                 scenario.script!.reset()
             }
@@ -536,12 +535,11 @@ class Model: NSObject, NSCoding {
                 initializeNewTrial()
             }
             scenario.script!.step(self)
-//        }
     }
     
     /**
         Run the current script and execute a single operator when there is a script.
-        This function is called from the scenario
+        This function is called from the script
     */
     func newStep() {
         dm.clearFinsts()
@@ -599,100 +597,7 @@ class Model: NSObject, NSCoding {
         doAllModuleActions()
     }
     
-    
-    /**
-    Execute a single operator by first finding one that matches, and then firing the necessary
-    productions to execute it. This version is used when there is no script
-    */
-    /*
-    func oldStep() {
-        if currentTask == nil { return }
-        if !running {
-            initializeNewTrial()
-            return
-        }
-        dm.clearFinsts()
-        var found: Bool = false
-        formerBuffers = [:]
-        formerBuffers["goal"] = buffers["goal"]?.copyLiteral()
-        formerBuffers["imaginal"] = buffers["imaginal"]?.copyLiteral()
-        formerBuffers["input"] = buffers["input"]?.copyLiteral()
-        formerBuffers["retrievalH"] = buffers["retrievalH"]?.copyLiteral()
-        formerBuffers["constants"] = buffers["constants"]?.copyLiteral()
-        commitToTrace(false)
-        repeat {
-            procedural.lastProduction = nil
-            if !operators.findOperator() {
-                if scenario.nextEventTime == nil {
-                    running = false
-//                    procedural.issueReward(0.0)
-                    operators.updateOperatorSjis(0.0)
-                    let dl = DataLine(eventType: "trial-end", eventParameter1: "fail", eventParameter2: "void", eventParameter3: "void", inputParameters: scenario.inputMappingForTrace, time: time - startTime)
-                    outputData.append(dl)
-                    return
-                } else {
-                    time = scenario.nextEventTime!
-                    scenario.makeTimeTransition(self)
-                    logInput(time)
-                    return
-                }
-            }
-            found = operators.carryOutProductionsUntilOperatorDone()
-            if !found {
-                let op = buffers["operator"]!
-                if !silent {
-                    addToTrace("Operator \(op.name) failed", level: 2)
-                }
-                commitToTrace(true)
-                buffers["goal"] = formerBuffers["goal"]
-                buffers["imaginal"] = formerBuffers["imaginal"]
-                buffers["input"] = formerBuffers["input"]
-                buffers["retrievalH"] = formerBuffers["retrievalH"]
-                buffers["constants"] = formerBuffers["constants"]
-                if dm.goalOperatorLearning {
-                    operators.previousOperators.removeLast()
-                }
-                procedural.clearRewardTrace()  // Don't reward productions that didn't work
-            }
-        } while !found
-        procedural.issueReward(procedural.proceduralReward) // Have to make this into a setable parameter
-        procedural.lastOperator = formerBuffers["operator"]
-        commitToTrace(false)
-//        let op = buffers["operator"]!.name
-        buffers["operator"] = nil
-        doAllModuleActions()
-        if scenario.nextEventTime != nil && scenario.nextEventTime! - 0.001 <= time {
-            let retainTime = scenario.nextEventTime!
-            scenario.makeTimeTransition(self)
-            logInput(retainTime)
-        }
-        // We are done if the current action is the goal action, or there is no goal action and slot1 in the goal is set to stop
-        if testGoalAction() || (scenario.goalAction.isEmpty && buffers["goal"]?.slotvals["slot1"] != nil && buffers["goal"]!.slotvals["slot1"]!.description == "stop")  {
-//            procedural.issueReward(40.0)
-            operators.updateOperatorSjis(reward)
-            if let imaginalChunk = buffers["imaginal"] {
-                dm.addToDM(imaginalChunk)
-            }
-            running = false
-            resultAdd(time - startTime)
-            let dl = DataLine(eventType: "trial-end", eventParameter1: "success", eventParameter2: "void", eventParameter3: "void", inputParameters: scenario.inputMappingForTrace, time: time - startTime)
-            outputData.append(dl)
-        } else {
-            // Otherwise, we are also done if slot1 in the goal is set to stop and time runs out, but then there is no reward
-            let maxTime = reward == 0.0 ? timeThreshold : reward
-            if time - startTime > maxTime || (buffers["goal"]?.slotvals["slot1"] != nil && buffers["goal"]!.slotvals["slot1"]!.description == "stop") {
-//                procedural.issueReward(0.0)
-                operators.updateOperatorSjis(0.0)
-                running = false
-                resultAdd(time - startTime)
-                let dl = DataLine(eventType: "trial-end", eventParameter1: "fail", eventParameter2: "void", eventParameter3: "void", inputParameters: scenario.inputMappingForTrace, time: time - startTime)
-                outputData.append(dl)
-            }
-        }
-        
-    }
-    */
-    
+ 
     func run() {
         if currentTask == nil { return }
         if !running { step() }
