@@ -94,6 +94,9 @@ class Model: NSObject, NSCoding {
         var maxX = 0.0
         var maxY = 0.0
         var currentTrial = 1.0
+        var customPoints = false
+        var averageWindow = 1
+        var graphTitle: String? = nil
         func resultAdd(_ y:Double) {
             if silent { return }
             let x = currentTrial
@@ -107,6 +110,7 @@ class Model: NSObject, NSCoding {
                 currentTrial = 2.0
             }
             maxY = max(maxY, y)
+            customPoints = false
         }
         func newResult() {
             if silent { return }

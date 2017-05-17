@@ -44,6 +44,9 @@ let scriptFunctions: [String:([Factor], Model?) throws -> (result: Factor?, done
     "print": printArg,
     "trial-end": trialEnd,
     "trial-start": trialStart,
+    "set-average-window": setAverageWindow,
+    "plot-point": plotPoint,
+    "set-graph-title": setGraphTitle,
     "data-line": dataLine,
     "issue-reward": issueReward,
     "shuffle": shuffle,
@@ -276,6 +279,38 @@ func trialStart(_ content: [Factor], model: Model?) throws -> (result: Factor?, 
 }
 
 /**
+    Set an averaging window for plotting results (default = 1)
+ */
+
+func setAverageWindow(_ content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool) {
+    guard content.count == 1 else { throw RunTimeError.invalidNumberOfArguments }
+    if let result = content[0].intValue() {
+        model!.averageWindow = result
+    } else  { throw RunTimeError.nonNumberArgument }
+    return (nil, true)
+}
+
+
+/**
+    Plot a point in the result graph instead of the default RT
+ */
+func plotPoint(_ content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool) {
+    guard content.count == 1 else { throw RunTimeError.invalidNumberOfArguments }
+    if let result = content[0].doubleValue() {
+        model!.resultAdd(result)
+        model!.customPoints = true
+    } else { throw RunTimeError.nonNumberArgument }
+    return (nil, true)
+}
+
+func setGraphTitle(_ content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool) {
+    guard content.count == 1 else { throw RunTimeError.invalidNumberOfArguments }
+    model!.graphTitle = content[0].description
+    return (nil, true)
+}
+
+
+/**
     Ends a trial: adds a line to the data, stores the result for the graph,
     initialized the model for a new trial
 */
@@ -289,7 +324,9 @@ func trialEnd(_ content: [Factor], model: Model?) throws -> (result: Factor?, do
 //        }
     }
 //    model!.running = false
-    model!.resultAdd(model!.time - model!.startTime)
+    if !model!.customPoints {
+        model!.resultAdd(model!.time - model!.startTime)
+    }
     if model!.running {
         let dl = DataLine(eventType: "trial-end", eventParameter1: "success", eventParameter2: "void", eventParameter3: "void", inputParameters: model!.scenario.inputMappingForTrace, time: model!.time - model!.startTime)
         model!.outputData.append(dl)

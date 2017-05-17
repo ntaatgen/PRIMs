@@ -115,6 +115,7 @@ class Imaginal {
                 if chunks[chunk.name] != nil {
                 chunks[oldImaginal.name] = oldImaginal
 //                let oldWMchunk = model.dm.addOrUpdate(chunk: oldImaginal) // If the chunk in Imaginal is not yet in DM, add it.
+                    oldImaginal.addReference()
                 chunk.parent = oldImaginal.name
                 print("Setting parent of \(chunk.name) to \(oldImaginal.name)")
                 model.buffers["imaginal"] = chunk
@@ -128,9 +129,11 @@ class Imaginal {
         } else if !condition { // Create a new Chunk in the slot and then move to it
             let newImaginal = Chunk(s: model.generateName("wm"), m: model)
             newImaginal.setSlot("isa", value: "fact")
+            newImaginal.startTime()
             addChunk(chunk: newImaginal)
             oldImaginal.setSlot(slot, value: newImaginal)
             chunks[oldImaginal.name] = oldImaginal
+            oldImaginal.addReference()
 //            let oldWMchunk = model.dm.addOrUpdate(chunk: oldImaginal)
 //            if oldImaginal.name != oldWMchunk.name {
 //                print("Changed chunk \(oldImaginal.name) into \(oldWMchunk.name)")
@@ -153,6 +156,7 @@ class Imaginal {
         if let parent = model.buffers["imaginal"]?.parent {
             let currentImChunk = model.buffers["imaginal"]!
             chunks[currentImChunk.name] = currentImChunk
+            currentImChunk.addReference()
 //            let imChunkInDM = model.dm.addOrUpdate(chunk: currentImChunk)
             let parentChunk = chunks[parent]!
 //            if currentImChunk.name != imChunkInDM.name {

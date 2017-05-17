@@ -217,7 +217,9 @@ class Declarative: NSObject, NSCoding  {
             }
             return dupChunk
         } else {
-            chunk.startTime()
+            if chunk.creationTime == nil {
+                chunk.startTime()
+            }
             chunks[chunk.name] = chunk
             for (_,val) in chunk.slotvals {
                 switch val {

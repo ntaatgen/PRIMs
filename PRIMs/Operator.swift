@@ -228,15 +228,15 @@ class Operator {
                             model.addToTrace(s, level: 5)
                         }
                     }
-                    
-                    if match && candidate.spreadingActivation() <= 0.0 && model.buffers["operator"]?.slotValue("condition") != nil {
-                        match = false
-                        if !model.silent {
-                            let s = "   Rejected operator " + candidate.name + " because it has no associations and no production that tests all conditions"
-                            model.addToTrace(s, level: 2)
-                        }
-                        model.buffers["operator"] = nil
-                    }
+// Temporary (?) commented out
+//                    if match && candidate.spreadingActivation() <= 0.0 && model.buffers["operator"]?.slotValue("condition") != nil {
+//                        match = false
+//                        if !model.silent {
+//                            let s = "   Rejected operator " + candidate.name + " because it has no associations and no production that tests all conditions"
+//                            model.addToTrace(s, level: 2)
+//                        }
+//                        model.buffers["operator"] = nil
+//                    }
                 } else {
                     if !model.silent {
                         let s = "   Rejected operator " + candidate.name + " because its roles do not match any goal"

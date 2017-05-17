@@ -16,6 +16,7 @@ protocol GraphViewDataSource: class {
     func graphNumberOfGraphs(_ sender: GraphView) -> Int
     func graphPointsForGraph(_ sender: GraphView, graph: Int) -> [(Double,Double)]
     func graphColorOfGraph(_ sender: GraphView, graph: Int) -> NSColor?
+    func graphTitle(_ sender: GraphView) -> String
 }
 
 class GraphView: NSView {
@@ -43,8 +44,8 @@ class GraphView: NSView {
         for (x,y) in dataSource!.graphPointsForGraph(self, graph: i) {
             let xr = CGFloat((x - minX)/(maxX - minX))
             let yr = CGFloat((y - minY)/(maxY - minY))
-            let xp = orgX + xr * (bounds.width * 0.9)
-            let yp = orgY + yr * (bounds.height * 0.9)
+            let xp = orgX + xr * (bounds.width * 0.8)
+            let yp = orgY + yr * (bounds.height * 0.8)
 //            println("x = \(xp) y = \(yp)")
             if first {
                 path.move(to: NSPoint(x: xp, y: yp))
@@ -68,19 +69,24 @@ class GraphView: NSView {
         // put the maximum Y value on the Y axis
         var s =  NSMutableAttributedString(string: String(format:"%.1f", dataSource!.graphYMax(self)!))
         s.addAttribute(NSFontAttributeName, value: NSFont.userFont(ofSize: 12.0)!, range: NSMakeRange(0, s.length))
-        s.draw(in: NSMakeRect(5, CGFloat(bounds.height) - 30 , 50, 20))
+        s.draw(in: NSMakeRect(5, 0.9 * bounds.height , 50, 20))
         // put the minimum Y value on the Y axis
         s =  NSMutableAttributedString(string: String(format:"%.1f", dataSource!.graphYMin(self)!))
         s.addAttribute(NSFontAttributeName, value: NSFont.userFont(ofSize: 12.0)!, range: NSMakeRange(0, s.length))
-        s.draw(in: NSMakeRect(5, 0.1 * CGFloat(bounds.height) + 5 , 50, 20))
+        s.draw(in: NSMakeRect(5, 0.1 * bounds.height + 5 , 50, 20))
         // put the maximum X value on the X axis
         s =  NSMutableAttributedString(string: String(format:"%.1f", dataSource!.graphXMax(self)!))
         s.addAttribute(NSFontAttributeName, value: NSFont.userFont(ofSize: 12.0)!, range: NSMakeRange(0, s.length))
-        s.draw(in: NSMakeRect(CGFloat(bounds.width) - 50, 5 , 50, 20))
+        s.draw(in: NSMakeRect(0.9 * bounds.width, 5 , 50, 20))
         // put the minumum X value on the X axis
         s =  NSMutableAttributedString(string: String(format:"%.1f", dataSource!.graphXMin(self)!))
         s.addAttribute(NSFontAttributeName, value: NSFont.userFont(ofSize: 12.0)!, range: NSMakeRange(0, s.length))
-        s.draw(in: NSMakeRect(0.1 * CGFloat(bounds.width) + 5, 5 , 50, 20))
+        s.draw(in: NSMakeRect(0.1 * bounds.width + 5, 5 , 50, 20))
+        // put a tile above the graph
+        s = NSMutableAttributedString(string: dataSource!.graphTitle(self))
+        s.addAttribute(NSFontAttributeName, value: NSFont.userFont(ofSize: 12.0)!, range: NSMakeRange(0, s.length))
+        s.setAlignment(NSTextAlignment.center, range: NSMakeRange(0, s.length))
+        s.draw(in: NSMakeRect(0.2 * bounds.width, 0.90 * bounds.height, 0.7 * bounds.width, 20))
         path.lineWidth = lineWidth
         NSColor.black.set()
         path.stroke()

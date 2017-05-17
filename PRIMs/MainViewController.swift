@@ -117,6 +117,9 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
     }
     
     func graphYMax(_ sender: GraphView) -> Double? {
+        if model.maxY <= 1 {
+            return 1
+        }
         return trunc(model.maxY/5) * 5 + 5
     }
     
@@ -131,7 +134,22 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
     }
     
     func graphPointsForGraph(_ sender: GraphView, graph: Int) -> [(Double, Double)] {
-        return model.modelResults[graph]
+        var results = model.modelResults[graph]
+        if results.count > 1 {
+            for i in 1..<results.count {
+                let index = results.count - i
+                let start = max(0,index - model.averageWindow + 1)
+                var total = 0.0
+                for j in start...index {
+                    total += results[j].1
+                }
+                results[index].1 = total / Double(index - start + 1)
+            }
+        }
+        return results    }
+    
+    func graphTitle(_ sender: GraphView) -> String {
+        return model.graphTitle ?? "Reaction time"
     }
     
     /**

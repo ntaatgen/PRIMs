@@ -7,9 +7,9 @@ define task list-recall {
   default-activation: 1.0
 }
 
+// Read the first letter and put it in WM. Store goal id in WM
 define goal read-in-memory {
   operator read-first-letter  {
-  "Read the first letter and put it in WM. Store goal id in WM"
     WM1=nil
     V1=letter
     ==>
@@ -19,14 +19,14 @@ define goal read-in-memory {
    nil->V1
   }
 
+// Read the next letter, store it in WM
   operator read-next-letter {
-  "Read the next letter, store it in WM"
     WM1<>nil
     V1=letter
     ==>
+    >>WM4
     V2->WM3
     list->WM1
-    WM0->WM2
     nil->V1
   }
 }
@@ -37,6 +37,7 @@ define goal report-vocal {
     V1=report
     RT1=nil
     ==>
+    nil -> WM0
     G0->RT2
     report->WM1
   }
@@ -44,11 +45,22 @@ define goal report-vocal {
   operator report-item {
   "Say item and retrieve next"
     V1=report
+    RT4<>nil
     ==>
     RT3->AC2
     say->AC1
-    RT0->RT2
+    RT4->RT0
   }
+
+    operator report-item-last {
+    "Say item"
+        V1=report
+        RT4=nil
+        ==>
+        RT3->AC2
+        say->AC1
+        error->RT1
+    }
 
   operator done-report {
   "On retrieval error end report"
