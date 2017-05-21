@@ -90,6 +90,13 @@
                                                 <action selector="saveImage:" target="Ady-hI-5gd" id="5dL-Hi-wuM"/>
                                             </connections>
                                         </menuItem>
+                                        <menuItem isSeparatorItem="YES" id="GIC-tD-fvx"/>
+                                        <menuItem title="Save graph as PDF..." id="C08-Fa-aCB">
+                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                            <connections>
+                                                <action selector="saveGraph:" target="Ady-hI-5gd" id="adw-ZI-0aQ"/>
+                                            </connections>
+                                        </menuItem>
                                         <menuItem isSeparatorItem="YES" id="W7M-RU-54e"/>
                                         <menuItem title="Page Setup…" keyEquivalent="P" id="qIS-W8-SiK">
                                             <modifierMask key="keyEquivalentModifierMask" shift="YES" command="YES"/>
@@ -474,7 +481,7 @@
                 </windowController>
                 <customObject id="Oky-zY-oP4" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="207" y="582"/>
+            <point key="canvasLocation" x="212" y="716"/>
         </scene>
         <!--Main View Controller-->
         <scene sceneID="RqO-DP-txW">
@@ -915,7 +922,7 @@
                                                                     </textFieldCell>
                                                                     <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                                                 </tableColumn>
-                                                                <tableColumn identifier="Utility" width="40" minWidth="40" maxWidth="1000" id="npN-mU-PFO">
+                                                                <tableColumn identifier="Utility" width="64.5" minWidth="40" maxWidth="1000" id="npN-mU-PFO">
                                                                     <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Utility">
                                                                         <font key="font" metaFont="smallSystem"/>
                                                                         <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>

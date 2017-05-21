@@ -160,10 +160,31 @@ class Operator {
     func checkOperatorGoalMatch(op: Chunk) -> Chunk? {
         guard let goalChunk = model.buffers["goal"] else { return nil }
         let opCopy = op.copyChunk()
+        var referenceList: [String:Value] = [:]
         for (_,value) in goalChunk.slotvals {  // Go through all the goals in the goal buffer
+//            print("Value is \(value.description)")
             if let chunk = value.chunk() {   // if it is a chunk
                 if chunk.type == "goaltype" {  // and it is a goal
-                    var i = 1
+                    for (slot,val) in chunk.slotvals {
+                        if let slotChunk = model.dm.chunks[slot], slotChunk.type == "reference" {
+                            referenceList[slot] = val
+                        }
+                    }
+                }
+            }
+        }
+        var i = 1
+        while let opSlotValue = opCopy.slotvals["slot\(i)"]  {
+            if opSlotValue.chunk() != nil && opSlotValue.chunk()!.type == "reference" {
+                if let subst = referenceList[opSlotValue.description] {
+                    opCopy.setSlot("slot\(i)", value: subst)
+                } else {
+                    return nil
+                }
+            }
+            i += 1
+        }
+/*                    var i = 1
                     while let opSlotValue = opCopy.slotvals["slot\(i)"]  {
                         if opSlotValue.chunk() != nil && opSlotValue.chunk()!.type == "reference" {
                             if let substitute = chunk.slotvals[opSlotValue.description] {
@@ -176,6 +197,7 @@ class Operator {
             }
         }
         // Check whether there are any references left
+        // BUG: if we replace a reference by itself, it will be considered a mismatch here
         var i = 1
         while let opSlotValue = opCopy.slotvals["slot\(i)"] {
             if opSlotValue.chunk() != nil && opSlotValue.chunk()!.type == "reference" {
@@ -183,6 +205,7 @@ class Operator {
             }
             i += 1
         }
+ */
         return opCopy
     }
     
@@ -240,7 +263,7 @@ class Operator {
                 } else {
                     if !model.silent {
                         let s = "   Rejected operator " + candidate.name + " because its roles do not match any goal"
-                        model.addToTrace(s, level: 2)
+                        model.addToTrace(s, level: 3)
                     }
                 }
             } while !match && !cfs.isEmpty && cfs[0].1 > model.dm.retrievalThreshold

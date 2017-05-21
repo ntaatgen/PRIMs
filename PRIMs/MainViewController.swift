@@ -286,7 +286,7 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
     @IBOutlet weak var allLabelsButton: NSButton!
     
     @IBAction func allLabelsButtonPushed(_ sender: NSButton) {
-        primGraph.needsDisplay = true
+         primGraph.needsDisplay = true
     }
     
     func primViewVisibleLabel(_ sender: PrimView, index: Int) -> String? {
@@ -739,6 +739,21 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
         if saveResult != NSFileHandlingPanelOKButton { return }
         if saveDialog.url == nil { return }
         NSKeyedArchiver.archiveRootObject(model, toFile: saveDialog.url!.path)
+    }
+    
+    @IBAction func saveGraph(_ sender: NSButton) {
+        let saveDialog = NSSavePanel()
+        saveDialog.title = "Enter the name of the file"
+        saveDialog.prompt = "Save"
+        saveDialog.worksWhenModal = true
+        saveDialog.allowsOtherFileTypes = false
+        saveDialog.allowedFileTypes = ["pdf"]
+        saveDialog.nameFieldStringValue = "PRIMSoutput.pdf"
+        let saveResult = saveDialog.runModal()
+        if saveResult != NSFileHandlingPanelOKButton { return }
+        if saveDialog.url == nil { return }
+        try? primGraph.dataWithPDF(inside: primGraph.bounds).write(to: saveDialog.url!)
+        
     }
     
  
