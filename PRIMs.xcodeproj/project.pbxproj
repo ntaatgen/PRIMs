@@ -28,6 +28,7 @@
 		B85FAAB81AE1582400C6F57A /* Procedural.swift in Sources */ = {isa = PBXBuildFile; fileRef = B85FAA971AE10D7500C6F57A /* Procedural.swift */; };
 		B866FCB31B67BC010084EAAE /* Operator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B866FCB21B67BC010084EAAE /* Operator.swift */; };
 		B8935EF11B13C93900E4C9E8 /* PrimsModelFileIcon.icns in Resources */ = {isa = PBXBuildFile; fileRef = B8935EF01B13C93900E4C9E8 /* PrimsModelFileIcon.icns */; };
+		B895579F1ED959BD0003E7DA /* Temporal.swift in Sources */ = {isa = PBXBuildFile; fileRef = B895579E1ED959BD0003E7DA /* Temporal.swift */; };
 		B898EA881B0F504A00B5777E /* BatchRun.swift in Sources */ = {isa = PBXBuildFile; fileRef = B898EA871B0F504A00B5777E /* BatchRun.swift */; };
 		B898EA8A1B0F5A3500B5777E /* NSScanner+Swift.swift in Sources */ = {isa = PBXBuildFile; fileRef = B898EA891B0F5A3500B5777E /* NSScanner+Swift.swift */; };
 		B8B23CDC1AED499C00307F90 /* GraphView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8B23CDB1AED499C00307F90 /* GraphView.swift */; };
@@ -78,6 +79,8 @@
 		B85FAAB31AE1326000C6F57A /* Prim.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Prim.swift; sourceTree = "<group>"; };
 		B866FCB21B67BC010084EAAE /* Operator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Operator.swift; sourceTree = "<group>"; };
 		B8935EF01B13C93900E4C9E8 /* PrimsModelFileIcon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = PrimsModelFileIcon.icns; sourceTree = "<group>"; };
+		B895579D1ED951720003E7DA /* peak-time.prims */ = {isa = PBXFileReference; lastKnownFileType = text; path = "peak-time.prims"; sourceTree = "<group>"; };
+		B895579E1ED959BD0003E7DA /* Temporal.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Temporal.swift; sourceTree = "<group>"; };
 		B898EA851B0F3C3100B5777E /* testbatch.bprims */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = testbatch.bprims; sourceTree = "<group>"; };
 		B898EA871B0F504A00B5777E /* BatchRun.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BatchRun.swift; sourceTree = "<group>"; };
 		B898EA891B0F5A3500B5777E /* NSScanner+Swift.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSScanner+Swift.swift"; sourceTree = "<group>"; };
@@ -188,6 +191,7 @@
 				B85FAAB31AE1326000C6F57A /* Prim.swift */,
 				B866FCB21B67BC010084EAAE /* Operator.swift */,
 				B8D18E0D1AEEC305007CF2B6 /* Imaginal.swift */,
+				B895579E1ED959BD0003E7DA /* Temporal.swift */,
 				B85FAA951AE10D7500C6F57A /* Chunk.swift */,
 				B85FAA961AE10D7500C6F57A /* Production.swift */,
 				B85FAA971AE10D7500C6F57A /* Procedural.swift */,
@@ -222,6 +226,7 @@
 				B8B3E4971B0F9310005E3601 /* spoons-fish.bprims */,
 				B8A971C71B455C6F00C3ABBF /* taskswitch.bprims */,
 				B8E0DCE81B3C4FE30097D90F /* stroop.bprims */,
+				B895579D1ED951720003E7DA /* peak-time.prims */,
 				B8B15FA51B46864300892AAE /* taskswitchstrooptransfer.bprims */,
 				B8B5DDC51E71486E00DDF322 /* test.prims */,
 			);
@@ -362,6 +367,7 @@
 				B85FAAA71AE10D7500C6F57A /* Declarative.swift in Sources */,
 				B806EFBC1AEFE77900633505 /* Task.swift in Sources */,
 				B8B23CDC1AED499C00307F90 /* GraphView.swift in Sources */,
+				B895579F1ED959BD0003E7DA /* Temporal.swift in Sources */,
 				B85FAA5E1AE10CAF00C6F57A /* MainViewController.swift in Sources */,
 				B85FAA5C1AE10CAF00C6F57A /* AppDelegate.swift in Sources */,
 				B85FAAB41AE1326000C6F57A /* Prim.swift in Sources */,

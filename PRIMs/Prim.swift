@@ -29,13 +29,13 @@ fileprivate func > <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
 
 
 /// Buffer mappings for buffers that can be used as source (in condition or lhs of action)
-let bufferMappingC = ["V":"input","WM":"imaginal","G":"goal","C":"operator","AC":"action","RT":"retrievalH","GC":"constants"]
+let bufferMappingC = ["V":"input","WM":"imaginal","G":"goal","C":"operator","AC":"action","RT":"retrievalH","GC":"constants","T":"temporal"]
 /// Buffer mappings for buffer that are used in the rhs of an action
-let bufferMappingA = ["V":"input","WM":"imaginal","G":"goal","C":"operator","AC":"action","RT":"retrievalR","GC":"constants"]
+let bufferMappingA = ["V":"input","WM":"imaginal","G":"goal","C":"operator","AC":"action","RT":"retrievalR","GC":"constants","T":"temporal"]
 /// Buffer mappings for push and pop
 let bufferMappingPP = ["V":"input", "WM":"imaginal","G":"goal","RT":"retrievalH"]
 /// Buffer Order determines which buffer is preferred on the left side of a PRIM (lower is left)
-let bufferOrder = ["input":1,"goal":2,"imaginal":3,"retrievalH":4,"constants":5,"operator":6]
+let bufferOrder = ["input":1,"goal":2,"imaginal":3,"retrievalH":4,"constants":5,"operator":6,"temporal":7]
 
 
 // New PRIMs to implement
@@ -176,6 +176,12 @@ class Prim:NSObject, NSCoding {
                 return false
             }
             let rhsVal = model.buffers[rhsBuffer!]?.slotValue(rhsSlot!)
+            if lhsBuffer != nil && lhsBuffer! == "temporal" && lhsSlot != nil && lhsSlot! == "slot1" {
+                return rhsVal == nil ? false : model.temporal.compareTime(compareValue: rhsVal!.number())
+            }
+            if rhsBuffer != nil && rhsBuffer! == "temporal" && rhsSlot != nil && rhsSlot! == "slot1" {
+                return lhsVal == nil ? false : model.temporal.compareTime(compareValue: lhsVal!.number())
+            }
             return rhsVal == nil ? false : lhsVal!.isEqual(rhsVal!)
         case "<>":
             if rhsBuffer == nil {

@@ -33,6 +33,7 @@ class Model: NSObject, NSCoding {
     var imaginal: Imaginal!
     var action: Action!
     var operators: Operator!
+    var temporal: Temporal!
     var buffers: [String:Chunk] = [:] {
         didSet {
             if buffers["imaginal"] != oldValue["imaginal"] {
@@ -148,6 +149,7 @@ class Model: NSObject, NSCoding {
         self.action = Action(model: self)
         self.operators = Operator(model: self)
         self.time = aDecoder.decodeDouble(forKey: "time")
+        self.temporal = Temporal(model:self)
     }
     
     convenience init(silent: Bool) {
@@ -157,6 +159,7 @@ class Model: NSObject, NSCoding {
         self.imaginal = Imaginal(model: self)
         self.action = Action(model: self)
         self.operators = Operator(model: self)
+        self.temporal = Temporal(model:self)
     }
     
     convenience init(batchMode: Bool) {
@@ -166,6 +169,7 @@ class Model: NSObject, NSCoding {
         self.imaginal = Imaginal(model: self)
         self.action = Action(model: self)
         self.operators = Operator(model: self)
+        self.temporal = Temporal(model:self)
     }
     
     func encode(with coder: NSCoder) {
@@ -451,6 +455,12 @@ class Model: NSObject, NSCoding {
                 dm.newPartialMatchingPow = numVal!
             case "new-pm-exp:":
                 dm.newPartialMatchingPow = numVal!
+            case "time-t0:":
+                temporal.timeT0 = numVal!
+            case "time-a:":
+                temporal.timeA = numVal!
+            case "time-b:":
+                temporal.timeB = numVal!
             default: return false
             }
         }
@@ -463,6 +473,7 @@ class Model: NSObject, NSCoding {
         procedural.setParametersToDefault()
         action.setParametersToDefault()
         imaginal.setParametersToDefault()
+        temporal.setParametersToDefault()
         reward = Model.rewardDefault
     }
     
@@ -491,7 +502,14 @@ class Model: NSObject, NSCoding {
             let actionLatency = action.action()
             latency = max(latency, actionLatency)
         }
+        if buffers["temporal"] != nil {
+            temporal.action()
+        }
         time += latency
+        if buffers["temporal"] != nil {
+            print("Updating timer")
+            temporal.updateTimer()
+        }
     }
     
     /**
