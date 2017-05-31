@@ -33,6 +33,7 @@ class Declarative: NSObject, NSCoding  {
     static let defaultActivationDefault: Double? = nil
     static let partialMatchingDefault = false
     static let newPartialMatchingDefault: Double? = nil
+    static let blendingDefault = false
     /// Baseleveldecay parameter (d in ACT-R)
     var baseLevelDecay: Double = baseLevelDecayDefault
     /// Optimized learning on or off
@@ -50,7 +51,7 @@ class Declarative: NSObject, NSCoding  {
     /// RT or tau parameter in ACT-R
     var retrievalThreshold: Double = retrievalThresholdDefault
     /// ans parameter in ACT-R
-    var activationNoise: Double? = activationNoiseDefault
+    var activationNoise: Double = activationNoiseDefault
     /// Operators are associated with goals, and use this value as standard Sji
     var defaultOperatorAssoc: Double = defaultOperatorAssocDefault
     /// Operators that are associated with the same goal are associated with each other with the following Sji
@@ -75,7 +76,8 @@ class Declarative: NSObject, NSCoding  {
     var retrievalReinforces = retrievalReinforcesDefault
     /// default Activation for chunks
     var defaultActivation = defaultActivationDefault
-    
+    /// Switch blending on or off
+    var blending = blendingDefault
     /// Dictionary with all the chunks in DM, maps name onto Chunk
     var chunks = [String:Chunk]()
     /// List of all the chunks that partipated in the last retrieval. Tuple has Chunk and activation value
@@ -166,6 +168,7 @@ class Declarative: NSObject, NSCoding  {
         partialMatching = Declarative.partialMatchingDefault
         newPartialMatchingPow = Declarative.newPartialMatchingDefault
         newPartialMatchingExp = Declarative.newPartialMatchingDefault
+        blending = Declarative.blendingDefault
     }
     
     func duplicateChunk(_ chunk: Chunk) -> Chunk? {
@@ -386,6 +389,60 @@ class Declarative: NSObject, NSCoding  {
             return (latency(retrievalThreshold), nil)
         }
     }
+    
+    func blendedRetrieve(chunk: Chunk) -> (Double, Chunk?) {
+        var totalExpA = 0.0
+        var bestMatch: Chunk!
+        var bestActivation: Double = retrievalThreshold
+        conflictSet = []
+        chunkloop: for (_,ch1) in chunks {
+            for (slot,value) in chunk.slotvals {
+                if let val1 = ch1.slotValue(slot)  {
+                    if !val1.isEqual(value) {
+                        continue chunkloop }
+                } else { continue chunkloop }
+            }
+            let exponentA = exp(ch1.activationWithoutNoise() / activationNoise)
+            conflictSet.append((ch1, exponentA))
+            totalExpA += exponentA
+            if ch1.activationWithoutNoise() > bestActivation {
+                bestActivation = ch1.activationWithoutNoise()
+                bestMatch = ch1
+            }
+        }
+        if conflictSet.isEmpty {
+            retrieveError = true
+            return (latency(retrievalThreshold), nil)
+        }
+        bestMatch = bestMatch.copyChunk()
+        for (slot, value) in bestMatch.slotvals {
+            if chunk.slotvals[slot] == nil { // shouldn't be part of the request
+                switch value {
+                case .Number:
+                    var result = 0.0
+                    if !model.silent {
+                        model.addToTrace("Calculating blend for slot \(slot)", level:5)
+                    }
+                    for (matchedChunk, expA) in conflictSet {
+                        if let value = matchedChunk.slotvals[slot]?.number() {
+                            result += value * (expA / totalExpA)
+                            if !model.silent {
+                                model.addToTrace("Adding \(value * (expA / totalExpA)) to result based on \(matchedChunk.name)",level: 5)
+                            }
+                        } else {
+                            model.addToTraceField("*** Warning: Chunk \(matchedChunk.description) could not be blended because there is no number in slot \(slot)")
+                        }
+                    }
+                    if !model.silent {
+                        model.addToTrace("Total blended value for slot \(slot) is \(result)", level:5)
+                    }
+                    bestMatch.setSlot(slot, value: result)
+                default: break
+                }
+            }
+        }
+        return (latency(bestActivation) , bestMatch)
+    }
 
     func action() -> Double {
         let stuff = model.buffers["retrievalR"] == nil
@@ -396,6 +453,8 @@ class Declarative: NSObject, NSCoding  {
         var retrieveResult: Chunk? = nil
         if partialMatching {
             (latency, retrieveResult) = partialRetrieve(retrievalQuery, mismatchFunction: mismatchFunction)
+        } else if blending {
+            (latency, retrieveResult) = blendedRetrieve(chunk: retrievalQuery)
         } else {
             (latency, retrieveResult) = retrieve(retrievalQuery)
         }

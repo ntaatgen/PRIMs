@@ -360,7 +360,7 @@ class Chunk: NSObject, NSCoding {
     
     func calculateNoise() -> Double {
         if model.time != noiseTime {
-            noiseValue = (model.dm.activationNoise == nil ? 0.0 : actrNoise(model.dm.activationNoise!))
+            noiseValue = actrNoise(model.dm.activationNoise)
             noiseTime = model.time
         }
             return noiseValue
@@ -371,6 +371,13 @@ class Chunk: NSObject, NSCoding {
         return  self.baseLevelActivation()
             + self.spreadingActivation() + calculateNoise()
     }
+    
+    func activationWithoutNoise() -> Double {
+        if creationTime == nil {return 0}
+        return  self.baseLevelActivation()
+            + self.spreadingActivation()
+    }
+
     
     func mergeAssocs(_ newchunk: Chunk) {
         for (name,value) in newchunk.assocs {

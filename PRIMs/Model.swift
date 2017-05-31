@@ -390,6 +390,8 @@ class Model: NSObject, NSCoding {
             dm.partialMatching = boolVal
         case "batch-trace:":
             batchTrace = boolVal
+        case "blending:":
+            dm.blending = boolVal
         //case "batch-trace":
         //    if batchMode {
         //        batchTrace = true

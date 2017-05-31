@@ -81,7 +81,7 @@ class Temporal {
         if model.time > startTime! + nextPulseTime! {
             while model.time > startTime! + nextPulseTime! {
                 currentPulse = currentPulse! + 1
-                print("Incrementing pulse to \(currentPulse!)")
+                print("Incrementing pulse to \(currentPulse!) at time \(model.time - startTime!)")
                 currentPulseLength = timeA * currentPulseLength! + actrNoise(timeB * timeA * currentPulseLength!)
                 nextPulseTime = nextPulseTime! + currentPulseLength!
             }
