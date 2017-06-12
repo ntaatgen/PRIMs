@@ -841,7 +841,7 @@ class Parser  {
 
     func parseScript(_ initScript: Bool) -> Bool {
         if !scanner.scanString("{", into: nil) {
-            m.addToTraceField("Missing '{' in Sji definition.")
+            m.addToTraceField("Missing '{' in script definition.")
             return false
         }
         let braceSet = CharacterSet(charactersIn: "{}")

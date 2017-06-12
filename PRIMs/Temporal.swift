@@ -86,7 +86,7 @@ class Temporal {
                 nextPulseTime = nextPulseTime! + currentPulseLength!
             }
             timeChunk.setSlot("slot1", value: Double(currentPulse!))
-            timeChunk.setSlot("slot2", value: "T")
+            timeChunk.setSlot("slot2", value: "true")
         }
     }
     

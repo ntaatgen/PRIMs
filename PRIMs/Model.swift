@@ -51,6 +51,8 @@ class Model: NSObject, NSCoding {
     var running = false
     var fallingThrough = false
     var startTime: Double = 0.0
+    /// Is there a valid model in memory? If not don't respond to run
+    var valid = false
     var trace: [(Int,String)] {
         didSet {
             if !silent {
@@ -187,14 +189,17 @@ class Model: NSObject, NSCoding {
             currentTaskIndex = tasks.count
             setParametersToDefault()
             if !parseCode(modelCode!,taskNumber: tasks.count) {
+                valid = false
                 reset(nil)
                 return false
             }
             
         } else {
+            valid = false
             return false
         }
         addTask(filePath)
+        valid = true
         return true
     }
 
@@ -552,6 +557,7 @@ class Model: NSObject, NSCoding {
         Perform a single step (one operator). This function handles control through the script, which in turn calls the newStep function.
     */
     func step() {
+        guard valid else { return } /// make sure we have a valid model to run
             if scenario.script!.scriptHasEnded()  {
                 scenario.script!.reset()
             }
@@ -674,21 +680,17 @@ class Model: NSObject, NSCoding {
                 scenario = PRScenario()
                 parameters = []
                 setParametersToDefault()
-                _ = parseCode(modelText,taskNumber: i)
+                valid = parseCode(modelText,taskNumber: i)
                 tasks[i].loaded = true
             }
             currentTask = tasks[i].name
-//            println("Setting current task to \(currentTask!)")
             currentGoals = tasks[i].goalChunk
             currentGoalConstants = tasks[i].goalConstants
             parameters = tasks[i].parameters
             scenario = tasks[i].scenario
             action.actions = tasks[i].actions
-//            println("Setting scenario with startscreen \(scenario.startScreen.name)")
-//            println("Setting parameters")
             setParametersToDefault()
             loadParameters()
-//            println("Setting task index to \(i)")
             newResult()
             running = false
         }
