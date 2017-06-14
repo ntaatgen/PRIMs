@@ -120,12 +120,13 @@ class BatchRun {
                         // Print trace to file
                         var traceOutput = ""
                         if self.model.batchTrace {
-                            for (time, type, event) in self.model.batchTraceData {
-                                traceOutput += "\(i) \(taskname!) \(taskLabel!) \(j) \(time) \(type) \(event) \n"
+                            if self.model.batchTrace {
+                                for (time, type, event) in self.model.batchTraceData {
+                                    traceOutput += "\(i) \(taskname!) \(taskLabel!) \(j) \(time) \(type) \(event) \n"
+                                }
+                                self.model.batchTraceData = []
                             }
-                            self.model.batchTraceData = []
                         }
-                        
                         if !newfile {
                             // Output File
                             if FileManager.default.fileExists(atPath: self.outputFileName.path) {
@@ -166,11 +167,13 @@ class BatchRun {
                                 self.mainModel.addToTraceField("Can't write datafile \(err!)")
                             }
                             // Trace file
-                            do {
-                                try traceOutput.write(to: self.traceFileName, atomically: false, encoding: String.Encoding.utf8)
-                            } catch let error as NSError {
-                                err = error
-                                self.mainModel.addToTraceField("Can't write tracefile \(err!)")
+                            if self.model.batchTrace {
+                                do {
+                                    try traceOutput.write(to: self.traceFileName, atomically: false, encoding: String.Encoding.utf8)
+                                } catch let error as NSError {
+                                    err = error
+                                    self.mainModel.addToTraceField("Can't write tracefile \(err!)")
+                                }
                             }
                         }
                     }
