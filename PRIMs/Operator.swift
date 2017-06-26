@@ -166,8 +166,16 @@ class Operator {
             if let chunk = value.chunk() {   // if it is a chunk
                 if chunk.type == "goaltype" {  // and it is a goal
                     for (slot,val) in chunk.slotvals {
-                        if let slotChunk = model.dm.chunks[slot], slotChunk.type == "reference" {
+                        if slot != "isa" {
                             referenceList[slot] = val
+                        }
+                    }
+                } else if let nestedGoal = chunk.slotvals["slot1"]?.chunk(), nestedGoal.type == "goaltype" {
+                    for (slot, val) in chunk.slotvals {
+                        if slot.hasPrefix("slot") && !slot.hasPrefix("slot1") {
+                            if let slotValChunk = val.chunk(), let slotVal1 = slotValChunk.slotvals["slot1"], let slotVal2 = slotValChunk.slotvals["slot2"]  {
+                                referenceList[slotVal1.description] = slotVal2
+                            }
                         }
                     }
                 }
@@ -175,8 +183,10 @@ class Operator {
         }
         var i = 1
         while let opSlotValue = opCopy.slotvals["slot\(i)"]  {
-            if opSlotValue.chunk() != nil && opSlotValue.chunk()!.type == "reference" {
-                if let subst = referenceList[opSlotValue.description] {
+            if opSlotValue.description.hasPrefix("*") {
+                var tempString = opSlotValue.description
+                tempString.remove(at: tempString.startIndex)
+                if let subst = referenceList[tempString] {
                     opCopy.setSlot("slot\(i)", value: subst)
                 } else {
                     return nil

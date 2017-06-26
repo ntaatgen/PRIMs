@@ -436,7 +436,7 @@ class Parser  {
                         let ch = item![index]
                         let lookahead = item![item!.index(index, offsetBy: 1)]
                         switch ch {
-                        case "A"..."Z","a"..."z","_",".": component += String(ch)
+                        case "A"..."Z","a"..."z","_",".","*": component += String(ch)
                         case "-": if lookahead == ">" {  // a hyphen can be part of an identifier, or part of the action ->
                             fallthrough
                         } else {

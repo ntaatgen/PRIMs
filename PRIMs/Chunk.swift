@@ -301,13 +301,13 @@ class Chunk: NSObject, NSCoding {
 
     - parameter bufferName: The name of the buffer
     - parameter spreadingParameterValue: The amount of spreading from that particular buffer
-    - returns: The amound of spreading activation from this buffer
+    - returns: The amound of spreading activation from this buffer, and the number of slots involved in the spreading
     */
-    func spreadingFromBuffer(_ bufferName: String, spreadingParameterValue: Double) -> Double {
-        if spreadingParameterValue == 0 { return 0 }
+    func spreadingFromBuffer(_ bufferName: String, spreadingParameterValue: Double) -> (spreading: Double, slots: Int) {
+        if spreadingParameterValue == 0 { return (spreading: 0, slots: 0) }
         var totalSji = 0.0
+        var totalSlots: Int = 0
         if  let bufferChunk = model.buffers[bufferName] {
-            var totalSlots: Int = 0
             for (_,value) in bufferChunk.slotvals {
                 switch value {
                 case .symbol(let valchunk):
@@ -320,10 +320,10 @@ class Chunk: NSObject, NSCoding {
                     break
                 }
             }
-            return (totalSlots==0 ? 0 : totalSji * (spreadingParameterValue / Double(totalSlots)))
+            return (totalSlots==0 ? (spreading: 0, slots: 0) : (spreading: totalSji * (spreadingParameterValue / Double(totalSlots)), slots: totalSlots))
 
         }
-        return 0.0
+        return (spreading: 0, slots: 0)
     }
     
     /**
@@ -348,11 +348,19 @@ class Chunk: NSObject, NSCoding {
                 }
             }
         } else {
-            totalSpreading += spreadingFromBuffer("goal", spreadingParameterValue: model.dm.goalActivation)
+            let (spreading, totalSlots) = spreadingFromBuffer("goal", spreadingParameterValue: model.dm.goalActivation)
+            totalSpreading += spreading
+            if let goal=model.buffers["goal"] {
+                for (_,value) in goal.slotvals {
+                    if let nestedGoal = value.chunk()?.slotvals["slot1"]?.chunk(), nestedGoal.type == "goaltype" {
+                        totalSpreading += nestedGoal.sji(self) * model.dm.goalActivation / Double(totalSlots)
+                    }
+                }
+            }
         }
-        totalSpreading += spreadingFromBuffer("input", spreadingParameterValue: model.dm.inputActivation)
-        totalSpreading += spreadingFromBuffer("retrievalH", spreadingParameterValue: model.dm.retrievalActivation)
-        totalSpreading += spreadingFromBuffer("imaginal", spreadingParameterValue: model.dm.imaginalActivation)
+        totalSpreading += spreadingFromBuffer("input", spreadingParameterValue: model.dm.inputActivation).spreading
+        totalSpreading += spreadingFromBuffer("retrievalH", spreadingParameterValue: model.dm.retrievalActivation).spreading
+        totalSpreading += spreadingFromBuffer("imaginal", spreadingParameterValue: model.dm.imaginalActivation).spreading
 //        let val = spreadingFromBuffer("imaginal", spreadingParameterValue: model.dm.imaginalActivation)
 //        print("Spreading from imaginal to \(self.name) is \(val) \(model.dm.imaginalActivation)")
         return totalSpreading
