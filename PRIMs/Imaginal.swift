@@ -14,26 +14,76 @@ class Imaginal {
     unowned let model: Model
     /// Do we automatically move the Chunk to DM if an existing slot is modified? No more in this new version!
     var autoClear = false // Now obsolete
-    var chunks: [String:Chunk] = [:]
+    private var chunks: [String:Chunk] = [:]
     /// Variable that records whether an imaginal action is needed
     var hasToDoAction: Bool = false
+    /// Total extra time to carry out WM related actions
+    var imaginalActionTime = 0.0
     init(model: Model) {
         self.model = model
     }
 
     func reset() {
         chunks = [:]
+        imaginalActionTime = 0.0
     }
     
     func addChunk(chunk: Chunk) {
         chunks[chunk.name] = chunk
+        chunk.startTime()
     }
 
     func moveWMtoDM() {
-        for (_,chunk) in chunks {
-            _ = model.dm.addToDM(chunk: chunk)
+        var transDict: [String: String] = [:]
+        print("Adding WM to DM")
+        while !chunks.isEmpty {
+            var removedAChunk = false
+            for (_, chunk) in chunks {
+                var noRefs = true
+                for (_,value) in chunk.slotvals {
+                    if let valueChunk = value.chunk(), chunks[valueChunk.name] != nil {
+                        noRefs = false
+                    }
+                }
+                if noRefs { // we found a chunk we can add
+                    print("Adding \(chunk.name)")
+                    for (slot, value) in chunk.slotvals {
+                        if let valueName = value.chunk()?.name, let substitution = transDict[valueName] {
+                            chunk.setSlot(slot, value: substitution)
+//                            print("Substituted \(value.description) with \(substitution) in \(chunk.name)")
+                        }
+                    }
+                    let newChunk = model.dm.addToDM(chunk: chunk)
+                    if newChunk.name != chunk.name { // DM merged the chunk with an old chunk
+                        print("Chunk is merged with \(newChunk.name)")
+                        transDict[chunk.name] = newChunk.name
+                    }
+                    chunks[chunk.name] = nil // remove the chunk from WM
+                    removedAChunk = true
+                }
+            }
+            if !removedAChunk { // If there is some circularity in the remaining chunks, we cannot properly merge them, so we will just dump them all in DM and be done
+                for (_,chunk) in chunks {
+                    for (slot, value) in chunk.slotvals {
+                        if let valueName = value.chunk()?.name, let substitution = transDict[valueName] {
+                            chunk.setSlot(slot, value: substitution)
+//                            print("Substituted \(value.description) with \(substitution) in \(chunk.name)")
+                        }
+                    }
+                    _ = model.dm.addToDM(chunk: chunk)
+                }
+                chunks = [:]
+            }
         }
-        chunks = [:]
+        // Finally, we need to check the current buffers because they may still have references to the changed chunks
+        for (_, chunk) in model.buffers {
+            for (slot, value) in chunk.slotvals {
+                if let valueName = value.chunk()?.name, let substitution = transDict[valueName] {
+                    chunk.setSlot(slot, value: substitution)
+//                    print("Substituted \(value.description) with \(substitution) in \(chunk.name)")
+                }
+            }
+        }
     }
     
     func setParametersToDefault() {
@@ -113,13 +163,14 @@ class Imaginal {
         if let value = oldImaginal.slotvals[slot] {
             if let chunk = value.chunk() {
                 if chunks[chunk.name] != nil {
-                chunks[oldImaginal.name] = oldImaginal
-//                let oldWMchunk = model.dm.addOrUpdate(chunk: oldImaginal) // If the chunk in Imaginal is not yet in DM, add it.
+                    chunks[oldImaginal.name] = oldImaginal
                     oldImaginal.addReference()
-                chunk.parent = oldImaginal.name
-                print("Setting parent of \(chunk.name) to \(oldImaginal.name)")
-                model.buffers["imaginal"] = chunk
-                return true
+                    chunk.parent = oldImaginal.name
+                    //                print("Setting parent of \(chunk.name) to \(oldImaginal.name)")
+                    imaginalActionTime += model.dm.latency(chunk.activation())
+                    model.addToTrace("Imaginal retrieval latency of \(chunk.name) is \(model.dm.latency(chunk.activation()))", level: 5)
+                    model.buffers["imaginal"] = chunk
+                    return true
                 } else {
                     return false // The chunk is not part of working memory (but already in declarative memory)
                 }
@@ -139,9 +190,12 @@ class Imaginal {
 //                print("Changed chunk \(oldImaginal.name) into \(oldWMchunk.name)")
 //            }
             newImaginal.parent = oldImaginal.name
+            imaginalActionTime += imaginalLatency
+            model.addToTrace("New imaginal chunk \(newImaginal.name) latency is \(imaginalLatency)", level: 5)
+            
 //            print("Setting parent of \(newImaginal.name) to \(oldImaginal.name)")
             model.buffers["imaginal"] = newImaginal
-            hasToDoAction = true
+//            hasToDoAction = true
             return true
         }
         else { return false }
@@ -168,6 +222,8 @@ class Imaginal {
 //                }
 //                parentChunk = model.dm.eliminateDuplicateChunkAlreadyInDM(chunk: parentChunk)
 //            }
+            imaginalActionTime += model.dm.latency(parentChunk.activation())
+            model.addToTrace("Imaginal retrieval latency of \(parentChunk.name) is \(model.dm.latency(parentChunk.activation()))", level: 5)
             model.buffers["imaginal"] = parentChunk
             return true
         } else {

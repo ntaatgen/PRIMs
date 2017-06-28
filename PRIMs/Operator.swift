@@ -333,11 +333,12 @@ class Operator {
             }
             (match, _) = model.procedural.fireProduction(inst, compile: true)
             if first {
-                model.time += model.procedural.productionActionLatency
+                model.time += model.procedural.productionActionLatency + model.imaginal.imaginalActionTime
                 first = false
             } else {
-                model.time += model.procedural.productionAndPrimLatency
+                model.time += model.procedural.productionAndPrimLatency + model.imaginal.imaginalActionTime
             }
+            model.imaginal.imaginalActionTime = 0.0
         }
         return match
     }

@@ -210,7 +210,9 @@ class Declarative: NSObject, NSCoding  {
     
     func addToDM(chunk: Chunk) -> Chunk {
         if let dupChunk = duplicateChunk(chunk) {
+//            print("Duplicate chunk \(dupChunk.name) has creationtime \(dupChunk.creationTime) and refs \(dupChunk.references)")
             dupChunk.addReference()
+            print("Adding reference to \(dupChunk.name) to \(dupChunk.references)")
             dupChunk.mergeAssocs(chunk)
             if !chunk.definedIn.isEmpty && !dupChunk.definedIn.contains(chunk.definedIn[0]) {
                 dupChunk.definedIn.append(chunk.definedIn[0])
