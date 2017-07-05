@@ -357,7 +357,10 @@ class Model: NSObject, NSCoding {
         clearTrace()
         outputData = []
         operators.previousOperators = []
-    }
+        if scenario.script != nil {
+            scenario.script!.reset()
+        }
+        }
 
     func initializeNextTrial() {
         startTime = time

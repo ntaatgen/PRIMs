@@ -468,6 +468,7 @@ class Environment: CustomStringConvertible {
         }
     }
     func add(_ symbol: String, value: Factor) { vars[symbol] = value }
+    
     func lookup(_ symbol: String) throws -> Factor {
         if let value = vars[symbol] {
             return value
@@ -507,7 +508,11 @@ class Environment: CustomStringConvertible {
 
 
 class Script {
+    
+    /// The array of statements that make up the script
     var statements: [Statement] = []
+    /// Argument passed on by the batch script (if any)
+    var arg: String = ""
     
     func tokenize(_ input: String) -> [String] {
         var tokens: [String] = []
@@ -528,7 +533,6 @@ class Script {
         return input.substring(with: nextIndex ..< input.index(after: nextIndex))
     }
             
- //           return input.substring(with: nextIndex..<<#T##String.CharacterView corresponding to `nextIndex`##String.CharacterView#>.index(nextIndex, offsetBy: 1)) }
     
     func a(_ input: String, index: String.Index, char: String) -> Bool {
         return input.substring(from: index).hasPrefix(char)
@@ -968,11 +972,13 @@ class Script {
     
     /// The next part of the code is used to run the program.
     
+    /// Top-level environment with variable bindings and top-level statements
     var env = Environment(outer: nil)
     
     func reset() {
         env = Environment(outer: nil)
         env.statements = statements
+        env.add("arg", value: Factor.str(arg)) // arg is the value passed on by the batch script
     }
 
     func step(_ model: Model) {

@@ -102,6 +102,12 @@ class BatchRun {
                         return
                     }
                     self.model.loadOrReloadTask(tasknumber!)
+                    if self.model.scenario.script != nil {
+                        self.model.scenario.script!.arg = taskLabel!
+                    }
+                    if self.model.scenario.initScript != nil {
+                        self.model.scenario.initScript!.arg = taskLabel!
+                    }
                     var j = 0
                     let startTime = self.model.time
                     while (!stopByTime && j < Int(endCriterium!)) || (stopByTime && (self.model.time - startTime) < endCriterium!) {
