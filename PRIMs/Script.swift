@@ -1027,13 +1027,13 @@ class Script {
                 case .ifCl(let ifClause):
                     let result = try ifClause.test.eval(env, model: model)
                     env = Environment(outer: env)
-                    if result.intValue() == 1 {
+                    if result.intValue() != 0 {
                         env.statements = ifClause.thenStatements
                     } else {
                         env.statements = ifClause.elseStatements
                     }
                 case .whileCl(let whileCl):
-                    if try whileCl.test.eval(env, model: model).intValue() == 1 {
+                    if try whileCl.test.eval(env, model: model).intValue() != 0 {
                         env = Environment(outer: env)
                         env.statements = whileCl.statements
                         env.loopCondition = whileCl.test
