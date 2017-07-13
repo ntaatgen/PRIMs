@@ -336,28 +336,37 @@ class Chunk: NSObject, NSCoding {
     func spreadingActivation() -> Double {
         if creationTime == nil {return 0}
         var totalSpreading: Double = 0
+        var spreading = 0.0
+        var totalSlots = 0
         if model.dm.goalSpreadingByActivation {
             if let goal=model.buffers["goal"] {
                 for (_,value) in goal.slotvals {
                     switch value {
                     case .symbol(let valchunk):
-                        totalSpreading += valchunk.sji(self) * max(0,valchunk.baseLevelActivation())
+//                        totalSpreading += valchunk.sji(self) * max(0,valchunk.baseLevelActivation())
+                        totalSlots += 1
+                        totalSpreading += valchunk.sji(self) * exp(valchunk.baseLevelActivation()) * model.dm.goalActivation
                     default:
                         break
                     }
                 }
             }
         } else {
-            let (spreading, totalSlots) = spreadingFromBuffer("goal", spreadingParameterValue: model.dm.goalActivation)
+            (spreading, totalSlots) = spreadingFromBuffer("goal", spreadingParameterValue: model.dm.goalActivation)
             totalSpreading += spreading
+        }
             if let goal=model.buffers["goal"] {
                 for (_,value) in goal.slotvals {
                     if let nestedGoal = value.chunk()?.slotvals["slot1"]?.chunk(), nestedGoal.type == "goaltype" {
-                        totalSpreading += nestedGoal.sji(self) * model.dm.goalActivation / Double(totalSlots)
+                        if model.dm.goalSpreadingByActivation {
+                            totalSpreading += nestedGoal.sji(self) * exp(value.chunk()!.baseLevelActivation()) * model.dm.goalActivation
+                        } else {
+                            totalSpreading += nestedGoal.sji(self) * model.dm.goalActivation / Double(totalSlots)
+                        }
                     }
                 }
             }
-        }
+        
         totalSpreading += spreadingFromBuffer("input", spreadingParameterValue: model.dm.inputActivation).spreading
         totalSpreading += spreadingFromBuffer("retrievalH", spreadingParameterValue: model.dm.retrievalActivation).spreading
         totalSpreading += spreadingFromBuffer("imaginal", spreadingParameterValue: model.dm.imaginalActivation).spreading
