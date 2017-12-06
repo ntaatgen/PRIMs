@@ -292,14 +292,14 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
     func primViewVisibleLabel(_ sender: PrimView, index: Int) -> String? {
         if primGraphData != nil {
             let key = primGraphData!.keys[index]
-            if primGraphData!.nodes[key]!.labelVisible || allLabelsButton.state == NSOnState {
+            if primGraphData!.nodes[key]!.labelVisible || allLabelsButton.state == NSControl.StateValue.on  {
                 return primGraphData!.nodes[key]!.shortName
             }
         }
         return nil
     }
     
-    func updatePrimGraph() {
+    @objc func updatePrimGraph() {
         primGraph.needsDisplay = true
     }
     
@@ -391,7 +391,7 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
         fileDialog.resolvesAliases = true
         fileDialog.allowedFileTypes = ["prims"]
         let result = fileDialog.runModal()
-        if result != NSFileHandlingPanelOKButton { return }
+        if result != NSApplication.ModalResponse.OK { return }
         let URLs = fileDialog.urls // as? [NSURL]
 //        if URLs == nil { return }
         for filePath in URLs {
@@ -402,7 +402,7 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
             primViewCalculateGraph(primGraph)
             primGraph.needsDisplay = true
             updateAllViews()
-            NSDocumentController.shared().noteNewRecentDocumentURL(filePath)
+            NSDocumentController.shared.noteNewRecentDocumentURL(filePath)
         }
     }
     
@@ -419,7 +419,7 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
 //primGraph.needsDisplay = true
 //updateAllViews()
 
-    func respondToOpenFile(_ notification: Notification) {
+    @objc func respondToOpenFile(_ notification: Notification) {
         let url = notification.object as? URL
         if url != nil {
             _ = model.loadModelWithString(url!)
@@ -458,17 +458,17 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
     func tableView(_ tableView: NSTableView, objectValueFor tableColumn: NSTableColumn?, row: Int) -> Any? {
         switch tableView {
         case productionTable:
-            switch String(tableColumn!.identifier)! {
+            switch String(describing: tableColumn!.identifier) {
             case "Name": return pTable[row].name
             case "Utility": return String(format:"%.2f", pTable[row].u)
             default:
                 return nil
             }
         case taskTable:
-            switch String(tableColumn!.identifier)! {
+            switch String(describing: tableColumn!.identifier) {
             case "Name": return row == model.currentTaskIndex ? "** " + model.tasks[row].name : model.tasks[row].name
             case "Loaded": let text = NSMutableAttributedString(string: model.tasks[row].loaded ? "▶︎" : "")
-            text.addAttribute(NSForegroundColorAttributeName, value: numberToColor(row), range: NSMakeRange(0, text.length))
+            text.addAttribute(NSAttributedStringKey.foregroundColor, value: numberToColor(row), range: NSMakeRange(0, text.length))
 
                 return text
             default: return nil
@@ -555,7 +555,7 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
     @IBOutlet weak var bufferViewFormerInput: NSTextField!
     
     func formatBuffer(_ bufferName: String, bufferChunk: Chunk?, bufferAbbreviation: String, showSlot0: Bool = true) -> NSAttributedString {
-        let s = NSMutableAttributedString(string: bufferName, attributes: [NSFontAttributeName : NSFont.boldSystemFont(ofSize: 12)])
+        let s = NSMutableAttributedString(string: bufferName, attributes: [NSAttributedStringKey.font : NSFont.boldSystemFont(ofSize: 12)])
         var rest: String = ""
         if bufferChunk != nil {
             if showSlot0 {
@@ -577,7 +577,7 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
     
     func formatOperator(_ chunk: Chunk?) -> NSAttributedString {
         let operatorName = chunk == nil ? "" : chunk!.name
-        let s = NSMutableAttributedString(string: "Operator \(operatorName)\n", attributes: [NSFontAttributeName : NSFont.boldSystemFont(ofSize: 12)])
+        let s = NSMutableAttributedString(string: "Operator \(operatorName)\n", attributes: [NSAttributedStringKey.font : NSFont.boldSystemFont(ofSize: 12)])
         var rest = ""
         if let condition = chunk?.slotvals["condition"] {
             let conditions = condition.description.components(separatedBy: ";")
@@ -676,7 +676,7 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
         fileDialog.resolvesAliases = true
         fileDialog.allowedFileTypes = ["bprims"]
         let result = fileDialog.runModal()
-        if result != NSFileHandlingPanelOKButton { return }
+        if result != NSApplication.ModalResponse.OK { return }
         var batchScript: String
         var directory: URL?
         if let filePath = fileDialog.url {
@@ -694,7 +694,7 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
         let name = fileDialog.url!.deletingPathExtension().lastPathComponent
         saveDialog.nameFieldStringValue = name + ".dat"
         let saveResult = saveDialog.runModal()
-        if saveResult != NSFileHandlingPanelOKButton { return }
+        if saveResult != NSApplication.ModalResponse.OK { return }
         if saveDialog.url == nil { return }
 //        print("Loading script \(fileDialog.URL!) to output to \(saveDialog.URL!)")
         batchRunner = BatchRun(script: batchScript, mainModel: model, outputFile: saveDialog.url!, controller: self, directory: directory!)
@@ -718,7 +718,7 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
         fileDialog.resolvesAliases = true
         fileDialog.allowedFileTypes = ["brain"]
         let result = fileDialog.runModal()
-        if result != NSFileHandlingPanelOKButton { return }
+        if result != NSApplication.ModalResponse.OK { return }
         if let filePath = fileDialog.url?.path {
             guard let m = (NSKeyedUnarchiver.unarchiveObject(withFile: filePath) as? Model) else { return }
             model = m
@@ -736,7 +736,7 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
         saveDialog.allowedFileTypes = ["brain"]
         saveDialog.nameFieldStringValue = "defaultbrain.brain"
         let saveResult = saveDialog.runModal()
-        if saveResult != NSFileHandlingPanelOKButton { return }
+        if saveResult != NSApplication.ModalResponse.OK { return }
         if saveDialog.url == nil { return }
         NSKeyedArchiver.archiveRootObject(model, toFile: saveDialog.url!.path)
     }
@@ -750,7 +750,7 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
         saveDialog.allowedFileTypes = ["pdf"]
         saveDialog.nameFieldStringValue = "PRIMSoutput.pdf"
         let saveResult = saveDialog.runModal()
-        if saveResult != NSFileHandlingPanelOKButton { return }
+        if saveResult != NSApplication.ModalResponse.OK { return }
         if saveDialog.url == nil { return }
         try? primGraph.dataWithPDF(inside: primGraph.bounds).write(to: saveDialog.url!)
         

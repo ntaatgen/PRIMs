@@ -150,8 +150,12 @@ class Procedural: NSObject, NSCoding {
     
     func compileProductions(_ p1: Production, inst2: Instantiation) {
         let p2 = inst2.p
-        let nameP1 = p1.name.hasPrefix("t") ? p1.name.substring(from: p1.name.characters.index(p1.name.startIndex, offsetBy: 1)) : p1.name
-        let nameP2 = p2.name.hasPrefix("t") ? p2.name.substring(from: p2.name.characters.index(p2.name.startIndex, offsetBy: 1)) : p2.name
+        let indexStartP1 = p1.name.index(p1.name.startIndex, offsetBy: 1)
+        let nameP1 = p1.name.hasPrefix("t") ? String(p1.name[indexStartP1...]) : p1.name
+       // let nameP1 = p1.name.hasPrefix("t") ? p1.name.substring(from: p1.name.characters.index(p1.name.startIndex, offsetBy: 1)) : p1.name
+        let indexStartP2 = p2.name.index(p2.name.startIndex, offsetBy: 1)
+        let nameP2 = p2.name.hasPrefix("t") ? String(p2.name[indexStartP2...]) : p2.name
+        // let nameP2 = p2.name.hasPrefix("t") ? p2.name.substring(from: p2.name.characters.index(p2.name.startIndex, offsetBy: 1)) : p2.name
         let newName = nameP1 + ";" + nameP2
         var newFullName = newName
         if p2.newCondition != nil {

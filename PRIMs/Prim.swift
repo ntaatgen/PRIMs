@@ -52,7 +52,7 @@ func parseName(_ name: String) -> (String?,String?,String,String?,String?,String
     var components: [String] = []
     var component = ""
     var prevComponentCat: Int? = nil
-    for ch in name.characters {
+    for ch in name {
         var componentCat: Int
         switch ch {
         case "A"..."Z", "a"..."z", "*":  componentCat = 1

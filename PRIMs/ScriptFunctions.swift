@@ -497,7 +497,7 @@ func length(_ content: [Factor], model: Model?) throws -> (result: Factor?, done
     guard content.endIndex == 1 else { throw RunTimeError.invalidNumberOfArguments }
     switch content[0] {
     case .arr(let a): return (Factor.intNumber(a.elements.count), true)
-    case .str(let s): return (Factor.intNumber(s.characters.count), true)
+    case .str(let s): return (Factor.intNumber(s.count), true)
     default: throw RunTimeError.errorInFunction("Trying to get the length of a non-array or -string")
     }
 }
@@ -599,7 +599,7 @@ Set a parameter
 func setGlobalParameter(_ content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool) {
     guard content.count == 2 else { throw RunTimeError.invalidNumberOfArguments }
     var parName = content[0].description
-    if parName[parName.characters.index(before: parName.endIndex)] != ":" {
+    if parName[parName.index(before: parName.endIndex)] != ":" {
         parName = parName + ":"
     }
     let parValue = content[1].description

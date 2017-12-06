@@ -68,23 +68,23 @@ class GraphView: NSView {
         path.line(to: NSPoint(x: bounds.width, y: orgY))
         // put the maximum Y value on the Y axis
         var s =  NSMutableAttributedString(string: String(format:"%.1f", dataSource!.graphYMax(self)!))
-        s.addAttribute(NSFontAttributeName, value: NSFont.userFont(ofSize: 12.0)!, range: NSMakeRange(0, s.length))
+        s.addAttribute(NSAttributedStringKey.font, value: NSFont.userFont(ofSize: 12.0)!, range: NSMakeRange(0, s.length))
         s.draw(in: NSMakeRect(5, 0.9 * bounds.height , 50, 20))
         // put the minimum Y value on the Y axis
         s =  NSMutableAttributedString(string: String(format:"%.1f", dataSource!.graphYMin(self)!))
-        s.addAttribute(NSFontAttributeName, value: NSFont.userFont(ofSize: 12.0)!, range: NSMakeRange(0, s.length))
+        s.addAttribute(NSAttributedStringKey.font, value: NSFont.userFont(ofSize: 12.0)!, range: NSMakeRange(0, s.length))
         s.draw(in: NSMakeRect(5, 0.1 * bounds.height + 5 , 50, 20))
         // put the maximum X value on the X axis
         s =  NSMutableAttributedString(string: String(format:"%.1f", dataSource!.graphXMax(self)!))
-        s.addAttribute(NSFontAttributeName, value: NSFont.userFont(ofSize: 12.0)!, range: NSMakeRange(0, s.length))
+        s.addAttribute(NSAttributedStringKey.font, value: NSFont.userFont(ofSize: 12.0)!, range: NSMakeRange(0, s.length))
         s.draw(in: NSMakeRect(0.9 * bounds.width, 5 , 50, 20))
         // put the minumum X value on the X axis
         s =  NSMutableAttributedString(string: String(format:"%.1f", dataSource!.graphXMin(self)!))
-        s.addAttribute(NSFontAttributeName, value: NSFont.userFont(ofSize: 12.0)!, range: NSMakeRange(0, s.length))
+        s.addAttribute(NSAttributedStringKey.font, value: NSFont.userFont(ofSize: 12.0)!, range: NSMakeRange(0, s.length))
         s.draw(in: NSMakeRect(0.1 * bounds.width + 5, 5 , 50, 20))
         // put a tile above the graph
         s = NSMutableAttributedString(string: dataSource!.graphTitle(self))
-        s.addAttribute(NSFontAttributeName, value: NSFont.userFont(ofSize: 12.0)!, range: NSMakeRange(0, s.length))
+        s.addAttribute(NSAttributedStringKey.font, value: NSFont.userFont(ofSize: 12.0)!, range: NSMakeRange(0, s.length))
         s.setAlignment(NSTextAlignment.center, range: NSMakeRange(0, s.length))
         s.draw(in: NSMakeRect(0.2 * bounds.width, 0.90 * bounds.height, 0.7 * bounds.width, 20))
         path.lineWidth = lineWidth
