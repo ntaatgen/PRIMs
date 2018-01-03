@@ -265,7 +265,7 @@ class Chunk: NSObject, NSCoding {
 
     
     /**
-    Add noise to an association value. This is only used for the Sji between goals and operators
+    Add noise to an association value. This is currently only used for the Sji between goals and operators
 
     - returns: An Sji value with noise included
     */
@@ -301,7 +301,7 @@ class Chunk: NSObject, NSCoding {
 
     - parameter bufferName: The name of the buffer
     - parameter spreadingParameterValue: The amount of spreading from that particular buffer
-    - returns: The amound of spreading activation from this buffer, and the number of slots involved in the spreading
+    - returns: The amount of spreading activation from this buffer, and the number of slots involved in the spreading
     */
     func spreadingFromBuffer(_ bufferName: String, spreadingParameterValue: Double) -> (spreading: Double, slots: Int) {
         if spreadingParameterValue == 0 { return (spreading: 0, slots: 0) }

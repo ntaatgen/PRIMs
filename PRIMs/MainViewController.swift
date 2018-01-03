@@ -458,14 +458,14 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
     func tableView(_ tableView: NSTableView, objectValueFor tableColumn: NSTableColumn?, row: Int) -> Any? {
         switch tableView {
         case productionTable:
-            switch String(describing: tableColumn!.identifier) {
+            switch tableColumn!.identifier.rawValue {
             case "Name": return pTable[row].name
             case "Utility": return String(format:"%.2f", pTable[row].u)
             default:
                 return nil
             }
         case taskTable:
-            switch String(describing: tableColumn!.identifier) {
+            switch tableColumn!.identifier.rawValue {
             case "Name": return row == model.currentTaskIndex ? "** " + model.tasks[row].name : model.tasks[row].name
             case "Loaded": let text = NSMutableAttributedString(string: model.tasks[row].loaded ? "▶︎" : "")
             text.addAttribute(NSAttributedStringKey.foregroundColor, value: numberToColor(row), range: NSMakeRange(0, text.length))

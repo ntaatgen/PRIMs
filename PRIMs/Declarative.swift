@@ -207,7 +207,12 @@ class Declarative: NSObject, NSCoding  {
         finsts.append(c.name)
     }
     
-    
+    /**
+    Add a chunk to declarative memory. Sets the creation time, and set references to 1. If the chunk is a duplicate of an existing chunk in
+    DM, add a reference to that chunk instead.
+     - Parameter chunk: The chunk to be added.
+     - Returns: the chunk itself, or the duplicate in DM if it exists.
+     */
     func addToDM(chunk: Chunk) -> Chunk {
         if let dupChunk = duplicateChunk(chunk) {
 //            print("Duplicate chunk \(dupChunk.name) has creationtime \(dupChunk.creationTime) and refs \(dupChunk.references)")

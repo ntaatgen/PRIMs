@@ -46,7 +46,7 @@ let bufferOrder = ["input":1,"goal":2,"imaginal":3,"retrievalH":4,"constants":5,
 /** 
 This function takes a string that represents a PRIM, and translates it into its components
 
-- returns: is a five-tuple with left-buffer-name left-buffer-slot, operator, right-buffer-name, right-buffer-slot, PRIM with reversed lhs and rhs if necessary
+- returns: is a six-tuple with left-buffer-name left-buffer-slot, operator, right-buffer-name, right-buffer-slot, PRIM with reversed lhs and rhs if necessary
 */
 func parseName(_ name: String) -> (String?,String?,String,String?,String?,String?) {
     var components: [String] = []

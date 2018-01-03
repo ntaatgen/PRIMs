@@ -9,6 +9,95 @@
 import Foundation
 
 /**
+ struct to store operators in an easier to use format than Chunks
+ */
+struct Op {
+    /// An array of constants that are normally stored in slot1..n of the chunk
+    var constants: [String] = []
+    /// An array with the conditions. Each condition is a 5-tuple the 5 components of a PRIM
+    var conditions: [(lhsBuffer: String, lhsSlot: Int, rhsBuffer: String, rhsSlot: Int, op: String)] = []
+    /// An array with the actions. Each action is a 5-tuple with the 5 components of a PRIM
+    var actions: [(lhsBuffer: String, lhsSlot: Int, rhsBuffer: String, rhsSlot: Int, op: String)] = []
+    /// Name of the operator
+    var name: String
+    
+    init(name: String) {
+        self.name = name
+    }
+    
+    init(chunk: Chunk) {
+        let bufferMapping = ["input":"V", "imaginal": "WM", "operator": "C", "action": "AC", "retrievalH" : "RT", "retrievalR" : "RT", "temporal" : "T", "goal" : "G", "constants": "GC" ]
+        name = chunk.name
+        // This already gives us almost all we need, but we need to do a bit more work on it
+        let opConditions = chunk.slotvals["condition"]!.description.components(separatedBy: ";").map(parseName)
+        for (lbuf, lslot, cOP, rbuf, rslot, _) in opConditions {
+            let lslotNum = (lslot == nil || !lslot!.hasPrefix("slot")) ? 0 : Int(String(lslot![lslot!.index(lslot!.startIndex, offsetBy: 4)])) ?? 0
+            let rslotNum = (rslot == nil || !rslot!.hasPrefix("slot")) ? 0 : Int(String(rslot![rslot!.index(rslot!.startIndex, offsetBy: 4)])) ?? 0
+            conditions.append((lhsBuffer: lbuf == nil ? "" : bufferMapping[lbuf!]!, lhsSlot: lslotNum, rhsBuffer: rbuf == nil ? "" : bufferMapping[rbuf!]!, rhsSlot: rslotNum, op: cOP))
+        }
+        // Same for actions
+        let opActions = chunk.slotvals["action"]!.description.components(separatedBy: ";").map(parseName)
+        for (lbuf, lslot, cOP, rbuf, rslot, _) in opActions {
+            let lslotNum = (lslot == nil || !lslot!.hasPrefix("slot")) ? 0 : Int(String(lslot![lslot!.index(lslot!.startIndex, offsetBy: 4)])) ?? 0
+            let rslotNum = (rslot == nil || !rslot!.hasPrefix("slot")) ? 0 : Int(String(rslot![rslot!.index(rslot!.startIndex, offsetBy: 4)])) ?? 0
+            actions.append((lhsBuffer: lbuf == nil ? "" : bufferMapping[lbuf!]!, lhsSlot: lslotNum, rhsBuffer: rbuf == nil ? "" : bufferMapping[rbuf!]!, rhsSlot: rslotNum, op: cOP))
+        }
+        var i = 1
+        while let c = chunk.slotvals["slot\(i)"] {
+            constants.append(c.description)
+            i += 1
+        }
+    }
+    
+    func buildChunk(model: Model) -> Chunk {
+        let chunk = Chunk(s: name, m: model)
+        chunk.setSlot("isa", value: "operator")
+        var i = 1
+        for value in constants {
+            chunk.setSlot("slot\(i)", value: value)
+            i += 1
+        }
+        var conditionString = ""
+        var itemList: [String] = []
+        for (lbuf, lslot, rbuf, rslot, op) in conditions {
+            
+            let lhs = lslot > 0 ? lbuf + String(lslot) : op != ">>" && op != "<<" ? "nil" : lbuf
+            let rhs = rslot > 0 ? rbuf + String(rslot) : op != ">>" && op != "<<" ? "nil" : rbuf
+
+            let prim = lhs + op + rhs
+            if !itemList.contains(prim) {
+                itemList.append(prim)
+                if conditionString == "" {
+                    conditionString = prim
+                } else {
+                    conditionString += ";" + prim
+                }
+            }
+        }
+        chunk.setSlot("condition", value: conditionString)
+        var actionString = ""
+        itemList = []
+        for (lbuf, lslot, rbuf, rslot, op) in actions {
+            let lhs = lslot > 0 ? lbuf + String(lslot) : op != ">>" && op != "<<" ? "nil" : lbuf
+            let rhs = rslot > 0 ? rbuf + String(rslot) : op != ">>" && op != "<<" ? "nil" : rbuf
+            let prim = lhs + op + rhs
+            if !itemList.contains(prim) {
+                itemList.append(prim)
+                if actionString == "" {
+                    actionString = prim
+                } else {
+                    actionString += ";" + prim
+                }
+            }
+        }
+        chunk.setSlot("action", value: actionString)
+        chunk.fixedActivation = model.dm.defaultActivation
+        return chunk
+        
+    }
+}
+
+/**
     The Operator class contains many of the functions that deal with operators. Most of these still have to be migrated from Model.swift
 */
 class Operator {
@@ -129,6 +218,21 @@ class Operator {
 //            }
 //        }
 //    }
+    /**
+    Compile the sequence of operators in the list of previous operators
+    */
+    func compileAll() {
+        guard model.operatorLearning else { return }
+        guard previousOperators.count > 1 else { return }
+        for i in 0..<previousOperators.count - 1 {
+            if let newChunk = compileOperators(op1: previousOperators[i].0, op2: previousOperators[i + 1].0) {
+                let chunk2 = model.dm.addToDM(chunk: newChunk)
+                model.addToTrace("Adding or strengtening operator \(chunk2.name)", level: 5)
+                print(chunk2)
+            }
+        }
+    }
+    
     func updateOperatorSjis(_ payoff: Double) {
         if !model.dm.goalOperatorLearning || model.reward == 0.0 { return } // only do this when switched on
         let goalChunk = model.formerBuffers["goal"]?.slotvals["slot1"]?.chunk() // take formerBuffers goal, because goal may have been replace by stop or nil
@@ -326,7 +430,7 @@ class Operator {
             let inst = model.procedural.findMatchingProduction()
             var pname = inst.p.name
             if pname.hasPrefix("t") {
-                pname = String(pname.characters.dropFirst())
+                pname = String(pname.dropFirst())
             }
             if !model.silent {
                 model.addToTrace("Firing \(pname)", level: 3)
@@ -341,6 +445,101 @@ class Operator {
             model.imaginal.imaginalActionTime = 0.0
         }
         return match
+    }
+    
+    
+    
+    /**
+    Compile two operators into a single new operator that carries out all actions of the former operators
+    while checking all conditions
+ - parameter op1: The first to be compiled operator
+   - parameter op2: The second to be compiled operator
+ - returns: The compiled operator or nil if operators cannot be compiled
+    */
+    func compileOperators(op1: Chunk, op2: Chunk) -> Chunk! {
+        // First, extract the conditions and actions, and separate them into their components
+        var operator1 = Op(chunk: op1)
+        var operator2 = Op(chunk: op2)
+        // First, we need to check whether these operators can be compiled at all.
+        // Two operators cannot fill the same slot (anywhere). Also check ">>" and "<<" in the actions (still need to check in conditions)
+        // No compilation if second operator has a RT -> .. action
+        // No compilation if first operator has an ->AC and second an V of any kind
+        var hasV = false // to check for any V's in op2
+        var hasAC = false // check for AC in op1
+        for action1 in operator1.actions {
+            if action1.rhsBuffer == "AC" { hasAC = true }
+            for action2 in operator2.actions {
+                if action1.op == ">>" || action1.op == "<<" || action2.op == ">>" || action2.op == "<<" { return nil }
+                if action2.lhsBuffer == "RT" {
+                    print("No compilation because action 2 has an RT action (i.e., a harvest from a retrieval result")
+                    return nil }
+                if action1.rhsBuffer == action2.rhsBuffer && action1.rhsSlot == action2.rhsSlot {
+                    print("\(action1.rhsBuffer) \(action1.rhsSlot) appears in both actions, so no compilation")
+                    return nil }
+            }
+        }
+        // No compilation if any of the operators has either << or >> (need to figure out how to do that later)
+        for condition in operator1.conditions {
+            if condition.op == ">>" || condition.op == "<<" { return nil }
+            if condition.lhsBuffer == "V" || condition.rhsBuffer == "V" { hasV = true }
+        }
+        for condition in operator2.conditions {
+            if condition.op == ">>" || condition.op == "<<" { return nil }
+            if condition.lhsBuffer == "V" || condition.rhsBuffer == "V" { hasV = true }
+        }
+        if hasV && hasAC { print("first operator has an AC while second operator has a V so no compilation")
+            return nil }
+        // That should cover all exclusions, now compile the operator
+        var newOperator = Op(name:  operator1.name + "+" + operator2.name )
+        // First we have to merge the constants
+        newOperator.constants = operator1.constants // Start with the constants from operator1
+        // Now add constants from operator2, unless the constant is already in the list
+        for i in 0..<operator2.constants.count {
+            let const = operator2.constants[i]
+            var newIndex = -1
+            if let j = operator1.constants.index(of: const) {
+                newIndex = j
+            } else {
+                newIndex = newOperator.constants.count
+                newOperator.constants.append(const)
+            }
+            // Now replace all Ci's in operator2
+            for j in 0..<operator2.conditions.count {
+                if operator2.conditions[j].lhsBuffer == "C" && operator2.conditions[j].lhsSlot == i + 1 {
+                    operator2.conditions[j].lhsSlot = newIndex
+                }
+            }
+        }
+        // Ok, now we have all the constants in the new operator, and all the references in operator2 index that list correctly
+        // Now we assemble the conditions. Starting point are the conditions of operator1
+        newOperator.conditions = operator1.conditions
+        // Now look at each condition in operator2 and decide whether to add
+        for condition in operator2.conditions {
+            // First check whether either slot is modified by an operator1 action. If that is the case, we need to replace the reference in the new operator.
+            var newCondition = condition
+            if let i = operator1.actions.index(where: {(item) -> Bool in (item.rhsBuffer == condition.lhsBuffer) && (item.rhsSlot == condition.lhsSlot) }) {
+                newCondition.lhsBuffer = operator1.actions[i].lhsBuffer
+                newCondition.lhsSlot = operator1.actions[i].lhsSlot
+                }
+            if let i = operator1.actions.index(where: {(item) -> Bool in (item.rhsBuffer == condition.rhsBuffer) && (item.rhsSlot == condition.rhsSlot) }) {
+                newCondition.rhsBuffer = operator1.actions[i].lhsBuffer
+                newCondition.rhsSlot = operator1.actions[i].lhsSlot
+            }
+            if (newCondition.lhsBuffer != "nil" || newCondition.rhsBuffer != "nil") {
+                newOperator.conditions.append(newCondition)
+            }
+        }
+        /// This may not work if there are nil's involved, so fingers crossed.
+        
+        /// Now assemble the actions. Not so sure what can be pruned here so let's first try everything
+        
+        newOperator.actions = operator1.actions
+        newOperator.actions.append(contentsOf: operator2.actions)
+        
+//        print("New operator")
+//        print(newOperator)
+
+        return newOperator.buildChunk(model: self.model)
     }
     
     

@@ -471,6 +471,9 @@ func issueReward(_ content: [Factor], model: Model?) throws -> (result: Factor?,
         default: throw RunTimeError.nonNumberArgument
         }
     }
+    if reward > 0 {
+        model!.operators.compileAll()
+    }
     model!.operators.updateOperatorSjis(reward)
     return (nil, true)
 }

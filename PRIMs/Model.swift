@@ -85,9 +85,13 @@ class Model: NSObject, NSCoding {
     var batchTrace: Bool = false
     var formerBuffers: [String:Chunk] = [:]
     var modelCode: String?
+    // Model-level parameters
     static let rewardDefault = 0.0
     /// Reward used for operator-goal association learning. Also determines maximum run time. Switched off when set to 0.0 (default)
     var reward: Double = rewardDefault
+    static let operatorLearningDefault = false
+    /// Switch for operator learning
+    var operatorLearning = operatorLearningDefault
     let silent: Bool
     
 //    struct Results {
@@ -200,6 +204,17 @@ class Model: NSObject, NSCoding {
         }
         addTask(filePath)
         valid = true
+        
+        /// This just for testing purposes
+        for (_, chunk) in dm.chunks {
+            if chunk.type == "operator" {
+                let optest = Op(chunk: chunk)
+                let result = optest.buildChunk(model: self)
+                print(result.description)
+            }
+        }
+        
+        
         return true
     }
 
@@ -400,6 +415,8 @@ class Model: NSObject, NSCoding {
             batchTrace = boolVal
         case "blending:":
             dm.blending = boolVal
+        case "opc:":
+            operatorLearning = boolVal
         //case "batch-trace":
         //    if batchMode {
         //        batchTrace = true
@@ -485,6 +502,7 @@ class Model: NSObject, NSCoding {
         imaginal.setParametersToDefault()
         temporal.setParametersToDefault()
         reward = Model.rewardDefault
+        operatorLearning = Model.operatorLearningDefault
     }
     
     func loadParameters() {
@@ -577,6 +595,7 @@ class Model: NSObject, NSCoding {
     func newStep() {
         dm.clearFinsts()
         var found: Bool = false
+//        let lastOperator = formerBuffers["operator"]
 //        var bufferStackCopy = bufferStack
         formerBuffers = [:]
         formerBuffers["goal"] = buffers["goal"]?.copyLiteral()
@@ -625,6 +644,18 @@ class Model: NSObject, NSCoding {
         procedural.lastOperator = formerBuffers["operator"]
         addToBatchTrace(time - startTime, type: "operator", addToTrace: "\(procedural.lastOperator!.name)")
         commitToTrace(false)
+        // Operator compilation
+        // Eventually, only successful sequences are compiled.
+//        if lastOperator != nil {
+//            let newOperator = operators.compileOperators(op1: lastOperator!, op2: procedural.lastOperator!)
+//            print(newOperator ?? "")
+//            // Add it to DM once we are satisfied that it works.
+//            if newOperator != nil {
+//                _ = dm.addToDM(chunk: newOperator!)
+//            }
+//        }
+        
+        
         //        let op = buffers["operator"]!.name
         buffers["operator"] = nil
         doAllModuleActions()
