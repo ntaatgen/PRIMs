@@ -514,7 +514,11 @@ class Model: NSObject, NSCoding {
     func doAllModuleActions() {
         var latency = 0.0
         formerBuffers["retrievalH"] = buffers["retrievalH"]
-        buffers["retrievalH"] = nil
+        // If the last operator did not have any actions, we do not clear the retrieval buffer.
+        // In that way, operator compilation can combine it with a subsequent operator.
+        if procedural.lastOperator == nil || procedural.lastOperator!.slotvals["action"] != nil {
+            buffers["retrievalH"] = nil
+        }
 //        bufferStack["retrievalH"] = nil
         if buffers["retrievalR"] != nil || dm.declarativeBufferStuffing {
             formerBuffers["retrievalR"] = buffers["retrievalR"]
@@ -644,19 +648,6 @@ class Model: NSObject, NSCoding {
         procedural.lastOperator = formerBuffers["operator"]
         addToBatchTrace(time - startTime, type: "operator", addToTrace: "\(procedural.lastOperator!.name)")
         commitToTrace(false)
-        // Operator compilation
-        // Eventually, only successful sequences are compiled.
-//        if lastOperator != nil {
-//            let newOperator = operators.compileOperators(op1: lastOperator!, op2: procedural.lastOperator!)
-//            print(newOperator ?? "")
-//            // Add it to DM once we are satisfied that it works.
-//            if newOperator != nil {
-//                _ = dm.addToDM(chunk: newOperator!)
-//            }
-//        }
-        
-        
-        //        let op = buffers["operator"]!.name
         buffers["operator"] = nil
         doAllModuleActions()
     }

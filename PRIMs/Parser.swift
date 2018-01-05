@@ -503,7 +503,10 @@ class Parser  {
 //        m.operators.addOperator(chunk, conditions: conditions, actions: actions)
         
         chunk.setSlot("condition",value: primsListToString(prims: conditions))
-        chunk.setSlot("action",value: primsListToString(prims: actions))
+        let actionString = primsListToString(prims: actions)
+        if actionString != "" {
+            chunk.setSlot("action",value: primsListToString(prims: actions))
+        }
 //        if !m.dm.goalOperatorLearning  {
             chunk.assocs[goalName] = (m.dm.defaultOperatorAssoc, 0)
 //        }

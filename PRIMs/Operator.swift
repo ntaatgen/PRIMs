@@ -36,11 +36,13 @@ struct Op {
             conditions.append((lhsBuffer: lbuf == nil ? "" : bufferMapping[lbuf!]!, lhsSlot: lslotNum, rhsBuffer: rbuf == nil ? "" : bufferMapping[rbuf!]!, rhsSlot: rslotNum, op: cOP))
         }
         // Same for actions
-        let opActions = chunk.slotvals["action"]!.description.components(separatedBy: ";").map(parseName)
-        for (lbuf, lslot, cOP, rbuf, rslot, _) in opActions {
-            let lslotNum = (lslot == nil || !lslot!.hasPrefix("slot")) ? 0 : Int(String(lslot![lslot!.index(lslot!.startIndex, offsetBy: 4)])) ?? 0
-            let rslotNum = (rslot == nil || !rslot!.hasPrefix("slot")) ? 0 : Int(String(rslot![rslot!.index(rslot!.startIndex, offsetBy: 4)])) ?? 0
-            actions.append((lhsBuffer: lbuf == nil ? "" : bufferMapping[lbuf!]!, lhsSlot: lslotNum, rhsBuffer: rbuf == nil ? "" : bufferMapping[rbuf!]!, rhsSlot: rslotNum, op: cOP))
+        if let actionString = chunk.slotvals["action"]?.description  {
+            let opActions = actionString.components(separatedBy: ";").map(parseName)
+            for (lbuf, lslot, cOP, rbuf, rslot, _) in opActions {
+                let lslotNum = (lslot == nil || !lslot!.hasPrefix("slot")) ? 0 : Int(String(lslot![lslot!.index(lslot!.startIndex, offsetBy: 4)])) ?? 0
+                let rslotNum = (rslot == nil || !rslot!.hasPrefix("slot")) ? 0 : Int(String(rslot![rslot!.index(rslot!.startIndex, offsetBy: 4)])) ?? 0
+                actions.append((lhsBuffer: lbuf == nil ? "" : bufferMapping[lbuf!]!, lhsSlot: lslotNum, rhsBuffer: rbuf == nil ? "" : bufferMapping[rbuf!]!, rhsSlot: rslotNum, op: cOP))
+            }
         }
         var i = 1
         while let c = chunk.slotvals["slot\(i)"] {
@@ -90,7 +92,9 @@ struct Op {
                 }
             }
         }
-        chunk.setSlot("action", value: actionString)
+        if actionString != "" {
+            chunk.setSlot("action", value: actionString)
+        }
         chunk.fixedActivation = model.dm.defaultActivation
         return chunk
         
@@ -227,6 +231,7 @@ class Operator {
         for i in 0..<previousOperators.count - 1 {
             if let newChunk = compileOperators(op1: previousOperators[i].0, op2: previousOperators[i + 1].0) {
                 let chunk2 = model.dm.addToDM(chunk: newChunk)
+                previousOperators.append((chunk2, previousOperators[i].1)) // add it to previous operators so it will also receive a reward
                 model.addToTrace("Adding or strengtening operator \(chunk2.name)", level: 5)
                 print(chunk2)
             }
@@ -235,7 +240,7 @@ class Operator {
     
     func updateOperatorSjis(_ payoff: Double) {
         if !model.dm.goalOperatorLearning || model.reward == 0.0 { return } // only do this when switched on
-        let goalChunk = model.formerBuffers["goal"]?.slotvals["slot1"]?.chunk() // take formerBuffers goal, because goal may have been replace by stop or nil
+        let goalChunk = model.formerBuffers["goal"]?.slotvals["slot1"]?.chunk() // take formerBuffers goal, because goal may have been replaced by stop or nil
         if goalChunk == nil { return }
         for (operatorChunk,operatorTime) in previousOperators {
             let opReward = model.dm.defaultOperatorAssoc * (payoff - (model.time - operatorTime)) / model.reward
@@ -244,9 +249,9 @@ class Operator {
             }
             operatorChunk.assocs[goalChunk!.name]!.0 += model.dm.beta * (opReward - operatorChunk.assocs[goalChunk!.name]!.0)
             operatorChunk.assocs[goalChunk!.name]!.1 += 1
-            if opReward > 0 {
-                operatorChunk.addReference() // Also increase baselevel activation of the operator
-            }
+//            if opReward > 0 {
+//                operatorChunk.addReference() // Also increase baselevel activation of the operator
+//            }
             if !model.silent {
                 model.addToTrace("Updating assoc between \(goalChunk!.name) and \(operatorChunk.name) to \(operatorChunk.assocs[goalChunk!.name]!)", level: 5)
             }
@@ -486,6 +491,11 @@ class Operator {
         for condition in operator2.conditions {
             if condition.op == ">>" || condition.op == "<<" { return nil }
             if condition.lhsBuffer == "V" || condition.rhsBuffer == "V" { hasV = true }
+            if condition.lhsBuffer == "RT" && (condition.op != "<>" || condition.rhsBuffer != "") {
+                print("No compilation because there is an RT in the conditions of the second operator")
+                // But we allow checks for non-nil in the RT check
+                return nil
+            }
         }
         if hasV && hasAC { print("first operator has an AC while second operator has a V so no compilation")
             return nil }
@@ -498,15 +508,23 @@ class Operator {
             let const = operator2.constants[i]
             var newIndex = -1
             if let j = operator1.constants.index(of: const) {
-                newIndex = j
+                newIndex = j + 1
             } else {
-                newIndex = newOperator.constants.count
                 newOperator.constants.append(const)
+                newIndex = newOperator.constants.count
             }
             // Now replace all Ci's in operator2
             for j in 0..<operator2.conditions.count {
                 if operator2.conditions[j].lhsBuffer == "C" && operator2.conditions[j].lhsSlot == i + 1 {
                     operator2.conditions[j].lhsSlot = newIndex
+                }
+                if operator2.conditions[j].rhsBuffer == "C" && operator2.conditions[j].rhsSlot == i + 1 {
+                    operator2.conditions[j].rhsSlot = newIndex
+                }
+            }
+            for j in 0..<operator2.actions.count {
+                if operator2.actions[j].lhsBuffer == "C" && operator2.actions[j].lhsSlot == i + 1 {
+                    operator2.actions[j].lhsSlot = newIndex
                 }
             }
         }
