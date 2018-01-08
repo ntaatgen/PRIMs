@@ -644,6 +644,12 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
         model.tracing = true
     }
     
+    @IBAction func run100(_ sender: NSButton) {
+        model.tracing = false
+        for _ in 0..<100 { run(sender) }
+        model.tracing = true
+    }
+    
     @IBAction func step(_ sender: NSButton) {
         model.step()
         updateAllViews()

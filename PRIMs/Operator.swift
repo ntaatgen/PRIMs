@@ -231,6 +231,8 @@ class Operator {
         for i in 0..<previousOperators.count - 1 {
             if let newChunk = compileOperators(op1: previousOperators[i].0, op2: previousOperators[i + 1].0) {
                 let chunk2 = model.dm.addToDM(chunk: newChunk)
+                chunk2.fixedActivation = previousOperators[i].0.fixedActivation
+                print("Setting activation of \(chunk2.name) to \(chunk2.fixedActivation ?? -999)")
                 previousOperators.append((chunk2, previousOperators[i].1)) // add it to previous operators so it will also receive a reward
                 model.addToTrace("Adding or strengtening operator \(chunk2.name)", level: 5)
                 print(chunk2)

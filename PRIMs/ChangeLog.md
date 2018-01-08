@@ -3,3 +3,6 @@
 - There will be no operator compilation if there is any condition in operator 2 that has an RT in it (in Operator.swift)
 - When compiling, also initiate a first association between the new operator and the current goal/skill
 - Nixed the adding of a reference to successful operators (interferes with association learning)
+# 8 jan 2018
+- Added a Run 100 button
+
