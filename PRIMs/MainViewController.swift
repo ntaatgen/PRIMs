@@ -180,8 +180,12 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
         primGraphData = FruchtermanReingold(W: Double(sender.bounds.width) - 3 * border, H: Double(sender.bounds.height) - 3 * border)
         let graphType = popUpMenu.selectedItem!.title
         switch graphType {
-            case "Tasks": primGraphData!.setUpGraph(model, level: 1)
-            case "PRIMs": primGraphData!.setUpGraph(model, level: 2)
+            case "Tasks":
+                primGraphData!.constantC = 1.0
+                primGraphData!.setUpGraph(model, level: 1)
+            case "PRIMs":
+                primGraphData!.constantC = 0.3
+                primGraphData!.setUpGraph(model, level: 2)
             case "Productions": primGraphData!.setUpLearnGraph(model)
             case "Declarative": primGraphData!.setUpDMGraph(model)
         default: break // Shouldn't happen

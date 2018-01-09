@@ -61,7 +61,7 @@ class FruchtermanReingold {
             if nodes.count > 0 {
                 return constantC * sqrt(area/Double(nodes.count))
             } else {
-                return 0.0
+                return 0.1
             }
         }
     }
@@ -227,7 +227,7 @@ class FruchtermanReingold {
         for (_,chunk) in model.dm.chunks {
             if let type = chunk.slotvals["isa"] {
                 if type.description == "operator" {
-                    var conditionList = chunk.slotvals["condition"]!.description.components(separatedBy: ";")
+                    var conditionList = chunk.slotvals["condition"]?.description.components(separatedBy: ";") ?? []
                     var currentName = ""
                     var currentNode: Node? = nil
                     while level > 1 && !conditionList.isEmpty {
@@ -302,7 +302,7 @@ class FruchtermanReingold {
                         edges.append(operatorEdge)
                     }
                     if level > 1 {
-                        var actionList = chunk.slotvals["action"]!.description.components(separatedBy: ";")
+                        var actionList = chunk.slotvals["action"]?.description.components(separatedBy: ";") ?? []
                         currentName = ""
                         currentNode = nil
                         while !actionList.isEmpty {
@@ -329,8 +329,10 @@ class FruchtermanReingold {
                                 currentNode = newNode
                             }
                         }
-                        let operatorActionEdge = Edge(from: operatorNode, to: currentNode!)
-                        edges.append(operatorActionEdge)
+                        if currentNode != nil {
+                            let operatorActionEdge = Edge(from: operatorNode, to: currentNode!)
+                            edges.append(operatorActionEdge)
+                        }
                     }
                 }
             }
