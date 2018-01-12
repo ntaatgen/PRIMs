@@ -530,12 +530,14 @@ class Script {
     
     func getNextChar(_ input: String, nextIndex: String.Index)
         -> String {
-        return input.substring(with: nextIndex ..< input.index(after: nextIndex))
+            return String(input[nextIndex])
+//        return input.substring(with: nextIndex ..< input.index(after: nextIndex))
     }
             
     
     func a(_ input: String, index: String.Index, char: String) -> Bool {
-        return input.substring(from: index).hasPrefix(char)
+        return input[index...].hasPrefix(char)
+//        return input.substring(from: index).hasPrefix(char)
     }
     
     func readNextToken(_ input :String, startIndex : String.Index) -> (token : String?, nextIndex : String.Index) {
@@ -875,7 +877,7 @@ class Script {
             */
         }
         if tokens[index].hasPrefix("\"") { // String
-            let str = String(tokens[index].characters.dropFirst().dropLast())
+            let str = String(tokens[index].dropFirst().dropLast())
             index = try nextToken(index, endIndex: endIndex)
             return (Factor.str(str), index)
         }
