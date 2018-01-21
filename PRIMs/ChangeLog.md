@@ -7,3 +7,6 @@
 - Added a Run 100 button
 # 12 jan 2018
 - Learning of associations between goals and operators is now between all chunks in goal buffer slots, instead of just slot1
+- Add set-buffer-slot to ScriptFunctions
+- Also added get-buffer-slot
+- TODO: May need to record which goal was in the goal buffer when the operator fired, and strengthen those connections

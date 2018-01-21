@@ -66,7 +66,9 @@ let scriptFunctions: [String:([Factor], Model?) throws -> (result: Factor?, done
     "imaginal-to-dm": imaginalToDM,
     "set-references": setReferences,
     "set-goal": setGoal,
-    "create-new-goal": createNewGoal
+    "create-new-goal": createNewGoal,
+    "set-buffer-slot": setBufferSlot,
+    "get-buffer-slot": getBufferSlot
     ]
 
 
@@ -337,7 +339,8 @@ func trialEnd(_ content: [Factor], model: Model?) throws -> (result: Factor?, do
 }
 
 /**
- Add a Line to the Data: adds a line to the data with the first three arguments. Max of three arguments will be put in the data.*/
+ Add a Line to the Data: adds a line to the data with the first three arguments. Max of three arguments will be put in the data.
+ */
 func dataLine(_ content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool) {
     var eventParams = [String]()
     for i in 0...2 {
@@ -596,7 +599,9 @@ func randomString(_ content: [Factor], model: Model?) throws -> (result: Factor?
 
 /**
 Set a parameter
+ 
  First argument: parameter name
+ 
  Second argument: parameter value
 */
 func setGlobalParameter(_ content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool) {
@@ -729,11 +734,66 @@ func setGoal(content: [Factor], model: Model?) throws -> (result: Factor?, done:
     }
     return(nil, true)
 }
-    /**
-     Set the number of references of a chunk
-     1st argument: chunk name
-     2nd argument: number of references (int)
-     */
+
+/**
+ Set a slot in a particular buffer to a particular value
+ 
+ 1st argument is buffer name
+ 
+ 2nd argument is slot name
+ 
+ 3rd argument is slot value
+ 
+ The function does not check validity of anything, so be careful
+ It does create a new chunk in a buffer if there is none
+ */
+func setBufferSlot(content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool) {
+    guard content.count == 3 else { throw RunTimeError.invalidNumberOfArguments }
+    let bufferName = content[0].description
+    let bufferSlot = content[1].description
+    let slotValue = content[2].description
+    if model!.buffers[bufferName] == nil {
+        let newChunk = model!.generateNewChunk(bufferName)
+        newChunk.setSlot("isa", value: "fact")
+        model!.buffers[bufferName] = newChunk
+    }
+    model!.buffers[bufferName]!.setSlot(bufferSlot, value: slotValue)
+    return(nil, true)
+}
+
+/**
+ Return the slot value of a certain chunk in a certain buffer
+ 
+ 1st argument is buffer name
+ 
+ 2nd argument is slot name
+ 
+ The function does not check validity of anything, so be careful
+ It does create a new chunk in a buffer if there is none
+ */
+func getBufferSlot(content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool) {
+    guard content.count == 2 else { throw RunTimeError.invalidNumberOfArguments }
+    let bufferName = content[0].description
+    let bufferSlot = content[1].description
+    if let bufferChunk = model!.buffers[bufferName]  {
+        if let value = bufferChunk.slotvals[bufferSlot]?.description {
+            return(Factor.str(value), true)
+        } else {
+            return (Factor.str("nil"), true)
+        }
+    } else {
+        return(Factor.str("nil"), true)
+    }
+}
+
+
+/**
+ Set the number of references of a chunk
+ 
+ 1st argument: chunk name
+ 
+ 2nd argument: number of references (int)
+ */
 func setReferences(_ content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool) {
     guard content.count == 2 else { throw RunTimeError.invalidNumberOfArguments }
     let chunk = model!.dm.chunks[content[0].description]
