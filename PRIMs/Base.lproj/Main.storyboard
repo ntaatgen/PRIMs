@@ -98,6 +98,12 @@
                                                 <action selector="saveGraph:" target="Ady-hI-5gd" id="adw-ZI-0aQ"/>
                                             </connections>
                                         </menuItem>
+                                        <menuItem title="Save chart as PDF..." id="1uN-cs-fNY">
+                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                            <connections>
+                                                <action selector="saveChart:" target="Ady-hI-5gd" id="Cgb-x3-Svb"/>
+                                            </connections>
+                                        </menuItem>
                                         <menuItem isSeparatorItem="YES" id="W7M-RU-54e"/>
                                         <menuItem title="Page Setup…" keyEquivalent="P" id="qIS-W8-SiK">
                                             <modifierMask key="keyEquivalentModifierMask" shift="YES" command="YES"/>
@@ -933,7 +939,7 @@
                                                                     </textFieldCell>
                                                                     <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                                                 </tableColumn>
-                                                                <tableColumn identifier="Utility" width="64.5" minWidth="40" maxWidth="1000" id="npN-mU-PFO">
+                                                                <tableColumn identifier="Utility" width="63.5" minWidth="40" maxWidth="1000" id="npN-mU-PFO">
                                                                     <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Utility">
                                                                         <font key="font" metaFont="smallSystem"/>
                                                                         <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
@@ -955,7 +961,7 @@
                                                     </subviews>
                                                 </clipView>
                                                 <scroller key="horizontalScroller" hidden="YES" verticalHuggingPriority="750" horizontal="YES" id="1sg-ii-AeT">
-                                                    <rect key="frame" x="1" y="480" width="1" height="15"/>
+                                                    <rect key="frame" x="1" y="347" width="1" height="15"/>
                                                     <autoresizingMask key="autoresizingMask"/>
                                                 </scroller>
                                                 <scroller key="verticalScroller" hidden="YES" verticalHuggingPriority="750" horizontal="NO" id="qGB-QD-ecy">
@@ -1060,7 +1066,7 @@
                                                     <outlet property="delegate" destination="6hi-wd-EyU" id="GDJ-pP-l8e"/>
                                                 </connections>
                                             </splitView>
-                                            <customView fixedFrame="YES" id="9G3-Le-0Vx" customClass="GraphView" customModule="PRIMs" customModuleProvider="target">
+                                            <customView fixedFrame="YES" id="9G3-Le-0Vx" customClass="LineChartView" customModule="Charts">
                                                 <rect key="frame" x="0.0" y="540" width="360" height="360"/>
                                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                             </customView>
@@ -1108,7 +1114,7 @@
                         <outlet property="chunkSplit" destination="bgX-w0-ezB" id="oTJ-Qx-slf"/>
                         <outlet property="chunkTable" destination="cSP-hr-9mX" id="CDY-u4-JAJ"/>
                         <outlet property="chunkTextField" destination="lbp-yj-rmp" id="Oef-hu-ftS"/>
-                        <outlet property="graph" destination="9G3-Le-0Vx" id="jlT-X0-ft3"/>
+                        <outlet property="graph" destination="9G3-Le-0Vx" id="Tf2-qG-fTk"/>
                         <outlet property="leftSplit" destination="MM4-Di-Q8T" id="XdT-DX-yNi"/>
                         <outlet property="middleSplit" destination="b3D-dB-5Jo" id="Yp9-yI-4hd"/>
                         <outlet property="outputScrollView" destination="AH2-0e-vht" id="5fn-TX-9Sn"/>

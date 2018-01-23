@@ -40,7 +40,7 @@ define goal more {
         >>WM4
         total-count -> WM1
         push-goal -> AC1
-        subtask -> AC2
+        *subtask -> AC2
     }
 
     operator compare-total-retrieve {
@@ -68,7 +68,7 @@ define goal more {
         >>WM4
         total-count -> WM1
         push-goal -> AC1
-        subtask -> AC2
+        *subtask -> AC2
     }
 
     operator new-container-is-not-greater-move-on {
@@ -81,7 +81,7 @@ define goal more {
         >>WM4
         total-count -> WM1
         push-goal -> AC1
-        subtask -> AC2
+        *subtask -> AC2
     }
     operator new-container-is-greater-last {
         WM1 = most
@@ -104,7 +104,7 @@ define goal more {
         WM1 = most
         WM2 <> nil
         ==>
-        action -> AC1
+        *action -> AC1
         WM2 -> AC2
         nil->G1  // We want to replace this with nil->G eventually
     }
@@ -115,14 +115,14 @@ define goal count-goal {
     operator init-countgoal {
         WM1 = total-count
         WM3 = nil
-        V1 = container
+        V1 = *container
         ==>
         zero -> WM3
         >>V3 // shift to first item
         >>WM4 // Determine whether this is something that we need to count
         member -> WM1
         push-goal -> AC1
-        subsubtask -> AC2
+        *subsubtask -> AC2
     }
 
     operator move-one-if-not-countable-and-not-last {
@@ -137,7 +137,7 @@ define goal count-goal {
         >>WM4
         member -> WM1
         push-goal -> AC1
-        subsubtask -> AC2
+        *subsubtask -> AC2
     }
 
     operator move-one-if-not-countable-and-last {
@@ -173,7 +173,7 @@ define goal count-goal {
         >>WM4
         member -> WM1
         push-goal -> AC1
-        subsubtask -> AC2
+        *subsubtask -> AC2
     }
 
     operator add-count-last {
@@ -191,8 +191,8 @@ define goal determine-attribute {
 
 operator answer-yes {
     WM1 = member
-    V1 = item-type
-    V4 = target
+    V1 = *item-type
+    V4 = *target
     ==>
     yes -> WM2
     WM<<
@@ -201,8 +201,8 @@ operator answer-yes {
 
 operator answer-no {
     WM1 = member
-    V1 = item-type
-    V4 <> target
+    V1 = *item-type
+    V4 <> *target
     ==>
     no -> WM2
     WM<<

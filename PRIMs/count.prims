@@ -21,9 +21,9 @@ define goal count {
    WM1 = nil  // Imaginal should be empty
   ==>
    V1 -> WM1 // Copy the start number to working memory
-   fact-type -> RT1 // Start retrieving the next number
+   *fact-type -> RT1 // Start retrieving the next number
    V1 -> RT2
-   action -> AC1 // Say the current number
+   *action -> AC1 // Say the current number
    V1 -> AC2
    }
 
@@ -33,9 +33,9 @@ define goal count {
     V2 <> WM1
    ==>
     RT3 -> WM1
-    fact-type -> RT1
+    *fact-type -> RT1
     RT3 -> RT2
-    action -> AC1
+    *action -> AC1
     RT3 ->AC2
   }
 
@@ -80,7 +80,7 @@ define script {
     add-visual(visual-name,digits[start],digits[end])
     screen(visual-name)
 //    screen(digits[start],digits[end])
-    run-until-action("stop")
+    run-until-relative-time-or-action(20.0, "stop")
     issue-reward()
     trial-end()
 }

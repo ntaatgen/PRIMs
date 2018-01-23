@@ -7,8 +7,9 @@
 //
 
 import Cocoa
+import Charts
 
-class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDelegate, NSSplitViewDelegate, GraphViewDataSource, PrimViewDataSource {
+class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDelegate, NSSplitViewDelegate,  PrimViewDataSource {
     
     
     var model = Model(silent: false)
@@ -40,7 +41,6 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
     @IBOutlet weak var rightSplit: NSSplitView!
     
     @IBOutlet weak var chunkSplit: NSSplitView!
-    
     
     func splitView(_ splitView: NSSplitView, canCollapseSubview subview: NSView) -> Bool {
         if subview === middleSplit as NSView || subview === middleSplit.subviews[0] {
@@ -86,13 +86,15 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
     }
     
     /** This section implements the functions needed for the GraphView, which can display various performance measures
-    Currently, it shows run latencies.
     The actual results are stored in the Model class
+     This used to be code specifically written for PRIMs, but now I have adapted the Charts framework for drawing graphs
     */
     
-    @IBOutlet weak var graph: GraphView! {
-        didSet { graph.dataSource = self }}
+    @IBOutlet weak var graph: LineChartView!
     
+//    @IBOutlet weak var graph: GraphView! {
+//        didSet { graph.dataSource = self }}
+//
     @IBAction func clearGraph(_ sender: NSButton) {
         model.clearResults()
         if model.currentTaskIndex != nil {
@@ -101,7 +103,53 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
         updateAllViews()
     }
     
-    
+    func drawGraph() {
+        let theData = LineChartData()
+        var maxPoints = 0 // maximum number of datapoints in any of the lists
+        for data in model.modelResults {
+            maxPoints = max(maxPoints, data.count)
+        }
+        let drawCircles = maxPoints <= 40 // we draw circles if all lists are shorter than 40
+        var usedTasks = Set<Int>()
+        for i in 0..<model.modelResults.count {
+            var data = [ChartDataEntry]()
+            var results = model.modelResults[i]
+            if results.count > 1 && model.averageWindow > 1 {
+                for i in 1..<results.count {
+                    let index = results.count - i
+                    let start = max(0,index - model.averageWindow + 1)
+                    var total = 0.0
+                    for j in start...index {
+                        total += results[j].1
+                    }
+                    results[index].1 = total / Double(index - start + 1)
+                }
+            }
+            for j in 0..<results.count {
+                data.append(ChartDataEntry(x: results[j].0 , y: results[j].1 ))
+            }
+            let lineEntry = LineChartDataSet(values: data, label: model.tasks[model.resultTaskNumber[i]].name)
+            lineEntry.drawCirclesEnabled = drawCircles
+            lineEntry.circleColors = [NSUIColor.black]
+            lineEntry.circleHoleRadius = 2
+            lineEntry.circleRadius = 4
+            lineEntry.lineWidth = 3
+            lineEntry.setColor(numberToColor(model.resultTaskNumber[i]))
+            if usedTasks.contains(model.resultTaskNumber[i]) {
+                lineEntry.lineDashLengths = [3,2]
+            } else {
+                usedTasks.insert(model.resultTaskNumber[i])
+            }
+            theData.addDataSet(lineEntry)
+        }
+        graph.xAxis.labelPosition = .bottom
+        graph.getAxis(.left).axisMinimum = 0
+        graph.getAxis(.right).axisMinimum = 0
+        graph.maxVisibleCount = 10
+        graph.chartDescription!.text = model.graphTitle ?? "Reaction time"
+        graph.data = theData
+    }
+    /*
     func graphXMin(_ sender: GraphView) -> Double? {
         return 0.0
     }
@@ -151,6 +199,7 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
     func graphTitle(_ sender: GraphView) -> String {
         return model.graphTitle ?? "Reaction time"
     }
+    */
     
     /**
     This section implements the PrimGraph protocol.
@@ -447,6 +496,7 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
         taskTable.reloadData()
         graph.needsDisplay = true
         updateBufferView()
+        drawGraph()
 //        graph.setNeedsDisplayInRect(graph.frame)
     }
     
@@ -766,12 +816,24 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
         
     }
     
+    @IBAction func saveChart(_ sender: NSButton) {
+        let saveDialog = NSSavePanel()
+        saveDialog.title = "Enter the name of the file"
+        saveDialog.prompt = "Save"
+        saveDialog.worksWhenModal = true
+        saveDialog.allowsOtherFileTypes = false
+        saveDialog.allowedFileTypes = ["pdf"]
+        saveDialog.nameFieldStringValue = "PRIMSChartoutput.pdf"
+        let saveResult = saveDialog.runModal()
+        if saveResult != NSApplication.ModalResponse.OK { return }
+        if saveDialog.url == nil { return }
+        try? graph.dataWithPDF(inside: graph.bounds).write(to: saveDialog.url!)
+    }
  
     override func viewDidLoad() {
         super.viewDidLoad()
         NotificationCenter.default.addObserver(self, selector: #selector(MainViewController.updatePrimGraph), name: NSNotification.Name(rawValue: "UpdatePrimGraph"), object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(MainViewController.respondToOpenFile(_:)), name: NSNotification.Name(rawValue: "openFile"), object: nil)
-        
     }
 
     override var representedObject: Any? {

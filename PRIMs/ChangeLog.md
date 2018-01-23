@@ -10,3 +10,5 @@
 - Add set-buffer-slot to ScriptFunctions
 - Also added get-buffer-slot
 - TODO: May need to record which goal was in the goal buffer when the operator fired, and strengthen those connections
+# 21 jan 2018
+- Used Charts framework for graphs
