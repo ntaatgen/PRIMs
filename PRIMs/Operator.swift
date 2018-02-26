@@ -194,34 +194,7 @@ class Operator {
     
     /// List of chosen operators with time
     var previousOperators: [(Chunk,Double)] = []     
-    /**
-    Update the Sji's between the current goal(s?) and the operators that have fired. Restrict to updating the goal in G1 for now.
     
-    - parameter payoff: The payoff that will be distributed
-    */
-//    func updateOperatorSjis(_ payoff: Double) {
-//        if !model.dm.goalOperatorLearning || model.reward == 0.0 { return } // only do this when switched on
-//        let goalChunk = model.formerBuffers["goal"]?.slotvals["slot1"]?.chunk() // take formerBuffers goal, because goal may have been replace by stop or nil
-//        if goalChunk == nil { return }
-//        for (operatorChunk,operatorTime) in previousOperators {
-//            let opReward = model.dm.defaultOperatorAssoc * (payoff - (model.time - operatorTime)) / model.reward
-//            let opChunkAssocGoal = operatorChunk.assocs[goalChunk!.name]
-//            if opChunkAssocGoal == nil || opChunkAssocGoal!.1 != 0 { // We don't update when the assoc is defined in the model
-//                if operatorChunk.assocs[goalChunk!.name] == nil {
-//                    operatorChunk.assocs[goalChunk!.name] = (0.0, 0)
-//                }
-//                operatorChunk.assocs[goalChunk!.name]!.0 += model.dm.beta * (opReward - operatorChunk.assocs[goalChunk!.name]!.0)
-//                operatorChunk.assocs[goalChunk!.name]!.1 += 1
-//                print("Operator \(operatorChunk.name) receives reward \(opReward)")
-//                if opReward > 0 {
-//                    operatorChunk.addReference() // Also increase baselevel activation of the operator
-//                }
-//                if !model.silent {
-//                    model.addToTrace("Updating assoc between \(goalChunk!.name) and \(operatorChunk.name) to \(operatorChunk.assocs[goalChunk!.name]!)", level: 5)
-//                }
-//            }
-//        }
-//    }
     /**
     Compile the sequence of operators in the list of previous operators
     */
@@ -270,8 +243,7 @@ class Operator {
     }
 
     
-    //static let literalRoles = ["stop", "wait", "error", "focus-up", "focusup","one","two","three","four","five","six","yes","no"] // not complete yet!!!
-    
+     
     /**
     Function that checks whether the operator matches the current roles in the goals. If it does, it also returns an operator with the appropriate substitution.
      - parameter op: The candidate operator
@@ -309,6 +281,7 @@ class Operator {
                 if let subst = referenceList[tempString] {
                     opCopy.setSlot("slot\(i)", value: subst)
                 } else {
+                    print("Cannot find \(opSlotValue.description)")
                     return nil
                 }
             }
@@ -381,15 +354,15 @@ class Operator {
                             model.addToTrace(s, level: 5)
                         }
                     }
-// Temporary (?) commented out
-//                    if match && candidate.spreadingActivation() <= 0.0 && model.buffers["operator"]?.slotValue("condition") != nil {
-//                        match = false
-//                        if !model.silent {
-//                            let s = "   Rejected operator " + candidate.name + " because it has no associations and no production that tests all conditions"
-//                            model.addToTrace(s, level: 2)
-//                        }
-//                        model.buffers["operator"] = nil
-//                    }
+                    // Temporary (?) commented out
+                    //                    if match && candidate.spreadingActivation() <= 0.0 && model.buffers["operator"]?.slotValue("condition") != nil {
+                    //                        match = false
+                    //                        if !model.silent {
+                    //                            let s = "   Rejected operator " + candidate.name + " because it has no associations and no production that tests all conditions"
+                    //                            model.addToTrace(s, level: 2)
+                    //                        }
+                    //                        model.buffers["operator"] = nil
+                    //                    }
                 } else {
                     if !model.silent {
                         let s = "   Rejected operator " + candidate.name + " because its roles do not match any goal"

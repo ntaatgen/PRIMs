@@ -219,6 +219,26 @@ class Prim:NSObject, NSCoding {
                 }
                 return true
             }
+            // If we copy something to slot0 of a buffer chunk we replace the whole chunk with the new chunk
+            if rhsSlot! == "slot0" {
+                if let newChunk = lhsVal?.chunk() {
+                    if rhsBuffer! == "imaginal", let currentImaginal = model.buffers["imaginal"] {
+                        _ = model.dm.addToDM(chunk: currentImaginal)
+                        if currentImaginal.parent != nil {
+                            newChunk.parent = currentImaginal.parent
+                            let parentChunk = model.imaginal.chunks[currentImaginal.parent!]!
+                            for (slot,value) in parentChunk.slotvals {
+                                if value.chunk() != nil && value.chunk() == currentImaginal {
+                                    parentChunk.setSlot(slot, value: newChunk)
+                                }
+                            }
+                        }
+                    }
+                    model.buffers[rhsBuffer!] = newChunk
+                } else {
+                    return false
+                }
+            }
             model.buffers[rhsBuffer!]!.setSlot(rhsSlot!, value: lhsVal!)
             return true
         case ">>":

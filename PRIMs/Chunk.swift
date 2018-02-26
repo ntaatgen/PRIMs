@@ -233,7 +233,8 @@ class Chunk: NSObject, NSCoding {
             slotvals[slot] = Value.Number(possibleNumVal!)
         }
         if let chunk = model.dm.chunks[value] {
-            slotvals[slot] = Value.symbol(chunk)
+            setSlot(slot, value: chunk)
+//            slotvals[slot] = Value.symbol(chunk)
         } else {
             slotvals[slot] = Value.Text(value)
         }

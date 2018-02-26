@@ -14,7 +14,7 @@ class Imaginal {
     unowned let model: Model
     /// Do we automatically move the Chunk to DM if an existing slot is modified? No more in this new version!
     var autoClear = false // Now obsolete
-    private var chunks: [String:Chunk] = [:]
+    var chunks: [String:Chunk] = [:]
     /// Variable that records whether an imaginal action is needed
     var hasToDoAction: Bool = false
     /// Total extra time to carry out WM related actions
