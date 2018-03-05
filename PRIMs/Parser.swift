@@ -863,7 +863,7 @@ class Parser  {
                 if braceCount > 0 {
                     script += "}"
                 }
-            }
+            } else { return false }
         }
         let sc = Script()
         do {

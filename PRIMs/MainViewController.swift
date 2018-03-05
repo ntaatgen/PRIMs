@@ -409,6 +409,7 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
         case "All": outputText.string = model.getTrace(5)
         default: break // shouldn't happen
         }
+        outputText.scrollToEndOfDocument(self)
     }
     
 //    @IBOutlet weak var popUpMenu: NSPopUpButton!
