@@ -939,7 +939,7 @@
                                                                     </textFieldCell>
                                                                     <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                                                 </tableColumn>
-                                                                <tableColumn identifier="Utility" width="63.5" minWidth="40" maxWidth="1000" id="npN-mU-PFO">
+                                                                <tableColumn identifier="Utility" width="40" minWidth="40" maxWidth="1000" id="npN-mU-PFO">
                                                                     <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Utility">
                                                                         <font key="font" metaFont="smallSystem"/>
                                                                         <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
@@ -961,7 +961,7 @@
                                                     </subviews>
                                                 </clipView>
                                                 <scroller key="horizontalScroller" hidden="YES" verticalHuggingPriority="750" horizontal="YES" id="1sg-ii-AeT">
-                                                    <rect key="frame" x="1" y="347" width="1" height="15"/>
+                                                    <rect key="frame" x="1" y="480" width="1" height="15"/>
                                                     <autoresizingMask key="autoresizingMask"/>
                                                 </scroller>
                                                 <scroller key="verticalScroller" hidden="YES" verticalHuggingPriority="750" horizontal="NO" id="qGB-QD-ecy">

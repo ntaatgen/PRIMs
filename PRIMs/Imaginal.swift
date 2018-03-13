@@ -224,6 +224,19 @@ class Imaginal {
 //            }
             imaginalActionTime += model.dm.latency(parentChunk.activation())
             model.addToTrace("Imaginal retrieval latency of \(parentChunk.name) is \(model.dm.latency(parentChunk.activation()))", level: 5)
+            if model.dm.latency(parentChunk.activation()) > 1.0 {
+                print("WM dump")
+                print("Parent is \(parentChunk.name)")
+                for (_,chunk) in chunks {
+                print(chunk)
+                    print("BL Activation \(chunk.baseLevelActivation()) Activation \(chunk.activation())")
+                    for (id,(act,number)) in chunk.assocs {
+                        print("Assoc with \(id) is \(act) , \(number)")
+                    }
+                    print("Spreading activation is \(chunk.spreadingActivation()) noise = \(chunk.calculateNoise())")
+                }
+            }
+            
             model.buffers["imaginal"] = parentChunk
             return true
         } else {

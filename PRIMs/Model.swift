@@ -397,12 +397,14 @@ class Model: NSObject, NSCoding {
         let numVal = string2Double(value)
         let boolVal = (value != "nil")
         switch parameter {
-        case "imaginal-autoclear:":
-            imaginal.autoClear = boolVal
+//        case "imaginal-autoclear:":
+//            imaginal.autoClear = boolVal
         case "ol:":
             dm.optimizedLearning = boolVal
-        case "goal-operator-learning:":
+        case "goal-operator-learning:", "skill-operator-learning:":
             dm.goalOperatorLearning = boolVal
+        case "inter-operator-learning:":
+            dm.interOperatorLearning = boolVal
         case "goal-chunk-spreads:":
             dm.goalSpreadingByActivation = boolVal
         case "declarative-buffer-stuffing:":
@@ -434,8 +436,8 @@ class Model: NSObject, NSCoding {
                 procedural.defaultU = numVal!
             case "primU:":
                 procedural.primU = numVal!
-            case "utility-retrieve-operator:":
-                procedural.utilityRetrieveOperator = numVal!
+//            case "utility-retrieve-operator:":
+//                procedural.utilityRetrieveOperator = numVal!
             case "dat:":
                 procedural.productionActionLatency = numVal!
             case "bll:":

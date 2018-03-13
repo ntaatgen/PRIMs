@@ -63,7 +63,7 @@ class Parser  {
                 }
                 switch definedItem! {
                 case "task": if !parseTask() { return false}
-                case "goal": if !parseGoal() { return false }
+                case "goal", "skill": if !parseGoal() { return false }
                 case "facts": if !parseFacts() { return false }
                 case "visual": if !parseVisual() { return false }
                 case "screen": if !parseScreen() { return false }
@@ -100,7 +100,7 @@ class Parser  {
     func parseTask() -> Bool {
         let taskName = scanner.scanUpToCharactersFromSet(whitespaceNewLineParentheses)
         if taskName == nil {
-            m.addToTraceField("Unexpected end of file in goal definition")
+            m.addToTraceField("Unexpected end of file in skill definition")
             return false
         }
         m.addToTraceField("Defining task \(taskName!)")
@@ -113,14 +113,14 @@ class Parser  {
         while !scanner.scanString("}", into: nil) {
             setting = scanner.scanUpToCharactersFromSet(whitespaceNewLineParentheses)
             if setting == nil {
-                m.addToTraceField("Unexpected end of file in goal definition")
+                m.addToTraceField("Unexpected end of file in skill definition")
                 return false
             }
         switch setting! {
-        case "initial-goals:":
+        case "initial-goals:", "initial-skills:":
             let parenthesis = scanner.scanString("(")
             if parenthesis == nil {
-                m.addToTraceField("Missing '(' after initial-goals:")
+                m.addToTraceField("Missing '(' after initial-skills:")
                 return false
             }
             var goal: String?
@@ -130,7 +130,7 @@ class Parser  {
             while !scanner.scanString(")", into: nil) {
                 goal = scanner.scanUpToCharactersFromSet(whitespaceNewLineParentheses)
                 if goal == nil {
-                    m.addToTraceField("Unexpected end of file in initial-goals:")
+                    m.addToTraceField("Unexpected end of file in initial-skills:")
                     return false
                 }
                 if m.dm.chunks[goal!] == nil {
@@ -145,21 +145,21 @@ class Parser  {
                 }
                 chunk.setSlot("slot\(slotCount)", value: goal!)
                 slotCount += 1
-                m.addToTraceField("Task has goal \(goal!)")
+                m.addToTraceField("Task has skill \(goal!)")
                 
             }
             m.currentGoals = chunk
-        case "goals:":
+        case "goals:", "skills:":
             let parenthesis = scanner.scanString("(")
             if parenthesis == nil {
-                m.addToTraceField("Missing '(' after goals:")
+                m.addToTraceField("Missing '(' after skills:")
                 return false
             }
             var goal: String?
             while !scanner.scanString(")", into: nil) {
                 goal = scanner.scanUpToCharactersFromSet(whitespaceNewLineParentheses)
                 if goal == nil {
-                    m.addToTraceField("Unexpected end of file in goals:")
+                    m.addToTraceField("Unexpected end of file in skills:")
                     return false
                 }
                 if m.dm.chunks[goal!] == nil {
@@ -172,7 +172,7 @@ class Parser  {
                 } else {
                     m.dm.chunks[goal!]!.definedIn.append(taskNumber)
                 }
-                m.addToTraceField("Task has goal \(goal!)")
+                m.addToTraceField("Task has skill \(goal!)")
                 
             }
         case "references:":
@@ -333,12 +333,12 @@ class Parser  {
     func parseGoal() -> Bool {
         let goalName = scanner.scanUpToCharactersFromSet(whitespaceNewLineParentheses)
         if goalName == nil {
-            m.addToTraceField("Unexpected end of file in goal definition")
+            m.addToTraceField("Unexpected end of file in skill definition")
             return false
         }
-        m.addToTraceField("Defining goal \(goalName!)")
+        m.addToTraceField("Defining skill \(goalName!)")
         if m.dm.chunks[goalName!] == nil {
-            m.addToTraceField("Goal \(goalName!) has not been declared at the task level. This may lead to problems.")
+            m.addToTraceField("Skill \(goalName!) has not been declared at the task level. This may lead to problems.")
             return false
         } else {
             m.dm.chunks[goalName!]!.definedIn.append(taskNumber)
@@ -354,7 +354,7 @@ class Parser  {
             op = scanner.scanUpToCharactersFromSet(whitespaceNewLineParentheses)
             if op == nil || op! != "operator" {
                 let eof = "eof"
-                m.addToTraceField("Can only handle operator declarations within a goal definition, but found \(op ?? eof)")
+                m.addToTraceField("Can only handle operator declarations within a skill definition, but found \(op ?? eof)")
                 return false
             }
             if !parseOperator(goalName!) { return false }
@@ -511,10 +511,12 @@ class Parser  {
             chunk.assocs[goalName] = (m.dm.defaultOperatorAssoc, 0)
 //        }
         chunk.assocs[chunk.name] = (m.dm.defaultOperatorSelfAssoc, 0)
-        for (_,ch) in m.dm.chunks {
-            if ch.type == "operator" && ch.assocs[goalName] != nil {
-                chunk.assocs[ch.name] = (m.dm.defaultInterOperatorAssoc, 0)
-                ch.assocs[chunk.name] = (m.dm.defaultInterOperatorAssoc, 0)
+        if !m.dm.interOperatorLearning {
+            for (_,ch) in m.dm.chunks {
+                if ch.type == "operator" && ch.assocs[goalName] != nil {
+                    chunk.assocs[ch.name] = (m.dm.defaultInterOperatorAssoc, 0)
+                    ch.assocs[chunk.name] = (m.dm.defaultInterOperatorAssoc, 0)
+                }
             }
         }
         chunk.definedIn = [taskNumber]

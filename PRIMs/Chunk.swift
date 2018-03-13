@@ -185,9 +185,9 @@ class Chunk: NSObject, NSCoding {
         let fixedComponent = fixedActivation == nil ? 0.0 : exp(fixedActivation!)
         if model.dm.optimizedLearning {
             let result = log(fixedComponent + (Double(references) * pow(model.time - creationTime! + 0.05, -model.dm.baseLevelDecay)) / (1 - model.dm.baseLevelDecay))
-            if fixedActivation == nil {
-                print("Chunk \(name) has no fixed activation")
-            }
+//            if fixedActivation == nil {
+//                print("Chunk \(name) has no fixed activation")
+//            }
             if fixedActivation != nil && result < fixedActivation! {
                 print("Detected under threshold chunk \(name) age \(model.time - creationTime!) references \(references)")
             }
@@ -299,7 +299,7 @@ class Chunk: NSObject, NSCoding {
         if let value = chunk.assocs[self.name] {
             return calculateSji(value)
         } else if self.appearsInSlotOf(chunk) {
-            return model.dm.maximumAssociativeStrength - log(Double(self.fan))
+            return max(0, model.dm.maximumAssociativeStrength - log(Double(self.fan)))
         }
         return 0.0
     }

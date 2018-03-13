@@ -39,6 +39,7 @@ let scriptFunctions: [String:([Factor], Model?) throws -> (result: Factor?, done
     "run-until-action": runUntilAction,
     "run-relative-time": runRelativeTimeOrAction,
     "run-absolute-time": runAbsoluteTimeOrAction,
+    "run-relative-time-or-action": runRelativeTimeOrAction,
     "run-until-relative-time-or-action": runRelativeTimeOrAction,
     "run-absolute-time-or-action": runAbsoluteTimeOrAction,
     "print": printArg,
@@ -65,7 +66,9 @@ let scriptFunctions: [String:([Factor], Model?) throws -> (result: Factor?, done
     "report-memory": reportMemory,
     "imaginal-to-dm": imaginalToDM,
     "set-references": setReferences,
-    "set-goal": setGoal,
+    "set-goal" : setGoal,
+    "set-skill": setGoal,
+    "create-new-skill": createNewGoal,
     "create-new-goal": createNewGoal,
     "set-buffer-slot": setBufferSlot,
     "get-buffer-slot": getBufferSlot

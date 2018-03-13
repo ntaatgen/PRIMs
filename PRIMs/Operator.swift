@@ -214,7 +214,7 @@ class Operator {
     }
     
     func updateOperatorSjis(_ payoff: Double) {
-        if !model.dm.goalOperatorLearning || model.reward == 0.0 { return } // only do this when switched on
+        guard (model.dm.goalOperatorLearning || model.dm.interOperatorLearning) && model.reward != 0.0  else { return }
         let goalChunk = model.formerBuffers["goal"] // take formerBuffers goal, because goal may have been replaced by stop or nil
         guard goalChunk != nil else { return }
         var goalChunks = Set<Chunk>()
@@ -226,18 +226,36 @@ class Operator {
             index += 1
         }
         guard goalChunks != [] else { return }
+        var prevOperatorChunk: Chunk? = nil
         for (operatorChunk,operatorTime) in previousOperators {
-            let opReward = model.dm.defaultOperatorAssoc * (payoff - (model.time - operatorTime)) / model.reward
-            for goal in goalChunks {
-            if operatorChunk.assocs[goal.name] == nil {
-                operatorChunk.assocs[goal.name] = (0.0, 0)
+            let goalOpReward = model.dm.defaultOperatorAssoc * (payoff - (model.time - operatorTime)) / model.reward
+            let interOpReward = model.dm.defaultInterOperatorAssoc * (payoff - (model.time - operatorTime)) / model.reward
+            if model.dm.goalOperatorLearning {
+                for goal in goalChunks {
+                    if operatorChunk.assocs[goal.name] == nil {
+                        operatorChunk.assocs[goal.name] = (0.0, 0)
+                    }
+                    operatorChunk.assocs[goal.name]!.0 += model.dm.beta * (goalOpReward - operatorChunk.assocs[goal.name]!.0)
+                    operatorChunk.assocs[goal.name]!.1 += 1
+                    if !model.silent {
+                        model.addToTrace("Updating assoc between \(goal.name) and \(operatorChunk.name) to \(operatorChunk.assocs[goal.name]!)", level: 5)
+                    }                }
             }
-            operatorChunk.assocs[goal.name]!.0 += model.dm.beta * (opReward - operatorChunk.assocs[goal.name]!.0)
-            operatorChunk.assocs[goal.name]!.1 += 1
+            if model.dm.interOperatorLearning {
+                if prevOperatorChunk == nil {
+                    prevOperatorChunk = operatorChunk
+                } else {
+                    if operatorChunk.assocs[prevOperatorChunk!.name] == nil {
+                        operatorChunk.assocs[prevOperatorChunk!.name] = (0.0, 0)
+                    }
+                    operatorChunk.assocs[prevOperatorChunk!.name]!.0 += model.dm.beta * (interOpReward - operatorChunk.assocs[prevOperatorChunk!.name]!.0)
+                    operatorChunk.assocs[prevOperatorChunk!.name]!.1 += 1
+                    if !model.silent {
+                        model.addToTrace("Updating assoc between \(prevOperatorChunk!.name) and \(operatorChunk.name) to \(operatorChunk.assocs[prevOperatorChunk!.name]!)", level: 5)
+                    }
+                    prevOperatorChunk = operatorChunk
+                }
 
-            if !model.silent {
-                model.addToTrace("Updating assoc between \(goal.name) and \(operatorChunk.name) to \(operatorChunk.assocs[goal.name]!)", level: 5)
-            }
             }
         }
     }
@@ -527,7 +545,8 @@ class Operator {
                 newCondition.rhsBuffer = operator1.actions[i].lhsBuffer
                 newCondition.rhsSlot = operator1.actions[i].lhsSlot
             }
-            if (newCondition.lhsBuffer != "nil" || newCondition.rhsBuffer != "nil") {
+//            print("New condition is \(newCondition)")
+            if (newCondition.lhsBuffer != "" || newCondition.rhsBuffer != "") {
                 newOperator.conditions.append(newCondition)
             }
         }

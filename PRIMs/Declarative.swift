@@ -26,6 +26,7 @@ class Declarative: NSObject, NSCoding  {
     static let goalSpreadingActivationDefault = false
     static let latencyFactorDefault = 0.2
     static let goalOperatorLearningDefault = false
+    static let interOperatorLearningDefault = false
     static let betaDefault = 0.1
     static let explorationExploitationFactorDefault = 0.0
     static let declarativeBufferStuffingDefault = false
@@ -66,6 +67,8 @@ class Declarative: NSObject, NSCoding  {
     var latencyFactor = latencyFactorDefault
     /// Indicates whether associations between goals and operators will be learned
     var goalOperatorLearning = goalOperatorLearningDefault
+    /// Indicates whether associations between subsequent operators are learned
+    var interOperatorLearning = interOperatorLearningDefault
     /// Learning rate of goal operator association learning
     var beta = betaDefault
     /// Parameter that controls the amount of exploration vs. exploitation. Higher is more exploration
@@ -160,6 +163,7 @@ class Declarative: NSObject, NSCoding  {
         goalSpreadingByActivation = Declarative.goalSpreadingActivationDefault
         latencyFactor = Declarative.latencyFactorDefault
         goalOperatorLearning = Declarative.goalOperatorLearningDefault
+        interOperatorLearning = Declarative.interOperatorLearningDefault
         beta = Declarative.betaDefault
         explorationExploitationFactor = Declarative.explorationExploitationFactorDefault
         declarativeBufferStuffing = Declarative.declarativeBufferStuffingDefault

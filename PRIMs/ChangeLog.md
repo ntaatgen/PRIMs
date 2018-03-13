@@ -12,3 +12,11 @@
 - TODO: May need to record which goal was in the goal buffer when the operator fired, and strengthen those connections
 # 21 jan 2018
 - Used Charts framework for graphs
+# 26 feb 2018
+- Added the option to push a value in BufferName0 (e.g., WM0) to replace the whole chunk in the buffer. This makes it much easier for subgoals to push results to the parent
+
+# 5 mar 2018
+- implemented inter operator association learning. Now it is directly between two operators, it may have to become a three-way association between two operators and the goal
+
+# 8 Mar 2018
+- Added "skill" as a synomym for "goal" in the model syntax.

@@ -15,8 +15,8 @@ class Procedural: NSObject, NSCoding {
     var defaultU = defaultUdefault
     static let primUDefault = 2.0
     var primU = primUDefault
-    static let utilityRetrieveOperatorDefault = 2.0
-    var utilityRetrieveOperator = utilityRetrieveOperatorDefault
+//    static let utilityRetrieveOperatorDefault = 2.0
+//    var utilityRetrieveOperator = utilityRetrieveOperatorDefault
     static let alphaDefault = 0.1
     var alpha = alphaDefault
     static let productionActionLatencyDefault = 0.05
@@ -53,7 +53,7 @@ class Procedural: NSObject, NSCoding {
         utilityNoise = Procedural.utilityNoiseDefault
         defaultU = Procedural.defaultUdefault
         primU = Procedural.primUDefault
-        utilityRetrieveOperator = Procedural.utilityRetrieveOperatorDefault
+//        utilityRetrieveOperator = Procedural.utilityRetrieveOperatorDefault
         alpha = Procedural.alphaDefault
         productionActionLatency = Procedural.productionActionLatencyDefault
         productionAndPrimLatency = Procedural.productionAndPrimLatencyDefault
