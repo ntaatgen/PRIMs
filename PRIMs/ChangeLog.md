@@ -20,3 +20,8 @@
 
 # 8 Mar 2018
 - Added "skill" as a synomym for "goal" in the model syntax.
+
+# 19 Mar 2018
+- Added Instatiate-skill function that makes an instantiate of a skill, so that multiple instantiations of the same skill can be part of a single task.
+- Rounded latencies to three digits in the trace.
+- Removed the necessity to define skills in the task definition

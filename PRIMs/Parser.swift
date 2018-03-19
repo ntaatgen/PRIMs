@@ -331,22 +331,35 @@ class Parser  {
     }
     
     func parseGoal() -> Bool {
-        let goalName = scanner.scanUpToCharactersFromSet(whitespaceNewLineParentheses)
-        if goalName == nil {
+        guard let goalName = scanner.scanUpToCharactersFromSet(whitespaceNewLineParentheses) else {
             m.addToTraceField("Unexpected end of file in skill definition")
             return false
         }
-        m.addToTraceField("Defining skill \(goalName!)")
-        if m.dm.chunks[goalName!] == nil {
-            m.addToTraceField("Skill \(goalName!) has not been declared at the task level. This may lead to problems.")
-            return false
-        } else {
-            m.dm.chunks[goalName!]!.definedIn.append(taskNumber)
+        m.addToTraceField("Defining skill \(goalName)")
+        if let goalChunk = m.dm.chunks[goalName] {
+            goalChunk.definedIn.append(taskNumber)
+            if goalChunk.type != "goaltype" {
+                m.addToTraceField("Warning: Skill \(goalName) already exists with type \(goalChunk.type), overwriting...")
+                goalChunk.slotvals = [:]
+                goalChunk.setSlot("isa", value: "goaltype")
+                goalChunk.setSlot("slot1", value: goalName)
+                goalChunk.fixedActivation = 1.0
+            }
+        } else  {
+            let newchunk = Chunk(s: goalName, m: m)
+            newchunk.setSlot("isa", value: "goaltype")
+            newchunk.setSlot("slot1", value: goalName)
+            newchunk.fixedActivation = 1.0 // should change this later
+            newchunk.definedIn = [taskNumber]
+            _ = m.dm.addToDM(chunk: newchunk)
+//
+//        if m.dm.chunks[goalName] == nil {
+//            m.addToTraceField("Skill \(goalName) has not been declared at the task level. This may lead to problems.")
+//            return false
         }
-
         let readBrace = scanner.scanString("{")
         if readBrace == nil {
-            m.addToTraceField("'{' Expected after \(goalName!)")
+            m.addToTraceField("'{' Expected after \(goalName)")
             return false
         }
         var op: String?
@@ -357,7 +370,7 @@ class Parser  {
                 m.addToTraceField("Can only handle operator declarations within a skill definition, but found \(op ?? eof)")
                 return false
             }
-            if !parseOperator(goalName!) { return false }
+            if !parseOperator(goalName) { return false }
         }
         return true
     }

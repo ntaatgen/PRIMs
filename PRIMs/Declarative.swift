@@ -438,14 +438,14 @@ class Declarative: NSObject, NSCoding  {
                         if let value = matchedChunk.slotvals[slot]?.number() {
                             result += value * (expA / totalExpA)
                             if !model.silent {
-                                model.addToTrace("Adding \(value * (expA / totalExpA)) to result based on \(matchedChunk.name)",level: 5)
+                                model.addToTrace("Adding \((value * (expA / totalExpA)).string(fractionDigits: 3)) to result based on \(matchedChunk.name)",level: 5)
                             }
                         } else {
                             model.addToTraceField("*** Warning: Chunk \(matchedChunk.description) could not be blended because there is no number in slot \(slot)")
                         }
                     }
                     if !model.silent {
-                        model.addToTrace("Total blended value for slot \(slot) is \(result)", level:5)
+                        model.addToTrace("Total blended value for slot \(slot) is \(result.string(fractionDigits: 3))", level:5)
                     }
                     bestMatch.setSlot(slot, value: result)
                 default: break
@@ -472,12 +472,12 @@ class Declarative: NSObject, NSCoding  {
         if retrieveResult != nil {
             if stuff {
                 if !model.silent {
-                    model.addToTrace("Stuffing retrieval buffer \(retrieveResult!.name) (latency = \(latency))", level: 2)
+                    model.addToTrace("Stuffing retrieval buffer \(retrieveResult!.name) (latency = \(latency.string(fractionDigits: 3)))", level: 2)
                 }
                 model.addToBatchTrace(model.time - model.startTime, type: "retrieval", addToTrace: "\(retrieveResult!.name)")
             } else {
                 if !model.silent {
-                    model.addToTrace("Retrieving \(retrieveResult!.name) (latency = \(latency))", level: 2)
+                    model.addToTrace("Retrieving \(retrieveResult!.name) (latency = \(latency.string(fractionDigits: 3)))", level: 2)
                 }
                 model.addToBatchTrace(model.time - model.startTime, type: "retrieval", addToTrace: "\(retrieveResult!.name)")
                 if retrievalReinforces {

@@ -282,10 +282,12 @@ class Operator {
                     }
                 } else if let nestedGoal = chunk.slotvals["slot1"]?.chunk(), nestedGoal.type == "goaltype" {
                     for (slot, val) in chunk.slotvals {
-                        if slot.hasPrefix("slot") && !slot.hasPrefix("slot1") {
+                        if slot.hasPrefix("slot") && !slot.hasPrefix("slot1") && slot != "isa" {
                             if let slotValChunk = val.chunk(), let slotVal1 = slotValChunk.slotvals["slot1"], let slotVal2 = slotValChunk.slotvals["slot2"]  {
                                 referenceList[slotVal1.description] = slotVal2
                             }
+                        } else if !slot.hasPrefix("slot1") && slot != "isa" {
+                            referenceList[slot] = val
                         }
                     }
                 }
@@ -412,7 +414,7 @@ class Operator {
         }
         if !model.silent {
             if let opr = opRetrieved {
-                model.addToTrace("*** Retrieved operator \(opr.name) with latency \(latency)", level: 1)
+                model.addToTrace("*** Retrieved operator \(opr.name) with latency \(latency.string(fractionDigits: 3))", level: 1)
 //                print("*** Retrieved operator \(opr.name) with spread \(opr.spreadingActivation())")
             }
         }

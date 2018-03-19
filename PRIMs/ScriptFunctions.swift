@@ -67,6 +67,7 @@ let scriptFunctions: [String:([Factor], Model?) throws -> (result: Factor?, done
     "imaginal-to-dm": imaginalToDM,
     "set-references": setReferences,
     "set-goal" : setGoal,
+    "instantiate-skill": instantiateSkill,
     "set-skill": setGoal,
     "create-new-skill": createNewGoal,
     "create-new-goal": createNewGoal,
@@ -721,7 +722,7 @@ func imaginalToDM(_ content: [Factor], model: Model?) throws -> (result: Factor?
 func setGoal(content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool) {
     guard content.count > 0 else { throw RunTimeError.invalidNumberOfArguments }
     let goalChunkName = content[0].description
-    guard let chunk = model!.dm.chunks[goalChunkName] else { throw RunTimeError.errorInFunction("Goal chunk does not exists in setGoal") }
+    guard let chunk = model!.dm.chunks[goalChunkName] else { throw RunTimeError.errorInFunction("Goal chunk does not exist in setGoal") }
     chunk.slotvals = [:] // Clear old attributes
     chunk.printOrder = []
     chunk.setSlot("isa", value: "goaltype")
@@ -731,9 +732,61 @@ func setGoal(content: [Factor], model: Model?) throws -> (result: Factor?, done:
             guard pair.elements.count == 2 else { throw RunTimeError.errorInFunction("Invalid attribute-value pair in setGoal") }
             let attribute = pair.elements[0].description
             let value = pair.elements[1].description
+            if model!.dm.chunks[value] == nil && string2Double(value) == nil {
+                let extraChunk = Chunk(s: value, m: model!)
+                extraChunk.setSlot("isa", value: "fact")
+                extraChunk.setSlot("slot1", value: value)
+                extraChunk.fixedActivation = model!.dm.defaultActivation
+                _ = model!.dm.addToDM(chunk: extraChunk)
+            }
             chunk.setSlot(attribute, value: value)
         default: throw RunTimeError.errorInFunction("setGoal should have attribute-value pairs in all but first arguments")
         }
+    }
+    return(nil, true)
+}
+
+/**
+ Instantiate a skill. Similar to setGoal, but now creates a separate instantiation to allow multiple copies
+ First argument is the name of the skill, second is the name of the instantiation, rest is binding pairs
+ */
+func instantiateSkill(content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool) {
+    guard content.count > 1 else { throw RunTimeError.invalidNumberOfArguments }
+    let goalChunkName = content[0].description
+    guard let chunk = model!.dm.chunks[goalChunkName] else { throw RunTimeError.errorInFunction("Skill chunk does not exist in instantiateSkill") }
+    guard chunk.type == "goaltype" else { throw RunTimeError.errorInFunction("Skill is not of goaltype in instantiateSkill") }
+    if model!.currentTaskIndex != nil && !chunk.definedIn.contains(model!.currentTaskIndex!) {
+        chunk.definedIn.append(model!.currentTaskIndex!)
+    }
+    let instantiatedChunkName = content[1].description
+    let instantiatedChunk = model!.dm.chunks[instantiatedChunkName] ?? Chunk(s: instantiatedChunkName, m: model!)
+    instantiatedChunk.slotvals = [:] // Clear old attributes
+    instantiatedChunk.printOrder = []
+    instantiatedChunk.setSlot("isa", value: "fact")
+    instantiatedChunk.setSlot("slot1", value: goalChunkName)
+    for index in 2..<content.count {
+        switch content[index] {
+        case .arr(let pair):
+            guard pair.elements.count == 2 else { throw RunTimeError.errorInFunction("Invalid attribute-value pair in setGoal") }
+            let attribute = pair.elements[0].description
+            let value = pair.elements[1].description
+            if model!.dm.chunks[value] == nil && string2Double(value) == nil {
+                let extraChunk = Chunk(s: value, m: model!)
+                extraChunk.setSlot("isa", value: "fact")
+                extraChunk.setSlot("slot1", value: value)
+                extraChunk.fixedActivation = model!.dm.defaultActivation
+                _ = model!.dm.addToDM(chunk: extraChunk)
+            }
+            instantiatedChunk.setSlot(attribute, value: value)
+        //            print("#\(index) attribute \(attribute) value \(value)")
+        default: throw RunTimeError.errorInFunction("instantiateSkill should have attribute-value pairs in all but first arguments")
+        }
+    }
+    instantiatedChunk.fixedActivation = model!.dm.defaultActivation
+    if model!.dm.chunks[instantiatedChunk.name] == nil {
+        _ = model!.dm.addToDM(chunk: instantiatedChunk)
+    } else {
+        instantiatedChunk.addReference()
     }
     return(nil, true)
 }

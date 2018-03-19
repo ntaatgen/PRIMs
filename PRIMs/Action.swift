@@ -118,7 +118,7 @@ class Action {
 //        }
         if ac! == "wait" {
             if !model.silent {
-                model.addToTrace("Waiting (latency = \(latency))",level: 2)
+                model.addToTrace("Waiting (latency = \(latency.string(fractionDigits: 3)))",level: 2)
             }
             latency = 0.05
             if model.scenario.nextEventTime == nil {
@@ -128,7 +128,7 @@ class Action {
         } else if actionInstance != nil {
             latency = actionInstance!.latency()
             if !model.silent {
-                model.addToTrace("\(actionInstance!.outputString) \(par1 == nil ? nothing : par1!) \(par2 == nil ? nothing : par2!) (latency = \(latency))", level: 2)
+                model.addToTrace("\(actionInstance!.outputString) \(par1 == nil ? nothing : par1!) \(par2 == nil ? nothing : par2!) (latency = \(latency.string(fractionDigits: 3)))", level: 2)
             }
         } else if !model.silent {
             model.addToTrace("\(ac!)-ing \(par1 == nil ? nothing : par1!)-\(par2 == nil ? nothing : par2!)", level: 2)

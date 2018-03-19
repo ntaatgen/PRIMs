@@ -93,7 +93,7 @@ class Imaginal {
     func action() -> Double {
         hasToDoAction = false
         if !model.silent {
-            model.addToTrace("New imaginal chunk (latency = \(imaginalLatency))", level: 2)
+            model.addToTrace("New imaginal chunk (latency = \(imaginalLatency.string(fractionDigits: 3)))", level: 2)
         }
         return imaginalLatency
     }
@@ -168,7 +168,7 @@ class Imaginal {
                     chunk.parent = oldImaginal.name
                     //                print("Setting parent of \(chunk.name) to \(oldImaginal.name)")
                     imaginalActionTime += model.dm.latency(chunk.activation())
-                    model.addToTrace("Imaginal retrieval latency of \(chunk.name) is \(model.dm.latency(chunk.activation()))", level: 5)
+                    model.addToTrace("Imaginal retrieval latency of \(chunk.name) is \(model.dm.latency(chunk.activation()).string(fractionDigits: 3))", level: 5)
                     model.buffers["imaginal"] = chunk
                     return true
                 } else {
@@ -223,7 +223,7 @@ class Imaginal {
 //                parentChunk = model.dm.eliminateDuplicateChunkAlreadyInDM(chunk: parentChunk)
 //            }
             imaginalActionTime += model.dm.latency(parentChunk.activation())
-            model.addToTrace("Imaginal retrieval latency of \(parentChunk.name) is \(model.dm.latency(parentChunk.activation()))", level: 5)
+            model.addToTrace("Imaginal retrieval latency of \(parentChunk.name) is \(model.dm.latency(parentChunk.activation()).string(fractionDigits: 3))", level: 5)
             if model.dm.latency(parentChunk.activation()) > 1.0 {
                 print("WM dump")
                 print("Parent is \(parentChunk.name)")

@@ -114,3 +114,13 @@ func chopPrims(_ s: String, n: Int) -> (String,String) {
         return (x[1..<n].reduce(x[0], { $0 + ";" + $1}),x[(n+1)..<x.count].reduce(x[n], { $0 + ";" + $1} ))
     }
 }
+
+
+extension Double {
+    func string(fractionDigits:Int) -> String {
+        let formatter = NumberFormatter()
+        formatter.minimumFractionDigits = fractionDigits
+        formatter.maximumFractionDigits = fractionDigits
+        return formatter.string(from: NSNumber(value: self)) ?? "\(self)"
+    }
+}
