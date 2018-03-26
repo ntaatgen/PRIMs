@@ -237,6 +237,9 @@ class Operator {
                     }
                     operatorChunk.assocs[goal.name]!.0 += model.dm.beta * (goalOpReward - operatorChunk.assocs[goal.name]!.0)
                     operatorChunk.assocs[goal.name]!.1 += 1
+                    if goalOpReward > 0 && model.dm.operatorBaselevelLearning {
+                        operatorChunk.addReference() // Also increase baselevel activation of the operator
+                    }
                     if !model.silent {
                         model.addToTrace("Updating assoc between \(goal.name) and \(operatorChunk.name) to \(operatorChunk.assocs[goal.name]!.0.string(fractionDigits: 3))", level: 5)
                     }                }

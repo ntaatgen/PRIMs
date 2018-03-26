@@ -419,6 +419,8 @@ class Model: NSObject, NSCoding {
             dm.blending = boolVal
         case "opc:":
             operatorLearning = boolVal
+        case "operator-bll:":
+            dm.operatorBaselevelLearning = boolVal
         //case "batch-trace":
         //    if batchMode {
         //        batchTrace = true
