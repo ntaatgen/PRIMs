@@ -1078,7 +1078,7 @@ class Script {
                         }
                     }
                 case .funcl(let fn):
-                    if (fn.name.hasPrefix("run") || fn.name == "trial-end") && !first && !model.fallingThrough {
+                    if (fn.name.hasPrefix("run") || fn.name == "trial-end") && !first && !model.fallingThrough { // TODO: This is a problem if first statement is a run call
                         env.pc -= 1
                         stop = true
                     } else {

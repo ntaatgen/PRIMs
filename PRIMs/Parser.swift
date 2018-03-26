@@ -117,7 +117,7 @@ class Parser  {
                 return false
             }
         switch setting! {
-        case "initial-goals:", "initial-skills:":
+        case "initial-goals:", "initial-skills:", "initial-skill:":
             let parenthesis = scanner.scanString("(")
             if parenthesis == nil {
                 m.addToTraceField("Missing '(' after initial-skills:")

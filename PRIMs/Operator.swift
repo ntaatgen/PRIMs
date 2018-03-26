@@ -238,7 +238,7 @@ class Operator {
                     operatorChunk.assocs[goal.name]!.0 += model.dm.beta * (goalOpReward - operatorChunk.assocs[goal.name]!.0)
                     operatorChunk.assocs[goal.name]!.1 += 1
                     if !model.silent {
-                        model.addToTrace("Updating assoc between \(goal.name) and \(operatorChunk.name) to \(operatorChunk.assocs[goal.name]!)", level: 5)
+                        model.addToTrace("Updating assoc between \(goal.name) and \(operatorChunk.name) to \(operatorChunk.assocs[goal.name]!.0.string(fractionDigits: 3))", level: 5)
                     }                }
             }
             if model.dm.interOperatorLearning {
@@ -251,7 +251,7 @@ class Operator {
                     operatorChunk.assocs[prevOperatorChunk!.name]!.0 += model.dm.beta * (interOpReward - operatorChunk.assocs[prevOperatorChunk!.name]!.0)
                     operatorChunk.assocs[prevOperatorChunk!.name]!.1 += 1
                     if !model.silent {
-                        model.addToTrace("Updating assoc between \(prevOperatorChunk!.name) and \(operatorChunk.name) to \(operatorChunk.assocs[prevOperatorChunk!.name]!)", level: 5)
+                        model.addToTrace("Updating assoc between \(prevOperatorChunk!.name) and \(operatorChunk.name) to \(operatorChunk.assocs[prevOperatorChunk!.name]!.0.string(fractionDigits: 3))", level: 5)
                     }
                     prevOperatorChunk = operatorChunk
                 }
@@ -350,7 +350,7 @@ class Operator {
         if !model.silent {
             model.addToTrace("Conflict Set", level: 5)
             for (chunk,activation) in cfs {
-                let outputString = "  " + chunk.name + "A = " + String(format:"%.3f", activation) //+ "\(activation)"
+                let outputString = "  " + chunk.name + " A = " + String(format:"%.3f", activation) //+ "\(activation)"
                 model.addToTrace(outputString, level: 5)
             }
         }
