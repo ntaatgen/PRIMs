@@ -215,19 +215,19 @@ class Chunk: NSObject, NSCoding {
     }
     
     func setSlot(_ slot: String, value: Chunk) {
-        if slotvals[slot] == nil { printOrder.append(slot) }
+        if !printOrder.contains(slot) { printOrder.append(slot) }
         slotvals[slot] = Value.symbol(value)
     }
     
     @nonobjc
     func setSlot(_ slot: String, value: Double) {
-        if slotvals[slot] == nil { printOrder.append(slot) }
+        if !printOrder.contains(slot) { printOrder.append(slot) }
         slotvals[slot] = Value.Number(value)
     }
     
     @nonobjc
     func setSlot(_ slot: String, value: String) {
-        if slotvals[slot] == nil { printOrder.append(slot) }
+        if !printOrder.contains(slot) { printOrder.append(slot) }
         let possibleNumVal = string2Double(value) 
         if possibleNumVal != nil {
             slotvals[slot] = Value.Number(possibleNumVal!)
@@ -240,7 +240,7 @@ class Chunk: NSObject, NSCoding {
     
     @nonobjc
     func setSlot(_ slot: String, value: Value) {
-        if slotvals[slot] == nil { printOrder.append(slot) }
+        if !printOrder.contains(slot) { printOrder.append(slot) }
            slotvals[slot] = value
     }
     

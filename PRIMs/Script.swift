@@ -1044,7 +1044,10 @@ class Script {
                     env = Environment(outer: env)
                     if forCl.endExpression == nil { // loop over an array
                         let theArray = try forCl.startExpression.eval(env, model: model)
-                        guard theArray.type() == "array" else { throw RunTimeError.indexingNonArray }
+                        guard theArray.type() == "array" else {
+                            env = env.outer!
+                            throw RunTimeError.indexingNonArray
+                        }
                         var count: Int
                         switch theArray {
                         case .arr(let ar): count = ar.elements.count
@@ -1102,25 +1105,25 @@ class Script {
             }
         
         } catch RunTimeError.divisionByZero {
-            model.addToTraceField("Runtime error: division by zero in \(env.statements[env.pc - 1])")
+            model.addToTraceField("Runtime error: division by zero in \(env.pc > 0 ? env.statements[env.pc - 1] : env.outer!.statements[env.outer!.pc - 1])")
         } catch RunTimeError.unDeclaratedIdentifier(let s) {
-            model.addToTraceField("Runtime error: undeclared identifier \(s) in \(env.statements[env.pc - 1])")
+            model.addToTraceField("Runtime error: undeclared identifier \(s) in \(env.pc > 0 ? env.statements[env.pc - 1] : env.outer!.statements[env.outer!.pc - 1])")
         } catch RunTimeError.nonNumberArgument {
-            model.addToTraceField("Runtime error: non number argument in \(env.statements[env.pc - 1])")
+            model.addToTraceField("Runtime error: non number argument in \(env.pc > 0 ? env.statements[env.pc - 1] : env.outer!.statements[env.outer!.pc - 1])")
         } catch RunTimeError.missingSecondArgument {
-            model.addToTraceField("Runtime error: missing second argument in \(env.statements[env.pc - 1])")
+            model.addToTraceField("Runtime error: missing second argument in \(env.pc > 0 ? env.statements[env.pc - 1] : env.outer!.statements[env.outer!.pc - 1])")
         } catch RunTimeError.indexingNonArray {
-            model.addToTraceField("Runtime error: trying to index a non-array in \(env.statements[env.pc - 1])")
+            model.addToTraceField("Runtime error: trying to index a non-array in \(env.pc > 0 ? env.statements[env.pc - 1] : env.outer!.statements[env.outer!.pc - 1])")
         } catch RunTimeError.invalidNumberOfArguments {
-            model.addToTraceField("Runtime error: invalid number of arguments in \(env.statements[env.pc - 1])")
+            model.addToTraceField("Runtime error: invalid number of arguments in \(env.pc > 0 ? env.statements[env.pc - 1] : env.outer!.statements[env.outer!.pc - 1])")
         } catch RunTimeError.errorInFunction(let fn) {
-            model.addToTraceField("Runtime error: error in function (\(fn)) in \(env.statements[env.pc - 1])")
+            model.addToTraceField("Runtime error: error in function (\(fn)) in \(env.pc > 0 ? env.statements[env.pc - 1] : env.outer!.statements[env.outer!.pc - 1])")
         } catch RunTimeError.undefinedFunction(let fn) {
-            model.addToTraceField("Runtime error: undefined function \(fn) in \(env.statements[env.pc - 1])")
+            model.addToTraceField("Runtime error: undefined function \(fn) in \(env.pc > 0 ? env.statements[env.pc - 1] : env.outer!.statements[env.outer!.pc - 1])")
         } catch RunTimeError.arrayOutOfBounds {
-            model.addToTraceField("Runtime error: Array index out of bounds in \(env.statements[env.pc - 1])")
+            model.addToTraceField("Runtime error: Array index out of bounds in \(env.pc > 0 ? env.statements[env.pc - 1] : env.outer!.statements[env.outer!.pc - 1])")
         } catch {
-            model.addToTraceField("Unknown runtime error in \(env.statements[env.pc - 1])")
+            model.addToTraceField("Unknown runtime error in \(env.pc > 0 ? env.statements[env.pc - 1] : env.outer!.statements[env.outer!.pc - 1])")
         }
         
 
