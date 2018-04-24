@@ -513,7 +513,7 @@ func length(_ content: [Factor], model: Model?) throws -> (result: Factor?, done
 }
 
 /** 
-Set one of the input variables (0..3) to a value, so that it will show up in the
+Set one of the input variables (0..4) to a value, so that it will show up in the
 output file
 */
 func setDataFileField(_ content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool) {

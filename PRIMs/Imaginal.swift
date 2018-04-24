@@ -172,7 +172,21 @@ class Imaginal {
                     model.buffers["imaginal"] = chunk
                     return true
                 } else {
-                    return false // The chunk is not part of working memory (but already in declarative memory)
+                    // chunk is already in declarative memory, so make a copy and put it in the buffer
+                    if let dmChunk = model.dm.chunks[chunk.name]?.copyChunk() {
+                        chunks[oldImaginal.name] = oldImaginal
+                        oldImaginal.addReference()
+                        dmChunk.parent = oldImaginal.name
+                        dmChunk.startTime()
+                        addChunk(chunk: dmChunk)
+                        oldImaginal.setSlot(slot, value: dmChunk)
+                        imaginalActionTime += model.dm.latency(chunk.activation())
+                        model.addToTrace("Imaginal retrieval latency of \(chunk.name) is \(model.dm.latency(chunk.activation()).string(fractionDigits: 3))", level: 5)
+                        model.buffers["imaginal"] = dmChunk
+                        return true
+                    } else {
+                        return false // The chunk can't be found (shouldn't happen)
+                    }
                 }
             } else {
                 return false // there is a String or a number in that slot

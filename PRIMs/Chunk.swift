@@ -351,7 +351,14 @@ class Chunk: NSObject, NSCoding {
                     case .symbol(let valchunk):
 //                        totalSpreading += valchunk.sji(self) * max(0,valchunk.baseLevelActivation())
                         totalSlots += 1
-                        totalSpreading += valchunk.sji(self) * exp(valchunk.baseLevelActivation()) * model.dm.goalActivation
+//                        if valchunk.type == "fact" {
+//                            // spread from slot1
+//                            if let spreadingChunk = valchunk.slotvals["slot1"]?.chunk() {
+//                                totalSpreading += spreadingChunk.sji(self) * exp(spreadingChunk.baseLevelActivation()) * model.dm.goalActivation
+//                            }
+//                        } else {
+                            totalSpreading += valchunk.sji(self) * exp(valchunk.baseLevelActivation()) * model.dm.goalActivation
+//                        }
                     default:
                         break
                     }
