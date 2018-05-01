@@ -311,13 +311,16 @@ class Declarative: NSObject, NSCoding  {
 //        for (chunk,activation) in conflictSet {
 //            model.addToTrace("   CFS: \(chunk.name) \(activation)")
 //        }
+        if !model.silent &&  model.conflictSet != nil {
+            model.conflictSet!.generateChunkTexts()
+        }
         if bestActivation > retrievalThreshold {
             return (latency(bestActivation) , bestMatch)
         } else {
             retrieveError = true
             return (latency(retrievalThreshold), nil)
         }
-        
+
     }
     
     /* Mismatch Functions */

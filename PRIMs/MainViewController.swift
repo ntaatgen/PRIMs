@@ -498,6 +498,9 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
         graph.needsDisplay = true
         updateBufferView()
         drawGraph()
+        if conflictTraceViewController != nil {
+            conflictTraceViewController!.chunkNameTable.reloadData()
+        }
 //        graph.setNeedsDisplayInRect(graph.frame)
     }
     
@@ -654,6 +657,7 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
         s.append(formatBuffer("", bufferChunk: model.formerBuffers["operator"], bufferAbbreviation: "C", showSlot0: false))
         return s
     }
+
     
     func updateBufferView() {
         if model.buffers["input"] == nil || model.formerBuffers["input"] == nil || model.buffers["input"]! != model.formerBuffers["input"]! {
@@ -719,6 +723,10 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
     }
     
     @IBAction func clearAll(_ sender: NSButton) {
+        if conflictTraceWindowController != nil {
+            conflictTraceWindowController!.close()
+            conflictTraceViewController = nil
+        }
         model = Model(silent: false)
 //        modelCode = nil
         primViewCalculateGraph(primGraph)
@@ -829,6 +837,30 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
         if saveResult != NSApplication.ModalResponse.OK { return }
         if saveDialog.url == nil { return }
         try? graph.dataWithPDF(inside: graph.bounds).write(to: saveDialog.url!)
+    }
+    
+//    var conflictTraceWindow: NSWindow?
+    var conflictTraceWindowController: NSWindowController?
+    var conflictTraceViewController: ConflictTraceViewController?
+    
+    
+    
+    @IBAction func openConflictTraceWindow(_ sender: NSButton) {
+        let storyboard = NSStoryboard(name: NSStoryboard.Name(rawValue: "Main"), bundle: nil)
+        if let vc = storyboard.instantiateController(withIdentifier: NSStoryboard.SceneIdentifier(rawValue: "chunkView")) as? ConflictTraceViewController {
+            let cst = ConflictSetTrace()
+            model.conflictSet = cst
+            model.conflictSet!.model = model
+            vc.conflictSet = cst
+            conflictTraceViewController = vc
+            let myWindow = NSWindow(contentViewController: vc)
+            myWindow.title = "Conflict resolution trace"
+            myWindow.makeKeyAndOrderFront(self)
+            conflictTraceWindowController = NSWindowController(window: myWindow)
+            conflictTraceWindowController?.showWindow(self)
+
+        }
+        
     }
  
     override func viewDidLoad() {

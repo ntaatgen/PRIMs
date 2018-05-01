@@ -34,6 +34,7 @@ class Model: NSObject, NSCoding {
     var action: Action!
     var operators: Operator!
     var temporal: Temporal!
+    weak var conflictSet: ConflictSetTrace? = nil
     var buffers: [String:Chunk] = [:] {
         didSet {
             if buffers["imaginal"] != oldValue["imaginal"] {
@@ -596,11 +597,20 @@ class Model: NSObject, NSCoding {
             scenario.script!.step(self)
     }
     
+    
+    var stillNeedToDoModuleActions = false
+    var halfStep = true
+    
     /**
         Run the current script and execute a single operator when there is a script.
         This function is called from the script
     */
     func newStep() {
+        if stillNeedToDoModuleActions {
+            doAllModuleActions()
+            stillNeedToDoModuleActions = false
+            return
+        }
         dm.clearFinsts()
         var found: Bool = false
 //        let lastOperator = formerBuffers["operator"]
@@ -653,6 +663,10 @@ class Model: NSObject, NSCoding {
         addToBatchTrace(time - startTime, type: "operator", addToTrace: "\(procedural.lastOperator!.name)")
         commitToTrace(false)
         buffers["operator"] = nil
+        if halfStep {
+            stillNeedToDoModuleActions = true
+            return
+        }
         doAllModuleActions()
     }
     
@@ -678,6 +692,7 @@ class Model: NSObject, NSCoding {
         currentTaskIndex = nil
         operators.reset()
         imaginal.reset()
+        stillNeedToDoModuleActions = false
         if taskNumber != nil {
             currentTaskIndex = taskNumber!
             scenario = PRScenario()

@@ -337,25 +337,26 @@ class Operator {
     
     
     /**
-    This function finds an applicable operator and puts it in the operator buffer.
-    
-    - returns: Whether an operator was successfully found
-    */
+     This function finds an applicable operator and puts it in the operator buffer.
+     
+     - returns: Whether an operator was successfully found
+     */
     func findOperator() -> Bool {
         let retrievalRQ = Chunk(s: "operator", m: model)
         retrievalRQ.setSlot("isa", value: "operator")
         var (latency,opRetrieved) = model.dm.retrieve(retrievalRQ)
-            var cfs = model.dm.conflictSet.sorted(by: { (item1, item2) -> Bool in
-                let (_,u1) = item1
-                let (_,u2) = item2
-                return u1 > u2
-            })
+        var cfs = model.dm.conflictSet.sorted(by: { (item1, item2) -> Bool in
+            let (_,u1) = item1
+            let (_,u2) = item2
+            return u1 > u2
+        })
         if !model.silent {
             model.addToTrace("Conflict Set", level: 5)
             for (chunk,activation) in cfs {
                 let outputString = "  " + chunk.name + " A = " + String(format:"%.3f", activation) //+ "\(activation)"
                 model.addToTrace(outputString, level: 5)
             }
+
         }
         var match = false
         var candidate: Chunk = Chunk(s: "empty", m: model)
@@ -393,11 +394,6 @@ class Operator {
                     }
                 }
             } while !match && !cfs.isEmpty && cfs[0].1 > model.dm.retrievalThreshold
-        } else {
-            match = false
-            if !model.silent {
-                model.addToTrace("   No matching operator found", level: 2)
-            }
         }
         if match {
             opRetrieved = candidate
@@ -408,7 +404,7 @@ class Operator {
                 model.addToTrace("   No matching operator found", level: 2)
             }
             latency = model.dm.latency(model.dm.retrievalThreshold)
-            }
+        }
         model.time += latency
         if opRetrieved == nil { return false }
         if model.dm.goalOperatorLearning {
@@ -418,14 +414,14 @@ class Operator {
         if !model.silent {
             if let opr = opRetrieved {
                 model.addToTrace("*** Retrieved operator \(opr.name) with latency \(latency.string(fractionDigits: 3))", level: 1)
-//                print("*** Retrieved operator \(opr.name) with spread \(opr.spreadingActivation())")
+                //                print("*** Retrieved operator \(opr.name) with spread \(opr.spreadingActivation())")
             }
         }
         model.dm.addToFinsts(opRetrieved!)
         model.buffers["goal"]!.setSlot("last-operator", value: opRetrieved!)
         model.buffers["operator"] = candidateWithSubstitution
         model.formerBuffers["operator"] = candidateWithSubstitution.copyLiteral()
-
+        
         return true
     }
     
