@@ -13,7 +13,7 @@ class ConflictTraceViewController: NSViewController, NSTableViewDataSource,NSTab
     
     
     var conflictSet: ConflictSetTrace!
-
+    var selectedRow: Int? = nil
     @IBOutlet weak var chunkNameTable: NSTableView!
     
     
@@ -24,6 +24,14 @@ class ConflictTraceViewController: NSViewController, NSTableViewDataSource,NSTab
         chunkNameTable.dataSource = self
         chunkNameTable.dataSource = self
         chunkNameTable.reloadData()
+    }
+    
+    func clear() {
+        chunkDescriptionTextField.stringValue = ""
+        if selectedRow != nil {
+            chunkNameTable.deselectRow(selectedRow!)
+        }
+        selectedRow = nil
     }
     
     func numberOfRows(in tableView: NSTableView) -> Int {
@@ -42,7 +50,8 @@ class ConflictTraceViewController: NSViewController, NSTableViewDataSource,NSTab
     
     @IBAction func clickInTable(_ sender: NSTableView) {
         guard sender.selectedRow >= 0 && sender.selectedRow < conflictSet.chunks.count else { return }
-        let chunk = conflictSet.chunks[sender.selectedRow].0
+        selectedRow = sender.selectedRow
+        let chunk = conflictSet.chunks[selectedRow!].0
         if let s = conflictSet.chunkTexts[chunk.name] {
             chunkDescriptionTextField.stringValue = s
         } else {

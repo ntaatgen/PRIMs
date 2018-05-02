@@ -499,7 +499,9 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
         updateBufferView()
         drawGraph()
         if conflictTraceViewController != nil {
+            conflictTraceViewController!.clear()
             conflictTraceViewController!.chunkNameTable.reloadData()
+            
         }
 //        graph.setNeedsDisplayInRect(graph.frame)
     }
@@ -846,21 +848,25 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
     
     
     @IBAction func openConflictTraceWindow(_ sender: NSButton) {
-        let storyboard = NSStoryboard(name: NSStoryboard.Name(rawValue: "Main"), bundle: nil)
-        if let vc = storyboard.instantiateController(withIdentifier: NSStoryboard.SceneIdentifier(rawValue: "chunkView")) as? ConflictTraceViewController {
-            let cst = ConflictSetTrace()
-            model.conflictSet = cst
-            model.conflictSet!.model = model
-            vc.conflictSet = cst
-            conflictTraceViewController = vc
-            let myWindow = NSWindow(contentViewController: vc)
-            myWindow.title = "Conflict resolution trace"
-            myWindow.makeKeyAndOrderFront(self)
-            conflictTraceWindowController = NSWindowController(window: myWindow)
-            conflictTraceWindowController?.showWindow(self)
-
+        if conflictTraceWindowController == nil {
+            let storyboard = NSStoryboard(name: NSStoryboard.Name(rawValue: "Main"), bundle: nil)
+            if let vc = storyboard.instantiateController(withIdentifier: NSStoryboard.SceneIdentifier(rawValue: "chunkView")) as? ConflictTraceViewController {
+                let cst = ConflictSetTrace()
+                model.conflictSet = cst
+                model.conflictSet!.model = model
+                vc.conflictSet = cst
+                conflictTraceViewController = vc
+                let myWindow = NSWindow(contentViewController: vc)
+                myWindow.title = "Conflict resolution trace"
+                myWindow.makeKeyAndOrderFront(self)
+                conflictTraceWindowController = NSWindowController(window: myWindow)
+                conflictTraceWindowController?.showWindow(self)
+            }
         }
-        
+        else {
+            conflictTraceWindowController!.close()
+            conflictTraceViewController = nil
+        }
     }
  
     override func viewDidLoad() {

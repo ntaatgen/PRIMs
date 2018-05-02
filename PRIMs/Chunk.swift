@@ -366,15 +366,15 @@ class Chunk: NSObject, NSCoding {
             }
         } else {
             (spreading, totalSlots) = spreadingFromBuffer("goal", spreadingParameterValue: model.dm.goalActivation)
-            totalSpreading += spreading
+            totalSpreading += spreading * Double(totalSlots)
         }
             if let goal=model.buffers["goal"] {
                 for (_,value) in goal.slotvals {
-                    if let nestedGoal = value.chunk()?.slotvals["slot1"]?.chunk(), nestedGoal.type == "goaltype" {
+                    if value.chunk() != nil && value.chunk()!.type != "goaltype", let nestedGoal = value.chunk()?.slotvals["slot1"]?.chunk(), nestedGoal.type == "goaltype" {
                         if model.dm.goalSpreadingByActivation {
                             totalSpreading += nestedGoal.sji(self) * exp(value.chunk()!.baseLevelActivation()) * model.dm.goalActivation
                         } else {
-                            totalSpreading += nestedGoal.sji(self) * model.dm.goalActivation / Double(totalSlots)
+                            totalSpreading += nestedGoal.sji(self) * model.dm.goalActivation 
                         }
                     }
                 }

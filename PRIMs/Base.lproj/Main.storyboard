@@ -606,9 +606,16 @@
                                         <action selector="clearAll:" target="Oky-zY-oP4" id="g55-f2-qk7"/>
                                     </connections>
                                 </toolbarItem>
+                                <toolbarItem implicitItemIdentifier="9FD7B30C-2B6D-4D7B-B1FA-238F41ADB245" label="Conflict Trace" paletteLabel="Conflict Trace" tag="-1" image="NSInfo" id="3b6-pm-zhu">
+                                    <connections>
+                                        <action selector="openConflictTraceWindow:" target="Oky-zY-oP4" id="Aqt-h8-gGc"/>
+                                    </connections>
+                                </toolbarItem>
                             </allowedToolbarItems>
                             <defaultToolbarItems>
                                 <toolbarItem reference="QHj-UI-Kbe"/>
+                                <toolbarItem reference="WSL-bf-uYy"/>
+                                <toolbarItem reference="3b6-pm-zhu"/>
                                 <toolbarItem reference="tj8-vl-B2a"/>
                                 <toolbarItem reference="6GN-Gm-CeO"/>
                                 <toolbarItem reference="WSL-bf-uYy"/>
@@ -1074,7 +1081,7 @@
                                                                     </textFieldCell>
                                                                     <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                                                 </tableColumn>
-                                                                <tableColumn identifier="Utility" width="40" minWidth="40" maxWidth="1000" id="npN-mU-PFO">
+                                                                <tableColumn identifier="Utility" width="64.5" minWidth="40" maxWidth="1000" id="npN-mU-PFO">
                                                                     <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Utility">
                                                                         <font key="font" metaFont="smallSystem"/>
                                                                         <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
@@ -1152,7 +1159,7 @@
                                                                     </subviews>
                                                                 </clipView>
                                                                 <scroller key="horizontalScroller" hidden="YES" verticalHuggingPriority="750" horizontal="YES" id="v2L-ZR-lUC">
-                                                                    <rect key="frame" x="1" y="179" width="198" height="15"/>
+                                                                    <rect key="frame" x="-7" y="8" width="0.0" height="15"/>
                                                                     <autoresizingMask key="autoresizingMask"/>
                                                                 </scroller>
                                                                 <scroller key="verticalScroller" hidden="YES" verticalHuggingPriority="750" horizontal="NO" id="FXp-Fw-Cm5">
@@ -1271,6 +1278,7 @@
     </scenes>
     <resources>
         <image name="NSCaution" width="32" height="32"/>
+        <image name="NSInfo" width="32" height="32"/>
         <image name="NSTrashEmpty" width="32" height="32"/>
         <image name="PrimsModelFileIcon" width="512" height="512"/>
         <image name="fastforward" width="32" height="32"/>

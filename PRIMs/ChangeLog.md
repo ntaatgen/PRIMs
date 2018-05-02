@@ -25,3 +25,8 @@
 - Added Instatiate-skill function that makes an instantiate of a skill, so that multiple instantiations of the same skill can be part of a single task.
 - Rounded latencies to three digits in the trace.
 - Removed the necessity to define skills in the task definition
+
+# 2 May 2018
+- Added a new viewer to inspect the conflict resolution trace
+- Fixed spreading activation from the goal to prevent duplicate activation
+- Spreading activation from the goal is now not divided by the number of slots
