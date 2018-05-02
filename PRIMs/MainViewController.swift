@@ -865,6 +865,7 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
         }
         else {
             conflictTraceWindowController!.close()
+            conflictTraceWindowController = nil
             conflictTraceViewController = nil
         }
     }
