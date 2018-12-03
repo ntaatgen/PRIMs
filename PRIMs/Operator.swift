@@ -102,12 +102,14 @@ struct Op {
 }
 
 /**
-    The Operator class contains many of the functions that deal with operators. Most of these still have to be migrated from Model.swift
+    The Operator class contains many of the functions that deal with operators.
 */
 class Operator {
 
     unowned let model: Model
-    
+    /// List of chosen operators with time and context. Context is use to support learning between all context chunks and operators
+    var previousOperators: [(Chunk,Double,[Chunk])] = []
+
     init(model: Model) {
         self.model = model
     }
@@ -192,8 +194,6 @@ class Operator {
     }
     */
     
-    /// List of chosen operators with time
-    var previousOperators: [(Chunk,Double)] = []     
     
     /**
     Compile the sequence of operators in the list of previous operators
@@ -206,7 +206,7 @@ class Operator {
                 let chunk2 = model.dm.addToDM(chunk: newChunk)
                 chunk2.fixedActivation = previousOperators[i].0.fixedActivation
                 print("Setting activation of \(chunk2.name) to \(chunk2.fixedActivation ?? -999)")
-                previousOperators.append((chunk2, previousOperators[i].1)) // add it to previous operators so it will also receive a reward
+                previousOperators.append((chunk2, previousOperators[i].1, previousOperators[i].2)) // add it to previous operators so it will also receive a reward
                 model.addToTrace("Adding or strengtening operator \(chunk2.name)", level: 5)
                 print(chunk2)
             }
@@ -214,7 +214,7 @@ class Operator {
     }
     
     func updateOperatorSjis(_ payoff: Double) {
-        guard (model.dm.goalOperatorLearning || model.dm.interOperatorLearning) && model.reward != 0.0  else { return }
+        guard (model.dm.goalOperatorLearning || model.dm.interOperatorLearning || model.dm.contextOperatorLearning) && model.reward != 0.0  else { return }
         let goalChunk = model.formerBuffers["goal"] // take formerBuffers goal, because goal may have been replaced by stop or nil
         guard goalChunk != nil else { return }
         var goalChunks = Set<Chunk>()
@@ -227,9 +227,24 @@ class Operator {
         }
         guard goalChunks != [] else { return }
         var prevOperatorChunk: Chunk? = nil
-        for (operatorChunk,operatorTime) in previousOperators {
+        for (operatorChunk,operatorTime,context) in previousOperators {
             let goalOpReward = model.dm.defaultOperatorAssoc * (payoff - (model.time - operatorTime)) / model.reward
             let interOpReward = model.dm.defaultInterOperatorAssoc * (payoff - (model.time - operatorTime)) / model.reward
+            if model.dm.contextOperatorLearning {
+                for chunk in context {
+                    if operatorChunk.assocs[chunk.name] == nil {
+                        operatorChunk.assocs[chunk.name] = (0.0, 0)
+                    }
+                    operatorChunk.assocs[chunk.name]!.0 += model.dm.beta * (goalOpReward - operatorChunk.assocs[chunk.name]!.0)
+                    operatorChunk.assocs[chunk.name]!.1 += 1
+                    if goalOpReward > 0 && model.dm.operatorBaselevelLearning {
+                        operatorChunk.addReference() // Also increase baselevel activation of the operator
+                    }
+                    if !model.silent {
+                        model.addToTrace("Updating assoc between \(chunk.name) and \(operatorChunk.name) to \(operatorChunk.assocs[chunk.name]!.0.string(fractionDigits: 3))", level: 5)
+                    }
+                }
+            }
             if model.dm.goalOperatorLearning {
                 for goal in goalChunks {
                     if operatorChunk.assocs[goal.name] == nil {
@@ -335,6 +350,22 @@ class Operator {
         return opCopy
     }
     
+    /**
+    This function collects all items that are currently in the context
+ 
+    - returns: An array of context chunks
+    */
+    func allContextChunks() -> [Chunk] {
+        var results: [Chunk] = []
+        for (_,bufferChunk) in model.buffers {
+            for (_,value) in bufferChunk.slotvals {
+                if let chunk = value.chunk() {
+                    results.append(chunk)
+                }
+            }
+        }
+        return results
+    }
     
     /**
      This function finds an applicable operator and puts it in the operator buffer.
@@ -407,8 +438,8 @@ class Operator {
         }
         model.time += latency
         if opRetrieved == nil { return false }
-        if model.dm.goalOperatorLearning {
-            let item = (opRetrieved!, model.time - latency)
+        if model.dm.goalOperatorLearning || model.dm.contextOperatorLearning {
+            let item = (opRetrieved!, model.time - latency, model.dm.contextOperatorLearning ? allContextChunks() : [])
             previousOperators.append(item)
         }
         if !model.silent {
@@ -423,6 +454,15 @@ class Operator {
         model.formerBuffers["operator"] = candidateWithSubstitution.copyLiteral()
         
         return true
+    }
+    
+    /**
+        Remove the last operator record. To be called if an operator fails
+    */
+    func removeLastOperatorRecord() {
+        if !previousOperators.isEmpty {
+            _ = previousOperators.removeLast()
+        }
     }
     
     

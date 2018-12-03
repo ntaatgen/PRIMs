@@ -26,6 +26,7 @@ class Declarative: NSObject, NSCoding  {
     static let goalSpreadingActivationDefault = false
     static let latencyFactorDefault = 0.2
     static let goalOperatorLearningDefault = false
+    static let contextOperatorLearningDefault = false
     static let operatorBaselevelLearningDefault = false
     static let interOperatorLearningDefault = false
     static let betaDefault = 0.1
@@ -68,6 +69,8 @@ class Declarative: NSObject, NSCoding  {
     var latencyFactor = latencyFactorDefault
     /// Indicates whether associations between goals and operators will be learned
     var goalOperatorLearning = goalOperatorLearningDefault
+    /// Indicates whether associations between all context chunks and operators will be learned
+    var contextOperatorLearning = contextOperatorLearningDefault 
     /// Are we also adding a reference to a successful operator?
     var operatorBaselevelLearning = operatorBaselevelLearningDefault
     /// Indicates whether associations between subsequent operators are learned
@@ -166,6 +169,7 @@ class Declarative: NSObject, NSCoding  {
         goalSpreadingByActivation = Declarative.goalSpreadingActivationDefault
         latencyFactor = Declarative.latencyFactorDefault
         goalOperatorLearning = Declarative.goalOperatorLearningDefault
+        contextOperatorLearning = Declarative.contextOperatorLearningDefault
         operatorBaselevelLearning = Declarative.operatorBaselevelLearningDefault
         interOperatorLearning = Declarative.interOperatorLearningDefault
         beta = Declarative.betaDefault

@@ -401,12 +401,19 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
     
     func updateTrace() {
         let traceLevel = traceSelectionMenu.selectedItem!.title
+        outputText.textStorage?.font = NSFont(name: "Helvetica", size: 12)
         switch traceLevel {
         case "Operators only": outputText.string = model.getTrace(1)
         case "Operators and modules": outputText.string = model.getTrace(2)
         case "Operators and productions": outputText.string = model.getTrace(3)
         case "Operators, productions, compilation": outputText.string = model.getTrace(4)
         case "All": outputText.string = model.getTrace(5)
+        case "Model code":
+            if model.currentTaskIndex != nil {
+            let modelCode = try? String(contentsOf: model.tasks[model.currentTaskIndex!].filename as URL, encoding: String.Encoding.utf8)
+            outputText.string = modelCode ?? "No model"
+            } else { outputText.string = "No model" }
+            outputText.textStorage?.font = NSFont(name: "Source Code Pro", size: 12)
         default: break // shouldn't happen
         }
         outputText.scrollToEndOfDocument(self)

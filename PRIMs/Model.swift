@@ -404,6 +404,8 @@ class Model: NSObject, NSCoding {
             dm.optimizedLearning = boolVal
         case "goal-operator-learning:", "skill-operator-learning:":
             dm.goalOperatorLearning = boolVal
+        case "context-operator-learning:":
+             dm.contextOperatorLearning = boolVal
         case "inter-operator-learning:":
             dm.interOperatorLearning = boolVal
         case "goal-chunk-spreads:":
@@ -652,9 +654,7 @@ class Model: NSObject, NSCoding {
                 buffers["retrievalH"] = formerBuffers["retrievalH"]
                 buffers["constants"] = formerBuffers["constants"]
 //                bufferStack = bufferStackCopy  // This is not perfect because other Chunks may have been modified
-                if dm.goalOperatorLearning {
-                    operators.previousOperators.removeLast()
-                }
+                operators.removeLastOperatorRecord()
                 procedural.clearRewardTrace()  // Don't reward productions that didn't work
             }
         } while !found

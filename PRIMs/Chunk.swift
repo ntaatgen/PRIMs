@@ -297,7 +297,7 @@ class Chunk: NSObject, NSCoding {
         if let value = chunk.assocs[self.name] {
             return calculateSji(value)
         } else if self.appearsInSlotOf(chunk) {
-            return max(0, model.dm.maximumAssociativeStrength - log(Double(self.fan)))
+            return max(0, model.dm.maximumAssociativeStrength - log(Double(min(1,self.fan))))
         }
         return 0.0
     }
