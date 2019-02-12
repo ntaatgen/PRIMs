@@ -108,7 +108,7 @@ class Operator {
 
     unowned let model: Model
     /// List of chosen operators with time and context. Context is use to support learning between all context chunks and operators
-    var previousOperators: [(Chunk,Double,[Chunk])] = []
+    var previousOperators: [(Chunk,Double,[(String, String, Chunk)])] = []
 
     init(model: Model) {
         self.model = model
@@ -214,6 +214,9 @@ class Operator {
     }
     
     func updateOperatorSjis(_ payoff: Double) {
+        defer {
+            previousOperators = [] // Once we're done clear the previous operators
+        }
         guard (model.dm.goalOperatorLearning || model.dm.interOperatorLearning || model.dm.contextOperatorLearning) && model.reward != 0.0  else { return }
         let goalChunk = model.formerBuffers["goal"] // take formerBuffers goal, because goal may have been replaced by stop or nil
         guard goalChunk != nil else { return }
@@ -231,17 +234,18 @@ class Operator {
             let goalOpReward = model.dm.defaultOperatorAssoc * (payoff - (model.time - operatorTime)) / model.reward
             let interOpReward = model.dm.defaultInterOperatorAssoc * (payoff - (model.time - operatorTime)) / model.reward
             if model.dm.contextOperatorLearning {
-                for chunk in context {
-                    if operatorChunk.assocs[chunk.name] == nil {
-                        operatorChunk.assocs[chunk.name] = (0.0, 0)
+                for (bufferName, slotName, chunk) in context {
+                    let triplet = bufferName + "%" + slotName + "%" + chunk.name
+                    if operatorChunk.assocs[triplet] == nil {
+                        operatorChunk.assocs[triplet] = (0.0, 0)
                     }
-                    operatorChunk.assocs[chunk.name]!.0 += model.dm.beta * (goalOpReward - operatorChunk.assocs[chunk.name]!.0)
-                    operatorChunk.assocs[chunk.name]!.1 += 1
+                    operatorChunk.assocs[triplet]!.0 += model.dm.beta * (goalOpReward - operatorChunk.assocs[triplet]!.0)
+                    operatorChunk.assocs[triplet]!.1 += 1
                     if goalOpReward > 0 && model.dm.operatorBaselevelLearning {
                         operatorChunk.addReference() // Also increase baselevel activation of the operator
                     }
                     if !model.silent {
-                        model.addToTrace("Updating assoc between \(chunk.name) and \(operatorChunk.name) to \(operatorChunk.assocs[chunk.name]!.0.string(fractionDigits: 3))", level: 5)
+                        model.addToTrace("Updating assoc between \(triplet) and \(operatorChunk.name) to \(operatorChunk.assocs[triplet]!.0.string(fractionDigits: 3))", level: 5)
                     }
                 }
             }
@@ -353,14 +357,14 @@ class Operator {
     /**
     This function collects all items that are currently in the context
  
-    - returns: An array of context chunks
+    - returns: An array of (buffer name, slot name, value chunk) tuples
     */
-    func allContextChunks() -> [Chunk] {
-        var results: [Chunk] = []
-        for (_,bufferChunk) in model.buffers {
-            for (_,value) in bufferChunk.slotvals {
+    func allContextChunks() -> [(String, String, Chunk)] {
+        var results: [(String, String, Chunk)] = []
+        for (bufferName,bufferChunk) in model.buffers {
+            for (slot,value) in bufferChunk.slotvals {
                 if let chunk = value.chunk() {
-                    results.append(chunk)
+                    results.append((bufferName, slot, chunk))
                 }
             }
         }
@@ -500,9 +504,9 @@ class Operator {
     /**
     Compile two operators into a single new operator that carries out all actions of the former operators
     while checking all conditions
- - parameter op1: The first to be compiled operator
-   - parameter op2: The second to be compiled operator
- - returns: The compiled operator or nil if operators cannot be compiled
+     - parameter op1: The first to be compiled operator
+     - parameter op2: The second to be compiled operator
+     - returns: The compiled operator or nil if operators cannot be compiled
     */
     func compileOperators(op1: Chunk, op2: Chunk) -> Chunk! {
         // First, extract the conditions and actions, and separate them into their components
@@ -579,6 +583,10 @@ class Operator {
             // First check whether either slot is modified by an operator1 action. If that is the case, we need to replace the reference in the new operator.
             var newCondition = condition
             if let i = operator1.actions.index(where: {(item) -> Bool in (item.rhsBuffer == condition.lhsBuffer) && (item.rhsSlot == condition.lhsSlot) }) {
+//                print("Action matches condition in \(newOperator.name) condition lhs = \(newCondition.lhsBuffer) rhs = \(operator1.actions[i].lhsBuffer)")
+                if (operator1.actions[i].lhsBuffer == "") { // We can't copy nil
+                    return nil
+                }
                 newCondition.lhsBuffer = operator1.actions[i].lhsBuffer
                 newCondition.lhsSlot = operator1.actions[i].lhsSlot
                 }

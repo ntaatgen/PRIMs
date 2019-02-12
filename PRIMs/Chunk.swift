@@ -293,7 +293,15 @@ class Chunk: NSObject, NSCoding {
     
     - returns: the Sji value
     */
-    func sji(_ chunk: Chunk) -> Double {
+    func sji(_ chunk: Chunk, buffer: String? = nil, slot: String? = nil) -> Double {
+        if slot != nil {
+            let value = chunk.assocs[buffer! + "%" + slot! + "%" + self.name]
+            if value != nil {
+                return calculateSji(value!)
+            } else {
+                return 0.0
+            }
+        }
         if let value = chunk.assocs[self.name] {
             return calculateSji(value)
         } else if self.appearsInSlotOf(chunk) {
@@ -314,10 +322,10 @@ class Chunk: NSObject, NSCoding {
         var totalSji = 0.0
         var totalSlots: Int = 0
         if  let bufferChunk = model.buffers[bufferName] {
-            for (_,value) in bufferChunk.slotvals {
+            for (slot,value) in bufferChunk.slotvals {
                 switch value {
                 case .symbol(let valchunk):
-                    totalSji += valchunk.sji(self)
+                    totalSji += valchunk.sji(self, buffer: bufferName, slot: slot)
 //                    if valchunk.sji(self) != 0.0 {
 //                        println("Buffer \(bufferName) slot \(value.description) to \(self.name) spreading \(valchunk.sji(self))")
 //                    }
