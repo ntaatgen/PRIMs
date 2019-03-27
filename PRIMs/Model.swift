@@ -424,6 +424,15 @@ class Model: NSObject, NSCoding {
             operatorLearning = boolVal
         case "operator-bll:":
             dm.operatorBaselevelLearning = boolVal
+        case "default-activation:":
+            if value == "nil" {
+                dm.defaultActivation = nil
+            } else if numVal != nil {
+                dm.defaultActivation = numVal!
+            } else {
+                return false
+            }
+            dm.defaultActivation = numVal!
         //case "batch-trace":
         //    if batchMode {
         //        batchTrace = true
@@ -483,8 +492,6 @@ class Model: NSObject, NSCoding {
                 procedural.proceduralReward = numVal!
             case "explore-exploit:":
                 dm.explorationExploitationFactor = numVal!
-            case "default-activation:":
-                dm.defaultActivation = numVal!
             case "new-pm-pow:":
                 dm.newPartialMatchingPow = numVal!
             case "new-pm-exp:":

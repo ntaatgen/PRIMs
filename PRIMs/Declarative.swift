@@ -33,7 +33,7 @@ class Declarative: NSObject, NSCoding  {
     static let explorationExploitationFactorDefault = 0.0
     static let declarativeBufferStuffingDefault = false
     static let retrievalReinforcesDefault = false
-    static let defaultActivationDefault: Double? = nil
+    static let defaultActivationDefault: Double? = 0.0
     static let partialMatchingDefault = false
     static let newPartialMatchingDefault: Double? = nil
     static let blendingDefault = false
