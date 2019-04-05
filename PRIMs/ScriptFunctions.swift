@@ -72,7 +72,8 @@ let scriptFunctions: [String:([Factor], Model?) throws -> (result: Factor?, done
     "create-new-skill": createNewGoal,
     "create-new-goal": createNewGoal,
     "set-buffer-slot": setBufferSlot,
-    "get-buffer-slot": getBufferSlot
+    "get-buffer-slot": getBufferSlot,
+    "trace-operators": setTraceOperators
     ]
 
 
@@ -619,6 +620,16 @@ func setGlobalParameter(_ content: [Factor], model: Model?) throws -> (result: F
         throw RunTimeError.errorInFunction("Parameter \(parName) does not exist or cannot take value \(parValue)")
     }
     return (nil, true)
+}
+
+/**
+ Set setTraceOperators
+ */
+func setTraceOperators(_ content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool) {
+    guard content.count == 1 else { throw RunTimeError.invalidNumberOfArguments }
+    let parValue = content[0].description
+    model!.traceAllOperators = parValue == "true" && model!.batchMode
+    return(nil, true)
 }
 
 /**

@@ -82,7 +82,7 @@ class Model: NSObject, NSCoding {
     /// Maximum time to run the model
     var timeThreshold = 200.0
     var outputData: [DataLine] = []
-    var batchTraceData: [(Double, String, String)] = []
+    //var batchTraceData: [(Double, String, String)] = []
     var batchTrace: Bool = false
     var formerBuffers: [String:Chunk] = [:]
     var modelCode: String?
@@ -93,6 +93,7 @@ class Model: NSObject, NSCoding {
     static let operatorLearningDefault = false
     /// Switch for operator learning
     var operatorLearning = operatorLearningDefault
+    var traceAllOperators = false
     let silent: Bool
     
 //    struct Results {
@@ -286,10 +287,11 @@ class Model: NSObject, NSCoding {
      * Input parameters: timestamp (double) and addToTrace (string)
      * No return parameter
      */
+    /*
     func addToBatchTrace(_ timestamp: Double, type: String, addToTrace: String) {
         batchTraceData += [(timestamp, type, addToTrace)]
     }
-    
+    */
 //    func buffersToText() -> String {
 //        var s: String = ""
 //        let bufferList = ["goal","operator","imaginal","retrievalR","retrievalH","input","action","constants"]
@@ -667,7 +669,12 @@ class Model: NSObject, NSCoding {
         } while !found
         procedural.issueReward(procedural.proceduralReward)
         procedural.lastOperator = formerBuffers["operator"]
-        addToBatchTrace(time - startTime, type: "operator", addToTrace: "\(procedural.lastOperator!.name)")
+        if traceAllOperators {
+            //model.buffers["goal"]!.setSlot("last-operator", value: opRetrieved!)
+            //addToBatchTrace(time - startTime, type: "operator", addToTrace: "\(procedural.lastOperator!.name)")
+            let dl = DataLine(eventType: "operator", eventParameter1: buffers["goal"]!.slotvals["last-operator"]!.description, eventParameter2: "void", eventParameter3: "void", inputParameters: scenario.inputMappingForTrace, time: time - startTime)
+            outputData.append(dl)
+        }
         commitToTrace(false)
         buffers["operator"] = nil
         if halfStep {

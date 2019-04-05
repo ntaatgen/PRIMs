@@ -485,12 +485,12 @@ class Declarative: NSObject, NSCoding  {
                 if !model.silent {
                     model.addToTrace("Stuffing retrieval buffer \(retrieveResult!.name) (latency = \(latency.string(fractionDigits: 3)))", level: 2)
                 }
-                model.addToBatchTrace(model.time - model.startTime, type: "retrieval", addToTrace: "\(retrieveResult!.name)")
+               // model.addToBatchTrace(model.time - model.startTime, type: "retrieval", addToTrace: "\(retrieveResult!.name)")
             } else {
                 if !model.silent {
                     model.addToTrace("Retrieving \(retrieveResult!.name) (latency = \(latency.string(fractionDigits: 3)))", level: 2)
                 }
-                model.addToBatchTrace(model.time - model.startTime, type: "retrieval", addToTrace: "\(retrieveResult!.name)")
+             //   model.addToBatchTrace(model.time - model.startTime, type: "retrieval", addToTrace: "\(retrieveResult!.name)")
                 if retrievalReinforces {
                     retrieveResult!.addReference()
                 }
@@ -500,7 +500,7 @@ class Declarative: NSObject, NSCoding  {
             if !model.silent {
                 model.addToTrace("Retrieval failure", level: 2)
             }
-            model.addToBatchTrace(model.time - model.startTime, type: "retrieval", addToTrace: "Failure")
+         //   model.addToBatchTrace(model.time - model.startTime, type: "retrieval", addToTrace: "Failure")
             let failChunk = Chunk(s: "RetrievalFailure", m: model)
             failChunk.setSlot("slot1", value: "error")
             model.buffers["retrievalH"] = failChunk

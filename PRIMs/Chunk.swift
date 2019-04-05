@@ -185,16 +185,10 @@ class Chunk: NSObject, NSCoding {
         let fixedComponent = fixedActivation == nil ? 0.0 : exp(fixedActivation!)
         if model.dm.optimizedLearning {
             let result = log(fixedComponent + (Double(references) * pow(model.time - creationTime! + 0.05, -model.dm.baseLevelDecay)) / (1 - model.dm.baseLevelDecay))
-//            if fixedActivation == nil {
-//                print("Chunk \(name) has no fixed activation")
-//            }
             if fixedActivation != nil && result < fixedActivation! {
                 print("Detected under threshold chunk \(name) age \(model.time - creationTime!) references \(references)")
             }
             return result
-//            let x = log((Double(references)/(1 - model.dm.baseLevelDecay)))
-//            let y = model.dm.baseLevelDecay * log(model.time - creationTime!)
-//            return x - y
         } else {
             return log(fixedComponent + self.referenceList.map{ pow((self.model.time - $0 + 0.05),(-self.model.dm.baseLevelDecay))}.reduce(0.0, + )) // Wew! almost lisp! This is the standard baselevel equation
         }

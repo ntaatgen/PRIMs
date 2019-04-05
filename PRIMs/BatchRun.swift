@@ -124,7 +124,8 @@ class BatchRun {
                             output += "\n"
                         }
                         // Print trace to file
-                        var traceOutput = ""
+                        /*
+                         var traceOutput = ""
                         if self.model.batchTrace {
                             if self.model.batchTrace {
                                 for (time, type, event) in self.model.batchTraceData {
@@ -132,7 +133,7 @@ class BatchRun {
                                 }
                                 self.model.batchTraceData = []
                             }
-                        }
+                        } */
                         if !newfile {
                             // Output File
                             if FileManager.default.fileExists(atPath: self.outputFileName.path) {
@@ -149,6 +150,7 @@ class BatchRun {
                                 }
                             }
                             // Trace File
+                            /*
                             if FileManager.default.fileExists(atPath: self.traceFileName.path) && self.model.batchTrace {
                                 var err:NSError?
                                 do {
@@ -161,7 +163,7 @@ class BatchRun {
                                     err = error
                                     self.mainModel.addToTraceField("Can't open trace fileHandle \(err!)")
                                 }
-                            }
+                            } */
                         } else {
                             newfile = false
                             var err:NSError?
@@ -173,6 +175,7 @@ class BatchRun {
                                 self.mainModel.addToTraceField("Can't write datafile \(err!)")
                             }
                             // Trace file
+                            /*
                             if self.model.batchTrace {
                                 do {
                                     try traceOutput.write(to: self.traceFileName, atomically: false, encoding: String.Encoding.utf8)
@@ -181,6 +184,7 @@ class BatchRun {
                                     self.mainModel.addToTraceField("Can't write tracefile \(err!)")
                                 }
                             }
+                             */
                         }
                     }
                 case "reset":
