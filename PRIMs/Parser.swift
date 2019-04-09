@@ -24,7 +24,7 @@ class Parser  {
         whiteSpaceNewLineParenthesesEqual.formUnion(whitespaceNewLine)
     }
 
-    var defaultActivation: Double? = nil
+ //   var defaultActivation: Double? = nil
     fileprivate let whitespaceNewLine = CharacterSet.whitespacesAndNewlines
     var whitespaceNewLineParentheses: CharacterSet = CharacterSet(charactersIn: "{}()")
     var whiteSpaceNewLineParenthesesEqual: CharacterSet = CharacterSet(charactersIn: "{}()=,")
@@ -231,14 +231,14 @@ class Parser  {
             }
             startScreenName = startScreen!
             m.addToTraceField("Setting startscreen to \(startScreen!)")
-        case "default-activation:":
+   /*     case "default-activation:":
             defaultActivation = scanner.scanDouble()
             if defaultActivation == nil {
                 m.addToTraceField("Invalid value after default-activation:")
                 return false
             }
             m.parameters.append(("default-activation:",String(describing: defaultActivation)))
-            m.dm.defaultActivation = defaultActivation
+            m.dm.defaultActivation = defaultActivation */
         default:
             let parValue = scanner.scanUpToCharactersFromSet(whitespaceNewLine)
             if parValue == nil {
@@ -388,7 +388,7 @@ class Parser  {
             chunk = m.generateNewChunk(operatorName!)
 //            m.addToTraceField("Warning: Chunk with name \(operatorName!) already exists, renaming it to \(chunk.name)")
         }
-        chunk.fixedActivation = defaultActivation
+        chunk.fixedActivation = m.dm.defaultActivation
         m.addToTraceField("Adding operator \(operatorName!)")
         chunk.setSlot("isa", value: "operator")
         var constantSlotCount = 0
@@ -586,7 +586,7 @@ class Parser  {
                     if slotindex == 0 {
                         chunk =  Chunk(s: slotValue!, m: m)
                         chunk!.setSlot("isa", value: "fact")
-                        chunk!.fixedActivation = defaultActivation
+                        chunk!.fixedActivation = m.dm.defaultActivation
                         slotindex += 1
                     } else {
                         if  slotValue! == "nil" {
@@ -601,7 +601,7 @@ class Parser  {
                             let extraChunk = Chunk(s: slotValue!, m: m)
                             extraChunk.setSlot("isa", value: "fact")
                             extraChunk.setSlot("slot1", value: slotValue!)
-                            extraChunk.fixedActivation = defaultActivation
+                            extraChunk.fixedActivation = m.dm.defaultActivation
                             _ = m.dm.addToDM(chunk: extraChunk)
                             m.addToTraceField("Adding undefined fact \(extraChunk.name) as default chunk")
                             chunk!.setSlot("slot\(slotindex)", value: slotValue!)
