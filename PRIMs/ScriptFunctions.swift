@@ -796,9 +796,9 @@ func instantiateSkill(content: [Factor], model: Model?) throws -> (result: Facto
     instantiatedChunk.fixedActivation = model!.dm.defaultActivation
     if model!.dm.chunks[instantiatedChunk.name] == nil {
         _ = model!.dm.addToDM(chunk: instantiatedChunk)
-    } else {
-        instantiatedChunk.addReference()
-    }
+    } //else {
+      //  instantiatedChunk.addReference()
+    //}
     return(nil, true)
 }
 

@@ -299,7 +299,7 @@ class Chunk: NSObject, NSCoding {
         if let value = chunk.assocs[self.name] {
             return calculateSji(value)
         } else if self.appearsInSlotOf(chunk) {
-            return max(0, model.dm.maximumAssociativeStrength - log(Double(min(1,self.fan))))
+            return max(0, model.dm.maximumAssociativeStrength - log(Double(max(1,self.fan))))
         }
         return 0.0
     }
@@ -351,16 +351,8 @@ class Chunk: NSObject, NSCoding {
                 for (_,value) in goal.slotvals {
                     switch value {
                     case .symbol(let valchunk):
-//                        totalSpreading += valchunk.sji(self) * max(0,valchunk.baseLevelActivation())
                         totalSlots += 1
-//                        if valchunk.type == "fact" {
-//                            // spread from slot1
-//                            if let spreadingChunk = valchunk.slotvals["slot1"]?.chunk() {
-//                                totalSpreading += spreadingChunk.sji(self) * exp(spreadingChunk.baseLevelActivation()) * model.dm.goalActivation
-//                            }
-//                        } else {
-                            totalSpreading += valchunk.sji(self) * exp(valchunk.baseLevelActivation()) * model.dm.goalActivation
-//                        }
+                        totalSpreading += valchunk.sji(self) * exp(valchunk.baseLevelActivation()) * model.dm.goalActivation
                     default:
                         break
                     }
@@ -370,17 +362,18 @@ class Chunk: NSObject, NSCoding {
             (spreading, totalSlots) = spreadingFromBuffer("goal", spreadingParameterValue: model.dm.goalActivation)
             totalSpreading += spreading * Double(totalSlots)
         }
-            if let goal=model.buffers["goal"] {
-                for (_,value) in goal.slotvals {
-                    if value.chunk() != nil && value.chunk()!.type != "goaltype", let nestedGoal = value.chunk()?.slotvals["slot1"]?.chunk(), nestedGoal.type == "goaltype" {
-                        if model.dm.goalSpreadingByActivation {
-                            totalSpreading += nestedGoal.sji(self) * exp(value.chunk()!.baseLevelActivation()) * model.dm.goalActivation
-                        } else {
-                            totalSpreading += nestedGoal.sji(self) * model.dm.goalActivation 
-                        }
+        /// The next piece of code calculated spreading for "constructed" goals
+        if let goal=model.buffers["goal"] {
+            for (_,value) in goal.slotvals {
+                if value.chunk() != nil && value.chunk()!.type != "goaltype", let nestedGoal = value.chunk()?.slotvals["slot1"]?.chunk(), nestedGoal.type == "goaltype" {
+                    if model.dm.goalSpreadingByActivation {
+                        totalSpreading += nestedGoal.sji(self) * exp(value.chunk()!.baseLevelActivation()) * model.dm.goalActivation
+                    } else {
+                        totalSpreading += nestedGoal.sji(self) * model.dm.goalActivation
                     }
                 }
             }
+        }
         
         totalSpreading += spreadingFromBuffer("input", spreadingParameterValue: model.dm.inputActivation).spreading
         totalSpreading += spreadingFromBuffer("retrievalH", spreadingParameterValue: model.dm.retrievalActivation).spreading
