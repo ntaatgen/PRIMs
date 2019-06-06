@@ -57,6 +57,7 @@ class BatchRun {
                     stopByTime = true
                     fallthrough
                 case "run":
+                    self.model.batchParameters = []
                     let taskname = scanner.scanUpToCharactersFromSet(whiteSpaceAndNL as CharacterSet)
                     if taskname == nil {
                         self.mainModel.addToTraceField("Illegal task name in run")
