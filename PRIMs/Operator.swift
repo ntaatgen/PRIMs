@@ -487,6 +487,7 @@ class Operator {
             if !model.silent {
                 model.addToTrace("Firing \(pname)", level: 3)
             }
+            model.firings += 1
             (match, _) = model.procedural.fireProduction(inst, compile: true)
             if first {
                 model.time += model.procedural.productionActionLatency + model.imaginal.imaginalActionTime

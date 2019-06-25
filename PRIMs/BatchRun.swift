@@ -122,6 +122,7 @@ class BatchRun {
                             for item in line.inputParameters {
                                 output += item + " "
                             }
+                            output += "\(line.firings)"
                             output += "\n"
                         }
                         // Print trace to file

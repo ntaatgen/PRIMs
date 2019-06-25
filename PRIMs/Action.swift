@@ -133,14 +133,15 @@ class Action {
         } else if !model.silent {
             model.addToTrace("\(ac!)-ing \(par1 == nil ? nothing : par1!)-\(par2 == nil ? nothing : par2!)", level: 2)
         }
-      //  model.addToBatchTrace(model.time + latency - model.startTime, type: "action", addToTrace: "\(ac!)-\(par1 == nil ? nothing : par1!)")
-            let dl = DataLine(eventType: "action", eventParameter1: ac!, eventParameter2: par1 ?? "void", eventParameter3: par2 ?? "void", inputParameters: model.scenario.inputMappingForTrace,time: model.time + latency - model.startTime)
-            model.outputData.append(dl)
+        //  model.addToBatchTrace(model.time + latency - model.startTime, type: "action", addToTrace: "\(ac!)-\(par1 == nil ? nothing : par1!)")
+        let dl = DataLine(eventType: "action", eventParameter1: ac!, eventParameter2: par1 ?? "void", eventParameter3: par2 ?? "void", inputParameters: model.scenario.inputMappingForTrace,time: model.time + latency - model.startTime, firings: model.firings)
+        model.outputData.append(dl)
+        model.firings = 0
         
-//        if result != nil {
-//            let slot1 = result!.slotvals["slot1"]?.description
-//            let slot2 = result!.slotvals["slot2"]?.description
-//            let slot3 = result!.slotvals["slot3"]?.description
+        //        if result != nil {
+        //            let slot1 = result!.slotvals["slot1"]?.description
+        //            let slot2 = result!.slotvals["slot2"]?.description
+        //            let slot3 = result!.slotvals["slot3"]?.description
 //            
 //            let dl = DataLine(eventType: "perception", eventParameter1: slot1 ?? "void", eventParameter2: slot2 ?? "void", eventParameter3: slot3 ?? "void", inputParameters: model.scenario.inputMappingForTrace, time: model.time + latency - model.startTime)
 //            model.outputData.append(dl)

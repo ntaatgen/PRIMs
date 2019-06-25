@@ -14,15 +14,17 @@ struct DataLine {
     var eventParameter2: String = "void"
     var eventParameter3: String = "void"
     var inputParameters: [String] = ["void","void","void","void","void"]
+    var firings: Int = 0
     var time: Double
 
-    init(eventType: String, eventParameter1: String, eventParameter2: String, eventParameter3: String, inputParameters: [String], time: Double) {
+    init(eventType: String, eventParameter1: String, eventParameter2: String, eventParameter3: String, inputParameters: [String], time: Double, firings: Int) {
         self.eventType = eventType != "" ? eventType : "void"
         self.eventParameter1 = eventParameter1 != "" ? eventParameter1 : "void"
         self.eventParameter2 = eventParameter2 != "" ? eventParameter2 : "void"
         self.eventParameter3 = eventParameter3 != "" ? eventParameter3 : "void"
         self.time = time
         self.inputParameters = inputParameters != [] ? inputParameters : ["void","void","void","void","void"]
+        self.firings = firings
     }
 }
 
@@ -93,6 +95,9 @@ class Model: NSObject, NSCoding {
     static let operatorLearningDefault = false
     /// Switch for operator learning
     var operatorLearning = operatorLearningDefault
+    /// Counter to count production firings
+    var firings: Int = 0
+    
     var traceAllOperators = false
     let silent: Bool
     
@@ -375,6 +380,7 @@ class Model: NSObject, NSCoding {
         clearTrace()
         outputData = []
         operators.previousOperators = []
+        firings = 0
         if scenario.script != nil {
             scenario.script!.reset()
         }
@@ -394,6 +400,7 @@ class Model: NSObject, NSCoding {
         formerBuffers["input"] = buffers["input"]
 //        outputData = []
         operators.previousOperators = []
+        firings = 0
     }
     
     func setParameter(_ parameter: String, value: String) -> Bool {
@@ -589,8 +596,9 @@ class Model: NSObject, NSCoding {
             let slot2 = result!.slotvals["slot2"]?.description
             let slot3 = result!.slotvals["slot3"]?.description
             
-            let dl = DataLine(eventType: "perception", eventParameter1: slot1 ?? "void", eventParameter2: slot2 ?? "void", eventParameter3: slot3 ?? "void", inputParameters: scenario.inputMappingForTrace, time: inputTime - startTime)
+            let dl = DataLine(eventType: "perception", eventParameter1: slot1 ?? "void", eventParameter2: slot2 ?? "void", eventParameter3: slot3 ?? "void", inputParameters: scenario.inputMappingForTrace, time: inputTime - startTime, firings: firings)
             outputData.append(dl)
+            firings = 0
         }
     }
     
@@ -641,8 +649,9 @@ class Model: NSObject, NSCoding {
                     fallingThrough = true
                     //                    procedural.issueReward(0.0)
                     operators.updateOperatorSjis(0.0)
-                    let dl = DataLine(eventType: "trial-end", eventParameter1: "fail", eventParameter2: "void", eventParameter3: "void", inputParameters: scenario.inputMappingForTrace, time: time - startTime)
+                    let dl = DataLine(eventType: "trial-end", eventParameter1: "fail", eventParameter2: "void", eventParameter3: "void", inputParameters: scenario.inputMappingForTrace, time: time - startTime, firings: firings)
                     outputData.append(dl)
+                    firings = 0
                     return
                 } else {
                     time = scenario.nextEventTime!
@@ -672,8 +681,9 @@ class Model: NSObject, NSCoding {
         if traceAllOperators {
             //model.buffers["goal"]!.setSlot("last-operator", value: opRetrieved!)
             //addToBatchTrace(time - startTime, type: "operator", addToTrace: "\(procedural.lastOperator!.name)")
-            let dl = DataLine(eventType: "operator", eventParameter1: buffers["goal"]!.slotvals["last-operator"]!.description, eventParameter2: "void", eventParameter3: "void", inputParameters: scenario.inputMappingForTrace, time: time - startTime)
+            let dl = DataLine(eventType: "operator", eventParameter1: buffers["goal"]!.slotvals["last-operator"]!.description, eventParameter2: "void", eventParameter3: "void", inputParameters: scenario.inputMappingForTrace, time: time - startTime, firings: firings)
             outputData.append(dl)
+            firings = 0
         }
         commitToTrace(false)
         buffers["operator"] = nil
