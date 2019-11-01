@@ -535,7 +535,7 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
             switch tableColumn!.identifier.rawValue {
             case "Name": return row == model.currentTaskIndex ? "** " + model.tasks[row].name : model.tasks[row].name
             case "Loaded": let text = NSMutableAttributedString(string: model.tasks[row].loaded ? "▶︎" : "")
-            text.addAttribute(NSAttributedStringKey.foregroundColor, value: numberToColor(row), range: NSMakeRange(0, text.length))
+            text.addAttribute(NSAttributedString.Key.foregroundColor, value: numberToColor(row), range: NSMakeRange(0, text.length))
 
                 return text
             default: return nil
@@ -622,7 +622,7 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
     @IBOutlet weak var bufferViewFormerInput: NSTextField!
     
     func formatBuffer(_ bufferName: String, bufferChunk: Chunk?, bufferAbbreviation: String, showSlot0: Bool = true) -> NSAttributedString {
-        let s = NSMutableAttributedString(string: bufferName, attributes: [NSAttributedStringKey.font : NSFont.boldSystemFont(ofSize: 12)])
+        let s = NSMutableAttributedString(string: bufferName, attributes: [NSAttributedString.Key.font : NSFont.boldSystemFont(ofSize: 12)])
         var rest: String = ""
         if bufferChunk != nil {
             if showSlot0 {
@@ -644,7 +644,7 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
     
     func formatOperator(_ chunk: Chunk?) -> NSAttributedString {
         let operatorName = chunk == nil ? "" : chunk!.name
-        let s = NSMutableAttributedString(string: "Operator \(operatorName)\n", attributes: [NSAttributedStringKey.font : NSFont.boldSystemFont(ofSize: 12)])
+        let s = NSMutableAttributedString(string: "Operator \(operatorName)\n", attributes: [NSAttributedString.Key.font : NSFont.boldSystemFont(ofSize: 12)])
         var rest = ""
         if let condition = chunk?.slotvals["condition"] {
             let conditions = condition.description.components(separatedBy: ";")
@@ -856,8 +856,8 @@ class MainViewController: NSViewController,NSTableViewDataSource,NSTableViewDele
     
     @IBAction func openConflictTraceWindow(_ sender: NSButton) {
         if conflictTraceWindowController == nil {
-            let storyboard = NSStoryboard(name: NSStoryboard.Name(rawValue: "Main"), bundle: nil)
-            if let vc = storyboard.instantiateController(withIdentifier: NSStoryboard.SceneIdentifier(rawValue: "chunkView")) as? ConflictTraceViewController {
+            let storyboard = NSStoryboard(name: "Main", bundle: nil)
+            if let vc = storyboard.instantiateController(withIdentifier: "chunkView") as? ConflictTraceViewController {
                 let cst = ConflictSetTrace()
                 model.conflictSet = cst
                 model.conflictSet!.model = model

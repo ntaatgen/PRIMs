@@ -511,7 +511,7 @@ class Operator {
     */
     func compileOperators(op1: Chunk, op2: Chunk) -> Chunk! {
         // First, extract the conditions and actions, and separate them into their components
-        var operator1 = Op(chunk: op1)
+        let operator1 = Op(chunk: op1)
         var operator2 = Op(chunk: op2)
         // First, we need to check whether these operators can be compiled at all.
         // Two operators cannot fill the same slot (anywhere). Also check ">>" and "<<" in the actions (still need to check in conditions)
@@ -555,7 +555,7 @@ class Operator {
         for i in 0..<operator2.constants.count {
             let const = operator2.constants[i]
             var newIndex = -1
-            if let j = operator1.constants.index(of: const) {
+            if let j = operator1.constants.firstIndex(of: const) {
                 newIndex = j + 1
             } else {
                 newOperator.constants.append(const)
@@ -583,7 +583,7 @@ class Operator {
         for condition in operator2.conditions {
             // First check whether either slot is modified by an operator1 action. If that is the case, we need to replace the reference in the new operator.
             var newCondition = condition
-            if let i = operator1.actions.index(where: {(item) -> Bool in (item.rhsBuffer == condition.lhsBuffer) && (item.rhsSlot == condition.lhsSlot) }) {
+            if let i = operator1.actions.firstIndex(where: {(item) -> Bool in (item.rhsBuffer == condition.lhsBuffer) && (item.rhsSlot == condition.lhsSlot) }) {
 //                print("Action matches condition in \(newOperator.name) condition lhs = \(newCondition.lhsBuffer) rhs = \(operator1.actions[i].lhsBuffer)")
                 if (operator1.actions[i].lhsBuffer == "") { // We can't copy nil
                     return nil
@@ -591,7 +591,7 @@ class Operator {
                 newCondition.lhsBuffer = operator1.actions[i].lhsBuffer
                 newCondition.lhsSlot = operator1.actions[i].lhsSlot
                 }
-            if let i = operator1.actions.index(where: {(item) -> Bool in (item.rhsBuffer == condition.rhsBuffer) && (item.rhsSlot == condition.rhsSlot) }) {
+            if let i = operator1.actions.firstIndex(where: {(item) -> Bool in (item.rhsBuffer == condition.rhsBuffer) && (item.rhsSlot == condition.rhsSlot) }) {
                 newCondition.rhsBuffer = operator1.actions[i].lhsBuffer
                 newCondition.rhsSlot = operator1.actions[i].lhsSlot
             }
