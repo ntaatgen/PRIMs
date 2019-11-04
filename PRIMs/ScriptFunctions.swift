@@ -30,6 +30,7 @@ fileprivate func >= <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
 
 let scriptFunctions: [String:([Factor], Model?) throws -> (result: Factor?, done: Bool)] =
 [   "screen": newSetScreen,
+    "set-input": newSetScreen,
     "add-visual": addVisual,
     //"screen": setScreen,
     //"nested-screen": setScreenArray,
@@ -73,7 +74,8 @@ let scriptFunctions: [String:([Factor], Model?) throws -> (result: Factor?, done
     "create-new-goal": createNewGoal,
     "set-buffer-slot": setBufferSlot,
     "get-buffer-slot": getBufferSlot,
-    "trace-operators": setTraceOperators
+    "trace-operators": setTraceOperators,
+    "read-file": readFile
     ]
 
 
@@ -733,7 +735,7 @@ func imaginalToDM(_ content: [Factor], model: Model?) throws -> (result: Factor?
  Add attributes and values to a goal chunk. The first argument is the name of the goal chunk, the remaining arguments are slot-value pairs
 
  */
-func setGoal(content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool) {
+func setGoal(_ content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool) {
     guard content.count > 0 else { throw RunTimeError.invalidNumberOfArguments }
     let goalChunkName = content[0].description
     guard let chunk = model!.dm.chunks[goalChunkName] else { throw RunTimeError.errorInFunction("Goal chunk does not exist in setGoal") }
@@ -764,7 +766,7 @@ func setGoal(content: [Factor], model: Model?) throws -> (result: Factor?, done:
  Instantiate a skill. Similar to setGoal, but now creates a separate instantiation to allow multiple copies
  First argument is the name of the skill, second is the name of the instantiation, rest is binding pairs
  */
-func instantiateSkill(content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool) {
+func instantiateSkill(_ content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool) {
     guard content.count > 1 else { throw RunTimeError.invalidNumberOfArguments }
     let goalChunkName = content[0].description
     guard let chunk = model!.dm.chunks[goalChunkName] else { throw RunTimeError.errorInFunction("Skill chunk does not exist in instantiateSkill") }
@@ -817,7 +819,7 @@ func instantiateSkill(content: [Factor], model: Model?) throws -> (result: Facto
  The function does not check validity of anything, so be careful
  It does create a new chunk in a buffer if there is none
  */
-func setBufferSlot(content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool) {
+func setBufferSlot(_ content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool) {
     guard content.count == 3 else { throw RunTimeError.invalidNumberOfArguments }
     let bufferName = content[0].description
     let bufferSlot = content[1].description
@@ -841,7 +843,7 @@ func setBufferSlot(content: [Factor], model: Model?) throws -> (result: Factor?,
  The function does not check validity of anything, so be careful
  It does create a new chunk in a buffer if there is none
  */
-func getBufferSlot(content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool) {
+func getBufferSlot(_ content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool) {
     guard content.count == 2 else { throw RunTimeError.invalidNumberOfArguments }
     let bufferName = content[0].description
     let bufferSlot = content[1].description
@@ -877,7 +879,7 @@ func setReferences(_ content: [Factor], model: Model?) throws -> (result: Factor
 /**
  Create a new goal chunk and put it in G1
  */
-func createNewGoal(content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool) {
+func createNewGoal(_ content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool) {
     guard content.count > 0 else { throw RunTimeError.invalidNumberOfArguments }
     let goalChunkName = content[0].description
     guard model!.dm.chunks[goalChunkName] == nil else { throw RunTimeError.errorInFunction("Goal chunk already exists in createNewGoal") }
@@ -904,4 +906,30 @@ func createNewGoal(content: [Factor], model: Model?) throws -> (result: Factor?,
     return(nil,true)
 }
 
-
+/**
+ Read a text file into a string array, each line is an item in the array. First and only argument is the file name, which is assumed to be in the
+ same directory as the model file.
+ */
+func readFile(_ content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool) {
+    guard content.count == 1 else { throw RunTimeError.invalidNumberOfArguments }
+    guard model!.currentTaskIndex != nil else { throw RunTimeError.errorInFunction("read-file no current task") }
+    let fileName = content[0].description
+    var fullFileName: URL = model!.tasks[model!.currentTaskIndex!].filename
+    fullFileName = fullFileName.deletingLastPathComponent()
+    fullFileName = fullFileName.appendingPathComponent(fileName)
+    guard FileManager.default.fileExists(atPath: fullFileName.path) else { throw RunTimeError.errorInFunction("read-file file does not exist")
+    }
+    var newArray: [Expression] = []
+    do {
+        let text = try String(contentsOf: fullFileName, encoding: .utf8)
+        var scanner = Scanner(string: text)
+        while !scanner.isAtEnd {
+            let line = scanner.scanUpToCharactersFromSet(CharacterSet.newlines)
+            let item = Expression(preop: "", firstTerm: Term(factor: Factor.str(line!), op: "", term: nil), op: "", secondTerm: nil)
+            newArray.append(item)
+        }
+    }
+    catch { throw RunTimeError.errorInFunction("read-file error reading file")
+    }
+    return (Factor.arr(ScriptArray(elements: newArray)), true)
+}

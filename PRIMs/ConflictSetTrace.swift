@@ -81,9 +81,10 @@ class ConflictSetTrace {
             for (slot,value) in bufferChunk.slotvals {
                 switch value {
                 case .symbol(let valchunk):
-                    let spreading = valchunk.sji(chunk, buffer: bufferName, slot: slot) * spreadingParameterValue / Double(totalSlots)
+                    let sji = valchunk.sji(chunk, buffer: bufferName, slot: slot)
+                    let spreading = sji * spreadingParameterValue / Double(totalSlots)
                     if spreading != 0 {
-                        s += "  spreading \(spreading.string(fractionDigits: 3)) from slot \(slot) with value \(valchunk.name), Sji = \(valchunk.sji(chunk, buffer: bufferName, slot: slot).string(fractionDigits: 3))\n"
+                        s += "  spreading \(spreading.string(fractionDigits: 3)) from slot \(slot) with value \(valchunk.name), Sji = \(sji.string(fractionDigits: 3))\n"
                     }
                 default:
                     break
