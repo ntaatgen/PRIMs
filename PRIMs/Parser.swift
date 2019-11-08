@@ -376,6 +376,7 @@ class Parser  {
     }
     
     func parseOperator(_ goalName: String) -> Bool {
+        let regExp = "(>>(WM|RT|V|G)[0-9]+|(WM|RT|V|G)<<|((WM|V|RT|G|AC|T)[0-9]+|nil|\\*?[a-z][a-z0-9\\-]*) *(=|\\->|<>) *((WM|V|RT|G|AC|T)[0-9]+|nil|\\*?[a-z][a-z0-9\\-]*))"
         let operatorName = scanner.scanUpToCharactersFromSet(whitespaceNewLineParentheses)
         if operatorName == nil {
             m.addToTraceField("Unexpected end of file in operator definition")

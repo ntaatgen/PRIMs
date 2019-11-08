@@ -43,6 +43,9 @@ let bufferOrder = ["input":1,"goal":2,"imaginal":3,"retrievalH":4,"constants":5,
 // buffer<<
 // something->G
 // nil->G
+
+// Attempt for a new parseName function using regular expressions instead of the current horror :)
+
 /** 
 This function takes a string that represents a PRIM, and translates it into its components
 

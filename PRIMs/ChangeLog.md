@@ -44,3 +44,9 @@
 ## 30 Nov 2018
 Adding the option to learn associations between operators and all the chunks in the buffers. To use this set context-operator-learning to true, beta to some learning speed and reward to some reward value. Also make sure to switch on spreading for
 the relevant buffers, otherwise the new associations will not do very much.
+
+## 4 Nov 2019
+Fixed some issues in the conflict set trace. One problem that remains is that the noise on the learned Sji's is different in the trace than in the actual conflict resolution. This can only be solved by 
+storing all these values, which may affect overall efficiency too much.
+Added the read-file command that reads a text file into an array,
+

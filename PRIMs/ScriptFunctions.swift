@@ -922,7 +922,7 @@ func readFile(_ content: [Factor], model: Model?) throws -> (result: Factor?, do
     var newArray: [Expression] = []
     do {
         let text = try String(contentsOf: fullFileName, encoding: .utf8)
-        var scanner = Scanner(string: text)
+        let scanner = Scanner(string: text)
         while !scanner.isAtEnd {
             let line = scanner.scanUpToCharactersFromSet(CharacterSet.newlines)
             let item = Expression(preop: "", firstTerm: Term(factor: Factor.str(line!), op: "", term: nil), op: "", secondTerm: nil)
