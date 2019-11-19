@@ -29,11 +29,12 @@ struct Op {
         let bufferMapping = ["input":"V", "imaginal": "WM", "operator": "C", "action": "AC", "retrievalH" : "RT", "retrievalR" : "RT", "temporal" : "T", "goal" : "G", "constants": "GC" ]
         name = chunk.name
         // This already gives us almost all we need, but we need to do a bit more work on it
-        let opConditions = chunk.slotvals["condition"]!.description.components(separatedBy: ";").map(parseName)
-        for (lbuf, lslot, cOP, rbuf, rslot, _) in opConditions {
-            let lslotNum = (lslot == nil || !lslot!.hasPrefix("slot")) ? 0 : Int(String(lslot![lslot!.index(lslot!.startIndex, offsetBy: 4)])) ?? 0
-            let rslotNum = (rslot == nil || !rslot!.hasPrefix("slot")) ? 0 : Int(String(rslot![rslot!.index(rslot!.startIndex, offsetBy: 4)])) ?? 0
-            conditions.append((lhsBuffer: lbuf == nil ? "" : bufferMapping[lbuf!]!, lhsSlot: lslotNum, rhsBuffer: rbuf == nil ? "" : bufferMapping[rbuf!]!, rhsSlot: rslotNum, op: cOP))
+        if let opConditions = chunk.slotvals["condition"]?.description.components(separatedBy: ";").map(parseName) {
+            for (lbuf, lslot, cOP, rbuf, rslot, _) in opConditions {
+                let lslotNum = (lslot == nil || !lslot!.hasPrefix("slot")) ? 0 : Int(String(lslot![lslot!.index(lslot!.startIndex, offsetBy: 4)])) ?? 0
+                let rslotNum = (rslot == nil || !rslot!.hasPrefix("slot")) ? 0 : Int(String(rslot![rslot!.index(rslot!.startIndex, offsetBy: 4)])) ?? 0
+                conditions.append((lhsBuffer: lbuf == nil ? "" : bufferMapping[lbuf!]!, lhsSlot: lslotNum, rhsBuffer: rbuf == nil ? "" : bufferMapping[rbuf!]!, rhsSlot: rslotNum, op: cOP))
+            }
         }
         // Same for actions
         if let actionString = chunk.slotvals["action"]?.description  {

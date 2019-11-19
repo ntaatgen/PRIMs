@@ -376,7 +376,11 @@ class Parser  {
     }
     
     func parseOperator(_ goalName: String) -> Bool {
-        let regExp = "(>>(WM|RT|V|G)[0-9]+|(WM|RT|V|G)<<|((WM|V|RT|G|AC|T)[0-9]+|nil|\\*?[a-z][a-z0-9\\-]*) *(=|\\->|<>) *((WM|V|RT|G|AC|T)[0-9]+|nil|\\*?[a-z][a-z0-9\\-]*))"
+        //let regExp = "(>>(WM|RT|V|G)[0-9]+|(WM|RT|V|G)<<|((WM|V|RT|G|AC|T|C)[0-9]+|nil|\\*?[a-z][a-z0-9\\-]*) *(=|\\->|<>) *((WM|V|RT|G|AC|T|C)[0-9]+|nil|\\*?[a-z][a-z0-9\\-]*))"
+        /// Regular expression for condition PRIMs
+        let regExpCond = "(>>(WM|RT|V|G)[0-9]+|(WM|RT|V|G)<<|((WM|V|RT|G|T|C)[0-9]+|nil|\\*?[a-z][a-z0-9\\-_]*) *(=|<>) *((WM|V|RT|G|T|C)[0-9]+|nil|\\*?[a-z][a-z0-9\\-_]*))"
+        /// Regular expression for action PRIMs
+        let regExpAction = "(>>(WM|RT|V|G)[0-9]+|(WM|RT|V|G)<<|((WM|V|RT|G|T|C)[0-9]+|nil|\\*?[a-z][a-z0-9\\-_]*) *\\-> *(WM|V|RT|G|AC|T|C)[0-9]+)"
         let operatorName = scanner.scanUpToCharactersFromSet(whitespaceNewLineParentheses)
         if operatorName == nil {
             m.addToTraceField("Unexpected end of file in operator definition")
@@ -439,73 +443,40 @@ class Parser  {
                 scanningActions = true
             } else {
                 var prim = ""
-                var component = ""
-                var complete = false // item can be a complete PRIM, or just a part of it, so we need to add stuff until it is complete
-                while !complete {
-//                    println(item! + " " + component)
-                    item! += "§"
-                    var index = item!.startIndex
-                    var done = false
-                    while !done {
-                        let ch = item![index]
-                        let lookahead = item![item!.index(index, offsetBy: 1)]
-                        switch ch {
-                        case "A"..."Z","a"..."z","_",".","*": component += String(ch)
-                        case "-": if lookahead == ">" {  // a hyphen can be part of an identifier, or part of the action ->
-                            fallthrough
-                        } else {
-                            component += String(ch)
-                            }
-                        default:
-                            if component != "" {
-                                if bufferMappingA[component] != nil || bufferMappingC[component] != nil || component == "nil" {
-                                    prim += component
-                                } else if let globalIndex = globalVariableMapping[component] {
-                                    prim += "GC\(globalIndex)"
-                                } else if let localIndex = localVariableMapping[component] {
-                                    prim += "C\(localIndex)"
-                                } else {
-                                    constantSlotCount += 1
-                                    localVariableMapping[component] = constantSlotCount
-                                    prim += "C\(constantSlotCount)"
-                                    chunk.setSlot("slot\(constantSlotCount)", value: component)
-                                }
-                                component = ""
-                            }
-                            prim += String(ch)
-                        }
-                        index = item!.index(index, offsetBy: 1)
-                        if item![index] == "§" { done = true }
+                var i = 0
+                while (item!.range(of: scanningActions ? regExpAction : regExpCond, options: .regularExpression) == nil && i < 3) {
+                    let newItem = scanner.scanUpToCharactersFromSet(whitespaceNewLineParentheses)
+                    if newItem == nil {
+                        m.addToTraceField("Unexpected end of file in operator definition")
+                        return false
                     }
-                    if component != "" {
-                        if bufferMappingA[component] != nil || bufferMappingC[component] != nil || component == "nil" {
-                            prim += component
-                        } else if let globalIndex = globalVariableMapping[component] {
-                            prim += "GC\(globalIndex)"
+                    item = item! + newItem!
+                    i += 1
+                }
+                if i == 3 {
+                    m.addToTraceField("Error in parsing PRIM \(item!)")
+                    return false
+                }
+
+                // Replace constants by Cx or GCx references
+                if let range = item!.range(of: "\\*?[a-z][a-z0-9\\-_]*[a-z0-9]", options: .regularExpression) {
+                    let component = String(item![range])
+                    if component != "nil" {
+                        if let globalIndex = globalVariableMapping[component] {
+                            item! = item!.replacingOccurrences(of: component, with: "GC\(globalIndex)")
                         } else if let localIndex = localVariableMapping[component] {
-                            prim += "C\(localIndex)"
+                            item! = item!.replacingOccurrences(of: component, with: "C\(localIndex)")
                         } else {
                             constantSlotCount += 1
                             localVariableMapping[component] = constantSlotCount
-                            prim += "C\(constantSlotCount)"
+                            item! = item!.replacingOccurrences(of: component, with: "C\(constantSlotCount)")
                             chunk.setSlot("slot\(constantSlotCount)", value: component)
                         }
-                        component = ""
-                    }
-                    if parseName(prim).0 == "" { // PRIM is not yet complete
-                        item = scanner.scanUpToCharactersFromSet(whitespaceNewLineParentheses)
-                        if item == nil {
-                            m.addToTraceField("Unexpected end of file in operator definition")
-                            return false
-                        }
-                    } else {
-                        complete = true
                     }
                 }
-                let (_,_,_,_,_,newPrim) = parseName(prim)
-                if newPrim != nil {
-                    prim = newPrim!
-                }
+
+                let (_,_,_,_,_,newPrim) = parseName(item!)
+                prim = newPrim == nil ? item! : newPrim!
                 if scanningActions {
                     actions.insert(prim, at: 0)
                 } else {
@@ -515,8 +486,10 @@ class Parser  {
         }
 //        The following line reorders conditions and actions to optimize overlap. We don't want this anymore because order is now important
 //        m.operators.addOperator(chunk, conditions: conditions, actions: actions)
-        
-        chunk.setSlot("condition",value: primsListToString(prims: conditions))
+        let conditionString = primsListToString(prims: conditions)
+        if conditionString != "" {
+            chunk.setSlot("condition", value: conditionString)
+        }
         let actionString = primsListToString(prims: actions)
         if actionString != "" {
             chunk.setSlot("action",value: primsListToString(prims: actions))
