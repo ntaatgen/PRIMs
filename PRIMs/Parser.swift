@@ -381,6 +381,7 @@ class Parser  {
         let regExpCond = "(>>(WM|RT|V|G)[0-9]+|(WM|RT|V|G)<<|((WM|V|RT|G|T|C)[0-9]+|nil|\\*?[a-z][a-z0-9\\-_]*) *(=|<>) *((WM|V|RT|G|T|C)[0-9]+|nil|\\*?[a-z][a-z0-9\\-_]*))"
         /// Regular expression for action PRIMs
         let regExpAction = "(>>(WM|RT|V|G)[0-9]+|(WM|RT|V|G)<<|((WM|V|RT|G|T|C)[0-9]+|nil|\\*?[a-z][a-z0-9\\-_]*) *\\-> *(WM|V|RT|G|AC|T|C)[0-9]+)"
+        let bufferMapping = ["input":"V", "imaginal": "WM", "operator": "C", "action": "AC", "retrievalH" : "RT", "retrievalR" : "RT", "temporal" : "T", "goal" : "G", "constants": "GC" ]
         let operatorName = scanner.scanUpToCharactersFromSet(whitespaceNewLineParentheses)
         if operatorName == nil {
             m.addToTraceField("Unexpected end of file in operator definition")
@@ -463,7 +464,7 @@ class Parser  {
                     let component = String(item![range])
                     if component != "nil" {
                         if let globalIndex = globalVariableMapping[component] {
-                            item! = item!.replacingOccurrences(of: component, with: "GC\(globalIndex)")
+                            item! = item!.replacingOccurrences(of: component, with: "GC\(globalIndex)") // obsolete?
                         } else if let localIndex = localVariableMapping[component] {
                             item! = item!.replacingOccurrences(of: component, with: "C\(localIndex)")
                         } else {
@@ -471,16 +472,21 @@ class Parser  {
                             localVariableMapping[component] = constantSlotCount
                             item! = item!.replacingOccurrences(of: component, with: "C\(constantSlotCount)")
                             chunk.setSlot("slot\(constantSlotCount)", value: component)
+                            chunk.constants.append(component)
                         }
                     }
                 }
 
-                let (_,_,_,_,_,newPrim) = parseName(item!)
+                let (lbuf, lslot, cOP, rbuf, rslot ,newPrim) = parseName(item!)
+                let lslotNum = (lslot == nil || !lslot!.hasPrefix("slot")) ? 0 : Int(String(lslot![lslot!.index(lslot!.startIndex, offsetBy: 4)])) ?? 0
+                let rslotNum = (rslot == nil || !rslot!.hasPrefix("slot")) ? 0 : Int(String(rslot![rslot!.index(rslot!.startIndex, offsetBy: 4)])) ?? 0
                 prim = newPrim == nil ? item! : newPrim!
                 if scanningActions {
                     actions.insert(prim, at: 0)
+                    chunk.actions.append((lhsBuffer: lbuf == nil ? "" : bufferMapping[lbuf!]!, lhsSlot: lslotNum, rhsBuffer: rbuf == nil ? "" : bufferMapping[rbuf!]!, rhsSlot: rslotNum, op: cOP))
                 } else {
                     conditions.insert(prim, at: 0)
+                    chunk.conditions.append((lhsBuffer: lbuf == nil ? "" : bufferMapping[lbuf!]!, lhsSlot: lslotNum, rhsBuffer: rbuf == nil ? "" : bufferMapping[rbuf!]!, rhsSlot: rslotNum, op: cOP))
                 }
             }
         }

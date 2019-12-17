@@ -681,9 +681,11 @@ class Model: NSObject, NSCoding {
         if traceAllOperators {
             //model.buffers["goal"]!.setSlot("last-operator", value: opRetrieved!)
             //addToBatchTrace(time - startTime, type: "operator", addToTrace: "\(procedural.lastOperator!.name)")
-            let dl = DataLine(eventType: "operator", eventParameter1: buffers["goal"]!.slotvals["last-operator"]!.description, eventParameter2: "void", eventParameter3: "void", inputParameters: scenario.inputMappingForTrace, time: time - startTime, firings: firings)
+            if let lastoperator = buffers["goal"]?.slotvals["last-operator"]?.description {
+            let dl = DataLine(eventType: "operator", eventParameter1: lastoperator, eventParameter2: "void", eventParameter3: "void", inputParameters: scenario.inputMappingForTrace, time: time - startTime, firings: firings)
             outputData.append(dl)
             firings = 0
+            }
         }
         commitToTrace(false)
         buffers["operator"] = nil

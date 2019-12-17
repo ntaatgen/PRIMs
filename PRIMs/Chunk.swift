@@ -37,6 +37,13 @@ class Chunk: NSObject, NSCoding {
     var definedIn: [Int] = []
     /// Is used to represent chunk trees in buffers: what is the parent Chunk?
     var parent: String? = nil
+    /// The following instance variables are filled if the chunk is an operator
+    /// An array of constants that are normally stored in slot1..n of the chunk
+    var constants: [String] = []
+    /// An array with the conditions. Each condition is a 5-tuple the 5 components of a PRIM
+    var conditions: [(lhsBuffer: String, lhsSlot: Int, rhsBuffer: String, rhsSlot: Int, op: String)] = []
+    /// An array with the actions. Each action is a 5-tuple with the 5 components of a PRIM
+    var actions: [(lhsBuffer: String, lhsSlot: Int, rhsBuffer: String, rhsSlot: Int, op: String)] = []
     /**
     - returns: the type of the chunk, or empty string if there isn't one defined
     */
