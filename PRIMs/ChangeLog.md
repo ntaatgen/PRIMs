@@ -50,3 +50,5 @@ Fixed some issues in the conflict set trace. One problem that remains is that th
 storing all these values, which may affect overall efficiency too much.
 Added the read-file command that reads a text file into an array,
 
+## 28 Feb 2020
+Added int function to convert Doubles to Ints in the script

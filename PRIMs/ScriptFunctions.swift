@@ -75,7 +75,8 @@ let scriptFunctions: [String:([Factor], Model?) throws -> (result: Factor?, done
     "set-buffer-slot": setBufferSlot,
     "get-buffer-slot": getBufferSlot,
     "trace-operators": setTraceOperators,
-    "read-file": readFile
+    "read-file": readFile,
+    "int": convertToInt
     ]
 
 
@@ -257,6 +258,20 @@ func randIntNumber(_ content: [Factor], model: Model?)  throws -> (result: Facto
     }
 }
 
+/**
+   Convert a number to an integer
+*/
+func convertToInt(_ content: [Factor], model: Model?)  throws -> (result: Factor?, done: Bool) {
+    guard content.count == 1 else { throw RunTimeError.invalidNumberOfArguments }
+    switch content[0] {
+    case .intNumber(let num):
+        return (Factor.intNumber(num), true)
+    case .realNumber(let num):
+        return (Factor.intNumber(Int(num)), true)
+    default:
+        throw RunTimeError.errorInFunction("Call to int with a non-number argument")
+    }
+}
 /**
     Put the items of the given array in random order
 */

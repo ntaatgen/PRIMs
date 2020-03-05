@@ -95,9 +95,9 @@ class Model: NSObject, NSCoding {
     static let operatorLearningDefault = false
     /// Switch for operator learning
     var operatorLearning = operatorLearningDefault
-    /// Counter to count production firings
+    /// Counter to count production firings for an operator
     var firings: Int = 0
-    
+    /// If set to true will put all operator firings in the Batch trace
     var traceAllOperators = false
     let silent: Bool
     
@@ -666,6 +666,11 @@ class Model: NSObject, NSCoding {
                     addToTrace("Operator \(op.name) failed", level: 2)
                 }
                 commitToTrace(true)
+                if traceAllOperators {
+                    let dl = DataLine(eventType: "failed-operator", eventParameter1: op.name, eventParameter2: "void", eventParameter3: "void", inputParameters: scenario.inputMappingForTrace, time: time - startTime, firings: firings)
+                    outputData.append(dl)
+                    firings = 0
+                }
                 buffers["goal"] = formerBuffers["goal"]
                 buffers["imaginal"] = formerBuffers["imaginal"]
                 buffers["input"] = formerBuffers["input"]
