@@ -31,8 +31,8 @@ struct Op {
         // This already gives us almost all we need, but we need to do a bit more work on it
         if let opConditions = chunk.slotvals["condition"]?.description.components(separatedBy: ";").map(parseName) {
             for (lbuf, lslot, cOP, rbuf, rslot, _) in opConditions {
-                let lslotNum = (lslot == nil || !lslot!.hasPrefix("slot")) ? 0 : Int(String(lslot![lslot!.index(lslot!.startIndex, offsetBy: 4)])) ?? 0
-                let rslotNum = (rslot == nil || !rslot!.hasPrefix("slot")) ? 0 : Int(String(rslot![rslot!.index(rslot!.startIndex, offsetBy: 4)])) ?? 0
+                let lslotNum = (lslot == nil || !lslot!.hasPrefix("slot")) ? -1 : Int(String(lslot![lslot!.index(lslot!.startIndex, offsetBy: 4)])) ?? -1
+                let rslotNum = (rslot == nil || !rslot!.hasPrefix("slot")) ? -1 : Int(String(rslot![rslot!.index(rslot!.startIndex, offsetBy: 4)])) ?? -1
                 conditions.append((lhsBuffer: lbuf == nil ? "" : bufferMapping[lbuf!]!, lhsSlot: lslotNum, rhsBuffer: rbuf == nil ? "" : bufferMapping[rbuf!]!, rhsSlot: rslotNum, op: cOP))
             }
         }
@@ -40,9 +40,11 @@ struct Op {
         if let actionString = chunk.slotvals["action"]?.description  {
             let opActions = actionString.components(separatedBy: ";").map(parseName)
             for (lbuf, lslot, cOP, rbuf, rslot, _) in opActions {
-                let lslotNum = (lslot == nil || !lslot!.hasPrefix("slot")) ? 0 : Int(String(lslot![lslot!.index(lslot!.startIndex, offsetBy: 4)])) ?? 0
-                let rslotNum = (rslot == nil || !rslot!.hasPrefix("slot")) ? 0 : Int(String(rslot![rslot!.index(rslot!.startIndex, offsetBy: 4)])) ?? 0
+//                print("\(chunk.name) \(lslot) \(rbuf) \(rslot)")
+                let lslotNum = (lslot == nil || !lslot!.hasPrefix("slot")) ? -1 : Int(String(lslot![lslot!.index(lslot!.startIndex, offsetBy: 4)])) ?? -1
+                let rslotNum = (rslot == nil || !rslot!.hasPrefix("slot")) ? -1 : Int(String(rslot![rslot!.index(rslot!.startIndex, offsetBy: 4)])) ?? -1
                 actions.append((lhsBuffer: lbuf == nil ? "" : bufferMapping[lbuf!]!, lhsSlot: lslotNum, rhsBuffer: rbuf == nil ? "" : bufferMapping[rbuf!]!, rhsSlot: rslotNum, op: cOP))
+//                print((lhsBuffer: lbuf == nil ? "" : bufferMapping[lbuf!]!, lhsSlot: lslotNum, rhsBuffer: rbuf == nil ? "" : bufferMapping[rbuf!]!, rhsSlot: rslotNum, op: cOP))
             }
         }
         var i = 1
@@ -64,8 +66,8 @@ struct Op {
         var itemList: [String] = []
         for (lbuf, lslot, rbuf, rslot, op) in conditions {
             
-            let lhs = lslot > 0 ? lbuf + String(lslot) : op != ">>" && op != "<<" ? "nil" : lbuf
-            let rhs = rslot > 0 ? rbuf + String(rslot) : op != ">>" && op != "<<" ? "nil" : rbuf
+            let lhs = lslot >= 0 ? lbuf + String(lslot) : op != ">>" && op != "<<" ? "nil" : lbuf
+            let rhs = rslot >= 0 ? rbuf + String(rslot) : op != ">>" && op != "<<" ? "nil" : rbuf
 
             let prim = lhs + op + rhs
             if !itemList.contains(prim) {
@@ -81,8 +83,8 @@ struct Op {
         var actionString = ""
         itemList = []
         for (lbuf, lslot, rbuf, rslot, op) in actions {
-            let lhs = lslot > 0 ? lbuf + String(lslot) : op != ">>" && op != "<<" ? "nil" : lbuf
-            let rhs = rslot > 0 ? rbuf + String(rslot) : op != ">>" && op != "<<" ? "nil" : rbuf
+            let lhs = lslot >= 0 ? lbuf + String(lslot) : op != ">>" && op != "<<" ? "nil" : lbuf
+            let rhs = rslot >= 0 ? rbuf + String(rslot) : op != ">>" && op != "<<" ? "nil" : rbuf
             let prim = lhs + op + rhs
             if !itemList.contains(prim) {
                 itemList.append(prim)
