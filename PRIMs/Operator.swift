@@ -288,10 +288,35 @@ class Operator {
     
      
     /**
-    Function that checks whether the operator matches the current roles in the goals. If it does, it also returns an operator with the appropriate substitution.
+    Function that checks whether the operator matches the current bindings. If it does, it also returns an operator with the appropriate substitution.
      - parameter op: The candidate operator
      - returns: nil if there is no match, otherwise the operator with the appropriate substitution
     */
+    func checkOperatorGoalMatch(op: Chunk) -> Chunk? {
+        guard let bindingChunk = model.buffers["bindings"] else { return nil } // should never happen
+        let opCopy = op.copyChunk()
+        var i = 1
+        while let opSlotValue = opCopy.slotvals["slot\(i)"]  {
+            if opSlotValue.description.hasPrefix("*") {
+                var tempString = opSlotValue.description
+                tempString.remove(at: tempString.startIndex)
+                if let subst = bindingChunk.slotvals[tempString] {
+                    opCopy.setSlot("slot\(i)", value: subst)
+                } else {
+                    print("Cannot find \(opSlotValue.description)")
+                    return nil
+                }
+            }
+            i += 1
+        } // TODO: How to deal with a variable in the action? If the variable only appears in the action, it does not need an instantiation yet
+        return opCopy
+    }
+    /*
+     /**
+     Function that checks whether the operator matches the current roles in the goals. If it does, it also returns an operator with the appropriate substitution.
+      - parameter op: The candidate operator
+      - returns: nil if there is no match, otherwise the operator with the appropriate substitution
+     */
     func checkOperatorGoalMatch(op: Chunk) -> Chunk? {
         guard let goalChunk = model.buffers["goal"] else { return nil }
         let opCopy = op.copyChunk()
@@ -356,7 +381,7 @@ class Operator {
  */
         return opCopy
     }
-    
+    */
     /**
     This function collects all items that are currently in the context
  

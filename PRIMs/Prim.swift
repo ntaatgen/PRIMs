@@ -89,8 +89,7 @@ func parseName(_ name: String) -> (String?,String?,String,String?,String?,String
         } else {
             return ("", "", "", nil, nil, nil)
         }
-    }
-    
+    }    
     let compareError = components.count < 4
     let parseError = compareError || (components[0] != "nil" && components[3] != "nil" && (components.count == 4 || bufferMappingC[components[3]] == "nil"))
     if  parseError || components[0] == "nil" && components[1] != "->" {
@@ -103,7 +102,7 @@ func parseName(_ name: String) -> (String?,String?,String,String?,String?,String
         let leftBuffer = bufferMappingC[components[0]]
         if leftBuffer == nil { return ("","","",nil,nil,nil) }
         return (leftBuffer!,"slot" + components[1],components[2],nil,nil,nil)
-    } else {
+    } else { // Both sides are a buffer
         var rightBuffer = (components[2] == "->") ? bufferMappingA[components[3]] : bufferMappingC[components[3]]
         var leftBuffer = bufferMappingC[components[0]]
         if rightBuffer == nil || leftBuffer == nil {
@@ -111,7 +110,8 @@ func parseName(_ name: String) -> (String?,String?,String,String?,String?,String
         } else {
             var newPrim: String? = nil
             if (components[2] == "=" || components[2] == "<>") && bufferOrder[leftBuffer!]! >= bufferOrder[rightBuffer!]! {
-                if (bufferOrder[leftBuffer!]! > bufferOrder[rightBuffer!]!) || (Int(components[1]) > Int(components[4])) {
+                if (bufferOrder[leftBuffer!]! > bufferOrder[rightBuffer!]!) ||
+                    ((bufferOrder[leftBuffer!]! == bufferOrder[rightBuffer!]!) && (Int(components[1]) > Int(components[4]))) {  // bugfix
                     let tmp = rightBuffer
                     rightBuffer = leftBuffer
                     leftBuffer = tmp

@@ -380,7 +380,7 @@ class Parser  {
         /// Regular expression for condition PRIMs
         let regExpCond = "(>>(WM|RT|V|G)[0-9]+|(WM|RT|V|G)<<|((WM|V|RT|G|T|C)[0-9]+|nil|\\*?[a-z][a-z0-9\\-_]*) *(=|<>) *((WM|V|RT|G|T|C)[0-9]+|nil|\\*?[a-z][a-z0-9\\-_]*))"
         /// Regular expression for action PRIMs
-        let regExpAction = "(>>(WM|RT|V|G)[0-9]+|(WM|RT|V|G)<<|((WM|V|RT|G|T|C)[0-9]+|nil|\\*?[a-z][a-z0-9\\-_]*) *\\-> *(WM|V|RT|G|AC|T|C)[0-9]+)"
+        let regExpAction = "(>>(WM|RT|V|G)[0-9]+|(WM|RT|V|G)<<|((WM|V|RT|G|T|C)[0-9]+|nil|\\*?[a-z][a-z0-9\\-_]*) *\\-> *(WM|V|RT|G|AC|T|C)[0-9]+|\\*[a-z][a-z0-9\\-_]*)" // Added the last bit to allow -> *variable
         let bufferMapping = ["input":"V", "imaginal": "WM", "operator": "C", "action": "AC", "retrievalH" : "RT", "retrievalR" : "RT", "temporal" : "T", "goal" : "G", "constants": "GC" ]
         let operatorName = scanner.scanUpToCharactersFromSet(whitespaceNewLineParentheses)
         if operatorName == nil {
@@ -471,8 +471,13 @@ class Parser  {
                             constantSlotCount += 1
                             localVariableMapping[component] = constantSlotCount
                             item! = item!.replacingOccurrences(of: component, with: "C\(constantSlotCount)")
-                            chunk.setSlot("slot\(constantSlotCount)", value: component)
-                            chunk.constants.append(component)
+                            if i == 2 && scanningActions {  // Action creates a new binding
+                                chunk.setSlot("slot\(constantSlotCount)", value: "*" + component)
+//                                chunk.constants.append("*".append(component))
+                            } else {
+                                chunk.setSlot("slot\(constantSlotCount)", value: component)
+ //                               chunk.constants.append(component)
+                            }
                         }
                     }
                 }

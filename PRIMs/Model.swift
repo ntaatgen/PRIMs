@@ -729,6 +729,10 @@ class Model: NSObject, NSCoding {
         currentTaskIndex = nil
         operators.reset()
         imaginal.reset()
+        // New addition: add a bindings chunk to the buffers
+        let bindingsChunk = Chunk(s: "bindings", m: self)
+        bindingsChunk.setSlot("isa", value: "bindings")
+        buffers["bindings"] = bindingsChunk  
         stillNeedToDoModuleActions = false
         if taskNumber != nil {
             currentTaskIndex = taskNumber!
