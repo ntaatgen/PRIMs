@@ -299,7 +299,7 @@ class Operator {
         for (_,value) in goalChunk.slotvals {  // Go through all the goals in the goal buffer
 //            print("Value is \(value.description)")
             if let chunk = value.chunk() {   // if it is a chunk
-                if chunk.type == "goaltype" {  // and it is a goal
+                if chunk.type == "goaltype" || model.complexGoalVariableStructure == false {  // and it is a goal
                     for (slot,val) in chunk.slotvals {
                         if slot != "isa" {
                             referenceList[slot] = val

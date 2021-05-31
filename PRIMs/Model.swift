@@ -95,6 +95,9 @@ class Model: NSObject, NSCoding {
     static let operatorLearningDefault = false
     /// Switch for operator learning
     var operatorLearning = operatorLearningDefault
+    static let complexGoalVariableStructureDefault = true
+    /// Switch for variable binding: True = use complex structures is goal, False = use simple structures
+    var complexGoalVariableStructure = complexGoalVariableStructureDefault
     /// Counter to count production firings for an operator
     var firings: Int = 0
     /// If set to true will put all operator firings in the Batch trace
@@ -442,6 +445,8 @@ class Model: NSObject, NSCoding {
                 return false
             }
             dm.defaultActivation = numVal!
+        case "complex-goal-variable-structure:":
+            complexGoalVariableStructure = boolVal
         //case "batch-trace":
         //    if batchMode {
         //        batchTrace = true
@@ -526,6 +531,7 @@ class Model: NSObject, NSCoding {
         temporal.setParametersToDefault()
         reward = Model.rewardDefault
         operatorLearning = Model.operatorLearningDefault
+        complexGoalVariableStructure = Model.complexGoalVariableStructureDefault
     }
     
     func loadParameters() {
