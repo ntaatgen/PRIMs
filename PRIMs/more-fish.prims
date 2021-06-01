@@ -54,6 +54,7 @@ define goal more {
         WM<<
         WM5 -> RT3
         nil -> WM4
+        say -> AC1
     }
 
     operator new-container-is-greater-move-on {
@@ -229,9 +230,15 @@ define visual {
 
 define script {
     screen("screen2")
-    set-goal("more",["subtask","count-goal"],["action","say"],["container","acquarium"])
-    set-goal("count-goal",["item-type","fish"],["subsubtask","determine-attribute"])
-    set-goal("determine-attribute",["target","red"])
+    add-binding("subtask","count-goal")
+    add-binding("action","say")
+    add-binding("container","acquarium")
+    add-binding("item-type","fish")
+    add-binding("subsubtask","determine-attribute")
+    add-binding("target","red")
+//    set-goal("more",["subtask","count-goal"],["action","say"],["container","acquarium"])
+//    set-goal("count-goal",["item-type","fish"],["subsubtask","determine-attribute"])
+//    set-goal("determine-attribute",["target","red"])
 	run-until-action("say")
 	issue-reward()
 	trial-end()

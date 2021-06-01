@@ -297,7 +297,7 @@ class Operator {
         let opCopy = op.copyChunk()
         var i = 1
         while let opSlotValue = opCopy.slotvals["slot\(i)"]  {
-            if opSlotValue.description.hasPrefix("*") {
+            if opSlotValue.description.hasPrefix("*") && !opSlotValue.description.hasPrefix("**"){  // Double star means it is used to add a binding
                 var tempString = opSlotValue.description
                 tempString.remove(at: tempString.startIndex)
                 if let subst = bindingChunk.slotvals[tempString] {
@@ -306,9 +306,12 @@ class Operator {
                     print("Cannot find \(opSlotValue.description)")
                     return nil
                 }
+            } else if opSlotValue.description.hasPrefix("**") {
+                let tempString = String(opSlotValue.description.dropFirst(2))
+                opCopy.setSlot("slot\(i)", value: tempString)
             }
             i += 1
-        } // TODO: How to deal with a variable in the action? If the variable only appears in the action, it does not need an instantiation yet
+        } 
         return opCopy
     }
     /*

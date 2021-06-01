@@ -196,6 +196,17 @@ class Prim:NSObject, NSCoding {
         case "->":
             if lhsBuffer != nil && lhsVal == nil { // We cannot transfer nil from one slot to another
                 return false }
+            // Special case: rhs refers to a constant // TODO: add special action here
+
+            if rhsBuffer == "operator" {
+                let slotname = model.buffers["operator"]!.slotvals[rhsSlot!] // get the name of the slotname for the binding
+                if lhsBuffer == nil {
+                    model.buffers["bindings"]!.slotvals[slotname!.description] = nil
+                } else {
+                    model.buffers["bindings"]!.setSlot(slotname!.description, value: lhsVal!)
+                }
+            }
+            // TODO: handle the nil assignment
             if lhsSlot == nil && rhsSlot == "slot0" && rhsBuffer != nil { // Clearing a Buffer
                 model.buffers[rhsBuffer!] = nil
                 if rhsBuffer! == "imaginal" {

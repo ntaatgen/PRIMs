@@ -69,6 +69,7 @@ let scriptFunctions: [String:([Factor], Model?) throws -> (result: Factor?, done
     "set-references": setReferences,
     "set-goal" : setGoal,
     "instantiate-skill": instantiateSkill,
+    "add-binding": addBinding,
     "set-skill": setGoal,
     "create-new-skill": createNewGoal,
     "create-new-goal": createNewGoal,
@@ -748,7 +749,7 @@ func imaginalToDM(_ content: [Factor], model: Model?) throws -> (result: Factor?
 
 /**
  Add attributes and values to a goal chunk. The first argument is the name of the goal chunk, the remaining arguments are slot-value pairs
-
+ Now superseded by add-bindings
  */
 func setGoal(_ content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool) {
     guard content.count > 0 else { throw RunTimeError.invalidNumberOfArguments }
@@ -821,7 +822,24 @@ func instantiateSkill(_ content: [Factor], model: Model?) throws -> (result: Fac
     //}
     return(nil, true)
 }
-
+/**
+    Add a binding to the binding chunk
+ */
+func addBinding(_ content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool) {
+    guard content.count == 2 else { throw RunTimeError.invalidNumberOfArguments}
+    guard model?.buffers["bindings"] != nil else { throw RunTimeError.errorInFunction("No chunk in bindings buffer.")}
+    let attribute = content[0].description
+    let value = content[1].description
+    if model!.dm.chunks[value] == nil && string2Double(value) == nil {
+        let extraChunk = Chunk(s: value, m: model!)
+        extraChunk.setSlot("isa", value: "fact")
+        extraChunk.setSlot("slot1", value: value)
+        extraChunk.fixedActivation = model!.dm.defaultActivation
+        _ = model!.dm.addToDM(chunk: extraChunk)
+    }
+    model!.buffers["bindings"]!.setSlot(attribute, value: value)
+    return(nil, true)
+}
 /**
  Set a slot in a particular buffer to a particular value
  

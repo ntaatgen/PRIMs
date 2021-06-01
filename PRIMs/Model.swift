@@ -370,6 +370,10 @@ class Model: NSObject, NSCoding {
         startTime = time
         fallingThrough = false
         buffers = [:]
+        // New addition: add a bindings chunk to the buffers
+        let bindingsChunk = Chunk(s: "bindings", m: self)
+        bindingsChunk.setSlot("isa", value: "bindings")
+        buffers["bindings"] = bindingsChunk
 //        bufferStack = [:]
         procedural.reset()
         buffers["goal"] = currentGoals?.copyChunk()
@@ -379,6 +383,7 @@ class Model: NSObject, NSCoding {
         formerBuffers["constants"] = buffers["constants"]?.copyLiteral()
         action.initTask()
         formerBuffers["input"] = buffers["input"]
+        formerBuffers["bindings"] = buffers["bindings"]?.copyLiteral()
         running = true
         clearTrace()
         outputData = []
@@ -393,6 +398,10 @@ class Model: NSObject, NSCoding {
         startTime = time
         fallingThrough = false
         buffers = [:]
+        // New addition: add a bindings chunk to the buffers
+        let bindingsChunk = Chunk(s: "bindings", m: self)
+        bindingsChunk.setSlot("isa", value: "bindings")
+        buffers["bindings"] = bindingsChunk
 //        bufferStack = [:]
         procedural.reset()
         buffers["goal"] = currentGoals?.copyChunk()
@@ -401,6 +410,8 @@ class Model: NSObject, NSCoding {
         formerBuffers["goal"] = buffers["goal"]?.copyLiteral()
         formerBuffers["constants"] = buffers["constants"]?.copyLiteral()
         formerBuffers["input"] = buffers["input"]
+        formerBuffers["bindings"] = buffers["bindings"]?.copyLiteral()
+
 //        outputData = []
         operators.previousOperators = []
         firings = 0
@@ -646,6 +657,7 @@ class Model: NSObject, NSCoding {
         formerBuffers["input"] = buffers["input"]
         formerBuffers["retrievalH"] = buffers["retrievalH"]?.copyLiteral()
         formerBuffers["constants"] = buffers["constants"]?.copyLiteral()
+        formerBuffers["bindings"] = buffers["bindings"]?.copyLiteral()
         commitToTrace(false)
         repeat {
             procedural.lastProduction = nil
@@ -682,6 +694,7 @@ class Model: NSObject, NSCoding {
                 buffers["input"] = formerBuffers["input"]
                 buffers["retrievalH"] = formerBuffers["retrievalH"]
                 buffers["constants"] = formerBuffers["constants"]
+                buffers["bindings"] = formerBuffers["bindings"]
 //                bufferStack = bufferStackCopy  // This is not perfect because other Chunks may have been modified
                 operators.removeLastOperatorRecord()
                 procedural.clearRewardTrace()  // Don't reward productions that didn't work

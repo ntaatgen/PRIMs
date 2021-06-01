@@ -52,3 +52,6 @@ Added the read-file command that reads a text file into an array,
 
 ## 28 Feb 2020
 Added int function to convert Doubles to Ints in the script
+
+## 1 Jun 2021
+Changed the way the architecture uses bindings. They are now collected into a single chunk buffers["bindings"]. Bindings can be set with the add-binding command (e.g. add-binding("fact-type","number"), or by an operator action (e.g., number -> *fact-type or RT3 -> *fact-type).

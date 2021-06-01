@@ -380,7 +380,8 @@ class Parser  {
         /// Regular expression for condition PRIMs
         let regExpCond = "(>>(WM|RT|V|G)[0-9]+|(WM|RT|V|G)<<|((WM|V|RT|G|T|C)[0-9]+|nil|\\*?[a-z][a-z0-9\\-_]*) *(=|<>) *((WM|V|RT|G|T|C)[0-9]+|nil|\\*?[a-z][a-z0-9\\-_]*))"
         /// Regular expression for action PRIMs
-        let regExpAction = "(>>(WM|RT|V|G)[0-9]+|(WM|RT|V|G)<<|((WM|V|RT|G|T|C)[0-9]+|nil|\\*?[a-z][a-z0-9\\-_]*) *\\-> *(WM|V|RT|G|AC|T|C)[0-9]+|\\*[a-z][a-z0-9\\-_]*)" // Added the last bit to allow -> *variable
+        let regExpAction = "(>>(WM|RT|V|G)[0-9]+|(WM|RT|V|G)<<|((WM|V|RT|G|T|C)[0-9]+|nil|\\*?[a-z][a-z0-9\\-_]*) *\\-> *((WM|V|RT|G|AC|T|C)[0-9]+|\\*[a-z][a-z0-9\\-_]*))"
+       // let regExpAction = "(>>(WM|RT|V|G)[0-9]+|(WM|RT|V|G)<<|((WM|V|RT|G|T|C)[0-9]+|nil|\\*?[a-z][a-z0-9\\-_]*) *\\-> *(WM|V|RT|G|AC|T|C)[0-9]+|\\*[a-z][a-z0-9\\-_]*)" // Added the last bit to allow -> *variable
         let bufferMapping = ["input":"V", "imaginal": "WM", "operator": "C", "action": "AC", "retrievalH" : "RT", "retrievalR" : "RT", "temporal" : "T", "goal" : "G", "constants": "GC" ]
         let operatorName = scanner.scanUpToCharactersFromSet(whitespaceNewLineParentheses)
         if operatorName == nil {
@@ -432,7 +433,7 @@ class Parser  {
         var scanningActions = false
         while !scanner.scanString("}", into: nil) {
             var item = scanner.scanUpToCharactersFromSet(whitespaceNewLineParentheses)
-//            println("\(item)")
+            print("\(item)")
             if item == nil {
                 m.addToTraceField("Unexpected end of file in operator definition")
                 return false
@@ -447,6 +448,7 @@ class Parser  {
                 var i = 0
                 while (item!.range(of: scanningActions ? regExpAction : regExpCond, options: .regularExpression) == nil && i < 3) {
                     let newItem = scanner.scanUpToCharactersFromSet(whitespaceNewLineParentheses)
+                    print(newItem)
                     if newItem == nil {
                         m.addToTraceField("Unexpected end of file in operator definition")
                         return false
@@ -460,24 +462,27 @@ class Parser  {
                 }
 
                 // Replace constants by Cx or GCx references
+                // First look for a possible replacement after the ->, which should start with a "*"
+                if let range = item!.range(of: "->\\*[a-z][a-z0-9\\-_]*[a-z0-9]", options: .regularExpression) {
+                    let component = String(String(item![range]).dropFirst(2))
+                    constantSlotCount += 1
+                    localVariableMapping[component] = constantSlotCount
+                    item! = item!.replacingOccurrences(of: component, with: "C\(constantSlotCount)")
+                    chunk.setSlot("slot\(constantSlotCount)", value: "*" + component)
+                }
+                // Now look for constants elsewhere
                 if let range = item!.range(of: "\\*?[a-z][a-z0-9\\-_]*[a-z0-9]", options: .regularExpression) {
                     let component = String(item![range])
                     if component != "nil" {
-                        if let globalIndex = globalVariableMapping[component] {
-                            item! = item!.replacingOccurrences(of: component, with: "GC\(globalIndex)") // obsolete?
-                        } else if let localIndex = localVariableMapping[component] {
+                        if let localIndex = localVariableMapping[component] {
                             item! = item!.replacingOccurrences(of: component, with: "C\(localIndex)")
                         } else {
                             constantSlotCount += 1
                             localVariableMapping[component] = constantSlotCount
                             item! = item!.replacingOccurrences(of: component, with: "C\(constantSlotCount)")
-                            if i == 2 && scanningActions {  // Action creates a new binding
-                                chunk.setSlot("slot\(constantSlotCount)", value: "*" + component)
-//                                chunk.constants.append("*".append(component))
-                            } else {
-                                chunk.setSlot("slot\(constantSlotCount)", value: component)
+                            chunk.setSlot("slot\(constantSlotCount)", value: component)
  //                               chunk.constants.append(component)
-                            }
+                            
                         }
                     }
                 }
