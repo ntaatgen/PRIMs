@@ -466,13 +466,16 @@ class Parser  {
                 if let range = item!.range(of: "->\\*[a-z][a-z0-9\\-_]*[a-z0-9]", options: .regularExpression) {
                     let component = String(String(item![range]).dropFirst(2))
                     constantSlotCount += 1
-                    localVariableMapping[component] = constantSlotCount
+                    localVariableMapping["*" + component] = constantSlotCount
                     item! = item!.replacingOccurrences(of: component, with: "C\(constantSlotCount)")
                     chunk.setSlot("slot\(constantSlotCount)", value: "*" + component)
                 }
                 // Now look for constants elsewhere
+                for _ in 1...2 {
                 if let range = item!.range(of: "\\*?[a-z][a-z0-9\\-_]*[a-z0-9]", options: .regularExpression) {
                     let component = String(item![range])
+                    print(item!)
+                    print(component)
                     if component != "nil" {
                         if let localIndex = localVariableMapping[component] {
                             item! = item!.replacingOccurrences(of: component, with: "C\(localIndex)")
@@ -486,7 +489,7 @@ class Parser  {
                         }
                     }
                 }
-
+                }
                 let (lbuf, lslot, cOP, rbuf, rslot ,newPrim) = parseName(item!)
                 let lslotNum = (lslot == nil || !lslot!.hasPrefix("slot")) ? 0 : Int(String(lslot![lslot!.index(lslot!.startIndex, offsetBy: 4)])) ?? 0
                 let rslotNum = (rslot == nil || !rslot!.hasPrefix("slot")) ? 0 : Int(String(rslot![rslot!.index(rslot!.startIndex, offsetBy: 4)])) ?? 0
