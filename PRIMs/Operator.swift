@@ -300,19 +300,19 @@ class Operator {
             if opSlotValue.description.hasPrefix("*") && !opSlotValue.description.hasPrefix("**"){  // Double star means it is used to add a binding
                 var tempString = opSlotValue.description
                 tempString.remove(at: tempString.startIndex)
-                if let subst = bindingChunk.slotvals[tempString] {
+                if let subst = bindingChunk.slotvals[tempString] { // TODO: Instead of getting a value from the bindingChunk, we need a retrieval for the value here
                     opCopy.setSlot("slot\(i)", value: subst)
                 } else {
-                    print("Cannot find \(opSlotValue.description)")
+                    print("Cannot find \(opSlotValue.description)") // TODO: This is what we need to do on a retrieval failure
                     return nil
                 }
             } else if opSlotValue.description.hasPrefix("**") {
                 let tempString = String(opSlotValue.description.dropFirst(2))
-                opCopy.setSlot("slot\(i)", value: tempString)
+                opCopy.setSlot("slot\(i)", value: tempString)  
             }
             i += 1
         } 
-        return opCopy
+        return opCopy  // TODO: Some of the additions take time, so we need to make sure time is passed back
     }
     /*
      /**
@@ -432,7 +432,7 @@ class Operator {
         if !cfs.isEmpty {
             repeat {
                 (candidate, activation) = cfs.remove(at: 0)
-                if let toBeCheckedOperator = checkOperatorGoalMatch(op: candidate) {
+                if let toBeCheckedOperator = checkOperatorGoalMatch(op: candidate) { // TODO: checkOperatorGoalMatch should return a latency that we need to store and add to the time later on
                     candidateWithSubstitution = toBeCheckedOperator.copyChunk()
                     model.buffers["operator"] = toBeCheckedOperator
                     let inst = model.procedural.findMatchingProduction()
@@ -455,7 +455,7 @@ class Operator {
                     //                    }
                 } else {
                     if !model.silent {
-                        let s = "   Rejected operator " + candidate.name + " because its roles do not match any goal"
+                        let s = "   Rejected operator " + candidate.name + " because its roles do not match any goal" // TODO: change text, reason can be a retrieval failure on a variable
                         model.addToTrace(s, level: 3)
                     }
                 }

@@ -201,9 +201,9 @@ class Prim:NSObject, NSCoding {
             if rhsBuffer == "operator" {
                 let slotname = model.buffers["operator"]!.slotvals[rhsSlot!] // get the name of the slotname for the binding
                 if lhsBuffer == nil {
-                    model.buffers["bindings"]!.slotvals[slotname!.description] = nil
+                    model.buffers["bindings"]!.slotvals[slotname!.description] = nil // TODO: Remove chunk from memory, or add "nil" chunk
                 } else {
-                    model.buffers["bindings"]!.setSlot(slotname!.description, value: lhsVal!)
+                    model.buffers["bindings"]!.setSlot(slotname!.description, value: lhsVal!) // TODO: Add binding chunk to DM. How to include the latency? Return a latency value?
                 }
             }
             // TODO: handle the nil assignment

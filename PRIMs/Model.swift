@@ -371,7 +371,7 @@ class Model: NSObject, NSCoding {
         fallingThrough = false
         buffers = [:]
         // New addition: add a bindings chunk to the buffers
-        let bindingsChunk = Chunk(s: "bindings", m: self)
+        let bindingsChunk = Chunk(s: "bindings", m: self) // TODO: remove binding chunk (eventually)
         bindingsChunk.setSlot("isa", value: "bindings")
         buffers["bindings"] = bindingsChunk
 //        bufferStack = [:]

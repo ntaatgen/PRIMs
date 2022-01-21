@@ -837,7 +837,7 @@ func addBinding(_ content: [Factor], model: Model?) throws -> (result: Factor?, 
         extraChunk.fixedActivation = model!.dm.defaultActivation
         _ = model!.dm.addToDM(chunk: extraChunk)
     }
-    model!.buffers["bindings"]!.setSlot(attribute, value: value)
+    model!.buffers["bindings"]!.setSlot(attribute, value: value) // TODO: Add chunk to DM instead
     return(nil, true)
 }
 /**
