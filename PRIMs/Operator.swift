@@ -292,19 +292,35 @@ class Operator {
      - parameter op: The candidate operator
      - returns: nil if there is no match, otherwise the operator with the appropriate substitution
     */
-    func checkOperatorGoalMatch(op: Chunk) -> Chunk? {
-        guard let bindingChunk = model.buffers["bindings"] else { return nil } // should never happen
+    func checkOperatorGoalMatch(op: Chunk) -> (Chunk?, Double) {
+        guard let bindingChunk = model.buffers["bindings"] else { return (nil, 0) } // should never happen
         let opCopy = op.copyChunk()
         var i = 1
+        var totalLatency = 0.0
         while let opSlotValue = opCopy.slotvals["slot\(i)"]  {
             if opSlotValue.description.hasPrefix("*") && !opSlotValue.description.hasPrefix("**"){  // Double star means it is used to add a binding
                 var tempString = opSlotValue.description
                 tempString.remove(at: tempString.startIndex)
                 if let subst = bindingChunk.slotvals[tempString] { // TODO: Instead of getting a value from the bindingChunk, we need a retrieval for the value here
-                    opCopy.setSlot("slot\(i)", value: subst)
+                    if model.bindingsInDM {
+                        let retrieval = Chunk(s: "retrieval", m: model)
+                        retrieval.setSlot("isa", value: "binding")
+                        retrieval.setSlot("slot1", value: model.buffers["goal"]!)
+                        retrieval.setSlot("slot2", value: tempString)
+                        let (latency, chunk) = model.dm.retrieve(retrieval)
+                        if let value = chunk?.slotvals["slot3"] {
+                            opCopy.setSlot("slot\(i)", value: value)
+                            totalLatency += latency
+                        } else {
+                            return (nil, model.bindingsInDM ? totalLatency + latency: 0)
+                        }
+                    }
+                    else {
+                        opCopy.setSlot("slot\(i)", value: subst)
+                    }
                 } else {
                     print("Cannot find \(opSlotValue.description)") // TODO: This is what we need to do on a retrieval failure
-                    return nil
+                    return (nil, totalLatency + model.dm.latency(model.dm.retrievalThreshold))
                 }
             } else if opSlotValue.description.hasPrefix("**") {
                 let tempString = String(opSlotValue.description.dropFirst(2))
@@ -312,7 +328,7 @@ class Operator {
             }
             i += 1
         } 
-        return opCopy  // TODO: Some of the additions take time, so we need to make sure time is passed back
+        return (opCopy, totalLatency)  // TODO: Some of the additions take time, so we need to make sure time is passed back
     }
     /*
      /**
@@ -411,6 +427,7 @@ class Operator {
         let retrievalRQ = Chunk(s: "operator", m: model)
         retrievalRQ.setSlot("isa", value: "operator")
         var (latency,opRetrieved) = model.dm.retrieve(retrievalRQ)
+        // Sort all operators based on activation
         var cfs = model.dm.conflictSet.sorted(by: { (item1, item2) -> Bool in
             let (_,u1) = item1
             let (_,u2) = item2
@@ -432,17 +449,25 @@ class Operator {
         if !cfs.isEmpty {
             repeat {
                 (candidate, activation) = cfs.remove(at: 0)
-                if let toBeCheckedOperator = checkOperatorGoalMatch(op: candidate) { // TODO: checkOperatorGoalMatch should return a latency that we need to store and add to the time later on
-                    candidateWithSubstitution = toBeCheckedOperator.copyChunk()
-                    model.buffers["operator"] = toBeCheckedOperator
+                let (toBeCheckedOperator, latency) = checkOperatorGoalMatch(op: candidate)
+                if toBeCheckedOperator != nil { // TODO: checkOperatorGoalMatch should return a latency that we need to store and add to the time later on
+                    candidateWithSubstitution = toBeCheckedOperator!.copyChunk()
+                    model.buffers["operator"] = toBeCheckedOperator!
                     let inst = model.procedural.findMatchingProduction()
-                    (match, prim) = model.procedural.fireProduction(inst, compile: false)
+                    (match, prim, _) = model.procedural.fireProduction(inst, compile: false)
                     model.buffers["imaginal"] = model.formerBuffers["imaginal"]
+                    model.time += latency
+                    if !model.silent && model.bindingsInDM {
+                        let s = "       Retrieving bindings took " + String(latency) + "seconds"
+                        model.addToTrace(s, level: 5)
+                    }
                     if let pr = prim {
                         if !match && !model.silent {
                             let s = "   Operator " + candidate.name + " does not match because of " + pr.name
                             model.addToTrace(s, level: 5)
+
                         }
+
                     }
                     // Temporary (?) commented out
                     //                    if match && candidate.spreadingActivation() <= 0.0 && model.buffers["operator"]?.slotValue("condition") != nil {
@@ -455,7 +480,7 @@ class Operator {
                     //                    }
                 } else {
                     if !model.silent {
-                        let s = "   Rejected operator " + candidate.name + " because its roles do not match any goal" // TODO: change text, reason can be a retrieval failure on a variable
+                        let s = "   Rejected operator " + candidate.name + " because its variables failed to instatiate" // TODO: change text, reason can be a retrieval failure on a variable
                         model.addToTrace(s, level: 3)
                     }
                 }
@@ -509,6 +534,7 @@ class Operator {
     func carryOutProductionsUntilOperatorDone() -> Bool {
         var match: Bool = true
         var first: Bool = true
+        var latency = 0.0
         while match && (model.buffers["operator"]?.slotvals["condition"] != nil || model.buffers["operator"]?.slotvals["action"] != nil) {
             let inst = model.procedural.findMatchingProduction()
             var pname = inst.p.name
@@ -519,12 +545,12 @@ class Operator {
                 model.addToTrace("Firing \(pname)", level: 3)
             }
             model.firings += 1
-            (match, _) = model.procedural.fireProduction(inst, compile: true)
+            (match, _, latency) = model.procedural.fireProduction(inst, compile: true)
             if first {
-                model.time += model.procedural.productionActionLatency + model.imaginal.imaginalActionTime
+                model.time += model.procedural.productionActionLatency + model.imaginal.imaginalActionTime + latency
                 first = false
             } else {
-                model.time += model.procedural.productionAndPrimLatency + model.imaginal.imaginalActionTime
+                model.time += model.procedural.productionAndPrimLatency + model.imaginal.imaginalActionTime + latency
             }
             model.imaginal.imaginalActionTime = 0.0
         }

@@ -160,11 +160,11 @@ class Production: NSObject, NSCoding {
         return nil        
     }
     
-    func testFire() -> (Bool, Prim?) {
+    func testFire() -> (Bool, Prim?, Double) {
 
         for bc in conditions {
-            if !bc.fire(condition: true) { // println("\(bc) does not match")
-                return (false, bc) } // one of the conditions does not match
+            if !bc.fire(condition: true).match { // println("\(bc) does not match")
+                return (false, bc, 0) } // one of the conditions does not match
         }
 //        for ac in actions {
 //            if !ac.testFire() {
@@ -177,7 +177,7 @@ class Production: NSObject, NSCoding {
             model.buffers["operator"]!.slotvals["condition"] = nil
         }
 
-        return (true, nil)
+        return (true, nil, 0)
     }
     
     /**
@@ -185,14 +185,17 @@ class Production: NSObject, NSCoding {
     
     - returns:  Whether execution was successful
     */
-    func fire() -> (Bool, Prim?) {
+    func fire() -> (Bool, Prim?, Double) {
+        var latency = 0.0
         for bc in conditions {
-            if !bc.fire(condition: true) { // println("\(bc) does not match")
-                return (false, bc) } // one of the conditions does not match
+            if !bc.fire(condition: true).match { // println("\(bc) does not match")
+                return (false, bc, 0.0) } // one of the conditions does not match
         }
         for ac in actions {
-            if !ac.fire(condition: false) { // println("\(ac) does not execute")
-                return (false, ac) } // an action cannot be executed because its lhs is nil
+            let acFire = ac.fire(condition: false)
+            if !acFire.match { // println("\(ac) does not execute")
+                return (false, ac, 0.0) } // an action cannot be executed because its lhs is nil
+            latency += acFire.latency
         }
         if newCondition != nil {
             model.buffers["operator"]!.setSlot("condition", value: newCondition!)
@@ -204,7 +207,7 @@ class Production: NSObject, NSCoding {
         } else {
             model.buffers["operator"]!.slotvals["action"] = nil
         }
-        return (true, nil)
+        return (true, nil, latency)
     }
     
 }

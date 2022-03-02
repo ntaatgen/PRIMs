@@ -99,6 +99,8 @@ class Model: NSObject, NSCoding {
     /// Switch for variable binding: True = use complex structures is goal, False = use simple structures
     var complexGoalVariableStructure = complexGoalVariableStructureDefault
     /// Counter to count production firings for an operator
+    static let bindingsInDMDefault = false
+    var bindingsInDM = bindingsInDMDefault
     var firings: Int = 0
     /// If set to true will put all operator firings in the Batch trace
     var traceAllOperators = false
@@ -447,6 +449,8 @@ class Model: NSObject, NSCoding {
             operatorLearning = boolVal
         case "operator-bll:":
             dm.operatorBaselevelLearning = boolVal
+        case "bindings-in-dm:":
+            bindingsInDM = boolVal
         case "default-activation:":
             if value == "nil" {
                 dm.defaultActivation = nil
@@ -543,6 +547,7 @@ class Model: NSObject, NSCoding {
         reward = Model.rewardDefault
         operatorLearning = Model.operatorLearningDefault
         complexGoalVariableStructure = Model.complexGoalVariableStructureDefault
+        bindingsInDM = Model.bindingsInDMDefault
     }
     
     func loadParameters() {

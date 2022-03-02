@@ -165,7 +165,7 @@ class Prim:NSObject, NSCoding {
     - parameter condition: Is this a condition or action Prim? Relevant for push actions
     - returns: a Bool to indicate success
     */
-    func fire(condition: Bool) -> Bool {
+    func fire(condition: Bool) -> (match: Bool, latency: Double) {
 //        print("Checking PRIM \(name)")
         let lhsVal = (lhsBuffer == nil) || (lhsSlot == nil) ? nil : model.buffers[lhsBuffer!]?.slotValue(lhsSlot!)
 //        lhsBuffer! == "operator" ? model.buffers[lhsBuffer!]?.slotValue(lhsSlot!) : model.formerBuffers[lhsBuffer!]?.slotValue(lhsSlot!)
@@ -173,31 +173,30 @@ class Prim:NSObject, NSCoding {
         switch op {
         case "=":
             if rhsBuffer == nil {
-                return lhsVal == nil
+                return (lhsVal == nil, 0)
             } else if lhsVal == nil {
-                return false
+                return (false, 0)
             }
             let rhsVal = model.buffers[rhsBuffer!]?.slotValue(rhsSlot!)
             if lhsBuffer != nil && lhsBuffer! == "temporal" && lhsSlot != nil && lhsSlot! == "slot1" {
-                return rhsVal == nil ? false : model.temporal.compareTime(compareValue: rhsVal!.number())
+                return (rhsVal == nil ? false : model.temporal.compareTime(compareValue: rhsVal!.number()), 0)
             }
             if rhsBuffer != nil && rhsBuffer! == "temporal" && rhsSlot != nil && rhsSlot! == "slot1" {
-                return lhsVal == nil ? false : model.temporal.compareTime(compareValue: lhsVal!.number())
+                return (lhsVal == nil ? false : model.temporal.compareTime(compareValue: lhsVal!.number()) ,0)
             }
-            return rhsVal == nil ? false : lhsVal!.isEqual(rhsVal!)
+            return rhsVal == nil ? (false, 0) : (lhsVal!.isEqual(rhsVal!), 0)
         case "<>":
             if rhsBuffer == nil {
-                return lhsVal != nil
+                return (lhsVal != nil, 0)
             } else if lhsVal == nil {
-                return false
+                return (false, 0)
             }
             let rhsVal = model.buffers[rhsBuffer!]?.slotValue(rhsSlot!)
-            return rhsVal == nil ? false : !lhsVal!.isEqual(rhsVal!)
+            return (rhsVal == nil ? false : !lhsVal!.isEqual(rhsVal!), 0)
         case "->":
             if lhsBuffer != nil && lhsVal == nil { // We cannot transfer nil from one slot to another
-                return false }
+                return (false,0) }
             // Special case: rhs refers to a constant // TODO: add special action here
-
             if rhsBuffer == "operator" {
                 let slotname = model.buffers["operator"]!.slotvals[rhsSlot!] // get the name of the slotname for the binding
                 if lhsBuffer == nil {
@@ -205,6 +204,22 @@ class Prim:NSObject, NSCoding {
                 } else {
                     model.buffers["bindings"]!.setSlot(slotname!.description, value: lhsVal!) // TODO: Add binding chunk to DM. How to include the latency? Return a latency value?
                 }
+                if model.bindingsInDM {
+                    let newchunk = model.generateNewChunk("binding")
+                    newchunk.setSlot("isa", value: "binding")
+                    newchunk.setSlot("slot1", value: model.buffers["goal"]!)
+                    newchunk.setSlot("slot2", value: slotname!.description)
+                    if lhsBuffer != nil {
+                        newchunk.setSlot("slot3", value: lhsVal!)
+                    }
+                    _ = model.dm.addToDM(chunk: newchunk)
+                    if !model.silent {
+                        let s = "   Adding binding " + newchunk.name + " to DM." // TODO: change text, reason can be a retrieval failure on a variable
+                        model.addToTrace(s, level: 5)
+                    }
+                    return (true, model.imaginal.imaginalLatency)
+                }
+                return (true, 0.0)
             }
             // TODO: handle the nil assignment
             if lhsSlot == nil && rhsSlot == "slot0" && rhsBuffer != nil { // Clearing a Buffer
@@ -216,7 +231,7 @@ class Prim:NSObject, NSCoding {
             }
             if lhsSlot == nil && model.buffers[rhsBuffer!] != nil && model.buffers[rhsBuffer!]!.slotvals[rhsSlot!] != nil { // We want to put nil to replace an existing slot value
                 model.buffers[rhsBuffer!]!.slotvals[rhsSlot!] = nil
-                return true
+                return (true, 0)
             }
 //            if rhsBuffer == nil || lhsVal == nil {return false}
             if model.buffers[rhsBuffer!] == nil {
@@ -231,7 +246,7 @@ class Prim:NSObject, NSCoding {
                 if rhsBuffer! == "imaginalN" {
                     model.buffers[rhsBuffer!]!.setSlot(rhsSlot!, value: "nil")
                 }
-                return true
+                return (true, 0)
             }
             // If we copy something to slot0 of a buffer chunk we replace the whole chunk with the new chunk
             if rhsSlot! == "slot0" {
@@ -250,36 +265,36 @@ class Prim:NSObject, NSCoding {
                     }
                     model.buffers[rhsBuffer!] = newChunk
                 } else {
-                    return false
+                    return (false, 0)
                 }
             }
             model.buffers[rhsBuffer!]!.setSlot(rhsSlot!, value: lhsVal!)
-            return true
+            return (true, 0)
         case ">>":
             switch rhsBuffer! {
                 case "imaginal":
-                    return model.imaginal.push(slot: rhsSlot!, condition: condition)
+                    return (model.imaginal.push(slot: rhsSlot!, condition: condition), 0)
 //                case "goal":
 //                    return model.goalPush(slot: rhsSlot!)
                 case "retrievalH":
-                    return model.dm.push(slot: rhsSlot!)
+                    return (model.dm.push(slot: rhsSlot!), 0)
                 case "input":
-                    return model.action.push(slot: rhsSlot!)
-            default: return false
+                    return (model.action.push(slot: rhsSlot!), 0)
+            default: return (false, 0)
             }
         case "<<":
             switch lhsBuffer! {
             case "imaginal":
-                return model.imaginal.pop()
+                return (model.imaginal.pop(), 0)
 //            case "goal":
 //                return model.goalPop()
             case "retrievalH":
-                return model.dm.pop()
+                return (model.dm.pop(), 0)
             case "input":
-                return model.action.pop()
-            default: return false
+                return (model.action.pop(), 0)
+            default: return (false, 0)
             }
-        default: return false
+        default: return (false, 0)
         }
         
     }

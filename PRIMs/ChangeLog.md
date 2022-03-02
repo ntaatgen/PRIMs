@@ -55,3 +55,9 @@ Added int function to convert Doubles to Ints in the script
 
 ## 1 Jun 2021
 Changed the way the architecture uses bindings. They are now collected into a single chunk buffers["bindings"]. Bindings can be set with the add-binding command (e.g. add-binding("fact-type","number"), or by an operator action (e.g., number -> *fact-type or RT3 -> *fact-type).
+
+## 21 January 2022
+Bindings will now have a cost: creating a binding creates a chunk in DM with the usual cost (200 ms), and instantiating it costs the retrieval time (and these might be a retrieval failure)
+
+## 17 February 2022
+Bindings with cost are implemented, can be switched on with a parameter (bindings-in-dm:)

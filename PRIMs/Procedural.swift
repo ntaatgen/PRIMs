@@ -101,7 +101,7 @@ class Procedural: NSObject, NSCoding {
      - parameter inst: The instantiation of the production
      - compile: whether production compilation should occur
     */
-    func fireProduction(_ inst: Instantiation, compile: Bool) -> (Bool, Prim?) {
+    func fireProduction(_ inst: Instantiation, compile: Bool) -> (Bool, Prim?, Double) {
         if compile {
             if !inst.p.name.hasPrefix("t") {
                 addToRewardTrace(inst)

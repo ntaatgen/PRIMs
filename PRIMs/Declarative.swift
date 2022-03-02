@@ -262,6 +262,19 @@ class Declarative: NSObject, NSCoding  {
         }
     }
     
+    /**
+     Purge dm of chunks of a given type. This is mainly used to get rid of old bindings for efficiency
+     - Parameter type: chunks with this string in the isa slot will be purged.
+     */
+    func purgeDM(type: String) {
+        for (name, chunk) in chunks {
+            if let tp = chunk.slotvals["isa"] {
+                if tp.description == type {
+                    chunks[name] = nil
+                }
+            }
+        }
+    }
     
     /**
     Checks all chunks in DM to make sure threre are no Strings in slots that are the same as the name

@@ -77,7 +77,8 @@ let scriptFunctions: [String:([Factor], Model?) throws -> (result: Factor?, done
     "get-buffer-slot": getBufferSlot,
     "trace-operators": setTraceOperators,
     "read-file": readFile,
-    "int": convertToInt
+    "int": convertToInt,
+    "purge-bindings": purgeBindings
     ]
 
 
@@ -828,6 +829,7 @@ func instantiateSkill(_ content: [Factor], model: Model?) throws -> (result: Fac
 func addBinding(_ content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool) {
     guard content.count == 2 else { throw RunTimeError.invalidNumberOfArguments}
     guard model?.buffers["bindings"] != nil else { throw RunTimeError.errorInFunction("No chunk in bindings buffer.")}
+    guard model?.buffers["goal"] != nil else {throw RunTimeError.errorInFunction("No chunk in goal buffer to add binding to.")}
     let attribute = content[0].description
     let value = content[1].description
     if model!.dm.chunks[value] == nil && string2Double(value) == nil {
@@ -838,6 +840,14 @@ func addBinding(_ content: [Factor], model: Model?) throws -> (result: Factor?, 
         _ = model!.dm.addToDM(chunk: extraChunk)
     }
     model!.buffers["bindings"]!.setSlot(attribute, value: value) // TODO: Add chunk to DM instead
+    if model!.bindingsInDM {
+        let chunk = model!.generateNewChunk("binding")
+        chunk.setSlot("isa", value: "binding")
+        chunk.setSlot("slot1", value: model!.buffers["goal"]!)
+        chunk.setSlot("slot2", value: attribute)
+        chunk.setSlot("slot3", value: value)
+        _ = model!.dm.addToDM(chunk: chunk)
+    }
     return(nil, true)
 }
 /**
@@ -965,4 +975,12 @@ func readFile(_ content: [Factor], model: Model?) throws -> (result: Factor?, do
     catch { throw RunTimeError.errorInFunction("read-file error reading file")
     }
     return (Factor.arr(ScriptArray(elements: newArray)), true)
+}
+
+/**
+ Purge all bindings
+ */
+func purgeBindings(_ content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool) {
+    model!.dm.purgeDM(type: "binding")
+    return(nil,true)
 }
