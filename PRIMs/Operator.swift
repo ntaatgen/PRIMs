@@ -301,7 +301,7 @@ class Operator {
             if opSlotValue.description.hasPrefix("*") && !opSlotValue.description.hasPrefix("**"){  // Double star means it is used to add a binding
                 var tempString = opSlotValue.description
                 tempString.remove(at: tempString.startIndex)
-                if let subst = bindingChunk.slotvals[tempString] { // TODO: Instead of getting a value from the bindingChunk, we need a retrieval for the value here
+                if let subst = bindingChunk.slotvals[tempString] {
                     if model.bindingsInDM {
                         let retrieval = Chunk(s: "retrieval", m: model)
                         retrieval.setSlot("isa", value: "binding")
@@ -319,7 +319,7 @@ class Operator {
                         opCopy.setSlot("slot\(i)", value: subst)
                     }
                 } else {
-                    print("Cannot find \(opSlotValue.description)") // TODO: This is what we need to do on a retrieval failure
+                    print("Cannot find \(opSlotValue.description)")
                     return (nil, totalLatency + model.dm.latency(model.dm.retrievalThreshold))
                 }
             } else if opSlotValue.description.hasPrefix("**") {
@@ -328,7 +328,7 @@ class Operator {
             }
             i += 1
         } 
-        return (opCopy, totalLatency)  // TODO: Some of the additions take time, so we need to make sure time is passed back
+        return (opCopy, totalLatency)  
     }
     /*
      /**

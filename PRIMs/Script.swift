@@ -513,7 +513,7 @@ class Script {
     var statements: [Statement] = []
     /// Argument passed on by the batch script (if any)
     var arg: String = ""
-    
+    // TODO: Still crashes on funny characters, such as curly quotes
     func tokenize(_ input: String) -> [String] {
         var tokens: [String] = []
         var nextIndex = input.startIndex
@@ -562,8 +562,11 @@ class Script {
             return readNumber(input, startIndex: nextIndex)
         case "\"":
             return readString(input, startIndex: nextIndex)
-        default:
+        case "a"..."z", "A"..."Z":
             return readSymbol(input, startIndex: nextIndex)
+        default: // Throw an error: unknown symbol
+            
+            return ("errorToken", input.index(nextIndex, offsetBy: 1))
         }
     }
     

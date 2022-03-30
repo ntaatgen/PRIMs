@@ -61,3 +61,7 @@ Bindings will now have a cost: creating a binding creates a chunk in DM with the
 
 ## 17 February 2022
 Bindings with cost are implemented, can be switched on with a parameter (bindings-in-dm:)
+
+## 30 March 2022
+Added get-activation as a script function to get the activation of a chunk
+Added an extra optional argument to add-binding to set the fixed-activation of a binding

@@ -58,6 +58,7 @@ let scriptFunctions: [String:([Factor], Model?) throws -> (result: Factor?, done
     "last-action": lastAction,
     "add-dm": addDM,
     "set-activation": setActivation,
+    "get-activation": getActivation,
     "set-sji": setSji,
     "random-string": randomString,
     "sgp": setGlobalParameter,
@@ -601,6 +602,15 @@ func setActivation(_ content: [Factor], model: Model?) throws -> (result: Factor
 }
 
 /**
+ Return the activation of a chunk. First argument is the chunk name.
+ */
+func getActivation(_ content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool) {
+    guard content.count == 1 else { throw RunTimeError.invalidNumberOfArguments}
+    let chunk = model!.dm.chunks[content[0].description]
+    guard chunk != nil else { throw RunTimeError.errorInFunction("Chunk does not exist") }
+    return (Factor.realNumber(chunk!.activation()), true)
+}
+/**
  Set Sji between two chunks
  */
 func setSji(_ content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool) {
@@ -825,11 +835,15 @@ func instantiateSkill(_ content: [Factor], model: Model?) throws -> (result: Fac
 }
 /**
     Add a binding to the binding chunk
+    First argument is the variable
+    Second argument is the value
+    Thirs optional argument is a fixed activation
  */
 func addBinding(_ content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool) {
-    guard content.count == 2 else { throw RunTimeError.invalidNumberOfArguments}
+    guard content.count == 2 || content.count == 3 else { throw RunTimeError.invalidNumberOfArguments}
     guard model?.buffers["bindings"] != nil else { throw RunTimeError.errorInFunction("No chunk in bindings buffer.")}
     guard model?.buffers["goal"] != nil else {throw RunTimeError.errorInFunction("No chunk in goal buffer to add binding to.")}
+    guard content.count != 3 || content[2].type() == "real" || content[2].type() == "integer" else {throw RunTimeError.errorInFunction("Third optional argument has to be a number")}
     let attribute = content[0].description
     let value = content[1].description
     if model!.dm.chunks[value] == nil && string2Double(value) == nil {
@@ -839,13 +853,17 @@ func addBinding(_ content: [Factor], model: Model?) throws -> (result: Factor?, 
         extraChunk.fixedActivation = model!.dm.defaultActivation
         _ = model!.dm.addToDM(chunk: extraChunk)
     }
-    model!.buffers["bindings"]!.setSlot(attribute, value: value) // TODO: Add chunk to DM instead
+    model!.buffers["bindings"]!.setSlot(attribute, value: value)
     if model!.bindingsInDM {
         let chunk = model!.generateNewChunk("binding")
         chunk.setSlot("isa", value: "binding")
         chunk.setSlot("slot1", value: model!.buffers["goal"]!)
         chunk.setSlot("slot2", value: attribute)
         chunk.setSlot("slot3", value: value)
+        if content.count == 3 {
+            let activation = content[2].doubleValue()
+            chunk.fixedActivation = activation
+        }
         _ = model!.dm.addToDM(chunk: chunk)
     }
     return(nil, true)

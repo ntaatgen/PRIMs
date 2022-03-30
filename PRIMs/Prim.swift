@@ -196,13 +196,13 @@ class Prim:NSObject, NSCoding {
         case "->":
             if lhsBuffer != nil && lhsVal == nil { // We cannot transfer nil from one slot to another
                 return (false,0) }
-            // Special case: rhs refers to a constant // TODO: add special action here
+            // Special case: rhs refers to a constant
             if rhsBuffer == "operator" {
                 let slotname = model.buffers["operator"]!.slotvals[rhsSlot!] // get the name of the slotname for the binding
                 if lhsBuffer == nil {
-                    model.buffers["bindings"]!.slotvals[slotname!.description] = nil // TODO: Remove chunk from memory, or add "nil" chunk
+                    model.buffers["bindings"]!.slotvals[slotname!.description] = nil
                 } else {
-                    model.buffers["bindings"]!.setSlot(slotname!.description, value: lhsVal!) // TODO: Add binding chunk to DM. How to include the latency? Return a latency value?
+                    model.buffers["bindings"]!.setSlot(slotname!.description, value: lhsVal!)
                 }
                 if model.bindingsInDM {
                     let newchunk = model.generateNewChunk("binding")
@@ -214,7 +214,7 @@ class Prim:NSObject, NSCoding {
                     }
                     _ = model.dm.addToDM(chunk: newchunk)
                     if !model.silent {
-                        let s = "   Adding binding " + newchunk.name + " to DM." // TODO: change text, reason can be a retrieval failure on a variable
+                        let s = "   Adding binding " + newchunk.name + " to DM." 
                         model.addToTrace(s, level: 5)
                     }
                     return (true, model.imaginal.imaginalLatency)
