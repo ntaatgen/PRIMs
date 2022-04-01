@@ -60,6 +60,7 @@ let scriptFunctions: [String:([Factor], Model?) throws -> (result: Factor?, done
     "set-activation": setActivation,
     "get-activation": getActivation,
     "set-sji": setSji,
+    "get-sji": getSji,
     "random-string": randomString,
     "sgp": setGlobalParameter,
     "batch-parameters": batchParameters,
@@ -623,6 +624,18 @@ func setSji(_ content: [Factor], model: Model?) throws -> (result: Factor?, done
     guard assoc != nil else { throw RunTimeError.nonNumberArgument }
     chunk2!.assocs[chunk1!.name] = (assoc!, 0)
     return (nil, true)
+}
+
+/**
+ Get the Sji value between a chunk that is in a particular slot, and another chunk (typically an operator)
+ First argument is the chunk (typically an operator name), second is a buffername, third is the slot, foruth is the chunk name
+*/
+func getSji(_ content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool) {
+    guard content.count == 4 else { throw RunTimeError.invalidNumberOfArguments }
+    guard model!.dm.contextOperatorLearning else { throw RunTimeError.errorInFunction("Calling getSji without switching on contextOperatorLearning")}
+    guard let chunk = model!.dm.chunks[content[0].description] else { throw RunTimeError.errorInFunction("First argument in getSji is not a chunk in dm")}
+    let value = chunk.assocs[content[1].description + "%" + content[2].description + "%" + content[3].description]
+    return (Factor.realNumber(value == nil ? 0.0 : value!.0), true)
 }
 
 /**
