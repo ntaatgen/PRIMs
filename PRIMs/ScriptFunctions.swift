@@ -615,6 +615,14 @@ func getActivation(_ content: [Factor], model: Model?) throws -> (result: Factor
  Set Sji between two chunks
  */
 func setSji(_ content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool) {
+    if model!.dm.contextOperatorLearning {
+        guard content.count == 5 else { throw RunTimeError.invalidNumberOfArguments}
+        guard let chunk = model!.dm.chunks[content[0].description] else { throw RunTimeError.errorInFunction("First argument in setSji is not a chunk in dm")}
+        guard model!.dm.chunks[content[3].description] != nil else { throw RunTimeError.errorInFunction("Fourth argument in setSji is not a chunk in dm")}
+        guard let value = Double(content[4].description) else {throw RunTimeError.errorInFunction("Fifth argument in setSji is not a number.")}
+        /// TODO: Needs some more checks on buffer and slotname
+        chunk.assocs[content[1].description + "%" + content[2].description + "%" + content[3].description] = (value, 0)
+    } else {
     guard content.count == 3 else { throw RunTimeError.invalidNumberOfArguments}
     let chunk1 = model!.dm.chunks[content[0].description]
     guard chunk1 != nil else { throw RunTimeError.errorInFunction("Chunk 1 does not exist") }
@@ -623,6 +631,7 @@ func setSji(_ content: [Factor], model: Model?) throws -> (result: Factor?, done
     let assoc = content[2].doubleValue()
     guard assoc != nil else { throw RunTimeError.nonNumberArgument }
     chunk2!.assocs[chunk1!.name] = (assoc!, 0)
+    }
     return (nil, true)
 }
 
