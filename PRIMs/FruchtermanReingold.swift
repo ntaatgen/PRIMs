@@ -259,7 +259,11 @@ class FruchtermanReingold {
                         operatorNode.halo = true
                     }
                     nodes[chunk.name] = operatorNode
-                    for (assocChunkName,(strength,assocCount)) in chunk.assocs {
+                    for (assocChunkNameString,(strength,assocCount)) in chunk.assocs {
+                        var assocChunkName = assocChunkNameString
+                        if model.dm.contextOperatorLearning {
+                            assocChunkName = assocChunkName.components(separatedBy: "%").last ?? "NoSkillName"
+                        }
                         if let assocChunk = model.dm.chunks[assocChunkName] {
                             if assocChunk.type == "goaltype" && strength > 0 {
                                 var taskNode: Node
