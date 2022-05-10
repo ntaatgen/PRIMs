@@ -299,8 +299,6 @@ class Chunk: NSObject, NSCoding {
             let value = chunk.assocs[buffer! + "%" + slot! + "%" + self.name]
             if value != nil {
                 return calculateSji(value!)
-            } else {
-                return 0.0
             }
         }
         if let value = chunk.assocs[self.name] {

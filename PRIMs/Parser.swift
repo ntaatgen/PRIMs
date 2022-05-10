@@ -513,12 +513,12 @@ class Parser  {
         if actionString != "" {
             chunk.setSlot("action",value: primsListToString(prims: actions))
         }
-        if !m.dm.contextOperatorLearning  {
+   //     if !m.dm.contextOperatorLearning  {
             chunk.assocs[goalName] = (m.dm.defaultOperatorAssoc, 0)
-        } else {
+ /*       } else {
             chunk.assocs["goal%slot1%" + goalName] = (m.dm.defaultOperatorAssoc/2,0)
             chunk.assocs["goal%slot2%" + goalName] = (m.dm.defaultOperatorAssoc/2,0)
-        }
+        } */ 
         chunk.assocs[chunk.name] = (m.dm.defaultOperatorSelfAssoc, 0)
         if !m.dm.interOperatorLearning {
             for (_,ch) in m.dm.chunks {
