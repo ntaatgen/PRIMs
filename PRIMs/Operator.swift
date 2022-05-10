@@ -450,14 +450,14 @@ class Operator {
             repeat {
                 (candidate, activation) = cfs.remove(at: 0)
                 let (toBeCheckedOperator, latency) = checkOperatorGoalMatch(op: candidate)
-                if toBeCheckedOperator != nil { // TODO: checkOperatorGoalMatch should return a latency that we need to store and add to the time later on
+                if toBeCheckedOperator != nil { 
                     candidateWithSubstitution = toBeCheckedOperator!.copyChunk()
                     model.buffers["operator"] = toBeCheckedOperator!
                     let inst = model.procedural.findMatchingProduction()
                     (match, prim, _) = model.procedural.fireProduction(inst, compile: false)
                     model.buffers["imaginal"] = model.formerBuffers["imaginal"]
                     model.time += latency
-                    if !model.silent && model.bindingsInDM {
+                    if !model.silent && model.bindingsInDM && match {
                         let s = "       Retrieving bindings took " + String(latency) + "seconds"
                         model.addToTrace(s, level: 5)
                     }
