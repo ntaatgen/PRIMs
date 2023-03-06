@@ -12,7 +12,7 @@ struct ChunkDetailView: View {
     var body: some View {
         VStack {
             Text(chunk.description)
-            Text("Chunk Activation =\n  \(chunk.activation)")
+            Text("Activation =\n  \(chunk.activation)")
         }
     }
 }
