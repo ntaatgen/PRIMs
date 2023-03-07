@@ -14,18 +14,20 @@ struct MainContentView: View {
     var body: some View {
         VStack {
             ButtonBar(model: model, editorVisible: self.$editorVisible)
+                .layoutPriority(-1)
             HSplitView {
+                if editorVisible {
+                    ZStack {
+                        TextEditorView(model: model, modelText: $modelText)
+                    }
+                }
                 VSplitView {
                     ZStack {
                         TraceView(model: model)
                     }
                     TaskView(model: model)
                 }
-                if editorVisible {
-                    ZStack {
-                        TextEditorView(model: model, modelText: $modelText)
-                    }
-                }
+                
                 ZStack {
                     VSplitView {
                         DMView(model: model)

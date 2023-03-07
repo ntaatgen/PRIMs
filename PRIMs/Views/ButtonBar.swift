@@ -13,8 +13,13 @@ struct ButtonBar: View {
 
     var body: some View {
         HStack() {
+            Toggle(isOn: $editorVisible) {
+                Label("Editor", systemImage: "doc")
+            }
+            .toggleStyle(.button)
+            Divider()
             Button(action: { model.loadModels() }) {
-                Label("Load", systemImage: "doc")
+                Label("Load", systemImage: "square.and.arrow.down")
             }
             Button(action: { model.step()}) {
                 Label("Step", systemImage: "forward.frame")
@@ -25,9 +30,7 @@ struct ButtonBar: View {
             Button(action: { model.runMultiple(10)}) {
                 Label("Run 10", systemImage: "goforward.10")
             }
-            Toggle(isOn: $editorVisible) {
-                Text("Editor")
-            }
+
 
                 
             
@@ -38,8 +41,4 @@ struct ButtonBar: View {
     }
 }
 
-//struct ButtonBar_Previews: PreviewProvider {
-//    static var previews: some View {
-//        ButtonBar(model: PRIMsViewModel(), editorVisible: true)
-//    }
-//}
+
