@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		B82602C429B1DC00002E1413 /* BufferView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B82602C329B1DC00002E1413 /* BufferView.swift */; };
+		B838F93E29BCD73200D8EBF8 /* BatchRun.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8FBCAE229B098E400BECDEF /* BatchRun.swift */; };
+		B85BD3F329BB5DD900378A35 /* ConflictTraceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B85BD3F229BB5DD900378A35 /* ConflictTraceView.swift */; };
 		B86232D629B1415E00B3BDCA /* ChunkDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B86232D529B1415E00B3BDCA /* ChunkDetailView.swift */; };
 		B86232D829B1417000B3BDCA /* DMView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B86232D729B1417000B3BDCA /* DMView.swift */; };
 		B89E4FE029B4107200D5772E /* model-template.prims in Resources */ = {isa = PBXBuildFile; fileRef = B89E4FDF29B4107200D5772E /* model-template.prims */; };
@@ -47,7 +49,10 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		B807CA3529BB3DB3002BD182 /* PrimView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrimView.swift; sourceTree = "<group>"; };
+		B807CA3729BB3E3C002BD182 /* PrimsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrimsViewController.swift; sourceTree = "<group>"; };
 		B82602C329B1DC00002E1413 /* BufferView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BufferView.swift; sourceTree = "<group>"; };
+		B85BD3F229BB5DD900378A35 /* ConflictTraceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConflictTraceView.swift; sourceTree = "<group>"; };
 		B86232D529B1415E00B3BDCA /* ChunkDetailView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChunkDetailView.swift; sourceTree = "<group>"; };
 		B86232D729B1417000B3BDCA /* DMView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DMView.swift; sourceTree = "<group>"; };
 		B89E4FDF29B4107200D5772E /* model-template.prims */ = {isa = PBXFileReference; lastKnownFileType = text; path = "model-template.prims"; sourceTree = "<group>"; };
@@ -105,6 +110,9 @@
 			isa = PBXGroup;
 			children = (
 				B8FBCA2629B0978100BECDEF /* MainContentView.swift */,
+				B85BD3F229BB5DD900378A35 /* ConflictTraceView.swift */,
+				B807CA3529BB3DB3002BD182 /* PrimView.swift */,
+				B807CA3729BB3E3C002BD182 /* PrimsViewController.swift */,
 				B8C9BBF329B3A8C2006667D3 /* TaskView.swift */,
 				B8C9BBF729B3ACBD006667D3 /* TaskDetailView.swift */,
 				B8B39D3E29B0F585002C079E /* TextEditorView.swift */,
@@ -144,7 +152,6 @@
 				B8FBCAF029B0A02B00BECDEF /* PublicChunk.swift */,
 				B8FBCABD29B0982100BECDEF /* Core */,
 				B8FBCA2829B0978200BECDEF /* Assets.xcassets */,
-				B8FBCAEA29B09BD800BECDEF /* ConflictSetTrace.swift */,
 				B8FBCAE629B0991D00BECDEF /* FruchtermanReingold.swift */,
 				B8FBCAE429B098FD00BECDEF /* NSScanner+Swift.swift */,
 				B8FBCA2D29B0978200BECDEF /* PRIMs.entitlements */,
@@ -184,6 +191,7 @@
 				B8FBCAE029B098D100BECDEF /* GoalOperatorLearning.swift */,
 				B8FBCAE229B098E400BECDEF /* BatchRun.swift */,
 				B8FBCAC829B0984100BECDEF /* Temporal.swift */,
+				B8FBCAEA29B09BD800BECDEF /* ConflictSetTrace.swift */,
 			);
 			path = Core;
 			sourceTree = "<group>";
@@ -279,7 +287,9 @@
 				B82602C429B1DC00002E1413 /* BufferView.swift in Sources */,
 				B8FBCADD29B0984100BECDEF /* Production.swift in Sources */,
 				B8FBCA2529B0978100BECDEF /* PRIMsApp.swift in Sources */,
+				B838F93E29BCD73200D8EBF8 /* BatchRun.swift in Sources */,
 				B8FBCAD529B0984100BECDEF /* Operator.swift in Sources */,
+				B85BD3F329BB5DD900378A35 /* ConflictTraceView.swift in Sources */,
 				B86232D829B1417000B3BDCA /* DMView.swift in Sources */,
 				B8B39D3D29B0E9F0002C079E /* ButtonBar.swift in Sources */,
 				B8FBCAE929B0996400BECDEF /* PRScenario.swift in Sources */,

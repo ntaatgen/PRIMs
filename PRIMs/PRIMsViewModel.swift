@@ -9,9 +9,14 @@ import SwiftUI
 
 class PRIMsViewModel: ObservableObject {
     @Published private var model = ModelS()
+    @Published private var batchModel: BatchRun?
     
     var traceText: String {
-        model.traceText
+        if batchModel == nil {
+            return model.traceText
+        } else {
+            return batchModel!.traceText
+        }
     }
     var modelText: String {
         model.modelText
@@ -81,6 +86,10 @@ class PRIMsViewModel: ObservableObject {
     var currentTask: String? {
         model.currentTask
     }
+    
+    var chunkTexts: [ChunkText] {
+        model.chunkTexts
+    }
 
     // MARK: - Intent(s)
     
@@ -88,6 +97,7 @@ class PRIMsViewModel: ObservableObject {
         let panel = NSOpenPanel()
         panel.allowsMultipleSelection = true
         panel.canChooseDirectories = true
+        panel.allowedFileTypes = ["prims"]
         if panel.runModal() == .OK {
             for url in panel.urls {
                     model.loadModel(filePath: url)
@@ -113,6 +123,7 @@ class PRIMsViewModel: ObservableObject {
         let savePanel = NSSavePanel()
         savePanel.title = "Save model file"
         savePanel.nameFieldLabel = "File Name:"
+        savePanel.allowedFileTypes = [".prims"]
         savePanel.begin { (result: NSApplication.ModalResponse) -> Void in
             if result == NSApplication.ModalResponse.OK {
                     if let panelURL = savePanel.url {
@@ -131,6 +142,47 @@ class PRIMsViewModel: ObservableObject {
         }
     }
     
+    @objc func updateTrace(_ notification: Notification) {
+        print("received notification")
+        guard batchModel != nil else {
+            print("Batchmodel is nil")
+            return }
+        print(batchModel!.traceText)
+        model.traceText = batchModel!.traceText
+    }
+    
+    func runBatch() {
+        NotificationCenter.default.addObserver(self, selector: #selector(PRIMsViewModel.updateTrace(_:)), name: NSNotification.Name(rawValue: "updateTrace"), object: nil)
+
+        let panel = NSOpenPanel()
+        panel.title = "Script file"
+        panel.allowsMultipleSelection = false
+        panel.canChooseDirectories = false
+        panel.canChooseFiles = true
+//        panel.allowedFileTypes = [".bprims"]
+        guard panel.runModal() == .OK else {
+            return
+        }
+        let scriptCode = try? String(contentsOf: panel.url!, encoding: String.Encoding.utf8)
+        guard scriptCode != nil else { return }
+        let name = panel.url!.deletingPathExtension().lastPathComponent
+        let savePanel = NSSavePanel()
+        savePanel.title = "Save output file"
+        savePanel.nameFieldLabel = "File Name:"
+//        savePanel.allowedFileTypes = [".dat",".txt"]
+        savePanel.nameFieldStringValue = name + ".txt"
+        savePanel.begin { (result: NSApplication.ModalResponse) -> Void in
+            if result == NSApplication.ModalResponse.OK {
+                if let outputURL = savePanel.url, let scriptURL = panel.url {
+                    self.batchModel = BatchRun(script: scriptCode!, mainModel: self.model.model, outputFile: outputURL, directory: scriptURL.deletingLastPathComponent())
+                    self.batchModel?.runScript()
+                    }
+                }
+            
+        }
+    }
+
+    
     func saveAndReload(text: String) {
         saveCurrentModel(text: text)
         model.clear()
@@ -139,6 +191,7 @@ class PRIMsViewModel: ObservableObject {
             model.update()
         }
     }
+
     
     func run() {
         model.run()
@@ -160,6 +213,12 @@ class PRIMsViewModel: ObservableObject {
     func setCurrentTask(task: Task) {
         model.setCurrentTask(task: task)
     }
+    
+    func reset() {
+        model.reset(nil)
+    }
+    
+
 }
 
 // HACK to work-around the smart quote issue

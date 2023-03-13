@@ -10,7 +10,7 @@ import SwiftUI
 struct ButtonBar: View {
     @ObservedObject var model: PRIMsViewModel
     @Binding var editorVisible: Bool
-
+    @Binding var cftVisible: Bool
     var body: some View {
         HStack() {
             Toggle(isOn: $editorVisible) {
@@ -30,11 +30,17 @@ struct ButtonBar: View {
             Button(action: { model.runMultiple(10)}) {
                 Label("Run 10", systemImage: "goforward.10")
             }
-
+            Button(action: { model.reset()}) {
+                Label("Reset", systemImage: "eraser")
+            }
 
                 
             
             Spacer()
+            Toggle(isOn: $cftVisible) {
+                Label("Conflict Trace", systemImage: "list.number")
+            }
+            .toggleStyle(.button)
         }
         .padding()
 

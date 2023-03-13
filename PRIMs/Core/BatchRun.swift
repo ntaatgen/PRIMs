@@ -13,23 +13,22 @@ class BatchRun {
     let batchScript: String
     let outputFileName: URL
     var model: Model
+    var traceText: String = ""
     unowned let mainModel: Model
-    unowned let controller: MainViewController
+//    unowned let controller: MainViewController
     let directory: URL
     var traceFileName: URL
     
-    init(script: String, mainModel: Model, outputFile: URL, controller: MainViewController, directory: URL) {
+    init(script: String, mainModel: Model, outputFile: URL,  directory: URL) {
         self.batchScript = script
         self.outputFileName = outputFile
         self.traceFileName = outputFile.deletingPathExtension().appendingPathExtension("tracedat")
         self.model = Model(batchMode: true)
-        self.controller = controller
+//        self.controller = controller
         self.directory = directory
         self.mainModel = mainModel
     }
-    
-
-    
+        
     func runScript() {
         mainModel.clearTrace()
         DispatchQueue.global().async { () -> Void in
@@ -44,9 +43,12 @@ class BatchRun {
         }
         var newfile = true
         for i in 0..<numberOfRepeats! {
-            self.mainModel.addToTraceField("Run #\(i + 1)")
+            self.traceText += "Run #\(i + 1)\n"
             DispatchQueue.main.async {
-                self.controller.updateAllViews()
+//                self.updateTrace()
+                NotificationCenter.default.post(name: Notification.Name(rawValue: "updateTrace"), object: nil)
+                print("posted \(self.traceText)")
+//                self.controller.updateAllViews()
             }
             scanner = Scanner(string: self.batchScript)
             
@@ -80,13 +82,16 @@ class BatchRun {
                         self.mainModel.addToTraceField("Parameter: \(batchParam!)")
                     }
                 
-                    if stopByTime {
-                        self.mainModel.addToTraceField("Running task \(taskname!) with label \(taskLabel!) for \(endCriterium!) seconds")
-                    } else {
-                        self.mainModel.addToTraceField("Running task \(taskname!) with label \(taskLabel!) for \(endCriterium!) trials")
-                    }
+
                     DispatchQueue.main.async {
-                        self.controller.updateAllViews()
+                        if stopByTime {
+                            self.traceText += "Running task \(taskname!) with label \(taskLabel!) for \(endCriterium!) seconds\n"
+                        } else {
+                            self.traceText += "Running task \(taskname!) with label \(taskLabel!) for \(endCriterium!) trials\n"
+                        }
+//                        self.controller.updateAllViews()
+                        NotificationCenter.default.post(name: Notification.Name(rawValue: "updateTrace"), object: nil)
+
                     }
                     var tasknumber = self.model.findTask(taskname!)
                     if tasknumber == nil {
@@ -192,7 +197,9 @@ class BatchRun {
                 case "reset":
                     self.mainModel.addToTraceField("Resetting models")
                     DispatchQueue.main.async {
-                        self.controller.updateAllViews()
+                        self.traceText += "Resetting models\n"
+                        NotificationCenter.default.post(name: Notification.Name(rawValue: "updateTrace"), object: nil)
+//                        self.controller.updateAllViews()
                     }
                     print("*** About to reset model ***")
                     self.model.dm = nil
@@ -232,9 +239,11 @@ class BatchRun {
                     
                 }
             }
-            self.mainModel.addToTraceField("Done")
+//            self.mainModel.addToTraceField("Done")
             DispatchQueue.main.async {
-                self.controller.updateAllViews()
+                self.traceText += "Done\n"
+                NotificationCenter.default.post(name: Notification.Name(rawValue: "updateTrace"), object: nil)
+
             }
             }
         }

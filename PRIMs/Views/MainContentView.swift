@@ -9,11 +9,13 @@ import SwiftUI
 
 struct MainContentView: View {
     @ObservedObject var model: PRIMsViewModel
-    @State var editorVisible =  true
+    @State var editorVisible =  false
+    @State var conflictTraceVisible = true
     @State var modelText: String = ""
     var body: some View {
         VStack {
-            ButtonBar(model: model, editorVisible: self.$editorVisible)
+            ButtonBar(model: model, editorVisible: self.$editorVisible,
+                      cftVisible: self.$conflictTraceVisible)
                 .layoutPriority(-1)
             HSplitView {
                 if editorVisible {
@@ -34,6 +36,15 @@ struct MainContentView: View {
                         ChartView(model: model)
                             .padding()
                         BufferView(model: model)
+                    }
+                }
+                if conflictTraceVisible {
+                    ZStack {
+                        VStack {
+                            ConflictTraceView(model: model)
+                            Divider()
+                            Spacer()
+                        }
                     }
                 }
             }

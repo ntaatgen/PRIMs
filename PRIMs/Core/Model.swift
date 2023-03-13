@@ -36,7 +36,7 @@ class Model: NSObject, NSCoding {
     var action: Action!
     var operators: Operator!
     var temporal: Temporal!
-    weak var conflictSet: ConflictSetTrace? = nil
+    var conflictSet: ConflictSetTrace? = ConflictSetTrace()
     var buffers: [String:Chunk] = [:] {
         didSet {
             if buffers["imaginal"] != oldValue["imaginal"] {
@@ -153,6 +153,7 @@ class Model: NSObject, NSCoding {
         trace = []
         self.silent = silent
         self.batchMode = batchMode
+
      
     }
     
@@ -216,7 +217,9 @@ class Model: NSObject, NSCoding {
         }
         addTask(filePath)
         valid = true
-        
+        if !batchMode {
+            conflictSet!.model = self
+        }
         /// This just for testing purposes
         for (_, chunk) in dm.chunks {
             if chunk.type == "operator" {
@@ -806,6 +809,7 @@ class Model: NSObject, NSCoding {
             newResult()
             running = false
         }
+
     }
     
     func generateName(_ s1: String = "chunk") -> String {

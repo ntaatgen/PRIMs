@@ -15,12 +15,20 @@ struct PRIMsApp: App {
             MainContentView(model: architecture)
         }
         .commands {
-            ToolbarCommands()
-            CommandGroup(before: .newItem) {
-                            Button("Load model...") {
-                                architecture.loadModels()
-                            }
-                        }
+//            CommandGroup(before: .newItem) {
+//                            Button("Load model...") {
+//                                architecture.loadModels()
+//                            }
+//                        }
+            CommandGroup(replacing: CommandGroupPlacement.newItem) {
+                Button("Load model...") {
+                    architecture.loadModels()
+                }
+                Button("Run batch...") {
+                    architecture.runBatch()
+                }
+            }
+            
         }
     }
 }

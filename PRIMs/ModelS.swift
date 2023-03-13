@@ -36,6 +36,9 @@ struct ModelS {
     
     var currentTask: String?
     
+    var chunkTexts: [ChunkText] = []
+
+    
     /// Run the model
     mutating func run() {
         model.run()
@@ -208,7 +211,7 @@ struct ModelS {
         if  model.modelResults.count > 0 {
             for i in 0..<model.modelResults.count {
                 for (x,y) in model.modelResults[i] {
-                    modelResults.append(ModelData(id: count, task: model.tasks[model.resultTaskNumber[i]].name, x: x, y: y))
+                    modelResults.append(ModelData(id: count, task: model.tasks[model.resultTaskNumber[i]].name, run: i, x: x, y: y))
                     count += 1
                 }
             }
@@ -218,6 +221,9 @@ struct ModelS {
         tasks = model.tasks
         currentTask = model.currentTask
         dmContent.sort { $0.activation > $1.activation }
+        if model.conflictSet != nil {
+            chunkTexts = model.conflictSet!.chunkTexts
+        }
     }
     
     // MARK: - Graph part
@@ -233,6 +239,12 @@ struct ModelS {
 struct ModelData: Identifiable {
     var id: Int
     var task: String
+    var run: Int
     var x: Double
     var y: Double
+}
+
+struct GraphData: Identifiable {
+    var id = UUID()
+    
 }

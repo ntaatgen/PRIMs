@@ -27,7 +27,7 @@ extension Chunk {
         }
     }
     
-    func activation() -> Double {
+    func altActivation() -> Double {
         if creationTime == nil {return 0}
         if type != "operator" {
         return  self.baseLevelActivation()

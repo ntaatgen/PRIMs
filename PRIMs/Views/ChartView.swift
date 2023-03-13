@@ -13,7 +13,8 @@ struct ChartView: View {
     var body: some View {
         Chart(model.modelResults) {
             LineMark(x: .value("Trial", $0.x),
-                     y: .value("Time (sec)",$0.y)
+                     y: .value("Time (sec)",$0.y),
+                     series: .value("run",$0.run)
                      )
             .foregroundStyle(by: .value("Task", $0.task))
 
