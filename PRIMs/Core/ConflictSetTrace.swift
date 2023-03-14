@@ -12,6 +12,7 @@ struct ChunkText: Identifiable {
     var id = UUID()
     var name: String
     var text: String
+    var relativeActivation: Double
 }
 
 class ConflictSetTrace {
@@ -109,8 +110,12 @@ class ConflictSetTrace {
     
     func generateChunkTexts()  {
         guard model != nil else { return }
+        guard chunks.count > 0 else { return }
         chunkTexts = []
-        for (chunk,_) in chunks {
+        let maxActivation = chunks[0].1
+        let minActivation = chunks[chunks.count-1].1
+
+        for (chunk,activation) in chunks {
             var s = ""
             if chunk.type == "operator" {
                 s = formatOperator(chunk: chunk)
@@ -171,7 +176,7 @@ class ConflictSetTrace {
             s += spreadingFromBufferDescription(bufferName: "input", spreadingParameterValue: model!.dm.inputActivation, chunk: chunk, divideBySlots: true).0
             s += spreadingFromBufferDescription(bufferName: "retrievalH", spreadingParameterValue: model!.dm.retrievalActivation, chunk: chunk, divideBySlots: true).0
             s += spreadingFromBufferDescription(bufferName: "imaginal", spreadingParameterValue: model!.dm.imaginalActivation, chunk: chunk, divideBySlots: true).0
-            let chunkText = ChunkText(name: chunk.name, text: s)
+            let chunkText = ChunkText(name: chunk.name, text: s, relativeActivation: (activation - minActivation)/(maxActivation - minActivation))
             chunkTexts.append(chunkText)
         }
     }

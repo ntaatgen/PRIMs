@@ -19,7 +19,16 @@ struct DMView: View {
                 List(model.dmContent) {
                     chunk in
                     NavigationLink {
-                        ChunkDetailView(chunk: chunk)
+                        HStack {
+                            VStack {
+                                ChunkDetailView(chunk: chunk)
+                                    .padding()
+                                Spacer()
+                            }
+                            Spacer()
+                        }
+                        .frame(maxWidth: .infinity,maxHeight: .infinity)
+                        .background(Color.white)
                     } label: {
                         ChunkView(chunk: chunk)
                     }

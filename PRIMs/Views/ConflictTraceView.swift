@@ -17,10 +17,20 @@ struct ConflictTraceView: View {
                 List(model.chunkTexts) {
                     chunk in
                     NavigationLink {
-                        Text(chunk.text)
+                        VStack {
+                            Text(chunk.text)
+                                .padding()
+                            Spacer()
+                        }
+                        .background(Color.white)
+                        
                     } label: {
                         Text(chunk.name)
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        //                            .background(Color(hue: 0.3, saturation: 1, brightness: 1, opacity: 0.5))
+                        //                            .background(Color(hue: (chunk.relativeActivation/3), saturation: 1, brightness: 1, opacity: 0.5   ))
                     }
+                    
                 }
                 .listStyle(.bordered(alternatesRowBackgrounds: true))
                 .navigationTitle("Conflict Trace")

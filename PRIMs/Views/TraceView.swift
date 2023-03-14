@@ -25,12 +25,14 @@ struct TraceView: View {
             .onChange(of: selectedItem, perform: { tag in model.setTraceLevel(level: tag)} )
             .padding()
                 ScrollView {
-                    Text(model.traceText)
-                        .multilineTextAlignment(.leading)
+                    HStack {
+                        Text(model.traceText)
+                            .multilineTextAlignment(.leading)
+                    Spacer()
+                    }
                 }
-                .background(Color.white)
                 .frame(maxWidth: .infinity,maxHeight: .infinity)
-            
+                .background(Color.white)
         }
         .padding()
     }

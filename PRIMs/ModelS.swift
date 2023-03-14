@@ -38,6 +38,7 @@ struct ModelS {
     
     var chunkTexts: [ChunkText] = []
 
+    var chartTitle: String = ""
     
     /// Run the model
     mutating func run() {
@@ -61,8 +62,9 @@ struct ModelS {
     }
     
     /// Reset the model and the game
-    mutating func reset(_ taskNumber: Int?) {
-        model.reset(taskNumber)
+    mutating func reset() {
+        model.reset(model.currentTaskIndex)
+        update()
     }
     
     mutating func clear() {
@@ -206,6 +208,7 @@ struct ModelS {
             dmContent.append(PublicChunk(name: chunk.name, slots: slots, activation: chunk.activation(),id: count))
             count += 1
         }
+        dmContent.sort { $0.activation > $1.activation }
         modelResults = []
         count = 0
         if  model.modelResults.count > 0 {
@@ -216,11 +219,11 @@ struct ModelS {
                 }
             }
         }
+        chartTitle = model.graphTitle ?? ""
         bufferContent = model.buffers
         formerBufferContent = model.formerBuffers
         tasks = model.tasks
         currentTask = model.currentTask
-        dmContent.sort { $0.activation > $1.activation }
         if model.conflictSet != nil {
             chunkTexts = model.conflictSet!.chunkTexts
         }

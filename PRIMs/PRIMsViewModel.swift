@@ -90,6 +90,10 @@ class PRIMsViewModel: ObservableObject {
     var chunkTexts: [ChunkText] {
         model.chunkTexts
     }
+    
+    var chartTitle: String {
+        model.chartTitle
+    }
 
     // MARK: - Intent(s)
     
@@ -215,7 +219,7 @@ class PRIMsViewModel: ObservableObject {
     }
     
     func reset() {
-        model.reset(nil)
+        model.reset()
     }
     
 

@@ -10,7 +10,7 @@ import SwiftUI
 struct ChunkDetailView: View {
     var chunk: PublicChunk
     var body: some View {
-        VStack {
+        VStack(alignment: .leading) {
             Text(chunk.description)
             Text("Activation =\n  \(chunk.activation)")
         }

@@ -33,18 +33,21 @@ struct MainContentView: View {
                 ZStack {
                     VSplitView {
                         DMView(model: model)
-                        ChartView(model: model)
-                            .padding()
+
                         BufferView(model: model)
                     }
                 }
                 if conflictTraceVisible {
-                    ZStack {
-                        VStack {
-                            ConflictTraceView(model: model)
-                            Divider()
-                            Spacer()
+                    VSplitView {
+                        ZStack {
+                            VStack {
+                                ConflictTraceView(model: model)
+                                Divider()
+                                Spacer()
+                            }
                         }
+                        ChartView(model: model)
+                            .padding()
                     }
                 }
             }
