@@ -8,8 +8,13 @@
 import SwiftUI
 
 class PRIMsViewModel: ObservableObject {
-    @Published private var model = ModelS()
+    @Published var model = ModelS()
     @Published private var batchModel: BatchRun?
+    
+    
+    init() {
+        NotificationCenter.default.addObserver(self, selector: #selector(PRIMsViewModel.updatePrimsGraph(_:)), name: NSNotification.Name(rawValue: "UpdatePrimsGraph"), object: nil)
+    }
     
     var traceText: String {
         if batchModel == nil {
@@ -94,6 +99,10 @@ class PRIMsViewModel: ObservableObject {
     var chartTitle: String {
         model.chartTitle
     }
+    
+    var graphData: GraphData? {
+        model.graphData
+    }
 
     // MARK: - Intent(s)
     
@@ -153,6 +162,11 @@ class PRIMsViewModel: ObservableObject {
             return }
         print(batchModel!.traceText)
         model.traceText = batchModel!.traceText
+    }
+    
+    @objc func updatePrimsGraph(_ notification: Notification) {
+        model.updatePrimViewData()
+        print("Updated PRIMView")
     }
     
     func runBatch() {
@@ -222,6 +236,12 @@ class PRIMsViewModel: ObservableObject {
         model.reset()
     }
     
+    func primViewCalculateGraph() {
+        model.primViewCalculateGraph()
+        model.updatePrimViewData()
+    }
+    
+    
 
 }
 
@@ -231,5 +251,22 @@ extension NSTextView {
         didSet {
             self.isAutomaticQuoteSubstitutionEnabled = false
         }
+    }
+}
+
+func numberToColor(_ i: Int) -> Color {
+    switch i {
+    case -3: return Color.brown
+    case -2: return Color.gray
+    case -1: return Color.white
+    case 0: return Color.red
+    case 1: return Color.blue
+    case 2: return Color.green
+    case 3: return Color.purple
+    case 4: return Color.cyan
+    case 5: return Color.indigo
+    case 6: return Color.orange
+    case 7: return Color.yellow
+    default: return Color.black
     }
 }

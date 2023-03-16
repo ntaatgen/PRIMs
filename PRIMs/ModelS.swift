@@ -9,7 +9,7 @@ import Foundation
 
 
 struct ModelS {
-    internal var model = Model(silent: false)
+    var model = Model(silent: false)
     /// The trace from the model
     var traceText: String = ""
     /// The model code
@@ -76,6 +76,7 @@ struct ModelS {
             update()
             return
         }
+        primViewCalculateGraph()
         update()
     }
     
@@ -227,15 +228,55 @@ struct ModelS {
         if model.conflictSet != nil {
             chunkTexts = model.conflictSet!.chunkTexts
         }
+//        updatePrimViewData()
     }
     
-    // MARK: - Graph part
 
-    var graph: FruchtermanReingold?
-    
-    
-    
+    // MARK: - Prims graph stuff
+    //
 
+//    let border = 10.0
+
+    var primGraphData: FruchtermanReingold?
+    
+    var graphData: GraphData?
+    
+    mutating func primViewCalculateGraph() {
+        primGraphData = FruchtermanReingold(W: 300.0, H: 300.0)
+        let graphType = "PRIMs"  //popUpMenu.selectedItem!.title
+        switch graphType {
+            case "Tasks":
+                primGraphData!.constantC = 1.0
+            primGraphData!.setUpGraph(model, level: 1)
+            case "PRIMs":
+                primGraphData!.constantC = 0.3
+            primGraphData!.setUpGraph(model, level: 2)
+        case "Productions": primGraphData!.setUpLearnGraph(model)
+        case "Declarative": primGraphData!.setUpDMGraph(model)
+        default: break // Shouldn't happen
+        }
+        primGraphData!.calculate(randomInit: true)
+    }
+    
+    mutating func updatePrimViewData() {
+        guard primGraphData != nil else { return }
+        graphData = GraphData()
+        for (_, node) in primGraphData!.nodes {
+            graphData!.nodes.append(
+                ViewNode(x: node.x,
+                         y: node.y,
+                         taskNumber: node.taskNumber,
+                         halo: node.halo,
+                         name: node.shortName
+                        ))
+        }
+        for edge in primGraphData!.edges {
+            graphData!.edges.append(
+                ViewEdge(start: (x: edge.from.x, y: edge.from.y),
+                         end: (x: edge.to.x, y: edge.to.y))
+            )
+        }
+    }
     
 }
 
@@ -247,7 +288,24 @@ struct ModelData: Identifiable {
     var y: Double
 }
 
+struct ViewNode: Identifiable {
+    var id = UUID()
+    var x: Double
+    var y: Double
+    var taskNumber: Int
+    var halo: Bool
+    var name: String
+}
+
+struct ViewEdge: Identifiable {
+    var id = UUID()
+    var start: (x: Double, y: Double)
+    var end: (x: Double, y: Double)
+}
+
+
 struct GraphData: Identifiable {
     var id = UUID()
-    
+    var nodes: [ViewNode] = []
+    var edges: [ViewEdge] = []
 }

@@ -14,7 +14,7 @@ struct ButtonBar: View {
     var body: some View {
         HStack() {
             Toggle(isOn: $editorVisible) {
-                Label("Editor", systemImage: "doc")
+                Label("Editor", systemImage: "square.leftthird.inset.filled")
             }
             .toggleStyle(.button)
             Divider()
@@ -38,7 +38,7 @@ struct ButtonBar: View {
             
             Spacer()
             Toggle(isOn: $cftVisible) {
-                Label("Conflict Trace", systemImage: "list.number")
+                Label("Graphs", systemImage: "square.rightthird.inset.filled")
             }
             .toggleStyle(.button)
         }

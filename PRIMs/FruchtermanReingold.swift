@@ -158,7 +158,7 @@ class FruchtermanReingold {
                     }
                 }
                 DispatchQueue.main.async {
-                    NotificationCenter.default.post(name: Notification.Name(rawValue: "UpdatePrimGraph"), object: nil)
+                    NotificationCenter.default.post(name: Notification.Name(rawValue: "UpdatePrimsGraph"), object: nil)
                 }
                 
             }

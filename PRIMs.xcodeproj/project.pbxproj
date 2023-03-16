@@ -7,8 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		B819189929C3270E00667E22 /* PrimGraphEdge.swift in Sources */ = {isa = PBXBuildFile; fileRef = B819189829C3270E00667E22 /* PrimGraphEdge.swift */; };
 		B82602C429B1DC00002E1413 /* BufferView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B82602C329B1DC00002E1413 /* BufferView.swift */; };
 		B838F93E29BCD73200D8EBF8 /* BatchRun.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8FBCAE229B098E400BECDEF /* BatchRun.swift */; };
+		B8476F2729C2228F000B30C3 /* PrimGraphView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8476F2629C2228F000B30C3 /* PrimGraphView.swift */; };
+		B8476F2929C22726000B30C3 /* PrimGraphNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8476F2829C22726000B30C3 /* PrimGraphNode.swift */; };
 		B85BD3F329BB5DD900378A35 /* ConflictTraceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B85BD3F229BB5DD900378A35 /* ConflictTraceView.swift */; };
 		B86232D629B1415E00B3BDCA /* ChunkDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B86232D529B1415E00B3BDCA /* ChunkDetailView.swift */; };
 		B86232D829B1417000B3BDCA /* DMView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B86232D729B1417000B3BDCA /* DMView.swift */; };
@@ -50,8 +53,10 @@
 
 /* Begin PBXFileReference section */
 		B807CA3529BB3DB3002BD182 /* PrimView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrimView.swift; sourceTree = "<group>"; };
-		B807CA3729BB3E3C002BD182 /* PrimsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrimsViewController.swift; sourceTree = "<group>"; };
+		B819189829C3270E00667E22 /* PrimGraphEdge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrimGraphEdge.swift; sourceTree = "<group>"; };
 		B82602C329B1DC00002E1413 /* BufferView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BufferView.swift; sourceTree = "<group>"; };
+		B8476F2629C2228F000B30C3 /* PrimGraphView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrimGraphView.swift; sourceTree = "<group>"; };
+		B8476F2829C22726000B30C3 /* PrimGraphNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrimGraphNode.swift; sourceTree = "<group>"; };
 		B85BD3F229BB5DD900378A35 /* ConflictTraceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConflictTraceView.swift; sourceTree = "<group>"; };
 		B86232D529B1415E00B3BDCA /* ChunkDetailView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChunkDetailView.swift; sourceTree = "<group>"; };
 		B86232D729B1417000B3BDCA /* DMView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DMView.swift; sourceTree = "<group>"; };
@@ -106,13 +111,22 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		B819189729C31AF700667E22 /* PrimGraph */ = {
+			isa = PBXGroup;
+			children = (
+				B807CA3529BB3DB3002BD182 /* PrimView.swift */,
+				B8476F2629C2228F000B30C3 /* PrimGraphView.swift */,
+				B819189829C3270E00667E22 /* PrimGraphEdge.swift */,
+				B8476F2829C22726000B30C3 /* PrimGraphNode.swift */,
+			);
+			path = PrimGraph;
+			sourceTree = "<group>";
+		};
 		B8B39D3B29B0E981002C079E /* Views */ = {
 			isa = PBXGroup;
 			children = (
 				B8FBCA2629B0978100BECDEF /* MainContentView.swift */,
 				B85BD3F229BB5DD900378A35 /* ConflictTraceView.swift */,
-				B807CA3529BB3DB3002BD182 /* PrimView.swift */,
-				B807CA3729BB3E3C002BD182 /* PrimsViewController.swift */,
 				B8C9BBF329B3A8C2006667D3 /* TaskView.swift */,
 				B8C9BBF729B3ACBD006667D3 /* TaskDetailView.swift */,
 				B8B39D3E29B0F585002C079E /* TextEditorView.swift */,
@@ -122,6 +136,7 @@
 				B86232D529B1415E00B3BDCA /* ChunkDetailView.swift */,
 				B82602C329B1DC00002E1413 /* BufferView.swift */,
 				B8C9BBF129B353D7006667D3 /* ChartView.swift */,
+				B819189729C31AF700667E22 /* PrimGraph */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -270,6 +285,7 @@
 				B8FBCADE29B0984100BECDEF /* Model.swift in Sources */,
 				B8FBCAD429B0984100BECDEF /* Declarative.swift in Sources */,
 				B8FBCAD829B0984100BECDEF /* Action.swift in Sources */,
+				B8476F2729C2228F000B30C3 /* PrimGraphView.swift in Sources */,
 				B8FBCAEF29B09F8200BECDEF /* ModelS.swift in Sources */,
 				B86232D629B1415E00B3BDCA /* ChunkDetailView.swift in Sources */,
 				B8FBCAE729B0991D00BECDEF /* FruchtermanReingold.swift in Sources */,
@@ -278,7 +294,9 @@
 				B8FBCAE529B098FD00BECDEF /* NSScanner+Swift.swift in Sources */,
 				B8C9BBF429B3A8C2006667D3 /* TaskView.swift in Sources */,
 				B8FBCADF29B0984100BECDEF /* Chunk.swift in Sources */,
+				B8476F2929C22726000B30C3 /* PrimGraphNode.swift in Sources */,
 				B8FBCAD329B0984100BECDEF /* Support.swift in Sources */,
+				B819189929C3270E00667E22 /* PrimGraphEdge.swift in Sources */,
 				B8FBCAEB29B09BD800BECDEF /* ConflictSetTrace.swift in Sources */,
 				B8FBCA2729B0978100BECDEF /* MainContentView.swift in Sources */,
 				B8FBCAD029B0984100BECDEF /* Parser.swift in Sources */,

@@ -48,6 +48,9 @@ struct MainContentView: View {
                         }
                         ChartView(model: model)
                             .padding()
+                        PrimGraphView(model: model)
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            .padding()
                     }
                 }
             }

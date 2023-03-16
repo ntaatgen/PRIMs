@@ -25,7 +25,7 @@ protocol PrimViewDataSource: AnyObject {
 }
 
 class PrimView: NSView {
-
+    var model: PRIMsViewModel?
     var vertexSize: CGFloat = 6
     var lineWidth: CGFloat = 2
     var pathLineWidth: CGFloat = 1
@@ -34,6 +34,15 @@ class PrimView: NSView {
     var arrowSize: CGFloat = 6
     weak var dataSource: PrimViewDataSource!
     
+//    init(model: PRIMsViewModel, frame: NSRect) {
+//        self.model = model
+//        super.init(frame: frame)
+//    }
+//    
+//    required init?(coder: NSCoder) {
+//        fatalError("init(coder:) has not been implemented")
+//    }
+//    
     func drawVertex(_ x: CGFloat, y: CGFloat, fillColor: NSColor, lineWidth: CGFloat, halo: Bool, rectangle: Bool, triangle: Bool) {
         if halo {
             let rect = NSRect(x: x - haloSize, y: y - haloSize, width: haloSize * 2, height: haloSize * 2)
