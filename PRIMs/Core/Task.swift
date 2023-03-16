@@ -10,6 +10,7 @@ import Foundation
 
 class Task: Identifiable {
     let name: String
+    let number: Int
     var id = UUID()
     var loaded: Bool = false
 //    var inputOutput: { (action: [Val]) -> Chunk?) }
@@ -21,8 +22,9 @@ class Task: Identifiable {
     var parameters: [(String,String)] = []
     var actions: [String:ActionInstance] = [:]
     var imageURL: URL?
-    init(name: String, path: URL) {
+    init(name: String, number: Int, path: URL) {
         self.name = name
+        self.number = number
         self.filename = path
     }
 }

@@ -358,7 +358,7 @@ class Model: NSObject, NSCoding {
     }
     
     func addTask(_ filePath: URL) {
-        let newTask = Task(name: currentTask!, path: filePath)
+        let newTask = Task(name: currentTask!, number: tasks.count, path: filePath)
         newTask.loaded = true
         newTask.goalChunk = currentGoals
         newTask.goalConstants = currentGoalConstants
@@ -641,13 +641,13 @@ class Model: NSObject, NSCoding {
     */
     func step() {
         guard valid else { return } /// make sure we have a valid model to run
-            if scenario.script!.scriptHasEnded()  {
-                scenario.script!.reset()
-            }
-            if scenario.script!.scriptHasNotStarted() {
-                initializeNewTrial()
-            }
-            scenario.script!.step(self)
+        if scenario.script!.scriptHasEnded()  {
+            scenario.script!.reset()
+        }
+        if scenario.script!.scriptHasNotStarted() {
+            initializeNewTrial()
+        }
+        scenario.script!.step(self)
     }
     
     

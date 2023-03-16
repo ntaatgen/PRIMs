@@ -9,7 +9,7 @@ import SwiftUI
 
 struct PrimGraphView: View {
     @ObservedObject var model: PRIMsViewModel
-    let vertexSize: CGFloat = 8
+    let vertexSize: CGFloat = 6
 
     var body: some View {
         if model.graphData != nil {
@@ -21,6 +21,10 @@ struct PrimGraphView: View {
                     }
                     
                     ForEach(model.graphData!.nodes) { node in
+                        if node.halo {
+                            PrimGraphHalo(node: node)
+                                .foregroundColor(Color.yellow)
+                        }
                         numberToColor(node.taskNumber)
                             .clipShape(PrimGraphNode(node: node))
                         PrimGraphNode(node: node)

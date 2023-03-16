@@ -43,7 +43,7 @@ struct MainContentView: View {
                             VStack {
                                 ConflictTraceView(model: model)
                                 Divider()
-                                Spacer()
+
                             }
                         }
                         ChartView(model: model)

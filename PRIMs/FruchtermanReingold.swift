@@ -16,8 +16,8 @@ class Node {
     var dy: Double = 0.0
     var taskNumber: Int = -2 // White node
     var rank = 0.0
+    var skillNode = false
     var taskNode = false
-    var mainTaskNode = false
     var labelVisible = false
     var shortName: String
     var definedByTask: Int? = nil
@@ -200,8 +200,8 @@ class FruchtermanReingold {
                     newNode.definedByTask = i
                     newNode.taskNumber = i
                     newNode.labelVisible = true
+                    newNode.skillNode = true
                     newNode.taskNode = true
-                    newNode.mainTaskNode = true
                     nodes[task.name + "T"] = newNode
                 }
             }
@@ -212,7 +212,7 @@ class FruchtermanReingold {
                 newNode.shortName = chunk.name
                 newNode.definedByTask = chunk.definedIn[0]
                 newNode.labelVisible = true
-                newNode.taskNode = true
+                newNode.skillNode = true
                 newNode.taskNumber = chunk.definedIn[0]
                 nodes[chunk.name] = newNode
                 if level < 2 {
@@ -274,7 +274,7 @@ class FruchtermanReingold {
                                     } else {
                                         taskNode.taskNumber = -3
                                     }
-                                    taskNode.taskNode = true
+                                    taskNode.skillNode = true
                                     taskNode.labelVisible = true
                                     nodes[assocChunkName] = taskNode
                                 } else {

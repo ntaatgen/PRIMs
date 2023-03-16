@@ -10,7 +10,7 @@ import SwiftUI
 struct PrimGraphEdge: Shape {
     var edge: ViewEdge
     let lineWidth:CGFloat = 1
-    let vertexSize: CGFloat = 8
+    let vertexSize: CGFloat = 6
     let arrowSize: CGFloat = 6
     func path(in rect: CGRect) -> Path {
         let start = CGPoint(x: CGFloat(edge.start.x)/300 * rect.width, y: CGFloat(edge.start.y)/300 * rect.height)

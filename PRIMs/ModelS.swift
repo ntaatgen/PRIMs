@@ -267,7 +267,9 @@ struct ModelS {
                          y: node.y,
                          taskNumber: node.taskNumber,
                          halo: node.halo,
-                         name: node.shortName
+                         name: node.shortName,
+                         skillNode: node.skillNode,
+                         taskNode: node.taskNode
                         ))
         }
         for edge in primGraphData!.edges {
@@ -295,6 +297,8 @@ struct ViewNode: Identifiable {
     var taskNumber: Int
     var halo: Bool
     var name: String
+    var skillNode: Bool
+    var taskNode: Bool
 }
 
 struct ViewEdge: Identifiable {

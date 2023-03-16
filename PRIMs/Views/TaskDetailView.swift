@@ -21,16 +21,22 @@ struct TaskDetailView: View {
                     .resizable()
                     .frame(width: 50, height: 50)
             }
-            if task.name == model.currentTask {
+//            if task.name == model.currentTask {
+//                Image(systemName: "play.fill")
+//                    .foregroundColor(Color.red)
+//            } else
+            if task.loaded {
                 Image(systemName: "play.fill")
-                    .foregroundColor(Color.red)
-            } else if task.loaded {
-                Image(systemName: "play")
+                    .foregroundColor(numberToColor(task.number))
             } else {
                 Image(systemName: "stop")
             }
             Text(task.name)
                 .font(.title)
+            if task.name == model.currentTask {
+                Image(systemName: "record.circle.fill")
+                    .foregroundColor(Color.red)
+            }
             
         }
         .onTapGesture {

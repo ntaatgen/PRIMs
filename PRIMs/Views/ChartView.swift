@@ -21,7 +21,8 @@ struct ChartView: View {
                          series: .value("run",$0.run)
                 )
                 .foregroundStyle(by: .value("Task", $0.task))
-                
+                .symbol(by: .value("Task", $0.task))
+                .symbolSize(30)
             }
         }
     }

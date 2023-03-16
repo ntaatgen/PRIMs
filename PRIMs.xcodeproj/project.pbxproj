@@ -16,6 +16,7 @@
 		B86232D629B1415E00B3BDCA /* ChunkDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B86232D529B1415E00B3BDCA /* ChunkDetailView.swift */; };
 		B86232D829B1417000B3BDCA /* DMView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B86232D729B1417000B3BDCA /* DMView.swift */; };
 		B89E4FE029B4107200D5772E /* model-template.prims in Resources */ = {isa = PBXBuildFile; fileRef = B89E4FDF29B4107200D5772E /* model-template.prims */; };
+		B8A2EAC929C3719200D0E182 /* PrimGraphHalo.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8A2EAC829C3719200D0E182 /* PrimGraphHalo.swift */; };
 		B8B39D3D29B0E9F0002C079E /* ButtonBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8B39D3C29B0E9F0002C079E /* ButtonBar.swift */; };
 		B8B39D3F29B0F585002C079E /* TextEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8B39D3E29B0F585002C079E /* TextEditorView.swift */; };
 		B8B39D4129B0F6F4002C079E /* TraceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8B39D4029B0F6F4002C079E /* TraceView.swift */; };
@@ -61,6 +62,7 @@
 		B86232D529B1415E00B3BDCA /* ChunkDetailView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChunkDetailView.swift; sourceTree = "<group>"; };
 		B86232D729B1417000B3BDCA /* DMView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DMView.swift; sourceTree = "<group>"; };
 		B89E4FDF29B4107200D5772E /* model-template.prims */ = {isa = PBXFileReference; lastKnownFileType = text; path = "model-template.prims"; sourceTree = "<group>"; };
+		B8A2EAC829C3719200D0E182 /* PrimGraphHalo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrimGraphHalo.swift; sourceTree = "<group>"; };
 		B8B39D3C29B0E9F0002C079E /* ButtonBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonBar.swift; sourceTree = "<group>"; };
 		B8B39D3E29B0F585002C079E /* TextEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextEditorView.swift; sourceTree = "<group>"; };
 		B8B39D4029B0F6F4002C079E /* TraceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TraceView.swift; sourceTree = "<group>"; };
@@ -116,6 +118,7 @@
 			children = (
 				B807CA3529BB3DB3002BD182 /* PrimView.swift */,
 				B8476F2629C2228F000B30C3 /* PrimGraphView.swift */,
+				B8A2EAC829C3719200D0E182 /* PrimGraphHalo.swift */,
 				B819189829C3270E00667E22 /* PrimGraphEdge.swift */,
 				B8476F2829C22726000B30C3 /* PrimGraphNode.swift */,
 			);
@@ -318,6 +321,7 @@
 				B8FBCAD929B0984100BECDEF /* Temporal.swift in Sources */,
 				B8FBCAED29B09EFB00BECDEF /* PRIMsViewModel.swift in Sources */,
 				B8FBCAF129B0A02B00BECDEF /* PublicChunk.swift in Sources */,
+				B8A2EAC929C3719200D0E182 /* PrimGraphHalo.swift in Sources */,
 				B8FBCACF29B0984100BECDEF /* Task.swift in Sources */,
 				B8C9BBF829B3ACBD006667D3 /* TaskDetailView.swift in Sources */,
 				B8FBCAD129B0984100BECDEF /* Prim.swift in Sources */,
