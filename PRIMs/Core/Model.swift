@@ -208,6 +208,7 @@ class Model: NSObject, NSCoding {
             if !parseCode(modelCode!,taskNumber: tasks.count) {
                 valid = false
                 reset(nil)
+                addTask(filePath, bugged: true)
                 return false
             }
             
@@ -215,19 +216,19 @@ class Model: NSObject, NSCoding {
             valid = false
             return false
         }
-        addTask(filePath)
+        addTask(filePath, bugged: false)
         valid = true
         if !batchMode {
             conflictSet!.model = self
         }
         /// This just for testing purposes
-        for (_, chunk) in dm.chunks {
-            if chunk.type == "operator" {
-                let optest = Op(chunk: chunk)
-                let result = optest.buildChunk(model: self)
-                print(result.description)
-            }
-        }
+//        for (_, chunk) in dm.chunks {
+//            if chunk.type == "operator" {
+//                let optest = Op(chunk: chunk)
+//                let result = optest.buildChunk(model: self)
+//                print(result.description)
+//            }
+//        }
         
         
         return true
@@ -357,7 +358,7 @@ class Model: NSObject, NSCoding {
         return result
     }
     
-    func addTask(_ filePath: URL) {
+    func addTask(_ filePath: URL, bugged: Bool) {
         let newTask = Task(name: currentTask!, number: tasks.count, path: filePath)
         newTask.loaded = true
         newTask.goalChunk = currentGoals
@@ -365,6 +366,7 @@ class Model: NSObject, NSCoding {
         newTask.parameters = parameters
         newTask.scenario = scenario
         newTask.actions = action.actions
+        newTask.bugged = bugged
         let modelDirectory = filePath.deletingLastPathComponent()
         let jpgURL = modelDirectory.appendingPathComponent(newTask.name + ".jpg")
         let pngURL = modelDirectory.appendingPathComponent(newTask.name + ".png")
@@ -796,6 +798,7 @@ class Model: NSObject, NSCoding {
                 parameters = []
                 setParametersToDefault()
                 valid = parseCode(modelText,taskNumber: i)
+                tasks[i].bugged = !valid
                 tasks[i].loaded = true
             }
             currentTask = tasks[i].name

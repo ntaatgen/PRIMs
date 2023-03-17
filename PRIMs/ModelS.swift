@@ -64,16 +64,20 @@ struct ModelS {
     /// Reset the model and the game
     mutating func reset() {
         model.reset(model.currentTaskIndex)
+        primViewCalculateGraph()
         update()
     }
     
     mutating func clear() {
         model = Model(silent: false)
+        update()
+        resetGraph()
     }
     
     mutating func loadModel(filePath: URL) {
         if !model.loadModelWithString(filePath) {
             update()
+            updatePrimViewData()
             return
         }
         primViewCalculateGraph()
@@ -241,22 +245,35 @@ struct ModelS {
     
     var graphData: GraphData?
     
+    var level: Int = 1
+    
+    mutating func resetGraph() {
+        primGraphData = nil
+        graphData = nil
+    }
+    
+    mutating func changeLevel(newLevel: Int) {
+        if newLevel != level {
+            level = newLevel
+            primViewCalculateGraph()
+        }
+    }
+    
     mutating func primViewCalculateGraph() {
         primGraphData = FruchtermanReingold(W: 300.0, H: 300.0)
-        let graphType = "PRIMs"  //popUpMenu.selectedItem!.title
-        switch graphType {
-            case "Tasks":
+        switch level {
+            case 1:
                 primGraphData!.constantC = 1.0
             primGraphData!.setUpGraph(model, level: 1)
-            case "PRIMs":
+            case 2:
                 primGraphData!.constantC = 0.3
             primGraphData!.setUpGraph(model, level: 2)
-        case "Productions": primGraphData!.setUpLearnGraph(model)
-        case "Declarative": primGraphData!.setUpDMGraph(model)
         default: break // Shouldn't happen
         }
         primGraphData!.calculate(randomInit: true)
     }
+    
+    
     
     mutating func updatePrimViewData() {
         guard primGraphData != nil else { return }

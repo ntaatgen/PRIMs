@@ -236,11 +236,18 @@ class PRIMsViewModel: ObservableObject {
         model.reset()
     }
     
+    func clear() {
+        model.clear()
+    }
+    
     func primViewCalculateGraph() {
         model.primViewCalculateGraph()
         model.updatePrimViewData()
     }
     
+    func changeLevel(level: Int) {
+        model.changeLevel(newLevel: level)
+    }
     
 
 }

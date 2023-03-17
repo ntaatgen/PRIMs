@@ -22,6 +22,7 @@ class Task: Identifiable {
     var parameters: [(String,String)] = []
     var actions: [String:ActionInstance] = [:]
     var imageURL: URL?
+    var bugged: Bool = false
     init(name: String, number: Int, path: URL) {
         self.name = name
         self.number = number

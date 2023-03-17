@@ -33,9 +33,16 @@ struct TaskDetailView: View {
             }
             Text(task.name)
                 .font(.title)
-            if task.name == model.currentTask {
+            if task.name == model.currentTask && !task.bugged {
                 Image(systemName: "record.circle.fill")
                     .foregroundColor(Color.red)
+
+            }
+            if task.bugged {
+                Image(systemName: "ant.fill")
+                    .foregroundColor(Color.red)
+                Text("Bugged!")
+                    .font(.caption2)
             }
             
         }

@@ -27,6 +27,7 @@ struct TraceView: View {
                 ScrollView {
                     HStack {
                         Text(model.traceText)
+                            .textSelection(.enabled)
                             .multilineTextAlignment(.leading)
                     Spacer()
                     }
@@ -35,11 +36,5 @@ struct TraceView: View {
                 .background(Color.white)
         }
         .padding()
-    }
-}
-
-struct TraceView_Previews: PreviewProvider {
-    static var previews: some View {
-        TraceView(model: PRIMsViewModel())
     }
 }
