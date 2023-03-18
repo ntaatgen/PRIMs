@@ -56,6 +56,7 @@
 		B807CA3529BB3DB3002BD182 /* PrimView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrimView.swift; sourceTree = "<group>"; };
 		B819189829C3270E00667E22 /* PrimGraphEdge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrimGraphEdge.swift; sourceTree = "<group>"; };
 		B82602C329B1DC00002E1413 /* BufferView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BufferView.swift; sourceTree = "<group>"; };
+		B8398BBE29C4ACBC00D4A75B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		B8476F2629C2228F000B30C3 /* PrimGraphView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrimGraphView.swift; sourceTree = "<group>"; };
 		B8476F2829C22726000B30C3 /* PrimGraphNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrimGraphNode.swift; sourceTree = "<group>"; };
 		B85BD3F229BB5DD900378A35 /* ConflictTraceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConflictTraceView.swift; sourceTree = "<group>"; };
@@ -163,6 +164,7 @@
 		B8FBCA2329B0978100BECDEF /* PRIMs */ = {
 			isa = PBXGroup;
 			children = (
+				B8398BBE29C4ACBC00D4A75B /* Info.plist */,
 				B8FBCA2429B0978100BECDEF /* PRIMsApp.swift */,
 				B8FBCAEC29B09EFB00BECDEF /* PRIMsViewModel.swift */,
 				B8B39D3B29B0E981002C079E /* Views */,
@@ -458,6 +460,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = PRIMs/Info.plist;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -485,6 +488,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = PRIMs/Info.plist;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",

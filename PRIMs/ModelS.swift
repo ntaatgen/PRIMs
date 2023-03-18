@@ -245,7 +245,7 @@ struct ModelS {
     
     var graphData: GraphData?
     
-    var level: Int = 1
+    var level: Int = 2
     
     mutating func resetGraph() {
         primGraphData = nil

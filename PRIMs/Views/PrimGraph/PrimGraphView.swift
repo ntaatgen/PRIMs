@@ -10,13 +10,13 @@ import SwiftUI
 struct PrimGraphView: View {
     @ObservedObject var model: PRIMsViewModel
     let vertexSize: CGFloat = 6
-    @State var selectedItem = 1
+    @State var selectedItem = 2
     var body: some View {
         if model.graphData != nil {
             VStack {
                 Picker("Graph Type", selection: $selectedItem) {
-                    Text("Task Level").tag(1)
-                    Text("Skill Level").tag(2)
+                    Text("Task-Skill-Operator Level").tag(1)
+                    Text("Skill-Operator-PRIMs Level").tag(2)
                 }
                 .onChange(of: selectedItem, perform: { tag in model.changeLevel(level: tag)} )
                 
