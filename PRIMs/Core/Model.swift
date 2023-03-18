@@ -105,6 +105,8 @@ class Model: NSObject, NSCoding {
     /// If set to true will put all operator firings in the Batch trace
     var traceAllOperators = false
     let silent: Bool
+    /// If set to true the model will halt after the current step
+    var stop = false
     
 //    struct Results {
         var modelResults: [[(Double,Double)]] = []
@@ -740,13 +742,52 @@ class Model: NSObject, NSCoding {
     }
     
  
+//    func run() {
+//        if currentTask == nil { return }
+//        if !running { step() }
+//        while running  {
+//            step()
+//        }
+//        }
+    var runsLeft: Int = 0
+    
+    func runMultiple(_ runs: Int) {
+        guard currentTask != nil else { return }
+        stop = false
+        tracing = runs == 1
+        runsLeft = runs
+        self.runNext()
+    }
+    
+
+    func runNext() {
+        if stop || (runsLeft == 0 && !running) {
+            NotificationCenter.default.post(name: Notification.Name(rawValue: "UpdateAll"), object: nil)
+            tracing = true
+            stop = false
+            return
+        }
+        if !running && !stop {
+            runsLeft -= 1
+            tracing = runsLeft == 0
+        }
+        DispatchQueue.main.async {
+            self.step()
+            self.runNext()
+        }
+    }
+    
     func run() {
-        if currentTask == nil { return }
-        if !running { step() }
-        while running  {
-            step()
+        guard currentTask != nil else { return }
+            if !self.running {
+                self.step()
+            }
+        while (running) {
+            self.step()
         }
-        }
+    }
+    
+    
     
     func reset(_ taskNumber: Int?) {
         dm = Declarative(model: self)

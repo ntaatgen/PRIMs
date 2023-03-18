@@ -125,7 +125,8 @@ class ConflictSetTrace {
             s += "Total Activation = \(chunk.activation().string(fractionDigits: 3))\n"
             s += "Baselevel activation = \(chunk.baseLevelActivation().string(fractionDigits: 3))\n"
             s += "Current noise = \(chunk.noiseValue.string(fractionDigits: 3))\n"
-            s += "\nSpreading Activation\n"
+            s += "Total spreading activation = \(chunk.spreadingActivation().string(fractionDigits: 3))\n"
+            s += "\nSpreading Activation Calculation\n"
             
 //            var totalSlots = 1
             if model!.dm.goalSpreadingByActivation {

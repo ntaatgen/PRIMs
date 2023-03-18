@@ -36,6 +36,10 @@ struct ButtonBar: View {
                 }
             }
             Divider()
+            Button(action: { model.stop() }) {
+                Label("Stop", systemImage: "xmark.square.fill")
+                    .foregroundColor(Color.red)
+            }
             Button(action: { model.reset() }) {
                 Label("Reset", systemImage: "eraser")
             }

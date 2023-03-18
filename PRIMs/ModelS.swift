@@ -42,19 +42,26 @@ struct ModelS {
     
     /// Run the model
     mutating func run() {
-        model.run()
+        runMultiple(1)
+    }
+  
+    
+    mutating func runMultiple(_ runs: Int) {
+        model.runMultiple(runs)
         update()
     }
     
-    mutating func runMultiple(_ runs: Int) {
-        model.tracing = false
-        for _ in 0..<(runs-1) {
-            model.run()
-        }
-        model.tracing = true
-        model.run()
-        update()
-    }
+//    mutating func runMultiple(_ runs: Int) {
+//        model.tracing = false
+//        for _ in 0..<(runs-1) {
+//            model.run()
+//        }
+//        if model.stop != true {
+//            model.tracing = true
+//            model.run()
+//        }
+//        update()
+//    }
 
     mutating func step() {
         model.step()
@@ -82,6 +89,10 @@ struct ModelS {
         }
         primViewCalculateGraph()
         update()
+    }
+    
+    mutating func stop() {
+        model.stop = true
     }
     
     func formatBuffer(_ bufferName: String, bufferChunk: Chunk?, bufferAbbreviation: String, showSlot0: Bool = true) -> String {

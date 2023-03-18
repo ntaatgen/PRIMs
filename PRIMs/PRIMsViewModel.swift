@@ -14,6 +14,7 @@ class PRIMsViewModel: ObservableObject {
     
     init() {
         NotificationCenter.default.addObserver(self, selector: #selector(PRIMsViewModel.updatePrimsGraph(_:)), name: NSNotification.Name(rawValue: "UpdatePrimsGraph"), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(PRIMsViewModel.updateAll(_:)), name: NSNotification.Name(rawValue: "UpdateAll"), object: nil)
     }
     
     var traceText: String {
@@ -169,6 +170,10 @@ class PRIMsViewModel: ObservableObject {
         print("Updated PRIMView")
     }
     
+    @objc func updateAll(_ notification: Notification) {
+        model.update()
+    }
+    
     func runBatch() {
         NotificationCenter.default.addObserver(self, selector: #selector(PRIMsViewModel.updateTrace(_:)), name: NSNotification.Name(rawValue: "updateTrace"), object: nil)
 
@@ -238,6 +243,10 @@ class PRIMsViewModel: ObservableObject {
     
     func clear() {
         model.clear()
+    }
+    
+    func stop() {
+        model.stop()
     }
     
     func primViewCalculateGraph() {
