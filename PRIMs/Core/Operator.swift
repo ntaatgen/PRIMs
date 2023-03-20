@@ -307,7 +307,7 @@ class Operator {
                         retrieval.setSlot("isa", value: "binding")
                         retrieval.setSlot("slot1", value: model.buffers["goal"]!)
                         retrieval.setSlot("slot2", value: tempString)
-                        let (latency, chunk) = model.dm.retrieve(retrieval)
+                        let (latency, chunk) = model.dm.retrieve(retrieval, addToConflictSet: false)
                         if let value = chunk?.slotvals["slot3"] {
                             opCopy.setSlot("slot\(i)", value: value)
                             totalLatency += latency

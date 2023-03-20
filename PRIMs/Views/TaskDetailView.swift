@@ -49,6 +49,8 @@ struct TaskDetailView: View {
         .onTapGesture {
             model.setCurrentTask(task: task)
         }
+//        .listRowBackground(task.name == model.currentTask && !task.bugged ? Color.blue : Color.gray)
+                        
     }
 }
 

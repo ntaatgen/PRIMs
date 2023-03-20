@@ -533,6 +533,8 @@ class Model: NSObject, NSCoding {
                 dm.beta = numVal!
             case "reward:":
                 self.reward = numVal!
+            case "time-threshold:":
+                self.timeThreshold = numVal!
             case "procedural-reward:":
                 procedural.proceduralReward = numVal!
             case "explore-exploit:":
@@ -761,7 +763,7 @@ class Model: NSObject, NSCoding {
     
 
     func runNext() {
-        if stop || (runsLeft == 0 && !running) {
+        if stop || (runsLeft == 0 && !running) || (time - startTime) > timeThreshold {
             NotificationCenter.default.post(name: Notification.Name(rawValue: "UpdateAll"), object: nil)
             tracing = true
             stop = false

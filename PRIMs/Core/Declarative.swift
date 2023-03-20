@@ -304,7 +304,7 @@ class Declarative: NSObject, NSCoding  {
         return latencyFactor * exp(-activation)
     }
     
-    func retrieve(_ chunk: Chunk) -> (Double, Chunk?) {
+    func retrieve(_ chunk: Chunk, addToConflictSet: Bool = true) -> (Double, Chunk?) {
         retrieveError = false
         var bestMatch: Chunk? = nil
         var bestActivation: Double = retrievalThreshold
@@ -328,7 +328,7 @@ class Declarative: NSObject, NSCoding  {
 //        for (chunk,activation) in conflictSet {
 //            model.addToTrace("   CFS: \(chunk.name) \(activation)")
 //        }
-        if !model.silent &&  model.conflictSet != nil {
+        if !model.silent &&  model.conflictSet != nil && addToConflictSet {
             model.conflictSet!.generateChunkTexts()
         }
         if bestActivation > retrievalThreshold {
