@@ -11,7 +11,7 @@
 		B82602C429B1DC00002E1413 /* BufferView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B82602C329B1DC00002E1413 /* BufferView.swift */; };
 		B838F93E29BCD73200D8EBF8 /* BatchRun.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8FBCAE229B098E400BECDEF /* BatchRun.swift */; };
 		B8476F2729C2228F000B30C3 /* PrimGraphView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8476F2629C2228F000B30C3 /* PrimGraphView.swift */; };
-		B8476F2929C22726000B30C3 /* PrimGraphNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8476F2829C22726000B30C3 /* PrimGraphNode.swift */; };
+		B8476F2929C22726000B30C3 /* PrimGraphNodeShape.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8476F2829C22726000B30C3 /* PrimGraphNodeShape.swift */; };
 		B85BD3F329BB5DD900378A35 /* ConflictTraceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B85BD3F229BB5DD900378A35 /* ConflictTraceView.swift */; };
 		B86232D629B1415E00B3BDCA /* ChunkDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B86232D529B1415E00B3BDCA /* ChunkDetailView.swift */; };
 		B86232D829B1417000B3BDCA /* DMView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B86232D729B1417000B3BDCA /* DMView.swift */; };
@@ -23,6 +23,7 @@
 		B8C9BBF229B353D7006667D3 /* ChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8C9BBF129B353D7006667D3 /* ChartView.swift */; };
 		B8C9BBF429B3A8C2006667D3 /* TaskView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8C9BBF329B3A8C2006667D3 /* TaskView.swift */; };
 		B8C9BBF829B3ACBD006667D3 /* TaskDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8C9BBF729B3ACBD006667D3 /* TaskDetailView.swift */; };
+		B8F59C5929C8B88C0084FAE3 /* PrimGraphNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8F59C5829C8B88C0084FAE3 /* PrimGraphNode.swift */; };
 		B8FBCA2529B0978100BECDEF /* PRIMsApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8FBCA2429B0978100BECDEF /* PRIMsApp.swift */; };
 		B8FBCA2729B0978100BECDEF /* MainContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8FBCA2629B0978100BECDEF /* MainContentView.swift */; };
 		B8FBCA2929B0978200BECDEF /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B8FBCA2829B0978200BECDEF /* Assets.xcassets */; };
@@ -58,7 +59,7 @@
 		B82602C329B1DC00002E1413 /* BufferView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BufferView.swift; sourceTree = "<group>"; };
 		B8398BBE29C4ACBC00D4A75B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		B8476F2629C2228F000B30C3 /* PrimGraphView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrimGraphView.swift; sourceTree = "<group>"; };
-		B8476F2829C22726000B30C3 /* PrimGraphNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrimGraphNode.swift; sourceTree = "<group>"; };
+		B8476F2829C22726000B30C3 /* PrimGraphNodeShape.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrimGraphNodeShape.swift; sourceTree = "<group>"; };
 		B85BD3F229BB5DD900378A35 /* ConflictTraceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConflictTraceView.swift; sourceTree = "<group>"; };
 		B86232D529B1415E00B3BDCA /* ChunkDetailView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChunkDetailView.swift; sourceTree = "<group>"; };
 		B86232D729B1417000B3BDCA /* DMView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DMView.swift; sourceTree = "<group>"; };
@@ -70,6 +71,7 @@
 		B8C9BBF129B353D7006667D3 /* ChartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChartView.swift; sourceTree = "<group>"; };
 		B8C9BBF329B3A8C2006667D3 /* TaskView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskView.swift; sourceTree = "<group>"; };
 		B8C9BBF729B3ACBD006667D3 /* TaskDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskDetailView.swift; sourceTree = "<group>"; };
+		B8F59C5829C8B88C0084FAE3 /* PrimGraphNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrimGraphNode.swift; sourceTree = "<group>"; };
 		B8FBCA2129B0978100BECDEF /* PRIMs.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PRIMs.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B8FBCA2429B0978100BECDEF /* PRIMsApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PRIMsApp.swift; sourceTree = "<group>"; };
 		B8FBCA2629B0978100BECDEF /* MainContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainContentView.swift; sourceTree = "<group>"; };
@@ -119,9 +121,10 @@
 			children = (
 				B807CA3529BB3DB3002BD182 /* PrimView.swift */,
 				B8476F2629C2228F000B30C3 /* PrimGraphView.swift */,
+				B8F59C5829C8B88C0084FAE3 /* PrimGraphNode.swift */,
 				B8A2EAC829C3719200D0E182 /* PrimGraphHalo.swift */,
 				B819189829C3270E00667E22 /* PrimGraphEdge.swift */,
-				B8476F2829C22726000B30C3 /* PrimGraphNode.swift */,
+				B8476F2829C22726000B30C3 /* PrimGraphNodeShape.swift */,
 			);
 			path = PrimGraph;
 			sourceTree = "<group>";
@@ -297,9 +300,10 @@
 				B8FBCAD229B0984100BECDEF /* ScriptFunctions.swift in Sources */,
 				B8B39D3F29B0F585002C079E /* TextEditorView.swift in Sources */,
 				B8FBCAE529B098FD00BECDEF /* NSScanner+Swift.swift in Sources */,
+				B8F59C5929C8B88C0084FAE3 /* PrimGraphNode.swift in Sources */,
 				B8C9BBF429B3A8C2006667D3 /* TaskView.swift in Sources */,
 				B8FBCADF29B0984100BECDEF /* Chunk.swift in Sources */,
-				B8476F2929C22726000B30C3 /* PrimGraphNode.swift in Sources */,
+				B8476F2929C22726000B30C3 /* PrimGraphNodeShape.swift in Sources */,
 				B8FBCAD329B0984100BECDEF /* Support.swift in Sources */,
 				B819189929C3270E00667E22 /* PrimGraphEdge.swift in Sources */,
 				B8FBCAEB29B09BD800BECDEF /* ConflictSetTrace.swift in Sources */,

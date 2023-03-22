@@ -207,6 +207,33 @@ struct ModelS {
             }
         }
     }
+    
+    mutating func updateResults() {
+        modelResults = []
+        var count = 0
+        if  model.modelResults.count > 0 {
+            for i in 0..<model.modelResults.count {
+                var results = model.modelResults[i]
+                if results.count > 1 && model.averageWindow > 1 {
+                    for i in 1..<results.count {
+                        let index = results.count - i
+                        let start = max(0,index - model.averageWindow + 1)
+                        var total = 0.0
+                        for j in start...index {
+                            total += results[j].1
+                        }
+                        results[index].1 = total / Double(index - start + 1)
+                    }
+                }
+                for (x,y) in results {
+                    modelResults.append(ModelData(id: count, task: model.tasks[model.resultTaskNumber[i]].name, run: i, x: x, y: y))
+                    count += 1
+                }
+            }
+        }
+        chartTitle = model.graphTitle ?? ""
+    }
+    
     /// Update the representation of the model in the struct. If the struct changes,
     /// the View is automatically updated, but this does not work for classes.
     mutating func update() {
@@ -225,17 +252,7 @@ struct ModelS {
             count += 1
         }
         dmContent.sort { $0.activation > $1.activation }
-        modelResults = []
-        count = 0
-        if  model.modelResults.count > 0 {
-            for i in 0..<model.modelResults.count {
-                for (x,y) in model.modelResults[i] {
-                    modelResults.append(ModelData(id: count, task: model.tasks[model.resultTaskNumber[i]].name, run: i, x: x, y: y))
-                    count += 1
-                }
-            }
-        }
-        chartTitle = model.graphTitle ?? ""
+        updateResults()
         bufferContent = model.buffers
         formerBufferContent = model.formerBuffers
         tasks = model.tasks
@@ -303,7 +320,8 @@ struct ModelS {
         for edge in primGraphData!.edges {
             graphData!.edges.append(
                 ViewEdge(start: (x: edge.from.x, y: edge.from.y),
-                         end: (x: edge.to.x, y: edge.to.y))
+                         end: (x: edge.to.x, y: edge.to.y),
+                         learned: edge.learned)
             )
         }
     }
@@ -333,6 +351,7 @@ struct ViewEdge: Identifiable {
     var id = UUID()
     var start: (x: Double, y: Double)
     var end: (x: Double, y: Double)
+    var learned: Bool
 }
 
 

@@ -18,7 +18,7 @@ class PRIMsViewModel: ObservableObject {
     }
     
     var traceText: String {
-        if batchModel == nil {
+        if batchModel == nil || model.traceText != "" {
             return model.traceText
         } else {
             return batchModel!.traceText
@@ -167,7 +167,6 @@ class PRIMsViewModel: ObservableObject {
     
     @objc func updatePrimsGraph(_ notification: Notification) {
         model.updatePrimViewData()
-        print("Updated PRIMView")
     }
     
     @objc func updateAll(_ notification: Notification) {
@@ -176,7 +175,7 @@ class PRIMsViewModel: ObservableObject {
     
     func runBatch() {
         NotificationCenter.default.addObserver(self, selector: #selector(PRIMsViewModel.updateTrace(_:)), name: NSNotification.Name(rawValue: "updateTrace"), object: nil)
-
+        model.traceText = ""
         let panel = NSOpenPanel()
         panel.title = "Script file"
         panel.allowsMultipleSelection = false
