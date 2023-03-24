@@ -257,6 +257,13 @@ class PRIMsViewModel: ObservableObject {
         model.changeLevel(newLevel: level)
     }
     
+    func changeNodeLocation(node: Int, newX: Double, newY: Double ) {
+        model.changeNodeLocation(node: node, newX: newX, newY: newY)
+    }
+    
+    func updatePrimViewData() {
+        model.updatePrimViewData()
+    }
 
 }
 

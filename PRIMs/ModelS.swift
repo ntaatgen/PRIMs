@@ -51,18 +51,6 @@ struct ModelS {
         update()
     }
     
-//    mutating func runMultiple(_ runs: Int) {
-//        model.tracing = false
-//        for _ in 0..<(runs-1) {
-//            model.run()
-//        }
-//        if model.stop != true {
-//            model.tracing = true
-//            model.run()
-//        }
-//        update()
-//    }
-
     mutating func step() {
         model.step()
         update()
@@ -313,6 +301,7 @@ struct ModelS {
                          taskNumber: node.taskNumber,
                          halo: node.halo,
                          name: node.shortName,
+                         orgName: node.name,
                          skillNode: node.skillNode,
                          taskNode: node.taskNode
                         ))
@@ -324,6 +313,14 @@ struct ModelS {
                          learned: edge.learned)
             )
         }
+    }
+    
+    mutating func changeNodeLocation(node: Int, newX: Double, newY: Double ) {
+        primGraphData!.nodes[graphData!.nodes[node].orgName]!.x = newX
+        primGraphData!.nodes[graphData!.nodes[node].orgName]!.y = newY
+        primGraphData!.nodes[graphData!.nodes[node].orgName]!.fixed = true
+        graphData!.nodes[node].x = newX
+        graphData!.nodes[node].y = newY
     }
     
 }
@@ -343,6 +340,7 @@ struct ViewNode: Identifiable {
     var taskNumber: Int
     var halo: Bool
     var name: String
+    var orgName: String
     var skillNode: Bool
     var taskNode: Bool
 }
