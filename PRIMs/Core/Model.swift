@@ -210,6 +210,7 @@ class Model: NSObject, NSCoding {
             if !parseCode(modelCode!,taskNumber: tasks.count) {
                 valid = false
                 reset(nil)
+                currentTask = "Bugged model"
                 addTask(filePath, bugged: true)
                 return false
             }
@@ -361,6 +362,9 @@ class Model: NSObject, NSCoding {
     }
     
     func addTask(_ filePath: URL, bugged: Bool) {
+        if currentTask == nil {
+            currentTask = "Undefined"
+        }
         let newTask = Task(name: currentTask!, number: tasks.count, path: filePath)
         newTask.loaded = true
         newTask.goalChunk = currentGoals

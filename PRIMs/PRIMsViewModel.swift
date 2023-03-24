@@ -137,19 +137,18 @@ class PRIMsViewModel: ObservableObject {
         let savePanel = NSSavePanel()
         savePanel.title = "Save model file"
         savePanel.nameFieldLabel = "File Name:"
-        savePanel.allowedFileTypes = [".prims"]
         savePanel.begin { (result: NSApplication.ModalResponse) -> Void in
             if result == NSApplication.ModalResponse.OK {
                     if let panelURL = savePanel.url {
                         do {
                             try text.write(to: panelURL, atomically: false, encoding: .utf8)
+                            self.currentlyEditedModel = panelURL
                         }
                         catch let error as NSError {
                             print("Ooops! Something went wrong: \(error)")
                             self.currentlyEditedModel = nil
                             return
                         }
-                        self.currentlyEditedModel = panelURL
                     }
                 }
             
