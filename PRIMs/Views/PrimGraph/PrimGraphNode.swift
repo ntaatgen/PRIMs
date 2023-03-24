@@ -14,6 +14,10 @@ struct PrimGraphNode: View {
     var geometry: GeometryProxy
     var body: some View {
         ZStack {
+            if node.halo {
+                PrimGraphHalo(node: node)
+                    .foregroundColor(Color.yellow)
+            }
             PrimGraphNodeShape(node: node)
                 .strokeBorder(Color.black, lineWidth: node.skillNode == false && node.taskNode == false ? 1 : 3)
                 .background(PrimGraphNodeShape(node: node).foregroundColor(numberToColor(node.taskNumber)))
