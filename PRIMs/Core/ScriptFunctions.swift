@@ -47,6 +47,7 @@ let scriptFunctions: [String:([Factor], Model?) throws -> (result: Factor?, done
     "trial-end": trialEnd,
     "trial-start": trialStart,
     "set-average-window": setAverageWindow,
+    "custom-points": customPoints,
     "plot-point": plotPoint,
     "set-graph-title": setGraphTitle,
     "data-line": dataLine,
@@ -319,6 +320,11 @@ func setAverageWindow(_ content: [Factor], model: Model?) throws -> (result: Fac
     return (nil, true)
 }
 
+
+func customPoints(_ content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool) {
+    model!.customPoints = true
+    return (nil,true)
+}
 
 /**
     Plot a point in the result graph instead of the default RT
