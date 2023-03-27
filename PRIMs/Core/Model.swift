@@ -390,6 +390,7 @@ class Model: NSObject, NSCoding {
 
     func initializeNewTrial() {
         startTime = time
+        addToTrace("Starting new trial", level: 1)
         fallingThrough = false
         buffers = [:]
         // New addition: add a bindings chunk to the buffers
@@ -696,6 +697,7 @@ class Model: NSObject, NSCoding {
                     operators.updateOperatorSjis(0.0)
                     let dl = DataLine(eventType: "trial-end", eventParameter1: "fail", eventParameter2: "void", eventParameter3: "void", inputParameters: scenario.inputMappingForTrace, time: time - startTime, firings: firings)
                     outputData.append(dl)
+                    addToTrace("End of trial", level: 1)
                     firings = 0
                     return
                 } else {
@@ -783,6 +785,7 @@ class Model: NSObject, NSCoding {
         }
     }
     
+    /// Run the model until it ends. Only used by batchrun, regular running uses runNext
     func run() {
         guard currentTask != nil else { return }
             if !self.running {

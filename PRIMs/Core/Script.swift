@@ -1009,6 +1009,7 @@ class Script {
                         env = env.outer!
                     } else {
                         model.running = false
+
                         return
                     }
                 }

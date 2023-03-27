@@ -360,6 +360,7 @@ func trialEnd(_ content: [Factor], model: Model?) throws -> (result: Factor?, do
         let dl = DataLine(eventType: "trial-end", eventParameter1: "success", eventParameter2: "void", eventParameter3: "void", inputParameters: model!.scenario.inputMappingForTrace, time: model!.time - model!.startTime, firings: model!.firings)
         model!.outputData.append(dl)
         model!.firings = 0
+        model!.addToTrace("End of trial", level: 1)
     }
     model!.commitToTrace(false)
     model!.initializeNextTrial()
