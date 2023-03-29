@@ -26,9 +26,14 @@ struct TraceView: View {
             .padding()
                 ScrollView {
                     HStack {
-                        Text(model.traceText)
-                            .textSelection(.enabled)
-                            .multilineTextAlignment(.leading)
+                        if #available(macOS 12.0, *) {
+                            Text(model.traceText)
+                                .textSelection(.enabled)
+                                .multilineTextAlignment(.leading)
+                        } else {
+                            Text(model.traceText)
+                                .multilineTextAlignment(.leading)
+                        }
                     Spacer()
                     }
                 }

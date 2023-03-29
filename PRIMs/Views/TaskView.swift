@@ -13,10 +13,16 @@ struct TaskView: View {
         VStack {
             Text("Task list")
                 .font(.title)
-            List(model.tasks) {task in
-                TaskDetailView(task: task, model: model)
+            if #available(macOS 12.0, *) {
+                List(model.tasks) {task in
+                    TaskDetailView(task: task, model: model)
+                }
+                .listStyle(.bordered(alternatesRowBackgrounds: true))
+            } else {
+                List(model.tasks) {task in
+                    TaskDetailView(task: task, model: model)
+                }
             }
-            .listStyle(.bordered(alternatesRowBackgrounds: true))
         }
     }
 }

@@ -7,7 +7,7 @@
 
 import SwiftUI
 import Charts
-
+@available(macOS 13.0,*)
 struct ChartView: View {
     @ObservedObject var model: PRIMsViewModel
     var body: some View {
@@ -25,11 +25,5 @@ struct ChartView: View {
                 .symbolSize(30)
             }
         }
-    }
-}
-
-struct ChartView_Previews: PreviewProvider {
-    static var previews: some View {
-        ChartView(model: PRIMsViewModel())
     }
 }

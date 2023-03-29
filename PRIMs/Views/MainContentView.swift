@@ -46,8 +46,13 @@ struct MainContentView: View {
 
                             }
                         }
-                        ChartView(model: model)
-                            .padding()
+                        if #available(macOS 13.0, *) {
+                            ChartView(model: model)
+                                .padding()
+                        } else {
+                            Text("Chart is only available for macOS 13.0 and higher")
+                                .padding()
+                        }
                         PrimGraphView(model: model)
                             .frame(maxWidth: .infinity, maxHeight: .infinity)
                             .padding()

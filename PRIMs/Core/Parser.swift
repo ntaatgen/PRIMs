@@ -472,7 +472,7 @@ class Parser  {
                 }
                 // Now look for constants elsewhere
                 for _ in 1...2 {
-                if let range = item!.range(of: "\\*?[a-z][a-z0-9\\-_]*[a-z0-9]", options: .regularExpression) {
+                if let range = item!.range(of: "\\*?[a-z][a-z0-9\\-_]*[a-z0-9]", options: .regularExpression) { // TODO: This will crash if the constant is just a single letter
                     let component = String(item![range])
                     print(item!)
                     print(component)

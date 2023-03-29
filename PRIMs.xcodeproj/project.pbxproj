@@ -470,6 +470,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 12.0;
 				MARKETING_VERSION = 2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = nl.rug.ai.taatgen.PRIMs;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -498,6 +499,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 12.0;
 				MARKETING_VERSION = 2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = nl.rug.ai.taatgen.PRIMs;
 				PRODUCT_NAME = "$(TARGET_NAME)";
