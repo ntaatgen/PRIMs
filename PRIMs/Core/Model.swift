@@ -763,7 +763,7 @@ class Model: NSObject, NSCoding {
         guard currentTask != nil else { return }
         stop = false
         tracing = runs == 1
-        runsLeft = runs
+        runsLeft = running ? runs - 1 : runs
         self.runNext()
     }
     

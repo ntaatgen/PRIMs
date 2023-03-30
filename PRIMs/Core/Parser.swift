@@ -623,7 +623,7 @@ class Parser  {
     }
     
     func parseVisual() -> Bool {
-        if scanner.scanString("{") != nil {
+        if scanner.scanString("{") == nil {
             m.addToTraceField("Missing '{' in visual definition.")
             return false
         }
