@@ -155,6 +155,20 @@ class PRIMsViewModel: ObservableObject {
         }
     }
     
+    func openFileInEditor() -> String {
+        let panel = NSOpenPanel()
+        panel.allowsMultipleSelection = false
+        panel.canChooseDirectories = false
+        panel.allowedFileTypes = ["prims"]
+        if panel.runModal() == .OK && panel.url != nil {
+            model.loadModel(filePath: panel.url!)
+            setCurrentEditedModel()
+            return model.modelText
+        } else {
+            return ""
+        }
+    }
+    
     @objc func updateTrace(_ notification: Notification) {
         print("received notification")
         guard batchModel != nil else {

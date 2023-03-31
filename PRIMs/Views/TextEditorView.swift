@@ -27,10 +27,15 @@ struct TextEditorView: View {
                     Label("New", systemImage: "doc.badge.arrow.up")
                 }
                 Button(action: {
+                    modelText = model.openFileInEditor()
+                }) {
+                    Label("Open...", systemImage: "doc")
+                }
+                Button(action: {
                     modelText = model.modelText
                     model.setCurrentEditedModel()
                 }) {
-                    Label("Load", systemImage: "doc")
+                    Label("Open current", systemImage: "arrowshape.left")
                 }
                 Button(action: {
                     model.saveCurrentModel(text: modelText)
