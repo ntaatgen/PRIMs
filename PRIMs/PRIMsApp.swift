@@ -10,6 +10,7 @@ import SwiftUI
 @main
 struct PRIMsApp: App {
     let architecture = PRIMsViewModel()
+//    @State var saveOperatorActivations: Bool = false
     var body: some Scene {
         WindowGroup {
             MainContentView(model: architecture)
@@ -27,7 +28,14 @@ struct PRIMsApp: App {
                 Button("Run batch...") {
                     architecture.runBatch()
                 }
+//                Toggle(isOn: $saveOperatorActivations) {
+//                    Text("Save operator activations")
+//                }
+//                .onChange(of: saveOperatorActivations) { value in
+//                    architecture.setSaveOperatorActivations(value: value)
+//                }
             }
+            
             
         }
     }

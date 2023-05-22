@@ -37,7 +37,7 @@ class PRIMsViewModel: ObservableObject {
     }
     
     var currentlyEditedModel: URL?
-
+    
     var operatorString: String {
         model.operatorString
     }
@@ -104,6 +104,8 @@ class PRIMsViewModel: ObservableObject {
     var graphData: GraphData? {
         model.graphData
     }
+    
+
 
     // MARK: - Intent(s)
     
@@ -270,6 +272,11 @@ class PRIMsViewModel: ObservableObject {
         model.changeLevel(newLevel: level)
     }
     
+    func changeChartData(level: Int) {
+        model.charDataType = [ChartDataType.modelResults,
+                              ChartDataType.operatorActivations][level - 1]
+    }
+    
     func changeNodeLocation(node: Int, newX: Double, newY: Double ) {
         model.changeNodeLocation(node: node, newX: newX, newY: newY)
     }
@@ -277,6 +284,8 @@ class PRIMsViewModel: ObservableObject {
     func updatePrimViewData() {
         model.updatePrimViewData()
     }
+    
+
 
 }
 

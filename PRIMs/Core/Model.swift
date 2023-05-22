@@ -107,41 +107,47 @@ class Model: NSObject, NSCoding {
     let silent: Bool
     /// If set to true the model will halt after the current step
     var stop = false
+    /// Data structure to store operator activations over time
+    var activationTrace: [String:[(Double,Double)]] = [:]
+    /// Boolean whether we need to track the activationTrace (to save time if it is not neede)
+    var activationTraceUpdate: Bool = false
     
-//    struct Results {
-        var modelResults: [[(Double,Double)]] = []
-        var resultTaskNumber: [Int] = []
-        var currentRow = -1
-        var maxX = 0.0
-        var maxY = 0.0
-        var currentTrial = 1.0
-        var customPoints = false
-        var averageWindow = 1
-        var graphTitle: String? = nil
-        func resultAdd(_ y:Double) {
-            if silent { return }
-            let x = currentTrial
-            currentTrial += 1.0
-            if currentRow < modelResults.count {
-                modelResults[currentRow].append((x,y))
-                maxX = max(maxX, x)
-            } else {
-                let newItem: [(Double, Double)] = [(1.0,y)]
-                modelResults.insert(newItem, at: currentRow)
-                currentTrial = 2.0
-            }
-            maxY = max(maxY, y)
-            customPoints = false
+    var modelResults: [[(Double,Double)]] = []
+    var resultTaskNumber: [Int] = []
+    var currentRow = -1
+    var maxX = 0.0
+    var maxY = 0.0
+    var currentTrial = 1.0
+    var customPoints = false
+    var averageWindow = 1
+    var graphTitle: String? = nil
+    
+    func resultAdd(_ y:Double) {
+        if silent { return }
+        let x = currentTrial
+        currentTrial += 1.0
+        if currentRow < modelResults.count {
+            modelResults[currentRow].append((x,y))
+            maxX = max(maxX, x)
+        } else {
+            let newItem: [(Double, Double)] = [(1.0,y)]
+            modelResults.insert(newItem, at: currentRow)
+            currentTrial = 2.0
         }
-        func newResult() {
-            if silent { return }
-            if currentRow < modelResults.count {
-                currentRow = currentRow + 1
-                resultTaskNumber.append(currentTaskIndex!)
-            } else {
-                resultTaskNumber[currentRow] = currentTaskIndex!
-            }
+        maxY = max(maxY, y)
+        customPoints = false
+    }
+    
+    func newResult() {
+        if silent { return }
+        if currentRow < modelResults.count {
+            currentRow = currentRow + 1
+            resultTaskNumber.append(currentTaskIndex!)
+        } else {
+            resultTaskNumber[currentRow] = currentTaskIndex!
         }
+    }
+    
     func clearResults() {
         modelResults = []
         resultTaskNumber = []
@@ -412,6 +418,7 @@ class Model: NSObject, NSCoding {
         outputData = []
         operators.previousOperators = []
         firings = 0
+        activationTrace = [:]
         if scenario.script != nil {
             scenario.script!.reset()
         }
@@ -689,6 +696,21 @@ class Model: NSObject, NSCoding {
         commitToTrace(false)
         repeat {
             procedural.lastProduction = nil
+            if activationTraceUpdate { 
+                for (_,chunk) in dm.chunks {
+                    if chunk.type == "operator" {
+                        let newItem = (time - startTime, chunk.activation())
+                        if activationTrace[chunk.name] == nil {
+                            activationTrace[chunk.name] = [newItem]
+                        } else {
+                            var current = activationTrace[chunk.name]!
+                            current.append(newItem)
+                            activationTrace[chunk.name] = current
+                        }
+                    }
+                }
+                print(activationTrace)
+            }
             if !operators.findOperator() {
                 if scenario.nextEventTime == nil {
                     running = false
@@ -776,6 +798,9 @@ class Model: NSObject, NSCoding {
             return
         }
         if !running && !stop {
+            if runsLeft % 10 == 0 {
+                NotificationCenter.default.post(name: Notification.Name(rawValue: "UpdateAll"), object: nil)
+            }
             runsLeft -= 1
             tracing = runsLeft == 0
         }

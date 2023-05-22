@@ -10,8 +10,16 @@ import Charts
 @available(macOS 13.0,*)
 struct ChartView: View {
     @ObservedObject var model: PRIMsViewModel
+    @State var graphData: Int = 1
     var body: some View {
         VStack {
+
+                Picker("Shown Data", selection: $graphData) {
+                    Text("Model results").tag(1)
+                    Text("Operator activations").tag(2)
+                }
+                .onChange(of: graphData, perform: { tag in model.changeChartData(level: tag)})
+            
             if model.chartTitle != "" {
                 Text(model.chartTitle)
             }

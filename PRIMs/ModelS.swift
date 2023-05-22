@@ -40,6 +40,14 @@ struct ModelS {
 
     var chartTitle: String = ""
     
+    var charDataType: ChartDataType = .modelResults {
+        didSet {
+            updateResults()
+            model.activationTraceUpdate = charDataType == .operatorActivations
+        }
+    }
+    
+    
     /// Run the model
     mutating func run() {
         runMultiple(1)
@@ -198,28 +206,38 @@ struct ModelS {
     
     mutating func updateResults() {
         modelResults = []
-        var count = 0
-        if  model.modelResults.count > 0 {
-            for i in 0..<model.modelResults.count {
-                var results = model.modelResults[i]
-                if results.count > 1 && model.averageWindow > 1 {
-                    for i in 1..<results.count {
-                        let index = results.count - i
-                        let start = max(0,index - model.averageWindow + 1)
-                        var total = 0.0
-                        for j in start...index {
-                            total += results[j].1
+        switch charDataType {
+        case .operatorActivations:
+            var count = 0
+            for (chunk,dataPoints) in model.activationTrace {
+                for (x,y) in dataPoints {
+                    modelResults.append(ModelData(task: chunk, run: count, x: x, y: y))
+                }
+                count += 1
+            }
+            chartTitle = "Operator activations"
+        case .modelResults:
+            if  model.modelResults.count > 0 {
+                for i in 0..<model.modelResults.count {
+                    var results = model.modelResults[i]
+                    if results.count > 1 && model.averageWindow > 1 {
+                        for i in 1..<results.count {
+                            let index = results.count - i
+                            let start = max(0,index - model.averageWindow + 1)
+                            var total = 0.0
+                            for j in start...index {
+                                total += results[j].1
+                            }
+                            results[index].1 = total / Double(index - start + 1)
                         }
-                        results[index].1 = total / Double(index - start + 1)
+                    }
+                    for (x,y) in results {
+                        modelResults.append(ModelData(task: model.tasks[model.resultTaskNumber[i]].name, run: i, x: x, y: y))
                     }
                 }
-                for (x,y) in results {
-                    modelResults.append(ModelData(id: count, task: model.tasks[model.resultTaskNumber[i]].name, run: i, x: x, y: y))
-                    count += 1
-                }
             }
+            chartTitle = model.graphTitle ?? ""
         }
-        chartTitle = model.graphTitle ?? ""
     }
     
     /// Update the representation of the model in the struct. If the struct changes,
@@ -326,7 +344,7 @@ struct ModelS {
 }
 
 struct ModelData: Identifiable {
-    var id: Int
+    var id = UUID()
     var task: String
     var run: Int
     var x: Double
@@ -357,4 +375,9 @@ struct GraphData: Identifiable {
     var id = UUID()
     var nodes: [ViewNode] = []
     var edges: [ViewEdge] = []
+}
+
+enum ChartDataType {
+    case modelResults
+    case operatorActivations
 }

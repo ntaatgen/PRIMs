@@ -126,8 +126,9 @@ class ConflictSetTrace {
             s += "Baselevel activation = \(chunk.baseLevelActivation().string(fractionDigits: 3))\n"
             s += "Current noise = \(chunk.noiseValue.string(fractionDigits: 3))\n"
             s += "Total spreading activation = \(chunk.spreadingActivation().string(fractionDigits: 3))\n"
+            s += "Total real spreading activation = \(activation - chunk.baseLevelActivation() - chunk.noiseValue)"
             s += "\nSpreading Activation Calculation\n"
-            
+            // TODO: Problem is that noise on spreading is recalculated on every call
 //            var totalSlots = 1
             if model!.dm.goalSpreadingByActivation {
                 s += "Spreading from the Goal buffer \(model!.dm.goalActivation)"

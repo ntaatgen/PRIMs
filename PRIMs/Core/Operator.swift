@@ -515,7 +515,7 @@ class Operator {
         
         return true
     }
-    
+        
     /**
         Remove the last operator record. To be called if an operator fails
     */

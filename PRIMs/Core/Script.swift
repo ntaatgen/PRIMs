@@ -543,7 +543,7 @@ class Script {
     func readNextToken(_ input :String, startIndex : String.Index) -> (token : String?, nextIndex : String.Index) {
         var nextIndex = startIndex
         while nextIndex != input.endIndex {
-            if a(input, index: nextIndex, char: " ") || a(input, index: nextIndex, char: "\n") || a(input, index: nextIndex, char: "\t") || a(input, index: nextIndex, char: "\r") {
+            if a(input, index: nextIndex, char: " ") || a(input, index: nextIndex, char: "\n") || a(input, index: nextIndex, char: "\t") || a(input, index: nextIndex, char: "\r") || a(input, index: nextIndex, char: "\r\n"){
                 nextIndex = input.index(after: nextIndex)
             } else {
                 break
