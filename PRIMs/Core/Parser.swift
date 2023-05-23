@@ -513,13 +513,18 @@ class Parser  {
         if actionString != "" {
             chunk.setSlot("action",value: primsListToString(prims: actions))
         }
-   //     if !m.dm.contextOperatorLearning  {
+        if !m.dm.extendedAssocs  {
             chunk.assocs[goalName] = (m.dm.defaultOperatorAssoc, 0)
- /*       } else {
-            chunk.assocs["goal%slot1%" + goalName] = (m.dm.defaultOperatorAssoc/2,0)
-            chunk.assocs["goal%slot2%" + goalName] = (m.dm.defaultOperatorAssoc/2,0)
-        } */ 
-        chunk.assocs[chunk.name] = (m.dm.defaultOperatorSelfAssoc, 0)
+        } else {
+            for i in 1...6 {
+                chunk.assocs["goal%slot\(i)%" + goalName] = (m.dm.defaultOperatorAssoc,0)
+            }
+        }
+        if m.dm.extendedAssocs {
+            chunk.assocs["goal%last-operator%\(chunk.name)"] = (m.dm.defaultOperatorSelfAssoc, 0)
+        } else {
+            chunk.assocs[chunk.name] = (m.dm.defaultOperatorSelfAssoc, 0)
+        }
         if !m.dm.interOperatorLearning {
             for (_,ch) in m.dm.chunks {
                 if ch.type == "operator" && ch.assocs[goalName] != nil {

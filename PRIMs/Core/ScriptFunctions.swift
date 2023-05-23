@@ -622,7 +622,7 @@ func getActivation(_ content: [Factor], model: Model?) throws -> (result: Factor
  Set Sji between two chunks
  */
 func setSji(_ content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool) {
-    if model!.dm.contextOperatorLearning {
+    if model!.dm.extendedAssocs {
         guard content.count == 5 else { throw RunTimeError.invalidNumberOfArguments}
         guard let chunk = model!.dm.chunks[content[0].description] else { throw RunTimeError.errorInFunction("First argument in setSji is not a chunk in dm")}
         guard model!.dm.chunks[content[3].description] != nil else { throw RunTimeError.errorInFunction("Fourth argument in setSji is not a chunk in dm")}
@@ -648,7 +648,7 @@ func setSji(_ content: [Factor], model: Model?) throws -> (result: Factor?, done
 */
 func getSji(_ content: [Factor], model: Model?) throws -> (result: Factor?, done: Bool) {
     guard content.count == 4 else { throw RunTimeError.invalidNumberOfArguments }
-    guard model!.dm.contextOperatorLearning else { throw RunTimeError.errorInFunction("Calling getSji without switching on contextOperatorLearning")}
+    guard model!.dm.extendedAssocs else { throw RunTimeError.errorInFunction("Calling getSji without switching on extended associations")}
     guard let chunk = model!.dm.chunks[content[0].description] else { throw RunTimeError.errorInFunction("First argument in getSji is not a chunk in dm")}
     let value = chunk.assocs[content[1].description + "%" + content[2].description + "%" + content[3].description]
     return (Factor.realNumber(value == nil ? 0.0 : value!.0), true)

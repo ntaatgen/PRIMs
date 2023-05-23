@@ -459,6 +459,11 @@ class Model: NSObject, NSCoding {
             dm.goalOperatorLearning = boolVal
         case "context-operator-learning:":
              dm.contextOperatorLearning = boolVal
+            if boolVal {
+                dm.extendedAssocs = true
+            }
+        case "extended-associations:":
+            dm.extendedAssocs = boolVal
         case "inter-operator-learning:":
             dm.interOperatorLearning = boolVal
         case "goal-chunk-spreads:":

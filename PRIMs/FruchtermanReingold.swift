@@ -261,7 +261,7 @@ class FruchtermanReingold {
                     nodes[chunk.name] = operatorNode
                     for (assocChunkNameString,(strength,assocCount)) in chunk.assocs {
                         var assocChunkName = assocChunkNameString
-                        if model.dm.contextOperatorLearning {
+                        if model.dm.extendedAssocs {
                             assocChunkName = assocChunkName.components(separatedBy: "%").last ?? "NoSkillName"
                         }
                         if let assocChunk = model.dm.chunks[assocChunkName] {

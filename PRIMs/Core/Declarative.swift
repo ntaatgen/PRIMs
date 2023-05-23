@@ -27,6 +27,7 @@ class Declarative: NSObject, NSCoding  {
     static let latencyFactorDefault = 0.2
     static let goalOperatorLearningDefault = false
     static let contextOperatorLearningDefault = false
+    static let extendedAssocsDefault = false
     static let operatorBaselevelLearningDefault = false
     static let interOperatorLearningDefault = false
     static let betaDefault = 0.1
@@ -70,7 +71,9 @@ class Declarative: NSObject, NSCoding  {
     /// Indicates whether associations between goals and operators will be learned
     var goalOperatorLearning = goalOperatorLearningDefault
     /// Indicates whether associations between all context chunks and operators will be learned
-    var contextOperatorLearning = contextOperatorLearningDefault 
+    var contextOperatorLearning = contextOperatorLearningDefault
+    /// Indicates whether we use standard or extended Sji's
+    var extendedAssocs = extendedAssocsDefault
     /// Are we also adding a reference to a successful operator?
     var operatorBaselevelLearning = operatorBaselevelLearningDefault
     /// Indicates whether associations between subsequent operators are learned
@@ -107,16 +110,16 @@ class Declarative: NSObject, NSCoding  {
     
     init(model: Model) {
         self.model = model
-
+        
     }
     
     required convenience init?(coder aDecoder: NSCoder) {
         guard let model = aDecoder.decodeObject(forKey: "model") as? Model,
-            let chunks = aDecoder.decodeObject(forKey: "chunks") as? [String:Chunk],
-            let operatorCACol1 = aDecoder.decodeObject(forKey: "operatorCACol1") as? [String],
-            let operatorCACol2 = aDecoder.decodeObject(forKey: "operatorCACol2") as? [[String]],
-            let operatorCACol3 = aDecoder.decodeObject(forKey: "operatorCACol3") as? [[String]]
-            else { return nil }
+              let chunks = aDecoder.decodeObject(forKey: "chunks") as? [String:Chunk],
+              let operatorCACol1 = aDecoder.decodeObject(forKey: "operatorCACol1") as? [String],
+              let operatorCACol2 = aDecoder.decodeObject(forKey: "operatorCACol2") as? [[String]],
+              let operatorCACol3 = aDecoder.decodeObject(forKey: "operatorCACol3") as? [[String]]
+        else { return nil }
         self.init(model: model)
         self.chunks = chunks
         for i in 0..<operatorCACol1.count {
@@ -135,11 +138,11 @@ class Declarative: NSObject, NSCoding  {
         coder.encode(operatorCACol3, forKey: "operatorCACol3")
         
     }
-
+    
     /**
-        After chunks have been loaded from a file, not all slotvalues necessarily point to chunks, but instead
-        may still be Strings. This function properly sets those values.
-    */
+     After chunks have been loaded from a file, not all slotvalues necessarily point to chunks, but instead
+     may still be Strings. This function properly sets those values.
+     */
     func reintegrateChunks() {
         for (_,chunk) in chunks {
             for (slot,value) in chunk.slotvals {
@@ -170,6 +173,7 @@ class Declarative: NSObject, NSCoding  {
         latencyFactor = Declarative.latencyFactorDefault
         goalOperatorLearning = Declarative.goalOperatorLearningDefault
         contextOperatorLearning = Declarative.contextOperatorLearningDefault
+        extendedAssocs = Declarative.extendedAssocsDefault
         operatorBaselevelLearning = Declarative.operatorBaselevelLearningDefault
         interOperatorLearning = Declarative.interOperatorLearningDefault
         beta = Declarative.betaDefault

@@ -73,6 +73,7 @@ struct ModelS {
     
     mutating func clear() {
         model = Model(silent: false)
+        model.activationTraceUpdate = charDataType == .operatorActivations
         update()
         resetGraph()
     }
