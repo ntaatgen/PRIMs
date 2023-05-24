@@ -251,7 +251,6 @@ class Operator {
                         model.addToTrace("Updating assoc between \(triplet) and \(operatorChunk.name) to \(operatorChunk.assocs[triplet]!.0.string(fractionDigits: 3))", level: 5)
                     }
                 }
-                return
             }
             if model.dm.goalOperatorLearning {
                 for goal in goalChunks {

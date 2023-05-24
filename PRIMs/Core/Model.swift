@@ -841,6 +841,7 @@ class Model: NSObject, NSCoding {
         currentTaskIndex = nil
         operators.reset()
         imaginal.reset()
+        running = false
         // New addition: add a bindings chunk to the buffers
         let bindingsChunk = Chunk(s: "bindings", m: self)
         bindingsChunk.setSlot("isa", value: "bindings")
